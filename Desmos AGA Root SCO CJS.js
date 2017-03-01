@@ -6,7 +6,7 @@ window.PearsonGL.External = window.PearsonGL.External || {};
 * ——————————————————————————————————————————————————————————————————————*/
 PearsonGL.External.rootJS = (function() {
   // @Auth: vstrojo
-  // Test 2
+  // Test 3
   
   /* ←—PRIVATE VARIABLES———————————————————————————————————————————————————→ *\
        | Variable cache; access with vs[uniqueId].myVariable
