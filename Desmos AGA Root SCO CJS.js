@@ -20,8 +20,7 @@ PearsonGL.External.rootJS = (function() {
     var hs = {
       /* ←— flattenFuncStruct —————————————————————————————————————————————→ *\
        ↑ Turn a nested function structure into a single layer; each function's   ↑
-       |  name prefixed by its parent objects, connected by underscores.         |
-       |                                                                         |
+       |  name prefixed by its parent objects, connected by unders               |
        | @Arg1: a hierarchical structure containing only Functions and objects   |
        | @Arg2: (Optional) a string to prefix all function names                 |
        |                                                                         |
