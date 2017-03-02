@@ -405,6 +405,7 @@ PearsonGL.External.rootJS = (function() {
        }
 
   Object.assign(exports,hs.flattenFuncStruct(fs));
+  // Test 10! I'm adding this line and changing the return!
 
-  return exports;
+  return ex-parte;
 })();
