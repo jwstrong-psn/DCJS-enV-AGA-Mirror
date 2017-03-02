@@ -5,7 +5,7 @@ window.PearsonGL.External = window.PearsonGL.External || {};
  | Module: rootJS
 * ——————————————————————————————————————————————————————————————————————*/
 PearsonGL.External.rootJS = (function() {
-  // @Auth: vstrojo
+  // @Auth: vstrojo is awesome
   // Test 9
   // Chris can edit ALL the things!
   
