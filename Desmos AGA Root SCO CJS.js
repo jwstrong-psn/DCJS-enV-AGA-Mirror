@@ -150,13 +150,20 @@ PearsonGL.External.rootJS = (function() {
        ↓ 
        * ←—————————————————————————————————————————————————————————————————————→ */
        latexToText: function(expr){
+        expr = expr.replace(/\-/g,' − ');
+        expr = expr.replace(/\+/g,' + ');
+        expr = expr.replace(/,/g,', ');
         expr = expr.replace(/\^2/g,'²');
         expr = expr.replace(/\^3/g,'³');
         expr = expr.replace(/\\theta /g,'θ');
         expr = expr.replace(/\\pi /g,'π');
         expr = expr.replace(/_0/g,'₀');
         expr = expr.replace(/_1/g,'₁');
-        expr = expr.replace(/_2/g,'₂')
+        expr = expr.replace(/_2/g,'₂');
+        expr = expr.replace(/\\right\)/g,')');
+        expr = expr.replace(/\\left\(/g,'(');
+        expr = expr.replace(/\\right/g,'');
+        expr = expr.replace(/\\left/g,'');
         return expr;
        }
      }
@@ -211,7 +218,7 @@ PearsonGL.External.rootJS = (function() {
        | recommended for production.
        * ←—————————————————————————————————————————————————————————————————→ */
    var exports = {}; // This object is used to export public functions/variables
-      exports.reflectParabola = function(options={}) {
+      exports.reflectParabola = function(options={}) { // for test SCO
         var o = hs.parseOptions(options);
         if (o.log) o.log(o.name + " was updated to " + o.value);
         if (vs['M956353'] === undefined) {
