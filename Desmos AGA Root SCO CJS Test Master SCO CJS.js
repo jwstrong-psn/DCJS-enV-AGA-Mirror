@@ -97,12 +97,12 @@ PearsonGL.External.masterJS = (function() {
 
   //* functions for test purposes only
   ts.A0597552_init = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597514_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
+    return PearsonGL.External.rootJS.A0597552_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
   }
 
   //* functions for test purposes only
   ts.A0597552_updateLabels = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597514_updateLabels({'value':val,'name':name,'desmos':desmos,'log':console.log});
+    return PearsonGL.External.rootJS.A0597552_updateLabels({'value':val,'name':name,'desmos':desmos,'log':console.log});
   }
 
   Object.assign(exports,flattenFuncStruct(ts));
