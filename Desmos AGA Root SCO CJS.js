@@ -172,7 +172,7 @@ PearsonGL.External.rootJS = (function() {
        |
        | POINT MUST FIRST BE MANUALLY AUTHORED USING API:
        |  calculator.setExpression({
-       |    id:'[expressionLaTeX]',
+       |    id:'[unique name]',
        |    latex:'[pointLaTeX]',
        |    showLabel:true
        |  });
@@ -444,6 +444,7 @@ PearsonGL.External.rootJS = (function() {
        | Initializes the variables
        * ←———————————————————————————————————————————————————————————————————→ */
        init: function(options={}) {
+        var o = hs.parseOptions(options);
         vs[o.uniqueId] = {
           P_x:-4,
           P_y:-3,
