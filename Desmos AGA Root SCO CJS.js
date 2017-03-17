@@ -490,6 +490,66 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
+    /* ←— A0597552 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0597552 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variables
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        var o = hs.parseOptions(options);
+        vs[o.uniqueId] = {
+          P_x:-4,
+          P_y:-3,
+          Q_x:2,
+          Q_y:1
+        };
+       },
+      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
+       | updates the labels of P, Q, and the distances based on changes in their
+       | coordinates
+       |
+       | P=(x_1,y_1) and Q=(x_2,y_2)
+       |
+       | Points P, Q, and the distances must be authored with showLabel:true,
+       | and the IDs
+       |  P_point, Q_point, distance, x_distance, and y_distance
+       * ←———————————————————————————————————————————————————————————————————→ */
+       updateLabels: function(options={}) {
+        var o = hs.parseOptions(options);
+        var P_x = vs[o.uniqueId].P_x;
+        var P_y = vs[o.uniqueId].P_y;
+        var Q_x = vs[o.uniqueId].Q_x;
+        var Q_y = vs[o.uniqueId].Q_y;
+        switch (o.name) {
+          case 'x_1':
+            vs[o.uniqueId].P_x = P_x = o.value;
+            hs.labelPoint(vs[o.uniqueId].P_x,vs[o.uniqueId].P_y,'P','P_point',o);
+            break;
+          case 'y_1':
+            vs[o.uniqueId].P_y = P_y = o.value;
+            hs.labelPoint(vs[o.uniqueId].P_x,vs[o.uniqueId].P_y,'P','P_point',o);
+            break;
+          case 'x_2':
+            vs[o.uniqueId].Q_x = Q_x = o.value;
+            hs.labelPoint(vs[o.uniqueId].Q_x,vs[o.uniqueId].Q_y,'Q','Q_point',o);
+            break;
+          case 'y_2':
+            vs[o.uniqueId].Q_y = P_y o.value;
+            hs.labelPoint(vs[o.uniqueId].Q_x,vs[o.uniqueId].Q_y,'Q','Q_point',o);
+            break;
+        };
+        var distance = Math.round(100*Math.sqrt(Math.pow(Q_x-P_x,2)+Math.pow(Q_y-P_y,2)))/100;
+        var x_distance = Math.abs(Q_x-P_x);
+        var y_distance = Math.abs(Q_y-P_y);
+
+        o.desmos.setExpressions([
+          {id:'distance',label:distance},
+          {id:'x_distance',label:x_distance},
+          {id:'y_distance',label:y_distance}
+        ]);
+       }
+     };
+
   Object.assign(exports,hs.flattenFuncStruct(fs));
 
   return exports;
