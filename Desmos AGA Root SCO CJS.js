@@ -463,7 +463,7 @@ PearsonGL.External.rootJS = (function() {
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(options={}) {
         var o = hs.parseOptions(options);
-        switch o.name {
+        switch (o.name) {
           case 'x_1':
             vs[o.uniqueId].P_x = o.value;
             vs[o.uniqueId].M_x = (vs[o.uniqueId].Q_x+o.value)/2;
@@ -484,7 +484,7 @@ PearsonGL.External.rootJS = (function() {
             vs[o.uniqueId].M_y = (vs[o.uniqueId].P_y+o.value)/2;
             hs.labelPoint(vs[o.uniqueId].Q_x,vs[o.uniqueId].Q_y,'Q','Q_point',o);
             break;
-        }
+        };
         hs.labelPoint(vs[o.uniqueId].M_x,vs[o.uniqueId].M_y,'M','M_point',o);
        }
      };
