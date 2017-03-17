@@ -159,6 +159,26 @@
         </div>
       </td>
     </tr>
+    <tr>
+      <td colspan="3">
+        <div id="helperExpressions">
+          <table>
+          <thead>
+            <tr><th>Expression</th><th>Function Name</th><th>Value</th></tr>
+          </thead>
+          <tbody id="helperList">
+            <tr id="newHelper">
+              <td><input type="text" class="helperName" placeholder="Expression…"></td>
+              <td><input type="text" class="helperFunction" placeholder="Function⁢…"></td>
+              <td><input type="text" class="helperValue" placeholder="Value⁢…"></td>
+              <td><button type="button" class="addHelper">Add</button></td>
+              <td><button type="button" class="deleteHelper">Clear</button></td>
+            </tr>
+          </tbody>
+          </table>
+        </div>
+      </td>
+    </tr>
   </table>
   <script>
     $(function() {
@@ -172,6 +192,8 @@
       var previewWidth = 100;
       var $checkWarnGui = $('<div style="width:'+previewWidth+'px;"><p id="checkWarn"></p><button type="button" id="checkConfirm"></button><br><button type="button" id="checkCancel"></button></div>');
       var saveIndex = 0;
+      var newHelper;
+      var helperRow;
 
       $("#help").hide();
       $("#geoConstructorButtons").hide();
@@ -203,109 +225,111 @@
         toolType = "geometry";
         window.rebuild();
       });
-      $("#keypad").click(function(){
-        window.rebuild({keypad:!(window.currentCalcConstructors.keypad)});
-      });
-      $("#graphpaper").click(function(){
-        window.rebuild({graphpaper:!(window.currentCalcConstructors.graphpaper)});
-      });
-      $("#expressions").click(function(){
-        window.rebuild({expressions:!(window.currentCalcConstructors.expressions)});
-      });
-      $("#settingsMenu").click(function(){
-        window.rebuild({settingsMenu:!(window.currentCalcConstructors.settingsMenu)});
-      });
-      $("#zoomButtons").click(function(){
-        window.rebuild({zoomButtons:!(window.currentCalcConstructors.zoomButtons)});
-      });
-      $("#expressionsTopbar").click(function(){
-        window.rebuild({expressionsTopbar:!(window.currentCalcConstructors.expressionsTopbar)});
-      });
-      $("#pointsOfInterest").click(function(){
-        window.rebuild({pointsOfInterest:!(window.currentCalcConstructors.pointsOfInterest)});
-      });
-      $("#singleVariableSolutions").click(function(){
-        window.rebuild({singleVariableSolutions:!(window.currentCalcConstructors.singleVariableSolutions)});
-      });
-      $("#trace").click(function(){
-        window.rebuild({trace:!(window.currentCalcConstructors.trace)});
-      });
-      $("#border").click(function(){
-        window.rebuild({border:!(window.currentCalcConstructors.border)});
-      });
-      $("#lockViewport").click(function(){
-        window.rebuild({lockViewport:!(window.currentCalcConstructors.lockViewport)});
-      });
-      $("#expressionsCollapsed").click(function(){
-        window.rebuild({expressionsCollapsed:!(window.currentCalcConstructors.expressionsCollapsed)});
-      });
-      $("#administerSecretFolders").click(function(){
-        window.rebuild({administerSecretFolders:!(window.currentCalcConstructors.administerSecretFolders)});
-      });
-      $("#images").click(function(){
-        window.rebuild({images:!(window.currentCalcConstructors.images)});
-      });
-      $("#folders").click(function(){
-        window.rebuild({folders:!(window.currentCalcConstructors.folders)});
-      });
-      $("#notes").click(function(){
-        window.rebuild({notes:!(window.currentCalcConstructors.notes)});
-      });
-      $("#qwertyKeyboard").click(function(){
-        window.rebuild({qwertyKeyboard:!(window.currentCalcConstructors.qwertyKeyboard)});
-      });
-      $("#restrictedFunctions").click(function(){
-        window.rebuild({restrictedFunctions:!(window.currentCalcConstructors.restrictedFunctions)});
-      });
-      $("#pasteGraphLink").click(function(){
-        window.rebuild({pasteGraphLink:!(window.currentCalcConstructors.pasteGraphLink)});
-      });
-      $("#pasteTableData").click(function(){
-        window.rebuild({pasteTableData:!(window.currentCalcConstructors.pasteTableData)});
-      });
-      $("#degreeMode").click(function(){
-        window.rebuild({degreeMode:!(window.currentCalcConstructors.degreeMode)});
-      });
-      $("#constructPerpendicular").click(function(){
-        window.rebuild({'construct.perpendicular':!(window.currentGeoConstructors['construct.perpendicular'])});
-      });
-      $("#constructParallel").click(function(){
-        window.rebuild({'construct.parallel':!(window.currentGeoConstructors['construct.parallel'])});
-      });
-      $("#constructMidpoint").click(function(){
-        window.rebuild({'construct.midpoint':!(window.currentGeoConstructors['construct.midpoint'])});
-      });
-      $("#constructCompass").click(function(){
-        window.rebuild({'construct.compass':!(window.currentGeoConstructors['construct.compass'])});
-      });
-      $("#geoBorder").click(function(){
-        window.rebuild({'border':!(window.currentGeoConstructors['border'])});
-      });
-      $("#labels").click(function(){
-        window.rebuild({'labels':!(window.currentGeoConstructors['labels'])});
-      });
-      $("#ruler").click(function(){
-        window.currentGeoConstructors.ruler = !(window.currentGeoConstructors['ruler']);
-        if (!(toolType == 'geometry')) return;
-        if (window.currentGeoConstructors.ruler) window.Geo.showRuler();
-        else window.Geo.hideRuler();
-        updateView();
-        autoSave();
-      });
-      $("#protractor").click(function(){
-        window.currentGeoConstructors.protractor = !(window.currentGeoConstructors['protractor']);
-        if (!(toolType == 'geometry')) return;
-        if (window.currentGeoConstructors.protractor) window.Geo.showProtractor();
-        else window.Geo.hideProtractor();
-        updateView();
-        autoSave();
-      });
-      $("#defaultConstructors").click(function(){
-        window.reset();
-      });
-      $("#clearConstructors").click(function(){
-        window.only();
-      });
+      constructorButtons: {
+        $("#keypad").click(function(){
+          window.rebuild({keypad:!(window.currentCalcConstructors.keypad)});
+        });
+        $("#graphpaper").click(function(){
+          window.rebuild({graphpaper:!(window.currentCalcConstructors.graphpaper)});
+        });
+        $("#expressions").click(function(){
+          window.rebuild({expressions:!(window.currentCalcConstructors.expressions)});
+        });
+        $("#settingsMenu").click(function(){
+          window.rebuild({settingsMenu:!(window.currentCalcConstructors.settingsMenu)});
+        });
+        $("#zoomButtons").click(function(){
+          window.rebuild({zoomButtons:!(window.currentCalcConstructors.zoomButtons)});
+        });
+        $("#expressionsTopbar").click(function(){
+          window.rebuild({expressionsTopbar:!(window.currentCalcConstructors.expressionsTopbar)});
+        });
+        $("#pointsOfInterest").click(function(){
+          window.rebuild({pointsOfInterest:!(window.currentCalcConstructors.pointsOfInterest)});
+        });
+        $("#singleVariableSolutions").click(function(){
+          window.rebuild({singleVariableSolutions:!(window.currentCalcConstructors.singleVariableSolutions)});
+        });
+        $("#trace").click(function(){
+          window.rebuild({trace:!(window.currentCalcConstructors.trace)});
+        });
+        $("#border").click(function(){
+          window.rebuild({border:!(window.currentCalcConstructors.border)});
+        });
+        $("#lockViewport").click(function(){
+          window.rebuild({lockViewport:!(window.currentCalcConstructors.lockViewport)});
+        });
+        $("#expressionsCollapsed").click(function(){
+          window.rebuild({expressionsCollapsed:!(window.currentCalcConstructors.expressionsCollapsed)});
+        });
+        $("#administerSecretFolders").click(function(){
+          window.rebuild({administerSecretFolders:!(window.currentCalcConstructors.administerSecretFolders)});
+        });
+        $("#images").click(function(){
+          window.rebuild({images:!(window.currentCalcConstructors.images)});
+        });
+        $("#folders").click(function(){
+          window.rebuild({folders:!(window.currentCalcConstructors.folders)});
+        });
+        $("#notes").click(function(){
+          window.rebuild({notes:!(window.currentCalcConstructors.notes)});
+        });
+        $("#qwertyKeyboard").click(function(){
+          window.rebuild({qwertyKeyboard:!(window.currentCalcConstructors.qwertyKeyboard)});
+        });
+        $("#restrictedFunctions").click(function(){
+          window.rebuild({restrictedFunctions:!(window.currentCalcConstructors.restrictedFunctions)});
+        });
+        $("#pasteGraphLink").click(function(){
+          window.rebuild({pasteGraphLink:!(window.currentCalcConstructors.pasteGraphLink)});
+        });
+        $("#pasteTableData").click(function(){
+          window.rebuild({pasteTableData:!(window.currentCalcConstructors.pasteTableData)});
+        });
+        $("#degreeMode").click(function(){
+          window.rebuild({degreeMode:!(window.currentCalcConstructors.degreeMode)});
+        });
+        $("#constructPerpendicular").click(function(){
+          window.rebuild({'construct.perpendicular':!(window.currentGeoConstructors['construct.perpendicular'])});
+        });
+        $("#constructParallel").click(function(){
+          window.rebuild({'construct.parallel':!(window.currentGeoConstructors['construct.parallel'])});
+        });
+        $("#constructMidpoint").click(function(){
+          window.rebuild({'construct.midpoint':!(window.currentGeoConstructors['construct.midpoint'])});
+        });
+        $("#constructCompass").click(function(){
+          window.rebuild({'construct.compass':!(window.currentGeoConstructors['construct.compass'])});
+        });
+        $("#geoBorder").click(function(){
+          window.rebuild({'border':!(window.currentGeoConstructors['border'])});
+        });
+        $("#labels").click(function(){
+          window.rebuild({'labels':!(window.currentGeoConstructors['labels'])});
+        });
+        $("#ruler").click(function(){
+          window.currentGeoConstructors.ruler = !(window.currentGeoConstructors['ruler']);
+          if (!(toolType == 'geometry')) return;
+          if (window.currentGeoConstructors.ruler) window.Geo.showRuler();
+          else window.Geo.hideRuler();
+          updateView();
+          autoSave();
+        });
+        $("#protractor").click(function(){
+          window.currentGeoConstructors.protractor = !(window.currentGeoConstructors['protractor']);
+          if (!(toolType == 'geometry')) return;
+          if (window.currentGeoConstructors.protractor) window.Geo.showProtractor();
+          else window.Geo.hideProtractor();
+          updateView();
+          autoSave();
+        });
+        $("#defaultConstructors").click(function(){
+          window.reset();
+        });
+        $("#clearConstructors").click(function(){
+          window.only();
+        });
+      }
       $("#copyState").click(function(){
         var currState = window.copyState();
         var field = $('#stateInput')[0];
@@ -329,6 +353,38 @@
       $("#download").click(function(){
         window.download(window.calculator.getState());
       });
+
+      $(".addHelper").click(function(event){
+        var helperId = event.target.parentNode.parentNode.id;
+        if (helperId == 'newHelper') {
+          // create new helper variable
+          // add new row
+          helperRow.clone(true,true).appendTo($('#helperList')).attr('id','helper1').find('.helperName')[0].value = 'I\'m new!';
+          $('#newHelper').remove();
+          newHelper.clone(true,true).appendTo($('#helperList'));
+        } else {
+          // update helper variable
+        }
+        alert('Helper Functions coming soon…');
+      });
+
+      $(".deleteHelper").click(function(event){
+        var helperRow = event.target.parentNode.parentNode;
+        var helperId = helperRow.id;
+        if (helperId == 'newHelper') {
+          // only clear fields when deleting the "new helper" row
+          $('#newHelper').remove();
+          newHelper.clone(true,true).appendTo($('#helperList'));
+        } else {
+          // disable/delete helper expression
+          // remove the row
+          $('#'+helperId).remove();
+        }
+      });
+
+      // Back up helper expression rows
+      newHelper = $('#newHelper').clone(true,true);
+      helperRow = newHelper.clone(true,true).attr("id","blankHelper");
 
       function loadFromInput(){
         var state;
