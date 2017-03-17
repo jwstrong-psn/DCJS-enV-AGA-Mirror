@@ -534,7 +534,7 @@ PearsonGL.External.rootJS = (function() {
             hs.labelPoint(vs[o.uniqueId].Q_x,vs[o.uniqueId].Q_y,'Q','Q_point',o);
             break;
           case 'y_2':
-            vs[o.uniqueId].Q_y = P_y o.value;
+            vs[o.uniqueId].Q_y = P_y = o.value;
             hs.labelPoint(vs[o.uniqueId].Q_x,vs[o.uniqueId].Q_y,'Q','Q_point',o);
             break;
         };
