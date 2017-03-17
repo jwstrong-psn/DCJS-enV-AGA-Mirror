@@ -165,6 +165,32 @@ PearsonGL.External.rootJS = (function() {
         expr = expr.replace(/\\right/g,'');
         expr = expr.replace(/\\left/g,'');
         return expr;
+       },
+      /* ←— labelPoint ———————→———————————————————————————————————————————→ *\
+       | Label a point according to its coordinates and name
+       | e.g., "P(3,2)"
+       |
+       | POINT MUST FIRST BE MANUALLY AUTHORED USING API:
+       |  calculator.setExpression({
+       |    id:'[expressionLaTeX]',
+       |    latex:'[pointLaTeX]',
+       |    showLabel:true
+       |  });
+       | 
+       | For testing, use option {log:console.log}, which will log whenever
+       |  the expression's value changes.
+       * ←————————————————————————————————————————————————————————————————→ */
+       labelPoint: function(xVal, yVal, name, id, options={}, precision=cs.precision.COORDINATES) {
+        var o = hs.parseOptions(options);
+        var expr = name+'('+
+          ((xVal<0)?'−':'')+
+          Math.abs(Math.round(Math.pow(10,precision)*xVal)/Math.pow(10,precision))+
+          ', '+
+          ((yVal<0)?'−':'')+
+          Math.abs(Math.round(Math.pow(10,precision)*yVal)/Math.pow(10,precision))+
+          ')';
+        if (o.log) o.log('Setting point label ' + expr);;
+        o.desmos.setExpression({id:id,label:expr});
        }
      }
   /* ←—PRIVATE CONSTANTS———————————————————————————————————————————————————→ *\
@@ -174,7 +200,7 @@ PearsonGL.External.rootJS = (function() {
     const cs = {
       ts:{ // Tolerances for tuning; measured in log2 increments.
         AR:0.01, // Aspect Ratio, detectably non-square
-        ZOOM:0.3 // For reporting coarse 
+        ZOOM:0.3 // For reporting coarse changes in the zoom level
        },
       enum:{
         LINEAR_SLOPE_INTERCEPT_FORM:'LMB',
@@ -184,6 +210,10 @@ PearsonGL.External.rootJS = (function() {
         QUADRATIC_STANDARD_FORM:'QSFABC',
         QUADRATIC_FACTORED_FORM:'QFFARR',
         expform:{ABXC:'abxc',AEBC:'aebc',EABC:'eabc',EAHK:'eahk'}
+       },
+      precision:{ // # of decimal places to round to; inverse powers of 10
+        COORDINATES:2,
+        DEGREES:0
        }
      }
 
@@ -406,7 +436,58 @@ PearsonGL.External.rootJS = (function() {
             if (o.log) o.log('Saving value of ' + o.name + ' as vs.' + o.uniqueId + '.' + name);
            };
          })(varName);
+       };
+
+    /* ←— A0597514 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0597514 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variables
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        vs[o.uniqueId] = {
+          P_x:-4,
+          P_y:-3,
+          Q_x:2,
+          Q_y:1,
+          M_x:-1,
+          M_y:-1
+        };
+       },
+      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
+       | updates the labels of P, Q, and M based on changes in their coordinates
+       |
+       | P=(x_1,y_1) and Q=(x_2,y_2)
+       |
+       | Points P, Q, and M must be authored with showLabel:true, and the IDs
+       |  P_point, Q_point, and M_point
+       * ←———————————————————————————————————————————————————————————————————→ */
+       updateLabels: function(options={}) {
+        var o = hs.parseOptions(options);
+        switch o.name {
+          case 'x_1':
+            vs[o.uniqueId].P_x = o.value;
+            vs[o.uniqueId].M_x = (vs[o.uniqueId].Q_x+o.value)/2;
+            hs.labelPoint(vs[o.uniqueId].P_x,vs[o.uniqueId].P_y,'P','P_point',o);
+            break;
+          case 'y_1':
+            vs[o.uniqueId].P_y = o.value;
+            vs[o.uniqueId].M_y = (vs[o.uniqueId].Q_y+o.value)/2;
+            hs.labelPoint(vs[o.uniqueId].P_x,vs[o.uniqueId].P_y,'P','P_point',o);
+            break;
+          case 'x_2':
+            vs[o.uniqueId].Q_x = o.value;
+            vs[o.uniqueId].M_x = (vs[o.uniqueId].P_x+o.value)/2;
+            hs.labelPoint(vs[o.uniqueId].Q_x,vs[o.uniqueId].Q_y,'Q','Q_point',o);
+            break;
+          case 'y_2':
+            vs[o.uniqueId].Q_y = o.value;
+            vs[o.uniqueId].M_y = (vs[o.uniqueId].P_y+o.value)/2;
+            hs.labelPoint(vs[o.uniqueId].Q_x,vs[o.uniqueId].Q_y,'Q','Q_point',o);
+            break;
+        }
+        hs.labelPoint(vs[o.uniqueId].M_x,vs[o.uniqueId].M_y,'M','M_point',o);
        }
+     };
 
   Object.assign(exports,hs.flattenFuncStruct(fs));
 
