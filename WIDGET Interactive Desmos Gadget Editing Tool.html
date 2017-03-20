@@ -1141,6 +1141,74 @@
         }
       }
 
+      function DCAThelper(expr, funcName, val='') {
+        var self = this;
+        var latex = expr;
+        var value = val;
+        var funcName = funcName;
+        var helper = null;
+        var func;
+
+        if (PearsonGL.masterJS[funcName] === undefined) {
+          if (PearsonGL.rootJS[funcName] === undefined) {
+            throw new Error('Function does not exist: '+funcName);
+            return false;
+          } else {
+            func = (function() {
+              if (value == '') return function() {
+                return PearsonGL.rootJS[funcName]({
+                  value:helper.numericValue;
+                  name:latex;
+                  desmos:window.calculator;
+                });
+              };
+              else return function() {
+                if (helper.numericValue == value) return PearsonGL.rootJS[funcName]({
+                  value:helper.numericValue;
+                  name:latex;
+                  desmos:window.calculator;
+                });
+              };
+            })();
+          }
+        } else {
+          func = (function() {
+            if (value == '') return function() {
+              return PearsonGL.masterJS[funcName](helper.numericValue,latex,window.calculator);
+            };
+            else return function() {
+              if (helper.numericValue == value) return PearsonGL.masterJS[funcName](helper.numericValue,latex,window.calculator);
+            };
+          })();
+        }
+
+        function enable() {
+          if (helper !== null) {
+            throw new Error('Helper function \"'+latex+'\": \"'+funcName+'\" already initialized.');
+            if (helper.__observers.numericValue === undefined) {
+              throw new Error('Helper function \"'+latex+'\": \"'+funcName+'\" was initialized but was not observed. Attempting to add observer.');
+            } else return true;
+          } else if (window.calculator.HelperExpression === undefined) {
+            throw new Error('Helper function \"'+latex+'\": \"'+funcName+'\" not supported by current tool type: '+window.tooltype);
+            return false;
+          } else helper = window.calculator.HelperExpression({latex:latex});
+
+          helper.observe('numericValue', func);
+          return true;
+        }
+
+        function disable() {
+          if (helper === null) {
+            throw new Error('Error disabling helper function: \"'+latex+'\": \"'+funcName+'\" was not initialized.');
+            return true;
+          }
+
+          helper.unobserveAll();
+          helper = null;
+          return true;
+        }
+      }
+
       function updateStorage() {
         if (typeof(Storage) !== undefined) {
           var package = [];
