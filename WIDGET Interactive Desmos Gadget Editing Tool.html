@@ -186,14 +186,14 @@
       var ontextcolor = "white";
       var offbuttoncolor = "red";
       var offtextcolor = "white";
-      const savePrefix = "SaVePrEfIx1_";
+      const DOM_ID_PREFIX = "dom_guid_";
       var AUTO_SAVE_INTERVAL = 5000;
+      const LOADING_TIME_ALLOTMENT = 2500;
       var previewHeight = 100;
       var previewWidth = 100;
       var $checkWarnGui = $('<div style="width:'+previewWidth+'px;"><p id="checkWarn"></p><button type="button" id="checkConfirm"></button><br><button type="button" id="checkCancel"></button></div>');
-      var saveIndex = 0;
+      var domIdIndex = 0;
       var newHelper;
-      var helperRow;
 
       $("#help").hide();
       $("#geoConstructorButtons").hide();
@@ -355,36 +355,69 @@
       });
 
       $(".addHelper").click(function(event){
+        alert('Coming soon…');
+        // return;
+        // <button> → <td> → <tr id="helperId">
         var helperId = event.target.parentNode.parentNode.id;
+        var helperRow = $('#'+helperId);
+        var name = helperRow.find('.helperName')[0].value;
+        var func = helperRow.find('.helperFunction')[0].value;
+        var value = helperRow.find('.helperValue')[0].value;
+        var success = false;
+        var helper;
+
         if (helperId == 'newHelper') {
-          // create new helper variable
-          // add new row
-          helperRow.clone(true,true).appendTo($('#helperList')).attr('id','helper1').find('.helperName')[0].value = 'I\'m new!';
-          $('#newHelper').remove();
+          helperRow.remove();
           newHelper.clone(true,true).appendTo($('#helperList'));
-        } else {
-          // update helper variable
+        } else currentHelpers[helperId].destroy();
+
+        try {
+          helper = new DCAThelper({
+            latex:name,
+            funcName:func,
+            value:value
+          }, helperId);
+        } catch (e) {
+          alert(e.message);
         }
-        alert('Helper Functions coming soon…');
+        if (helper === null) return;
+        currentHelpers[helper.id] = helper;
       });
 
       $(".deleteHelper").click(function(event){
-        var helperRow = event.target.parentNode.parentNode;
-        var helperId = helperRow.id;
+        alert('Coming soon…');
+        // return;
+        // <button> → <td> → <tr id="helperId">
+        var helperId = event.target.parentNode.parentNode.id;
+        var helperRow = $('#'+helperId);
         if (helperId == 'newHelper') {
           // only clear fields when deleting the "new helper" row
-          $('#newHelper').remove();
-          newHelper.clone(true,true).appendTo($('#helperList'));
+          helperRow.find('.helperName')[0].value = '';
+          helperRow.find('.helperFunction')[0].value = '';
+          helperRow.find('.helperValue')[0].value = '';
+          helperRow.find('.addHelper').prop("disabled",true);
         } else {
           // disable/delete helper expression
+          currentHelpers[helperId].destroy();
           // remove the row
           $('#'+helperId).remove();
         }
       });
 
+      $('.helperName').change(function(event){
+        $('#'+event.target.parentNode.parentNode.id).find('.addHelper').prop("disabled",false);
+      })
+
+      $('.helperFunction').change(function(event){
+        $('#'+event.target.parentNode.parentNode.id).find('.addHelper').prop("disabled",false);
+      })
+
+      $('.helperValue').change(function(event){
+        $('#'+event.target.parentNode.parentNode.id).find('.addHelper').prop("disabled",false);
+      })
+
       // Back up helper expression rows
       newHelper = $('#newHelper').clone(true,true);
-      helperRow = newHelper.clone(true,true).attr("id","blankHelper");
 
       function loadFromInput(){
         var state;
@@ -522,374 +555,376 @@
         xAxisLabel:"x",
         yAxisLabel:"y"
       };
-      window.keypad={'keypad':true};
-      window.graphpaper={'graphpaper':true};
-      window.expressions={'expressions':true};
-      window.settingsMenu={'settingsMenu':true};
-      window.zoomButtons={'zoomButtons':true};
-      window.expressionsTopbar={'expressionsTopbar':true};
-      window.pointsOfInterest={'pointsOfInterest':true};
-      window.singleVariableSolutions={'singleVariableSolutions':true};
-      window.trace={'trace':true};
-      window.border={'border':true};
-      window.lockViewport={'lockViewport':true};
-      window.expressionsCollapsed={'expressionsCollapsed':true};
-      window.images={'images':true};
-      window.folders={'folders':true};
-      window.notes={'notes':true};
-      window.qwertyKeyboard={'qwertyKeyboard':true};
-      window.restrictedFunctions={'restrictedFunctions':true};
-      window.pasteGraphLink={'pasteGraphLink':true};
-      window.pasteTableData={'pasteTableData':true};
-      window.degreeMode={'degreeMode':true};
-      window.colors={'colors':agaColors};
-      window.construct={};
-      window.construct.perpendicular={'construct.perpendicular':true};
-      window.construct.parallel={'construct.parallel':true};
-      window.construct.midpoint={'construct.midpoint':true};
-      window.construct.compass={'construct.compass':true};
-      window.border={'border':true};
-      window.labels={'labels':true};
-      window.ruler={'ruler':true};
-      window.protractor={'protractor':true};
-      window.calcConstructors = {
-        /*Comment indicates difference from default.*/
-        /* default: graphpaper, expressions, settingsMenu, zoomButtons, expressionsTopbar, pointsOfInterest, singleVariableSolutions, trace, border, expressionsCollapsed, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
-        default:{
-          'keypad':false,
-          'graphpaper':true,
-          'expressions':true,
-          'settingsMenu':true,
-          'zoomButtons':true,
-          'expressionsTopbar':true,
-          'pointsOfInterest':true,
-          'singleVariableSolutions':true,
-          'trace':true,
-          'border':true,
-          'lockViewport':false,
-          'expressionsCollapsed':true,
-          'images':false,
-          'folders':true,
-          'notes':true,
-          'qwertyKeyboard':true,
-          'restrictedFunctions':false,
-          'pasteGraphLink':false,
-          'pasteTableData':true,
-          'degreeMode':true,
-          'colors':agaColors
-        },
-        /* allOff: */
-        allOff:{
-          'keypad':false,
-          'graphpaper':false, /**/
-          'expressions':false, /**/
-          'settingsMenu':false, /**/
-          'zoomButtons':false, /**/
-          'expressionsTopbar':false, /**/
-          'pointsOfInterest':false, /**/
-          'singleVariableSolutions':false, /**/
-          'trace':false, /**/
-          'border':false, /**/
-          'lockViewport':false,
-          'expressionsCollapsed':false, /**/
-          'images':false,
-          'folders':false, /**/
-          'notes':false, /**/
-          'qwertyKeyboard':false, /**/
-          'restrictedFunctions':false,
-          'pasteGraphLink':false,
-          'pasteTableData':false, /**/
-          'degreeMode':false, /**/
-          'colors':agaColors
-        },
-        /**/
-        /* tryIt: graphpaper, expressions, settingsMenu, zoomButtons, expressionsTopbar, border, qwertyKeyboard, degreeMode */
-        tryIt:{
-          'keypad':false,
-          'graphpaper':true,
-          'expressions':true,
-          'settingsMenu':true,
-          'zoomButtons':true,
-          'expressionsTopbar':true,
-          'pointsOfInterest':false, /**/
-          'singleVariableSolutions':false, /**/
-          'trace':false, /**/
-          'border':true,
-          'lockViewport':false,
-          'expressionsCollapsed':false, /**/
-          'images':false,
-          'folders':false, /**/
-          'notes':false, /**/
-          'qwertyKeyboard':true,
-          'restrictedFunctions':false,
-          'pasteGraphLink':false,
-          'pasteTableData':false, /**/
-          'degreeMode':true,
-          'colors':agaColors
-        },
-        /* noTopbar: graphpaper, expressions, settingsMenu, zoomButtons, pointsOfInterest, singleVariableSolutions, trace, border, expressionsCollapsed, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
-        noTopbar:{
-          'keypad':false,
-          'graphpaper':true,
-          'expressions':true,
-          'settingsMenu':true,
-          'zoomButtons':true,
-          'expressionsTopbar':false, /**/
-          'pointsOfInterest':true,
-          'singleVariableSolutions':true,
-          'trace':true,
-          'border':true,
-          'lockViewport':false,
-          'expressionsCollapsed':true,
-          'images':false,
-          'folders':true,
-          'notes':true,
-          'qwertyKeyboard':true,
-          'restrictedFunctions':false,
-          'pasteGraphLink':false,
-          'pasteTableData':true,
-          'degreeMode':true,
-          'colors':agaColors
-        },
-        /* locked: graphpaper, border, lockViewport, expressionsCollapsed, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
-        locked:{
-          'keypad':false,
-          'graphpaper':true,
-          'expressions':false, /**/
-          'settingsMenu':false, /**/
-          'zoomButtons':false, /**/
-          'expressionsTopbar':false, /**/
-          'pointsOfInterest':false, /**/
-          'singleVariableSolutions':false, /**/
-          'trace':false, /**/
-          'border':true,
-          'lockViewport':true, /**/
-          'expressionsCollapsed':true,
-          'images':false,
-          'folders':true,
-          'notes':true,
-          'qwertyKeyboard':true,
-          'restrictedFunctions':false,
-          'pasteGraphLink':false,
-          'pasteTableData':true,
-          'degreeMode':true,
-          'colors':agaColors
-        },
-        /* geometry: graphpaper, expressions, zoomButtons, expressionsTopbar, border, expressionsCollapsed, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
-        geometry:{
-          'keypad':false,
-          'graphpaper':true,
-          'expressions':true,
-          'settingsMenu':false, /**/
-          'zoomButtons':true,
-          'expressionsTopbar':true,
-          'pointsOfInterest':false, /**/
-          'singleVariableSolutions':false, /**/
-          'trace':false, /**/
-          'border':true,
-          'lockViewport':false,
-          'expressionsCollapsed':true,
-          'images':false,
-          'folders':true,
-          'notes':true,
-          'qwertyKeyboard':true,
-          'restrictedFunctions':false,
-          'pasteGraphLink':false,
-          'pasteTableData':true,
-          'degreeMode':true,
-          'colors':agaColors
-        },
-        /* geometryNoZoom: graphpaper, expressions, expressionsTopbar, border, lockViewport, expressionsCollapsed, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
-        geometryNoZoom:{
-          'keypad':false,
-          'graphpaper':true,
-          'expressions':true,
-          'settingsMenu':false, /**/
-          'zoomButtons':false, /**/
-          'expressionsTopbar':true,
-          'pointsOfInterest':false, /**/
-          'singleVariableSolutions':false, /**/
-          'trace':false, /**/
-          'border':true,
-          'lockViewport':true, /**/
-          'expressionsCollapsed':true,
-          'images':false,
-          'folders':true,
-          'notes':true,
-          'qwertyKeyboard':true,
-          'restrictedFunctions':false,
-          'pasteGraphLink':false,
-          'pasteTableData':true,
-          'degreeMode':true,
-          'colors':agaColors
-        },
-        /* geometrySlidersOnly: graphpaper, expressions, zoomButtons, expressionsTopbar, border, expressionsCollapsed, degreeMode */
-        geometrySlidersOnly:{
-          'keypad':false,
-          'graphpaper':true,
-          'expressions':true,
-          'settingsMenu':false, /**/
-          'zoomButtons':true,
-          'expressionsTopbar':true,
-          'pointsOfInterest':false, /**/
-          'singleVariableSolutions':false, /**/
-          'trace':false, /**/
-          'border':true,
-          'lockViewport':false,
-          'expressionsCollapsed':true,
-          'images':false,
-          'folders':false, /**/
-          'notes':false, /**/
-          'qwertyKeyboard':false, /**/
-          'restrictedFunctions':false,
-          'pasteGraphLink':false,
-          'pasteTableData':false, /**/
-          'degreeMode':true,
-          'colors':agaColors
-        },
-        /* geometrySlidersOnlyNoZoom: graphpaper, expressions, expressionsTopbar, border, lockViewport, expressionsCollapsed, degreeMode */
-        geometrySlidersOnlyNoZoom:{
-          'keypad':false,
-          'graphpaper':true,
-          'expressions':true,
-          'settingsMenu':false, /**/
-          'zoomButtons':false, /**/
-          'expressionsTopbar':true,
-          'pointsOfInterest':false, /**/
-          'singleVariableSolutions':false, /**/
-          'trace':false, /**/
-          'border':true,
-          'lockViewport':true, /**/
-          'expressionsCollapsed':true,
-          'images':false,
-          'folders':false, /**/
-          'notes':false, /**/
-          'qwertyKeyboard':false, /**/
-          'restrictedFunctions':false,
-          'pasteGraphLink':false,
-          'pasteTableData':false, /**/
-          'degreeMode':true,
-          'colors':agaColors
-        },
-        /* geometryGraphOnly: graphpaper, zoomButtons, border, degreeMode */
-        geometryGraphOnly:{
-          'keypad':false,
-          'graphpaper':true,
-          'expressions':false, /**/
-          'settingsMenu':false, /**/
-          'zoomButtons':true,
-          'expressionsTopbar':false, /**/
-          'pointsOfInterest':false, /**/
-          'singleVariableSolutions':false, /**/
-          'trace':false, /**/
-          'border':true,
-          'lockViewport':false,
-          'expressionsCollapsed':false, /**/
-          'images':false,
-          'folders':false, /**/
-          'notes':false, /**/
-          'qwertyKeyboard':false, /**/
-          'restrictedFunctions':false,
-          'pasteGraphLink':false,
-          'pasteTableData':false, /**/
-          'degreeMode':true,
-          'colors':agaColors
-        },
-        /* geometryGraphOnlyNoZoom: graphpaper, lockViewport, border, degreeMode */
-        geometryGraphOnlyNoZoom:{
-          'keypad':false,
-          'graphpaper':true,
-          'expressions':false, /**/
-          'settingsMenu':false, /**/
-          'zoomButtons':false, /**/
-          'expressionsTopbar':false, /**/
-          'pointsOfInterest':false, /**/
-          'singleVariableSolutions':false, /**/
-          'trace':false, /**/
-          'border':true,
-          'lockViewport':true, /**/
-          'expressionsCollapsed':false, /**/
-          'images':false,
-          'folders':false, /**/
-          'notes':false, /**/
-          'qwertyKeyboard':false, /**/
-          'restrictedFunctions':false,
-          'pasteGraphLink':false,
-          'pasteTableData':false, /**/
-          'degreeMode':true,
-          'colors':agaColors
-        },
-        /* graphOnly: graphpaper, settingsMenu, zoomButtons, pointsOfInterest, singleVariableSolutions, trace, border, qwertyKeyboard, degreeMode */
-        graphOnly:{
-          'keypad':false,
-          'graphpaper':true,
-          'expressions':false, /**/
-          'settingsMenu':true,
-          'zoomButtons':true,
-          'expressionsTopbar':false, /**/
-          'pointsOfInterest':true,
-          'singleVariableSolutions':true,
-          'trace':true,
-          'border':true,
-          'lockViewport':false,
-          'expressionsCollapsed':false, /**/
-          'images':false,
-          'folders':false, /**/
-          'notes':false, /**/
-          'qwertyKeyboard':true,
-          'restrictedFunctions':false,
-          'pasteGraphLink':false,
-          'pasteTableData':false, /**/
-          'degreeMode':true,
-          'colors':agaColors
-        },
-        /* noGraph: expressions, expressionsTopbar, singleVariableSolutions, border, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
-        noGraph:{
-          'keypad':false,
-          'graphpaper':false, /**/
-          'expressions':true,
-          'settingsMenu':false, /**/
-          'zoomButtons':false, /**/
-          'expressionsTopbar':true,
-          'pointsOfInterest':false, /**/
-          'singleVariableSolutions':true,
-          'trace':false, /**/
-          'border':true,
-          'lockViewport':false,
-          'expressionsCollapsed':false, /**/
-          'images':false,
-          'folders':true,
-          'notes':true,
-          'qwertyKeyboard':true,
-          'restrictedFunctions':false,
-          'pasteGraphLink':false,
-          'pasteTableData':true,
-          'degreeMode':true,
-          'colors':agaColors
+      constructorShortcuts: {
+        window.keypad={'keypad':true};
+        window.graphpaper={'graphpaper':true};
+        window.expressions={'expressions':true};
+        window.settingsMenu={'settingsMenu':true};
+        window.zoomButtons={'zoomButtons':true};
+        window.expressionsTopbar={'expressionsTopbar':true};
+        window.pointsOfInterest={'pointsOfInterest':true};
+        window.singleVariableSolutions={'singleVariableSolutions':true};
+        window.trace={'trace':true};
+        window.border={'border':true};
+        window.lockViewport={'lockViewport':true};
+        window.expressionsCollapsed={'expressionsCollapsed':true};
+        window.images={'images':true};
+        window.folders={'folders':true};
+        window.notes={'notes':true};
+        window.qwertyKeyboard={'qwertyKeyboard':true};
+        window.restrictedFunctions={'restrictedFunctions':true};
+        window.pasteGraphLink={'pasteGraphLink':true};
+        window.pasteTableData={'pasteTableData':true};
+        window.degreeMode={'degreeMode':true};
+        window.colors={'colors':agaColors};
+        window.construct={};
+        window.construct.perpendicular={'construct.perpendicular':true};
+        window.construct.parallel={'construct.parallel':true};
+        window.construct.midpoint={'construct.midpoint':true};
+        window.construct.compass={'construct.compass':true};
+        window.border={'border':true};
+        window.labels={'labels':true};
+        window.ruler={'ruler':true};
+        window.protractor={'protractor':true};
+        window.calcConstructors = {
+          /*Comment indicates difference from default.*/
+          /* default: graphpaper, expressions, settingsMenu, zoomButtons, expressionsTopbar, pointsOfInterest, singleVariableSolutions, trace, border, expressionsCollapsed, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
+          default:{
+            'keypad':false,
+            'graphpaper':true,
+            'expressions':true,
+            'settingsMenu':true,
+            'zoomButtons':true,
+            'expressionsTopbar':true,
+            'pointsOfInterest':true,
+            'singleVariableSolutions':true,
+            'trace':true,
+            'border':true,
+            'lockViewport':false,
+            'expressionsCollapsed':true,
+            'images':false,
+            'folders':true,
+            'notes':true,
+            'qwertyKeyboard':true,
+            'restrictedFunctions':false,
+            'pasteGraphLink':false,
+            'pasteTableData':true,
+            'degreeMode':true,
+            'colors':agaColors
+          },
+          /* allOff: */
+          allOff:{
+            'keypad':false,
+            'graphpaper':false, /**/
+            'expressions':false, /**/
+            'settingsMenu':false, /**/
+            'zoomButtons':false, /**/
+            'expressionsTopbar':false, /**/
+            'pointsOfInterest':false, /**/
+            'singleVariableSolutions':false, /**/
+            'trace':false, /**/
+            'border':false, /**/
+            'lockViewport':false,
+            'expressionsCollapsed':false, /**/
+            'images':false,
+            'folders':false, /**/
+            'notes':false, /**/
+            'qwertyKeyboard':false, /**/
+            'restrictedFunctions':false,
+            'pasteGraphLink':false,
+            'pasteTableData':false, /**/
+            'degreeMode':false, /**/
+            'colors':agaColors
+          },
+          /**/
+          /* tryIt: graphpaper, expressions, settingsMenu, zoomButtons, expressionsTopbar, border, qwertyKeyboard, degreeMode */
+          tryIt:{
+            'keypad':false,
+            'graphpaper':true,
+            'expressions':true,
+            'settingsMenu':true,
+            'zoomButtons':true,
+            'expressionsTopbar':true,
+            'pointsOfInterest':false, /**/
+            'singleVariableSolutions':false, /**/
+            'trace':false, /**/
+            'border':true,
+            'lockViewport':false,
+            'expressionsCollapsed':false, /**/
+            'images':false,
+            'folders':false, /**/
+            'notes':false, /**/
+            'qwertyKeyboard':true,
+            'restrictedFunctions':false,
+            'pasteGraphLink':false,
+            'pasteTableData':false, /**/
+            'degreeMode':true,
+            'colors':agaColors
+          },
+          /* noTopbar: graphpaper, expressions, settingsMenu, zoomButtons, pointsOfInterest, singleVariableSolutions, trace, border, expressionsCollapsed, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
+          noTopbar:{
+            'keypad':false,
+            'graphpaper':true,
+            'expressions':true,
+            'settingsMenu':true,
+            'zoomButtons':true,
+            'expressionsTopbar':false, /**/
+            'pointsOfInterest':true,
+            'singleVariableSolutions':true,
+            'trace':true,
+            'border':true,
+            'lockViewport':false,
+            'expressionsCollapsed':true,
+            'images':false,
+            'folders':true,
+            'notes':true,
+            'qwertyKeyboard':true,
+            'restrictedFunctions':false,
+            'pasteGraphLink':false,
+            'pasteTableData':true,
+            'degreeMode':true,
+            'colors':agaColors
+          },
+          /* locked: graphpaper, border, lockViewport, expressionsCollapsed, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
+          locked:{
+            'keypad':false,
+            'graphpaper':true,
+            'expressions':false, /**/
+            'settingsMenu':false, /**/
+            'zoomButtons':false, /**/
+            'expressionsTopbar':false, /**/
+            'pointsOfInterest':false, /**/
+            'singleVariableSolutions':false, /**/
+            'trace':false, /**/
+            'border':true,
+            'lockViewport':true, /**/
+            'expressionsCollapsed':true,
+            'images':false,
+            'folders':true,
+            'notes':true,
+            'qwertyKeyboard':true,
+            'restrictedFunctions':false,
+            'pasteGraphLink':false,
+            'pasteTableData':true,
+            'degreeMode':true,
+            'colors':agaColors
+          },
+          /* geometry: graphpaper, expressions, zoomButtons, expressionsTopbar, border, expressionsCollapsed, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
+          geometry:{
+            'keypad':false,
+            'graphpaper':true,
+            'expressions':true,
+            'settingsMenu':false, /**/
+            'zoomButtons':true,
+            'expressionsTopbar':true,
+            'pointsOfInterest':false, /**/
+            'singleVariableSolutions':false, /**/
+            'trace':false, /**/
+            'border':true,
+            'lockViewport':false,
+            'expressionsCollapsed':true,
+            'images':false,
+            'folders':true,
+            'notes':true,
+            'qwertyKeyboard':true,
+            'restrictedFunctions':false,
+            'pasteGraphLink':false,
+            'pasteTableData':true,
+            'degreeMode':true,
+            'colors':agaColors
+          },
+          /* geometryNoZoom: graphpaper, expressions, expressionsTopbar, border, lockViewport, expressionsCollapsed, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
+          geometryNoZoom:{
+            'keypad':false,
+            'graphpaper':true,
+            'expressions':true,
+            'settingsMenu':false, /**/
+            'zoomButtons':false, /**/
+            'expressionsTopbar':true,
+            'pointsOfInterest':false, /**/
+            'singleVariableSolutions':false, /**/
+            'trace':false, /**/
+            'border':true,
+            'lockViewport':true, /**/
+            'expressionsCollapsed':true,
+            'images':false,
+            'folders':true,
+            'notes':true,
+            'qwertyKeyboard':true,
+            'restrictedFunctions':false,
+            'pasteGraphLink':false,
+            'pasteTableData':true,
+            'degreeMode':true,
+            'colors':agaColors
+          },
+          /* geometrySlidersOnly: graphpaper, expressions, zoomButtons, expressionsTopbar, border, expressionsCollapsed, degreeMode */
+          geometrySlidersOnly:{
+            'keypad':false,
+            'graphpaper':true,
+            'expressions':true,
+            'settingsMenu':false, /**/
+            'zoomButtons':true,
+            'expressionsTopbar':true,
+            'pointsOfInterest':false, /**/
+            'singleVariableSolutions':false, /**/
+            'trace':false, /**/
+            'border':true,
+            'lockViewport':false,
+            'expressionsCollapsed':true,
+            'images':false,
+            'folders':false, /**/
+            'notes':false, /**/
+            'qwertyKeyboard':false, /**/
+            'restrictedFunctions':false,
+            'pasteGraphLink':false,
+            'pasteTableData':false, /**/
+            'degreeMode':true,
+            'colors':agaColors
+          },
+          /* geometrySlidersOnlyNoZoom: graphpaper, expressions, expressionsTopbar, border, lockViewport, expressionsCollapsed, degreeMode */
+          geometrySlidersOnlyNoZoom:{
+            'keypad':false,
+            'graphpaper':true,
+            'expressions':true,
+            'settingsMenu':false, /**/
+            'zoomButtons':false, /**/
+            'expressionsTopbar':true,
+            'pointsOfInterest':false, /**/
+            'singleVariableSolutions':false, /**/
+            'trace':false, /**/
+            'border':true,
+            'lockViewport':true, /**/
+            'expressionsCollapsed':true,
+            'images':false,
+            'folders':false, /**/
+            'notes':false, /**/
+            'qwertyKeyboard':false, /**/
+            'restrictedFunctions':false,
+            'pasteGraphLink':false,
+            'pasteTableData':false, /**/
+            'degreeMode':true,
+            'colors':agaColors
+          },
+          /* geometryGraphOnly: graphpaper, zoomButtons, border, degreeMode */
+          geometryGraphOnly:{
+            'keypad':false,
+            'graphpaper':true,
+            'expressions':false, /**/
+            'settingsMenu':false, /**/
+            'zoomButtons':true,
+            'expressionsTopbar':false, /**/
+            'pointsOfInterest':false, /**/
+            'singleVariableSolutions':false, /**/
+            'trace':false, /**/
+            'border':true,
+            'lockViewport':false,
+            'expressionsCollapsed':false, /**/
+            'images':false,
+            'folders':false, /**/
+            'notes':false, /**/
+            'qwertyKeyboard':false, /**/
+            'restrictedFunctions':false,
+            'pasteGraphLink':false,
+            'pasteTableData':false, /**/
+            'degreeMode':true,
+            'colors':agaColors
+          },
+          /* geometryGraphOnlyNoZoom: graphpaper, lockViewport, border, degreeMode */
+          geometryGraphOnlyNoZoom:{
+            'keypad':false,
+            'graphpaper':true,
+            'expressions':false, /**/
+            'settingsMenu':false, /**/
+            'zoomButtons':false, /**/
+            'expressionsTopbar':false, /**/
+            'pointsOfInterest':false, /**/
+            'singleVariableSolutions':false, /**/
+            'trace':false, /**/
+            'border':true,
+            'lockViewport':true, /**/
+            'expressionsCollapsed':false, /**/
+            'images':false,
+            'folders':false, /**/
+            'notes':false, /**/
+            'qwertyKeyboard':false, /**/
+            'restrictedFunctions':false,
+            'pasteGraphLink':false,
+            'pasteTableData':false, /**/
+            'degreeMode':true,
+            'colors':agaColors
+          },
+          /* graphOnly: graphpaper, settingsMenu, zoomButtons, pointsOfInterest, singleVariableSolutions, trace, border, qwertyKeyboard, degreeMode */
+          graphOnly:{
+            'keypad':false,
+            'graphpaper':true,
+            'expressions':false, /**/
+            'settingsMenu':true,
+            'zoomButtons':true,
+            'expressionsTopbar':false, /**/
+            'pointsOfInterest':true,
+            'singleVariableSolutions':true,
+            'trace':true,
+            'border':true,
+            'lockViewport':false,
+            'expressionsCollapsed':false, /**/
+            'images':false,
+            'folders':false, /**/
+            'notes':false, /**/
+            'qwertyKeyboard':true,
+            'restrictedFunctions':false,
+            'pasteGraphLink':false,
+            'pasteTableData':false, /**/
+            'degreeMode':true,
+            'colors':agaColors
+          },
+          /* noGraph: expressions, expressionsTopbar, singleVariableSolutions, border, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
+          noGraph:{
+            'keypad':false,
+            'graphpaper':false, /**/
+            'expressions':true,
+            'settingsMenu':false, /**/
+            'zoomButtons':false, /**/
+            'expressionsTopbar':true,
+            'pointsOfInterest':false, /**/
+            'singleVariableSolutions':true,
+            'trace':false, /**/
+            'border':true,
+            'lockViewport':false,
+            'expressionsCollapsed':false, /**/
+            'images':false,
+            'folders':true,
+            'notes':true,
+            'qwertyKeyboard':true,
+            'restrictedFunctions':false,
+            'pasteGraphLink':false,
+            'pasteTableData':true,
+            'degreeMode':true,
+            'colors':agaColors
+          }
         }
-      }
-      window.geoConstructors = {
-        /* default: perpendicular, parallel, midpoint, compass, border, labels */
-        default:{
-          'construct.perpendicular':true,
-          'construct.parallel':true,
-          'construct.midpoint':true,
-          'construct.compass':true,
-          'border':true,
-          'labels':true,
-          'ruler':false,
-          'protractor':false
-        },
-        /* allOff */
-        allOff:{
-          'construct.perpendicular':false,
-          'construct.parallel':false,
-          'construct.midpoint':false,
-          'construct.compass':false,
-          'border':false,
-          'labels':false,
-          'ruler':false,
-          'protractor':false
+        window.geoConstructors = {
+          /* default: perpendicular, parallel, midpoint, compass, border, labels */
+          default:{
+            'construct.perpendicular':true,
+            'construct.parallel':true,
+            'construct.midpoint':true,
+            'construct.compass':true,
+            'border':true,
+            'labels':true,
+            'ruler':false,
+            'protractor':false
+          },
+          /* allOff */
+          allOff:{
+            'construct.perpendicular':false,
+            'construct.parallel':false,
+            'construct.midpoint':false,
+            'construct.compass':false,
+            'border':false,
+            'labels':false,
+            'ruler':false,
+            'protractor':false
+          }
         }
       }
       window.currentCalcConstructors = Object.assign({},window.calcConstructors.default,{administerSecretFolders:true});
@@ -903,41 +938,33 @@
       var geoPrevState = null;
       var desWidth = 550;
       var desHeight = 475;
-      workingState = null;
+      var workingState = null;
       var autoSaveQueued = false;
       window.queuedSave = null;
 
-      savedGraphs = [];
+      var savedGraphs = [];
+      var currentHelpers = {};
 
       function savedGraph(pack=null,ID=null) {
         var self = this;
-        var id = savePrefix+(ID?ID:(saveIndex++));
+        var id = DOM_ID_PREFIX+(ID?ID:(domIdIndex++));
         var position = ((ID == 'workingState')?-1:savedGraphs.length);
-        var name;
-        if (ID == 'workingState') name = "AutoSaved";
+        var name = ((ID == 'workingState') ? "AutoSaved" : '');
+        var type;
         var constructors;
-        var savedToolType;
         var state;
+        var helpers = [];
         var width;
         var height;
         var $gui;
 
-        this.unpack = function(pack) {
-          name = pack.name;
-          constructors = Object.assign({},pack.constructors);
-          savedToolType = pack.savedToolType;
-          state = pack.state;
-          width = pack.width;
-          height = pack.height;
-          buildGui();
-          $('#'+id+'_img').attr("src",pack.preview);
-        }
-
         this.saveCurrent = function(updateLibrary=true) {
-          savedToolType = toolType;
+          type = toolType;
           state = window.calculator.getState();
           width = desWidth;
           height = desHeight;
+          helpers = [];
+          for (helper in currentHelpers) helpers.push(currentHelpers[helper].package());
 
           if (toolType == 'graphing') {
             constructors = Object.assign({},window.currentCalcConstructors);
@@ -953,13 +980,13 @@
         }
 
         if (pack && (pack['state'])) {
-          self.unpack(pack);
+          unpack(pack);
           if (ID == 'workingState') {
-            if (savedToolType == "graphing") {
+            if (type == "graphing") {
               if (calcPrevState == null) {
                 calcPrevState = calcDefaultState = state;
               }
-            } else if (savedToolType == "geometry") {
+            } else if (type == "geometry") {
               if (geoPrevState == null) {
                 geoPrevState = geoDefaultState = state;
               }
@@ -968,41 +995,18 @@
           }
         } else if (window.calculator) self.saveCurrent(false);
 
-        this.clearWarning = function() {
-          if ($checkWarnGui.parent().is($('#'+id+'_cell'))) {
-            $checkWarnGui.remove();
-            $('#'+id+'_cell').append($gui);
-          }
-        }
-
-        this.package = function() {
-          return {
-            name:name,
-            constructors:constructors,
-            savedToolType:savedToolType,
-            state:state,
-            width:width,
-            height:height,
-            preview: $('#'+id+'_img').attr("src")
-          };
-        }
-
-        this.shiftLeft = function() {
-          position--;
-        }
-
         function buildGui() {
           if ($gui === undefined) {
             var $cell = $('<td id="'+id+'_cell" style="text-align:center;border-style:solid;border-width:1px;vertical-align:top;"><div id="'+id+'"></div></td>');
-            if (id == savePrefix+'workingState') $('#saveBrowserRow').append($cell);
-            else $cell.insertAfter($('#'+savePrefix+'workingState_cell'));
+            if (id == DOM_ID_PREFIX+'workingState') $('#saveBrowserRow').append($cell);
+            else $cell.insertAfter($('#'+DOM_ID_PREFIX+'workingState_cell'));
             $gui = $('#'+id);
           } else {
             $gui.remove();
             $gui.appendTo($('#'+id+'_cell'));
             $gui.html('');
           }
-          if (id != savePrefix+'workingState') {
+          if (id != DOM_ID_PREFIX+'workingState') {
             $gui.append('<input type="text" id="'+id+'_name" placeholder="unnamed widget" style="text-align:center;width:'+previewWidth+'px;"><br>'+
             '<div style="width:'+previewWidth+'px;height:'+previewHeight+'px;border-style:outset;border-width:2px;">'+
             '<img class="'+id+'_load" id="'+id+'_img" style="max-width:100%;max-height:100%;">'+
@@ -1067,7 +1071,7 @@
               $('#checkConfirm').html('delete '+(name?name:'unnamed widget'));
               $('#checkConfirm').click(function(){
                 $checkWarnGui.remove();
-                destroyThis();
+                destroy();
               });
               $('#checkCancel').html('keep '+(name?name:'unnamed widget'));
               $('#checkCancel').click(function(){
@@ -1115,22 +1119,54 @@
           }
         }
 
+        this.clearWarning = function() {
+          if ($checkWarnGui.parent().is($('#'+id+'_cell'))) {
+            $checkWarnGui.remove();
+            $('#'+id+'_cell').append($gui);
+          }
+        }
+
         function load() {
           desWidth = width;
           desHeight = height;
-          if (savedToolType == 'graphing') {
+          if (type == 'graphing') {
             window.currentCalcConstructors = Object.assign({},constructors);
-          } else if (savedToolType == 'geometry') {
+          } else if (type == 'geometry') {
             window.currentGeoConstructors = Object.assign({},constructors);
           };
           window.load(state,{allowUndo:false,remapColors:false});
-          if (savedToolType == 'geometry') {
-            if (constructors.ruler) window.Geo.showRuler();
-            if (constructors.protractor) window.Geo.showProtractor();
+          for (helper in helpers) {
+            var newHelper = new DCAThelper(helpers[helper]);
+            currentHelpers[newHelper.id] = newHelper;
+          }
+        }
+
+        this.package = function() {
+          return {
+            name:name,
+            type:type,
+            constructors:constructors,
+            state:state,
+            helpers:helpers,
+            width:width,
+            height:height,
+            preview: $('#'+id+'_img').attr("src")
           };
         }
 
-        function destroyThis() {
+        function unpack(pack) {
+          name = pack.name;
+          type = pack.type;
+          constructors = Object.assign({},pack.constructors);
+          state = pack.state;
+          width = pack.width;
+          height = pack.height;
+          helpers = Object.assign([],pack.helpers);
+          buildGui();
+          $('#'+id+'_img').attr("src",pack.preview);
+        }
+
+        function destroy() {
           $('#'+id+'_cell').remove();
           for (i=position+1;i<savedGraphs.length;i++) {
             savedGraphs[i].shiftLeft();
@@ -1138,35 +1174,45 @@
           savedGraphs.splice(position,1);
 
           updateStorage();
+
+          delete self;
+        }
+
+        this.shiftLeft = function() {
+          position--;
         }
       }
 
-      function DCAThelper(expr, funcName, val='') {
+      function DCAThelper(pack,id=null) {
         var self = this;
-        var latex = expr;
-        var value = val;
+        this.id = (((id == 'newHelper')||(id === null)) ? (DOM_ID_PREFIX+(domIdIndex++)) : id);
+        var latex;
+        var value;
         var funcName = funcName;
         var helper = null;
         var func;
+        var $row;
 
-        if (PearsonGL.masterJS[funcName] === undefined) {
-          if (PearsonGL.rootJS[funcName] === undefined) {
+        unpack(pack);
+
+        if (PearsonGL.External.masterJS[funcName] === undefined) {
+          if (PearsonGL.External.rootJS[funcName] === undefined) {
             throw new Error('Function does not exist: '+funcName);
-            return false;
+            return null;
           } else {
             func = (function() {
               if (value == '') return function() {
-                return PearsonGL.rootJS[funcName]({
-                  value:helper.numericValue;
-                  name:latex;
-                  desmos:window.calculator;
+                return PearsonGL.External.rootJS[funcName]({
+                  value:helper.numericValue,
+                  name:latex,
+                  desmos:window.calculator
                 });
               };
               else return function() {
-                if (helper.numericValue == value) return PearsonGL.rootJS[funcName]({
-                  value:helper.numericValue;
-                  name:latex;
-                  desmos:window.calculator;
+                if (helper.numericValue == value) return PearsonGL.External.rootJS[funcName]({
+                  value:helper.numericValue,
+                  name:latex,
+                  desmos:window.calculator
                 });
               };
             })();
@@ -1174,15 +1220,15 @@
         } else {
           func = (function() {
             if (value == '') return function() {
-              return PearsonGL.masterJS[funcName](helper.numericValue,latex,window.calculator);
+              return PearsonGL.External.masterJS[funcName](helper.numericValue,latex,window.calculator);
             };
             else return function() {
-              if (helper.numericValue == value) return PearsonGL.masterJS[funcName](helper.numericValue,latex,window.calculator);
+              if (helper.numericValue == value) return PearsonGL.External.masterJS[funcName](helper.numericValue,latex,window.calculator);
             };
           })();
         }
 
-        function enable() {
+        this.enable = function() {
           if (helper !== null) {
             throw new Error('Helper function \"'+latex+'\": \"'+funcName+'\" already initialized.');
             if (helper.__observers.numericValue === undefined) {
@@ -1194,18 +1240,73 @@
           } else helper = window.calculator.HelperExpression({latex:latex});
 
           helper.observe('numericValue', func);
+
+          if($row) {
+            $row.appendTo($('#helperList'));
+            $('#newHelper').appendTo($('#helperList'));
+          }
+
           return true;
+        };
+
+        if (!(self.enable())) {
+          delete self;
+          return null;
         }
 
-        function disable() {
+        this.disable = function() {
           if (helper === null) {
             throw new Error('Error disabling helper function: \"'+latex+'\": \"'+funcName+'\" was not initialized.');
             return true;
           }
 
+          $row.detach();
+
           helper.unobserveAll();
           helper = null;
           return true;
+        }
+
+        this.destroy = function() {
+          self.disable();
+          delete currentHelpers[self.id];
+
+          if (!(autoSaveQueued)) autoSave();
+
+          $row.remove();
+
+          delete self;
+        }
+
+        this.package = function() {
+          return {
+            latex:latex,
+            funcName:funcName,
+            value:value
+          };
+        }
+
+        function unpack(pack) {
+          latex = pack.latex;
+          funcName = pack.funcName;
+          value = pack.value;
+          buildGui();
+        }
+
+        function buildGui() {
+          if ($row === undefined) {
+            if($('#'+self.id).length > 0) $row = $('#'+self.id);
+            else {
+              $row = newHelper.clone(true,true).attr('id',self.id).appendTo($('#helperList'));
+              $('#newHelper').appendTo($('#helperList'));
+            }
+          }
+          $row.find('.helperName')[0].value = latex;
+          $row.find('.helperFunction')[0].value = funcName;
+          $row.find('.helperValue')[0].value = value;
+          $row.find('.addHelper').html('Update');
+          $row.find('.addHelper').prop("disabled",true);
+          $row.find('.deleteHelper').html('Delete');
         }
       }
 
@@ -1241,6 +1342,8 @@
         localStorage.currentVersion = Date.now();
       }
 
+      // Note: never set toolType before refreshing the calculator;
+      //       toolType should always match current toolType.
       function refreshCalculator(type = toolType) {
         if (window.queuedSave) {
           window.clearTimeout(window.queuedSave);
@@ -1249,6 +1352,8 @@
         }
 
         // Clean up previous instances
+        for (helper in currentHelpers) currentHelpers[helper].disable();
+
         window.calculator = null;
         if(window.Geo) {
           geoPrevState = window.Geo.getState();
@@ -1329,9 +1434,11 @@
           }
         });
 
+        if (type == 'graphing') for (helper in currentHelpers) currentHelpers[helper].enable();
+
         if (toolType != type) {
           toolType = type;
-          updateView(type);
+          updateView();
         }
 
         if (!(autoSaveQueued)) autoSave();
@@ -1375,7 +1482,6 @@
         };
 
         if(toolType != type) {
-          toolType = type;
           refreshCalculator(type);
         };
       }
@@ -1419,22 +1525,28 @@
         window.rebuild.apply(this,options);
       };
       window.load = function(state, options={remapColors:true,allowUndo:true}) {
-        if (autoSaveQueued) {
+        if (window.queuedSave) {
           window.clearTimeout(window.queuedSave);
           delete window.queuedSave;
         }
         autoSaveQueued = true;
+        var type;
         if (state.expressions != undefined) {
           calcDefaultState = state;
-          toolType = 'graphing';
+          type = 'graphing';
         }
         if (state.objects != undefined) {
           geoDefaultState = state;
-          toolType = 'geometry';
+          type = 'geometry';
         }
-        refreshCalculator(toolType);
+
+        for (helper in currentHelpers) currentHelpers[helper].destroy();
+
+        refreshCalculator(type);
         window.calculator.setState(state, options);
         autoSave();
+        var screen = window.calculator.screenshot();
+        window.setTimeout(function(){if(screen != window.calculator.screenshot()) autoSave();},LOADING_TIME_ALLOTMENT);
       };
       window.copyState = function() {
         var currState = window.calculator.getState();
