@@ -1343,7 +1343,7 @@
         }
 
         // Clean up previous instances
-        for (helper in currentHelpers) currentHelpers[helper].disable();
+        if (toolType == 'graphing') for (helper in currentHelpers) currentHelpers[helper].disable();
 
         window.calculator = null;
         if(window.Geo) {
