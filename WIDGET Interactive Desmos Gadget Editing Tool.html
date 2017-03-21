@@ -362,7 +362,7 @@
         var func = helperRow.find('.helperFunction')[0].value;
         var value = helperRow.find('.helperValue')[0].value;
         var success = false;
-        var helper;
+        var helper = null;
 
         if (helperId == 'newHelper') {
           helperRow.remove();
@@ -955,7 +955,8 @@
           width = desWidth;
           height = desHeight;
           helpers = [];
-          for (helper in currentHelpers) helpers.push(currentHelpers[helper].package());
+
+          if (toolType == 'graphing') for (helper in currentHelpers) helpers.push(currentHelpers[helper].package());
 
           if (toolType == 'graphing') {
             constructors = Object.assign({},window.currentCalcConstructors);
@@ -1188,6 +1189,7 @@
 
         if (PearsonGL.External.masterJS[funcName] === undefined) {
           if (PearsonGL.External.rootJS[funcName] === undefined) {
+            $row.remove();
             throw new Error('Function does not exist: '+funcName);
             return null;
           } else {
@@ -1226,6 +1228,7 @@
               throw new Error('Helper function \"'+latex+'\": \"'+funcName+'\" was initialized but was not observed. Attempting to add observer.');
             } else return true;
           } else if (window.calculator.HelperExpression === undefined) {
+            $row.remove();
             throw new Error('Helper function \"'+latex+'\": \"'+funcName+'\" not supported by current tool type: '+window.tooltype);
             return false;
           } else helper = window.calculator.HelperExpression({latex:latex});
@@ -1241,6 +1244,7 @@
         };
 
         if (!(self.enable())) {
+          $row.remove();
           delete self;
           return null;
         }
@@ -1396,7 +1400,7 @@
             autoSave();
           }
         });
-        updateView(type);
+
         $('#desWidth')[0].value=desWidth;
         $('#desHeight')[0].value=desHeight;
         $('#saveBrowserDiv').width(desWidth);
@@ -1427,10 +1431,8 @@
 
         if (type == 'graphing') for (helper in currentHelpers) currentHelpers[helper].enable();
 
-        if (toolType != type) {
-          toolType = type;
-          updateView();
-        }
+        toolType = type;
+        updateView();
 
         if (!(autoSaveQueued)) autoSave();
       }
@@ -1536,8 +1538,8 @@
         refreshCalculator(type);
         window.calculator.setState(state, options);
         autoSave();
-        var screen = window.calculator.screenshot();
-        window.setTimeout(function(){if(screen != window.calculator.screenshot()) autoSave();},LOADING_TIME_ALLOTMENT);
+        var screen = window.calculator.screenshot({width:previewWidth,height:previewHeight});
+        window.setTimeout(function(){if(screen != window.calculator.screenshot({width:previewWidth,height:previewHeight})) autoSave();},LOADING_TIME_ALLOTMENT);
       };
       window.copyState = function() {
         var currState = window.calculator.getState();
