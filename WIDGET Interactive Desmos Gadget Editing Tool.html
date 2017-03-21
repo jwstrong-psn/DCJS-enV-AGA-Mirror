@@ -355,8 +355,6 @@
       });
 
       $(".addHelper").click(function(event){
-        alert('Coming soon…');
-        // return;
         // <button> → <td> → <tr id="helperId">
         var helperId = event.target.parentNode.parentNode.id;
         var helperRow = $('#'+helperId);
@@ -385,8 +383,6 @@
       });
 
       $(".deleteHelper").click(function(event){
-        alert('Coming soon…');
-        // return;
         // <button> → <td> → <tr id="helperId">
         var helperId = event.target.parentNode.parentNode.id;
         var helperRow = $('#'+helperId);
@@ -396,12 +392,7 @@
           helperRow.find('.helperFunction')[0].value = '';
           helperRow.find('.helperValue')[0].value = '';
           helperRow.find('.addHelper').prop("disabled",true);
-        } else {
-          // disable/delete helper expression
-          currentHelpers[helperId].destroy();
-          // remove the row
-          $('#'+helperId).remove();
-        }
+        } else currentHelpers[helperId].destroy();
       });
 
       $('.helperName').change(function(event){
