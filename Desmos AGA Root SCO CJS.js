@@ -558,61 +558,32 @@ PearsonGL.External.rootJS = (function() {
        init: function(options={}) {
         var o = hs.parseOptions(options);
         vs[o.uniqueId] = {
-          a_1:60,
-          a_2:60,
-          a_3:120,
-          a_4:120
         };
        },
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
        | updates the labels of theta 1, 2, 3, 4 based on changes to two lines
        |
-       | theta_1 has measure a_1 and so on
-       |
-       | Angles theta_1, theta_2, theta_3, and theta_4 must be authored with showLabel:true,
-       | and the IDs
-       | theta_1, theta_2, theta_3, theta_4
+       | Hidden points P_1, P_2, P_3, and P_4 must be authored with showLabel:true,
+       | and the IDs a1, a2, a3, a4
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(options={}) {
         var o = hs.parseOptions(options);
-        var a_1 = vs[o.uniqueId].a_1;
         switch (o.name) {
-          case 'x_1':
-            vs[o.uniqueId].a_1 = a_1 = o.value;
-            hs.labelPoint(vs[o.uniqueId].P_x,vs[o.uniqueId].P_y,'P','P_point',o);
+          case '\\theta _1':
+            o.desmos.setExpression({id:'a1',label:(o.value)});
+            console.log(o.value);
             break;
-          case 'y_1':
-            vs[o.uniqueId].a_1 = a_1 = o.value;
-            hs.labelPoint(vs[o.uniqueId].P_x,vs[o.uniqueId].P_y,'P','P_point',o);
+          case '\\theta _2':
+            o.desmos.setExpression({id:'a2',label:(o.value)});
             break;
-          case 'x_2':
-            vs[o.uniqueId].a_1 = a_1 = o.value;
-            hs.labelPoint(vs[o.uniqueId].Q_x,vs[o.uniqueId].Q_y,'Q','Q_point',o);
+          case '\\theta _3':
+            o.desmos.setExpression({id:'a3',label:(o.value)});
             break;
-          case 'y_2':
-            vs[o.uniqueId].a_1 = a_1 = o.value;
-            hs.labelPoint(vs[o.uniqueId].Q_x,vs[o.uniqueId].Q_y,'Q','Q_point',o);
+          case '\\theta _4':
+            o.desmos.setExpression({id:'a4',label:(o.value)});
             break;
-          case 'x_3':
-            vs[o.uniqueId].a_1 = a_1 = o.value;
-            hs.labelPoint(vs[o.uniqueId].Q_x,vs[o.uniqueId].Q_y,'Q','Q_point',o);
-            break;
-          case 'y_3':
-            vs[o.uniqueId].a_1 = a_1 = o.value;
-            hs.labelPoint(vs[o.uniqueId].Q_x,vs[o.uniqueId].Q_y,'Q','Q_point',o);
-            break;
-        };
-        var a_2 = a_1;
-        var a_3 = 180 – a_1;
-        var a_4 = a_3;
-
-        o.desmos.setExpressions([
-          {id:'theta_1',label:('θ₁ = '+a_1},
-          {id:'theta_2',label:('θ₂ = '+a_2},
-          {id:'theta_3',label:('θ₃ = '+a_3},
-          {id:'theta_4',label:('θ₄ = '+a_4}
-        ]);
-       }
+          };
+        }
      };
 
   Object.assign(exports,hs.flattenFuncStruct(fs));
