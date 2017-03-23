@@ -221,13 +221,11 @@ PearsonGL.External.rootJS = (function() {
       /* ←— number to letter (lowercase) —————————————————————————————————→ *\
        | Convert a number to its lowercase letter with `cs.alpha[n]`
        * ←————————————————————————————————————————————————————————————————→ */
-       alpha:'abcdefghijklmnopqrstuvwxyz';
-       },
+       alpha:'abcdefghijklmnopqrstuvwxyz',
       /* ←— number to letter (uppercase) —————————————————————————————————→ *\
        | Convert a number to its uppercase letter with `cs.ALPHA[n]`
        * ←————————————————————————————————————————————————————————————————→ */
-       ALPHA:'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-       }
+       ALPHA:'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
      }
   /* ←—PRIVATE CONSTANTS———————————————————————————————————————————————————→ *\
        | Constants, e.g. for tolerances or LaTeX strings.
