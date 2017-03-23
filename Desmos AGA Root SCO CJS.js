@@ -590,7 +590,7 @@ PearsonGL.External.rootJS = (function() {
        * ←———————————————————————————————————————————————————————————————————→ */
        init: function(options={}) {
         let o = hs.parseOptions(options);
-        vs[o.uniqueId] = {};
+        vs[o.uniqueId] = {n:cs.A0597629.MAX_VERTICES};
 
         // Set up observers for all the coordinates.
          for(let i=1;i<=cs.A0597629.MAX_VERTICES;i++) {
@@ -630,12 +630,28 @@ PearsonGL.External.rootJS = (function() {
          };
        },
       /* ←— coordinateChanged ———————————————————————————————————————————————→ *\
-       | Initializes the variables
+       | updates variables, and corrects if the user tries to cross diagonals
        * ←———————————————————————————————————————————————————————————————————→ */
        coordinateChanged: function(options={}) {
         var o = hs.parseOptions(options);
         var n = vs[o.uniqueId].n;
-        var i = eval(o.name.match(/[0-9]+/));
+        var i = eval(o.name.match(/[0-9]+/)[0]);
+        var val = o.value;
+
+        console.log("Changed:",o);
+
+        vs[o.uniqueId][n][o.name] = val;
+       },
+      /* ←— switchPolygon ———————————————————————————————————————————————————→ *\
+       | Adds and removes vertices and edges
+       | Restyles diagonals
+       | Restores coordinates
+       * ←———————————————————————————————————————————————————————————————————→ */
+       switchPolygon: function(options={}) {
+        var o = hs.parseOptions(options);
+        var prevn = vs[o.uniqueId].n;
+        var n = vs[o.uniqueId].value;
+
         console.log("Changed:",o);
        }
      }
