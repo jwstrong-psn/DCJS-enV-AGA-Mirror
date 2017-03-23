@@ -104,67 +104,6 @@
 
       var $frame = $('#frame');
       var $elt = $('#calculator');
-      window.agaColors = {
-        blue: '#0092C8',
-        red: '#F15A22',
-        green: '#0AB14B',
-        teal: '#36C1CD',
-        orange: '#EFA038',
-        lime: '#95CA59',
-        purple: '#812990',
-        black: '#000000',
-        grey: '#58595B'
-      };
-      var defaultGraphSettings = {
-        degreeMode:true,
-        xAxisArrowMode:Desmos.AxisArrowModes.BOTH,
-        yAxisArrowMode:Desmos.AxisArrowModes.BOTH,
-        xAxisLabel:"x",
-        yAxisLabel:"y"
-      };
-      window.calcConstructors = {
-        /*Comment indicates difference from default.*/
-        /* default: graphpaper, expressions, settingsMenu, zoomButtons, expressionsTopbar, pointsOfInterest, singleVariableSolutions, trace, border, expressionsCollapsed, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
-        default:{
-          'keypad':false,
-          'graphpaper':true,
-          'expressions':true,
-          'settingsMenu':true,
-          'zoomButtons':true,
-          'expressionsTopbar':true,
-          'pointsOfInterest':true,
-          'singleVariableSolutions':true,
-          'trace':true,
-          'border':true,
-          'lockViewport':false,
-          'expressionsCollapsed':true,
-          'images':false,
-          'folders':true,
-          'notes':true,
-          'qwertyKeyboard':true,
-          'restrictedFunctions':false,
-          'pasteGraphLink':false,
-          'pasteTableData':true,
-          'degreeMode':true,
-          'colors':agaColors
-        }
-      }
-      window.geoConstructors = {
-        /* default: perpendicular, parallel, midpoint, compass, border, labels */
-        default:{
-          'construct.perpendicular':true,
-          'construct.parallel':true,
-          'construct.midpoint':true,
-          'construct.compass':true,
-          'border':true,
-          'labels':true,
-          'ruler':false,
-          'protractor':false
-        }
-      }
-
-      window.currentCalcConstructors = Object.assign({},window.calcConstructors.default,{administerSecretFolders:true});
-      window.currentGeoConstructors = Object.assign({},window.geoConstructors.default);
       window.calculator = window.Calc = window.Geo = null;
 
       var toolType = 'graphing';
@@ -194,17 +133,14 @@
 
         // Instantiate the calculator and set its state
         if (type == 'graphing') {
-          window.calculator = window.Calc = Desmos.GraphingCalculator($elt[0], window.currentCalcConstructors);
+          window.calculator = window.Calc = Desmos.GraphingCalculator($elt[0]);
           if (calcPrevState) window.calculator.setState(calcPrevState);
-          else window.calculator.updateSettings(defaultGraphSettings);
           if (calcDefaultState) window.calculator.setDefaultState(calcDefaultState);
           else window.calculator.setDefaultState(window.calculator.getState());
         } else if (type == 'geometry') {
-          window.calculator = window.Geo = Desmos.Geometry($elt[0], window.currentGeoConstructors);
+          window.calculator = window.Geo = Desmos.Geometry($elt[0]);
           window.calculator.setState(geoPrevState);
-          if (window.currentGeoConstructors.ruler) window.Geo.showRuler();
-          if (window.currentGeoConstructors.protractor) window.Geo.showProtractor();
-          // window.calculator.setDefaultState(geoDefaultState);
+          window.calculator.setDefaultState(geoDefaultState);
         };
         toolType = type;
         updateView();
@@ -222,9 +158,6 @@
           $("#geometry").css("background",offbuttoncolor);
           $("#geometry").css("color",offtextcolor);
         }
-        var currentConstructors = ((type == "graphing")?currentCalcConstructors:currentGeoConstructors);
-        if ((type == 'geometry') && (currentConstructors.ruler === undefined)) currentConstructors.ruler = false;
-        if ((type == 'geometry') && (currentConstructors.protractor === undefined)) currentConstructors.protractor = false;
 
         if(toolType != type) {
           refreshCalculator(type);
@@ -232,15 +165,9 @@
       }
 
       window.rebuild = function(options={}) {
-        // Update the constructors
-        var currentConstructors = ((toolType == "graphing")?currentCalcConstructors:currentGeoConstructors);
-        for (arg in arguments) Object.assign(currentConstructors,arguments[arg]);
         refreshCalculator();
       };
       window.show = function(options={}) {
-        if (toolType == 'graphing') {
-          Object.assign(window.currentCalcConstructors,{'administerSecretFolders':true});
-        };
         window.rebuild.apply(this,options);
       };
       window.load = function(state, options={remapColors:true,allowUndo:true}) {
