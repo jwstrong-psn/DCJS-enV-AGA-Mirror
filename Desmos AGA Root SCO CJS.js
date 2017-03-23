@@ -432,6 +432,7 @@ PearsonGL.External.rootJS = (function() {
             if (vs[o.uniqueId] === undefined) vs[o.uniqueId] = {};
             var name = o.name.match(/(?:[a-zA-Z]|\\(?:alpha|beta|theta|phi|pi|tau) )_(?:{([a-zA-Z0-9]+)}|([a-zA-Z0-9]))/) || [];
             name = l+'_'+((name[1] === undefined) ? ((name[2] === undefined) ? '' : name[2]) : name[1]);
+            if (name.length == 2) name = name[0];
             vs[o.uniqueId][name] = o.value;
             if (o.log) o.log('Saving value of ' + o.name + ' as vs.' + o.uniqueId + '.' + name);
            };
