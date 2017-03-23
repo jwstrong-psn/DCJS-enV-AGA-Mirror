@@ -603,6 +603,7 @@ PearsonGL.External.rootJS = (function() {
        },
       /* ←— coordinateChanged ———————————————————————————————————————————————→ *\
        | Initializes the variables
+       |  NOTE: N should be logged in the helper functions with value_n
        * ←———————————————————————————————————————————————————————————————————→ */
        coordinateChanged: function(options={}) {
         var o = hs.parseOptions(options);
