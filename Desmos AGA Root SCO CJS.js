@@ -191,6 +191,32 @@ PearsonGL.External.rootJS = (function() {
           ')';
         if (o.log) o.log('Setting point label ' + expr);;
         o.desmos.setExpression({id:id,label:expr});
+       },
+      /* ←— Distance From Point to Line ——————————————————————————————————→ *\
+       | Compute the distance from a point to a line
+       |
+       | Point given as object with {x:_,y:_}
+       | Line given as object with {a:_,b:_,c:_} with ax + by + c = 0
+       | Value is signed based on orientation of the line.
+       * ←————————————————————————————————————————————————————————————————→ */
+       distancePointLine: function(point, line) {
+        return (point.x*line.a+point.y*line.b+line.c)/Math.sqrt(line.a*line.a+line.b*line.b);
+       },
+      /* ←— Line through two points ——————————————————————————————————————→ *\
+       | Compute the distance from a point to a line
+       |
+       | Points given as object with {x:_,y:_}
+       | Line returned is oriented counter-clockwise, such that a point to
+       |  the left of the second point from the perspective of the first is
+       |  on a "higher" contour, and a point to the right is lower.
+       | The coefficients are not normalized.
+       * ←————————————————————————————————————————————————————————————————→ */
+       lineTwoPoints: function(point1, point2) {
+        return {
+          a:point1.y-point2.y,
+          b:point2.x-point1.y,
+          c:point1.x*point2.y-point1.y*point2.x
+        };
        }
      }
   /* ←—PRIVATE CONSTANTS———————————————————————————————————————————————————→ *\
