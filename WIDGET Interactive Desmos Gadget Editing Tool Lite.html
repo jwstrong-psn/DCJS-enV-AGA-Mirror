@@ -49,21 +49,14 @@
       var offtextcolor = "white";
 
       $("#graphing").click(function(){
-        $("#graphing").css("background",onbuttoncolor);
-        $("#graphing").css("color",ontextcolor);
-        $("#geometry").css("background",offbuttoncolor);
-        $("#geometry").css("color",offtextcolor);
         toolType = "graphing";
         window.rebuild();
       });
       $("#geometry").click(function(){
-        $("#graphing").css("background",offbuttoncolor);
-        $("#graphing").css("color",offtextcolor);
-        $("#geometry").css("background",onbuttoncolor);
-        $("#geometry").css("color",ontextcolor);
         toolType = "geometry";
         window.rebuild();
       });
+      
       $("#copyState").click(function(){
         var currState = window.copyState();
         var field = $('#stateInput')[0];
