@@ -550,6 +550,66 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
+    /* ←— A0597629 FUNCTIONS ——————————————————————————————————————————————→ */
+     cs.A0597629 = {
+      MAX_VERTICES:14,
+      RADIUS:10
+     };
+
+     fs.A0597629 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variables
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        let o = hs.parseOptions(options);
+        vs[o.uniqueId] = {};
+
+        // Set up observers for all the coordinates.
+         for(let i=1;i<=cs.A0597629.MAX_VERTICES;i++) {
+          // Observe x
+          vs[o.uniqueId]["x_"+((i>9)?"{"+i+"}":i)] = o.desmos.HelperExpression({
+            latex:"x_"+((i>9)?"{"+i+"}":i)
+          });
+          vs[o.uniqueId]["x_"+((i>9)?"{"+i+"}":i)].observe('numericValue',function(){fs.A0597629.coordinateChanged({
+            name:"x_"+((i>9)?"{"+i+"}":i),
+            value:vs[o.uniqueId]["x_"+((i>9)?"{"+i+"}":i)].numericValue,
+            desmos:o.desmos,
+            uniqueId:o.uniqueId,
+            log:o.log || function(){}
+          })});
+          // Observe y
+          vs[o.uniqueId]["y_"+((i>9)?"{"+i+"}":i)] = o.desmos.HelperExpression({
+            latex:"y_"+((i>9)?"{"+i+"}":i)
+          });
+          vs[o.uniqueId]["y_"+((i>9)?"{"+i+"}":i)].observe('numericValue',function(){fs.A0597629.coordinateChanged({
+            name:"y_"+((i>9)?"{"+i+"}":i),
+            value:vs[o.uniqueId]["y_"+((i>9)?"{"+i+"}":i)].numericValue,
+            desmos:o.desmos,
+            uniqueId:o.uniqueId,
+            log:o.log || function(){}
+          })});
+         };
+         o.log("Observers initialized:",vs[o.uniqueId]);
+
+        // Set up variables for vertices of each polygon
+         for(var i=3;i<=cs.A0597629.MAX_VERTICES;i++) {
+          vs[o.uniqueId][i]={};
+          for(var j=1;j<=i;j++) {
+            vs[o.uniqueId][i]["x_"+((j>9)?"{"+j+"}":j)] = cs.A0597629.RADIUS*Math.round(1000000*Math.sin(2*Math.PI*(1-(j-1)/i)))/1000000;
+            vs[o.uniqueId][i]["y_"+((j>9)?"{"+j+"}":j)] = cs.A0597629.RADIUS*Math.round(1000000*Math.cos(2*Math.PI*(1-(j-1)/i)))/1000000;
+          };
+          o.log("Variables initialized for "+i+" vertices:",vs[o.uniqueId][i]);
+         };
+       },
+      /* ←— coordinateChanged ———————————————————————————————————————————————→ *\
+       | Initializes the variables
+       * ←———————————————————————————————————————————————————————————————————→ */
+       coordinateChanged: function(options={}) {
+        var o = hs.parseOptions(options);
+        console.log("Changed:",o);
+       }
+     }
+
   Object.assign(exports,hs.flattenFuncStruct(fs));
 
   return exports;
