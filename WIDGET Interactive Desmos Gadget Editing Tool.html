@@ -1162,14 +1162,16 @@
                 return PearsonGL.External.rootJS[funcName]({
                   value:helper.numericValue,
                   name:latex,
-                  desmos:window.calculator
+                  desmos:window.calculator,
+                  log:console.log
                 });
               };
               else return function() {
                 if (helper.numericValue == value) return PearsonGL.External.rootJS[funcName]({
                   value:helper.numericValue,
                   name:latex,
-                  desmos:window.calculator
+                  desmos:window.calculator,
+                  log:console.log
                 });
               };
             })();
