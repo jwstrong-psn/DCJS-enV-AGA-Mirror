@@ -609,7 +609,6 @@ PearsonGL.External.rootJS = (function() {
      fs.A0597629 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
-       |  NOTE: N should be logged in the helper functions with value_n
        * ←———————————————————————————————————————————————————————————————————→ */
        init: function(options={}) {
         let o = hs.parseOptions(options);
@@ -673,9 +672,59 @@ PearsonGL.External.rootJS = (function() {
        switchPolygon: function(options={}) {
         var o = hs.parseOptions(options);
         var prevn = vs[o.uniqueId].n;
-        var n = vs[o.uniqueId].value;
+        var n = vs[o.uniqueId].n = o.value;
 
-        console.log("Changed:",o);
+        // Delete extra vertices
+        for (var i = n+1; i <= prevn; i++) {
+          o.desmos.setExpressions([
+            {
+              id:'vertex'+hs.ALPHA[i],
+              hidden:true,
+              showlabel:false
+            },
+            {
+              id:'segment'+hs.ALPHA[i]+'A',
+              hidden:true
+            },
+            {
+              id:'segment'+hs.ALPHA[i-1]+hs.ALPHA[i],
+              hidden:true
+            }
+          ])
+        };
+
+        // Add new vertices
+        for (var i = prevn; i < n; i++) {
+          o.desmos.setExpressions([
+            {
+              id:'vertex'+hs.ALPHA[i+1],
+              hidden:false,
+              showLabel:true
+            },
+            {
+              id:'segment'+hs.ALPHA[i]+'A',
+              hidden:false,
+              style:'dashed',
+              color:cs.agaColors.red
+            },
+            {
+              id:'segment'+hs.ALPHA[i]+hs.ALPHA[i+1],
+              hidden:false,
+              style:'normal',
+              color:cs.agaColors.black
+            }
+          ]);
+        };
+
+        // Style terminal edge
+        o.desmos.setExpression({
+          id:'vertex'+hs.ALPHA[n]+'A',
+          hidden:false,
+          style:'normal',
+          color:cs.agaColors.black
+        });
+
+        console.log("Changed from "+prevn+" sides to "+n+"sides");
        }
      }
 
