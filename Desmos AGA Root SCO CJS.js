@@ -217,6 +217,18 @@ PearsonGL.External.rootJS = (function() {
           b:point2.x-point1.y,
           c:point1.x*point2.y-point1.y*point2.x
         };
+       },
+      /* ←— number to letter (lowercase) —————————————————————————————————→ *\
+       | Convert a number to its lowercase letter
+       * ←————————————————————————————————————————————————————————————————→ */
+       alpha: function(i) {
+        return 'abcdefghijklmnopqrstuvwxyz'[i];
+       },
+      /* ←— number to letter (uppercase) —————————————————————————————————→ *\
+       | Convert a number to its uppercase letter
+       * ←————————————————————————————————————————————————————————————————→ */
+       ALPHA: function(i) {
+        return 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[i];
        }
      }
   /* ←—PRIVATE CONSTANTS———————————————————————————————————————————————————→ *\
@@ -224,6 +236,17 @@ PearsonGL.External.rootJS = (function() {
        | Access with cs.type.NAME
        * ←—————————————————————————————————————————————————————————————————————→ */
     const cs = {
+      agaColors:{ // Colors for AGA
+        blue: '#0092C8',
+        red: '#F15A22',
+        green: '#0AB14B',
+        teal: '#36C1CD',
+        orange: '#EFA038',
+        lime: '#95CA59',
+        purple: '#812990',
+        black: '#000000',
+        grey: '#58595B'
+       },
       ts:{ // Tolerances for tuning; measured in log2 increments.
         AR:0.01, // Aspect Ratio, detectably non-square
         ZOOM:0.3 // For reporting coarse changes in the zoom level
