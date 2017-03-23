@@ -606,6 +606,8 @@ PearsonGL.External.rootJS = (function() {
        * ←———————————————————————————————————————————————————————————————————→ */
        coordinateChanged: function(options={}) {
         var o = hs.parseOptions(options);
+        var n = vs[o.uniqueId].n;
+        var i = eval(o.name.match(/[0-9]+/));
         console.log("Changed:",o);
        }
      }
