@@ -219,16 +219,14 @@ PearsonGL.External.rootJS = (function() {
         };
        },
       /* ←— number to letter (lowercase) —————————————————————————————————→ *\
-       | Convert a number to its lowercase letter
+       | Convert a number to its lowercase letter with `cs.alpha[n]`
        * ←————————————————————————————————————————————————————————————————→ */
-       alpha: function(i) {
-        return 'abcdefghijklmnopqrstuvwxyz'[i];
+       alpha:'abcdefghijklmnopqrstuvwxyz';
        },
       /* ←— number to letter (uppercase) —————————————————————————————————→ *\
-       | Convert a number to its uppercase letter
+       | Convert a number to its uppercase letter with `cs.ALPHA[n]`
        * ←————————————————————————————————————————————————————————————————→ */
-       ALPHA: function(i) {
-        return 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[i];
+       ALPHA:'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
        }
      }
   /* ←—PRIVATE CONSTANTS———————————————————————————————————————————————————→ *\
@@ -676,7 +674,7 @@ PearsonGL.External.rootJS = (function() {
 
         // Delete extra vertices
         for (var i = n+1; i <= prevn; i++) {
-          o.desmos.setExpressions([
+          var exprs = [
             {
               id:'vertex'+hs.ALPHA[i],
               hidden:true,
@@ -690,7 +688,9 @@ PearsonGL.External.rootJS = (function() {
               id:'segment'+hs.ALPHA[i-1]+hs.ALPHA[i],
               hidden:true
             }
-          ])
+          ];
+          o.log('Deleting vertex '+i,exprs);
+          o.desmos.setExpressions(exprs)
         };
 
         // Add new vertices
