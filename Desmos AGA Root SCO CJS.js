@@ -191,6 +191,32 @@ PearsonGL.External.rootJS = (function() {
           ')';
         if (o.log) o.log('Setting point label ' + expr);;
         o.desmos.setExpression({id:id,label:expr});
+       },
+      /* ←— Distance From Point to Line ——————————————————————————————————→ *\
+       | Compute the distance from a point to a line
+       |
+       | Point given as object with {x:_,y:_}
+       | Line given as object with {a:_,b:_,c:_} with ax + by + c = 0
+       | Value is signed based on orientation of the line.
+       * ←————————————————————————————————————————————————————————————————→ */
+       distancePointLine: function(point, line) {
+        return (point.x*line.a+point.y*line.b+line.c)/Math.sqrt(line.a*line.a+line.b*line.b);
+       },
+      /* ←— Line through two points ——————————————————————————————————————→ *\
+       | Compute the distance from a point to a line
+       |
+       | Points given as object with {x:_,y:_}
+       | Line returned is oriented counter-clockwise, such that a point to
+       |  the left of the second point from the perspective of the first is
+       |  on a "higher" contour, and a point to the right is lower.
+       | The coefficients are not normalized.
+       * ←————————————————————————————————————————————————————————————————→ */
+       lineTwoPoints: function(point1, point2) {
+        return {
+          a:point1.y-point2.y,
+          b:point2.x-point1.y,
+          c:point1.x*point2.y-point1.y*point2.x
+        };
        }
      }
   /* ←—PRIVATE CONSTANTS———————————————————————————————————————————————————→ *\
@@ -432,6 +458,7 @@ PearsonGL.External.rootJS = (function() {
             if (vs[o.uniqueId] === undefined) vs[o.uniqueId] = {};
             var name = o.name.match(/(?:[a-zA-Z]|\\(?:alpha|beta|theta|phi|pi|tau) )_(?:{([a-zA-Z0-9]+)}|([a-zA-Z0-9]))/) || [];
             name = l+'_'+((name[1] === undefined) ? ((name[2] === undefined) ? '' : name[2]) : name[1]);
+            if (name.length == 2) name = name[0];
             vs[o.uniqueId][name] = o.value;
             if (o.log) o.log('Saving value of ' + o.name + ' as vs.' + o.uniqueId + '.' + name);
            };
@@ -585,6 +612,69 @@ PearsonGL.External.rootJS = (function() {
           };
         }
      };
+
+    /* ←— A0597629 FUNCTIONS ——————————————————————————————————————————————→ */
+     cs.A0597629 = {
+      MAX_VERTICES:14,
+      RADIUS:10
+     };
+
+     fs.A0597629 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variables
+       |  NOTE: N should be logged in the helper functions with value_n
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        let o = hs.parseOptions(options);
+        vs[o.uniqueId] = {};
+
+        // Set up observers for all the coordinates.
+         for(let i=1;i<=cs.A0597629.MAX_VERTICES;i++) {
+          // Observe x
+          vs[o.uniqueId]["x_"+((i>9)?"{"+i+"}":i)] = o.desmos.HelperExpression({
+            latex:"x_"+((i>9)?"{"+i+"}":i)
+          });
+          vs[o.uniqueId]["x_"+((i>9)?"{"+i+"}":i)].observe('numericValue',function(){fs.A0597629.coordinateChanged({
+            name:"x_"+((i>9)?"{"+i+"}":i),
+            value:vs[o.uniqueId]["x_"+((i>9)?"{"+i+"}":i)].numericValue,
+            desmos:o.desmos,
+            uniqueId:o.uniqueId,
+            log:o.log || function(){}
+          })});
+          // Observe y
+          vs[o.uniqueId]["y_"+((i>9)?"{"+i+"}":i)] = o.desmos.HelperExpression({
+            latex:"y_"+((i>9)?"{"+i+"}":i)
+          });
+          vs[o.uniqueId]["y_"+((i>9)?"{"+i+"}":i)].observe('numericValue',function(){fs.A0597629.coordinateChanged({
+            name:"y_"+((i>9)?"{"+i+"}":i),
+            value:vs[o.uniqueId]["y_"+((i>9)?"{"+i+"}":i)].numericValue,
+            desmos:o.desmos,
+            uniqueId:o.uniqueId,
+            log:o.log || function(){}
+          })});
+         };
+         o.log("Observers initialized:",vs[o.uniqueId]);
+
+        // Set up variables for vertices of each polygon
+         for(var i=3;i<=cs.A0597629.MAX_VERTICES;i++) {
+          vs[o.uniqueId][i]={};
+          for(var j=1;j<=i;j++) {
+            vs[o.uniqueId][i]["x_"+((j>9)?"{"+j+"}":j)] = cs.A0597629.RADIUS*Math.round(1000000*Math.sin(2*Math.PI*(1-(j-1)/i)))/1000000;
+            vs[o.uniqueId][i]["y_"+((j>9)?"{"+j+"}":j)] = cs.A0597629.RADIUS*Math.round(1000000*Math.cos(2*Math.PI*(1-(j-1)/i)))/1000000;
+          };
+          o.log("Variables initialized for "+i+" vertices:",vs[o.uniqueId][i]);
+         };
+       },
+      /* ←— coordinateChanged ———————————————————————————————————————————————→ *\
+       | Initializes the variables
+       * ←———————————————————————————————————————————————————————————————————→ */
+       coordinateChanged: function(options={}) {
+        var o = hs.parseOptions(options);
+        var n = vs[o.uniqueId].n;
+        var i = eval(o.name.match(/[0-9]+/));
+        console.log("Changed:",o);
+       }
+     }
 
   Object.assign(exports,hs.flattenFuncStruct(fs));
 
