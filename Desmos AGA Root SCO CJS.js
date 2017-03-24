@@ -680,13 +680,12 @@ PearsonGL.External.rootJS = (function() {
      };
 
     /* ←— A0597629 FUNCTIONS ——————————————————————————————————————————————→ */
-     cs.A0597629 = {
-      MAX_VERTICES:14,
-      RADIUS:10,
-      DRAG_BUFFER:0.25,
-      DRAG_BUFFER_REBOUND:1.1 // How much to bounce back when going past the buffer
-     };
-
+      cs.A0597629 = {
+        MAX_VERTICES:14,
+        RADIUS:10,
+        DRAG_BUFFER:0.25,
+        DRAG_BUFFER_REBOUND:1.1 // How much to bounce back when going past the buffer
+       };
      fs.A0597629 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
@@ -858,47 +857,47 @@ PearsonGL.External.rootJS = (function() {
             }]);
           };
         };
-/**
-        var newDistL=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryLeft);
-        var newDistR=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryRight);
-        var newDistB=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryBase);
-        var giveUp = false;
-        window.setTimeout(function(){giveUp=true;},100);
+        /**
+          var newDistL=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryLeft);
+          var newDistR=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryRight);
+          var newDistB=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryBase);
+          var giveUp = false;
+          window.setTimeout(function(){giveUp=true;},100);
 
-        while ((newDistL >= 0 || newDistR >= 0 || newDistB <= 0) && !giveUp) { 
-          var newDist = newDistL;
-          if(newDist>=0) {
-            var oldDist = hs.distancePointLine(oldPoint,vs[o.uniqueId].dragBoundaryLeft);
-            var distOldNew = Math.sqrt(Math.pow(oldPoint.x-newPoint.x,2)+Math.pow(oldPoint.y-newPoint.y,2));
-            var t = newDist*distOldNew/(newDist-oldDist)*cs.A0597629.DRAG_BUFFER_REBOUND;
-            newPoint.x = oldPoint.x+(newPoint.x-oldPoint.x)*t;
-            newPoint.y = oldPoint.x+(newPoint.x-oldPoint.x)*t;
-          };
+          while ((newDistL >= 0 || newDistR >= 0 || newDistB <= 0) && !giveUp) { 
+            var newDist = newDistL;
+            if(newDist>=0) {
+              var oldDist = hs.distancePointLine(oldPoint,vs[o.uniqueId].dragBoundaryLeft);
+              var distOldNew = Math.sqrt(Math.pow(oldPoint.x-newPoint.x,2)+Math.pow(oldPoint.y-newPoint.y,2));
+              var t = newDist*distOldNew/(newDist-oldDist)*cs.A0597629.DRAG_BUFFER_REBOUND;
+              newPoint.x = oldPoint.x+(newPoint.x-oldPoint.x)*t;
+              newPoint.y = oldPoint.x+(newPoint.x-oldPoint.x)*t;
+            };
 
-          newDist = newDistR;
-          if(newDist>=0) {
-            var oldDist = hs.distancePointLine(oldPoint,vs[o.uniqueId].dragBoundaryRight);
-            var distOldNew = Math.sqrt(Math.pow(oldPoint.x-newPoint.x,2)+Math.pow(oldPoint.y-newPoint.y,2));
-            var t = newDist*distOldNew/(newDist-oldDist)*cs.A0597629.DRAG_BUFFER_REBOUND;
-            newPoint.x = oldPoint.x+(newPoint.x-oldPoint.x)*t;
-            newPoint.y = oldPoint.x+(newPoint.x-oldPoint.x)*t;
-          };
+            newDist = newDistR;
+            if(newDist>=0) {
+              var oldDist = hs.distancePointLine(oldPoint,vs[o.uniqueId].dragBoundaryRight);
+              var distOldNew = Math.sqrt(Math.pow(oldPoint.x-newPoint.x,2)+Math.pow(oldPoint.y-newPoint.y,2));
+              var t = newDist*distOldNew/(newDist-oldDist)*cs.A0597629.DRAG_BUFFER_REBOUND;
+              newPoint.x = oldPoint.x+(newPoint.x-oldPoint.x)*t;
+              newPoint.y = oldPoint.x+(newPoint.x-oldPoint.x)*t;
+            };
 
-          newDist = newDistB;
-          if(newDist<=0) {
-            var oldDist = hs.distancePointLine(oldPoint,vs[o.uniqueId].dragBoundaryBase);
-            var distOldNew = Math.sqrt(Math.pow(oldPoint.x-newPoint.x,2)+Math.pow(oldPoint.y-newPoint.y,2));
-            var t = newDist*distOldNew/(newDist-oldDist)*cs.A0597629.DRAG_BUFFER_REBOUND;
-            newPoint.x = oldPoint.x+(newPoint.x-oldPoint.x)*t;
-            newPoint.y = oldPoint.x+(newPoint.x-oldPoint.x)*t;
-          };
+            newDist = newDistB;
+            if(newDist<=0) {
+              var oldDist = hs.distancePointLine(oldPoint,vs[o.uniqueId].dragBoundaryBase);
+              var distOldNew = Math.sqrt(Math.pow(oldPoint.x-newPoint.x,2)+Math.pow(oldPoint.y-newPoint.y,2));
+              var t = newDist*distOldNew/(newDist-oldDist)*cs.A0597629.DRAG_BUFFER_REBOUND;
+              newPoint.x = oldPoint.x+(newPoint.x-oldPoint.x)*t;
+              newPoint.y = oldPoint.x+(newPoint.x-oldPoint.x)*t;
+            };
 
-          o.log('Correcting to '+hs.ALPHA[i]+'('+newPoint.x+','+newPoint.y+')');
+            o.log('Correcting to '+hs.ALPHA[i]+'('+newPoint.x+','+newPoint.y+')');
 
-          newDistL=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryLeft);
-          newDistR=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryRight);
-          newDistB=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryBase);
-        }
+            newDistL=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryLeft);
+            newDistR=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryRight);
+            newDistB=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryBase);
+          }
         **/
 
         if(newPoint[o.name[0]]==o.value) {
