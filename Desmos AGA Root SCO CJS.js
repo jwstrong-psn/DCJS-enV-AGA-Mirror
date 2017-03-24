@@ -226,6 +226,19 @@ PearsonGL.External.rootJS = (function() {
 
         return line;
        },
+      /* ←— Intersect Two Lines ——————————————————————————————————————————→ *\
+       | Find the point of intersection between two lines
+       |
+       | Lines given as object with {a:_,b:_,c:_} with ax + by + c = 0
+       | Point given as object with {x:_,y:_}
+       * ←————————————————————————————————————————————————————————————————→ */
+       intersectLines: function(line1, line2) {
+        var x = line1.b*line2.c-line2.b*line1.c;
+        var y = line2.a*line1.c-line1.a*line2.c;
+        var z = line1.a*line2.b-line2.a*line1.b;
+
+        return {x:x/z,y:y/z};
+       },
       /* ←— number to letter (lowercase) —————————————————————————————————→ *\
        | Convert a number to its lowercase letter with `cs.alpha[n]`
        * ←————————————————————————————————————————————————————————————————→ */
@@ -602,6 +615,42 @@ PearsonGL.External.rootJS = (function() {
           {id:'y_distance',label:y_distance}
         ]);
        }
+     };
+
+    /* ←— A0597534 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0597534 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variables
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        var o = hs.parseOptions(options);
+        vs[o.uniqueId] = {
+        };
+       },
+      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
+       | updates the labels of theta 1, 2, 3, 4 based on changes to two lines
+       |
+       | Hidden points P_1, P_2, P_3, and P_4 must be authored with showLabel:true,
+       | and the IDs a1, a2, a3, a4
+       * ←———————————————————————————————————————————————————————————————————→ */
+       updateLabels: function(options={}) {
+        var o = hs.parseOptions(options);
+        switch (o.name) {
+          case '\\theta _1':
+            o.desmos.setExpression({id:'a1',label:(o.value)});
+            console.log(o.value);
+            break;
+          case '\\theta _2':
+            o.desmos.setExpression({id:'a2',label:(o.value)});
+            break;
+          case '\\theta _3':
+            o.desmos.setExpression({id:'a3',label:(o.value)});
+            break;
+          case '\\theta _4':
+            o.desmos.setExpression({id:'a4',label:(o.value)});
+            break;
+          };
+        }
      };
 
     /* ←— A0597629 FUNCTIONS ——————————————————————————————————————————————→ */
