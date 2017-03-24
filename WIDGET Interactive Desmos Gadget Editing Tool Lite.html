@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>WIDGET Interactive Desmos Gadget Editing Tool</title>
+  <link href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css" rel="stylesheet" type="text/css" />
+  <script src="https://code.jquery.com/jquery-3.1.0.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="https://www.desmos.com/api/v0.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+  <script src="https://www.desmos.com/api/v0.9/geometry.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+  <script src="./Desmos AGA Root SCO CJS.js"></script>
+  <script src="./Desmos AGA Root SCO CJS Test Master SCO CJS.js"></script>
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+    }
+    #calculator {
+      width: 550px;
+      height: 450px;
+    });
+  </style>
+</head>
+<body>
+  <table>
+    <tr>
+      <td style="vertical-align:top;">
+        <div id="frame"><div id="calculator"></div></div>
+      </td>
+      <td rowspan="2" style="vertical-align:top;text-align:center">
+        <button type="button" id="graphing" style="background:green;color:white;">Calculator</button>&nbsp;<button type="button" id="geometry" style="background:red;color:white;">Geometry</button>
+      </td>
+    </tr>
+    <tr height="100%">
+      <td style="vertical-align:top">
+        <button type="button" id="copyState">Copy Current State</button><br>
+        <input type="text" id="stateInput" placeholder="Paste state here…">
+        <button type="button" id="load">Load State</button>
+      </td>
+    </tr>
+  </table>
+  <script>
+    $(function() {
+      var onbuttoncolor = "green";
+      var ontextcolor = "white";
+      var offbuttoncolor = "red";
+      var offtextcolor = "white";
+
+      $("#graphing").click(function(){
+        toolType = "graphing";
+        window.rebuild();
+      });
+      $("#geometry").click(function(){
+        toolType = "geometry";
+        window.rebuild();
+      });
+      
+      $("#copyState").click(function(){
+        var currState = window.copyState();
+        var field = $('#stateInput')[0];
+        field.value = JSON.stringify(currState);
+        field.focus()
+        field.setSelectionRange(0,field.value.length);
+        var succeed;
+        try {
+          succeed = document.execCommand('copy');
+          alert('Calculator state copied to clipboard.');
+        } catch(e) {
+          succeed = false;
+          alert('Failed to copy to clipboard. Select and copy manually from text field above \'Copy Current State\' button.');
+        }
+      });
+
+      function loadFromInput(){
+        var state;
+        try {
+          state = $.parseJSON($("#stateInput")[0].value);
+        } catch (e) {
+          alert('Failed to load state. Please input a valid Calculator or Geometry Tool state as output by the tool\'s \'getState()\' command.\n\nHint: A Calculator state will contain \"expressions\" and a Geometry Tool state will contain \"objects\".');
+          return;
+        }
+        try {
+          window.load(state);
+        } catch (e) {
+          alert('Failed to load state. Please input a valid Calculator or Geometry Tool state as output by the tool\'s \'getState()\' command.\n\nHint: A Calculator state will contain \"expressions\" and a Geometry Tool state will contain \"objects\".');
+          return;
+        }
+      };
+
+      $("#load").click(loadFromInput);
+
+      $("#stateInput").keyup(function(e){
+        if (e.keyCode == 13) loadFromInput();
+      });
+
+      var $frame = $('#frame');
+      var $elt = $('#calculator');
+      window.calculator = window.Calc = window.Geo = null;
+
+      var toolType = 'graphing';
+      var calcDefaultState = null;
+      var geoDefaultState = null;
+      var calcPrevState = null;
+      var geoPrevState = null;
+
+      // Note: never set toolType before refreshing the calculator;
+      //       toolType should always match current toolType.
+      function refreshCalculator(type = toolType) {
+
+        window.calculator = null;
+        if(window.Geo) {
+          geoPrevState = window.Geo.getState();
+          delete window.Geo;
+        }
+        if(window.Calc) {
+          calcPrevState = window.Calc.getState();
+          delete window.Calc;
+        }
+        if($elt) $elt.remove();
+
+        // Build the frame and UI
+        $frame.html('<div id="calculator" style="width:550px;height:475px;"></div>');
+        $elt = $('#calculator');
+
+        // Instantiate the calculator and set its state
+        if (type == 'graphing') {
+          window.calculator = window.Calc = Desmos.GraphingCalculator($elt[0]);
+          if (calcPrevState) window.calculator.setState(calcPrevState);
+          if (calcDefaultState) window.calculator.setDefaultState(calcDefaultState);
+          else window.calculator.setDefaultState(window.calculator.getState());
+        } else if (type == 'geometry') {
+          window.calculator = window.Geo = Desmos.Geometry($elt[0]);
+          window.calculator.setState(geoPrevState);
+          window.calculator.setDefaultState(geoDefaultState);
+        };
+        toolType = type;
+        updateView();
+      }
+
+      function updateView(type = toolType) {
+        if (type == "geometry") {
+          $("#graphing").css("background",offbuttoncolor);
+          $("#graphing").css("color",offtextcolor);
+          $("#geometry").css("background",onbuttoncolor);
+          $("#geometry").css("color",ontextcolor);
+        } else if (type == "graphing") {
+          $("#graphing").css("background",onbuttoncolor);
+          $("#graphing").css("color",ontextcolor);
+          $("#geometry").css("background",offbuttoncolor);
+          $("#geometry").css("color",offtextcolor);
+        }
+
+        if(toolType != type) {
+          refreshCalculator(type);
+        };
+      }
+
+      window.rebuild = function(options={}) {
+        refreshCalculator();
+      };
+      window.show = function(options={}) {
+        window.rebuild.apply(this,options);
+      };
+      window.load = function(state, options={remapColors:true,allowUndo:true}) {
+        var type;
+        if (state.expressions != undefined) {
+          calcDefaultState = state;
+          type = 'graphing';
+        }
+        if (state.objects != undefined) {
+          geoDefaultState = state;
+          type = 'geometry';
+        }
+
+        refreshCalculator(type);
+        window.calculator.setState(state, options);
+      };
+      window.copyState = function() {
+        var currState = window.calculator.getState();
+        try {copy(JSON.stringify(currState));} catch(e) {};
+        return currState;
+      };
+
+      window.show();
+    });
+  </script>
+</body>
+</html>
