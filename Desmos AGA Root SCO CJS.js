@@ -596,17 +596,17 @@ PearsonGL.External.rootJS = (function() {
        updateLabels: function(options={}) {
         var o = hs.parseOptions(options);
         switch (o.name) {
-          case '\\theta _1':
+          case '\\theta_1':
             o.desmos.setExpression({id:'a1',label:(o.value)});
             console.log(o.value);
             break;
-          case '\\theta _2':
+          case '\\theta_2':
             o.desmos.setExpression({id:'a2',label:(o.value)});
             break;
-          case '\\theta _3':
+          case '\\theta_3':
             o.desmos.setExpression({id:'a3',label:(o.value)});
             break;
-          case '\\theta _4':
+          case '\\theta_4':
             o.desmos.setExpression({id:'a4',label:(o.value)});
             break;
           };
