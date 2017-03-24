@@ -148,7 +148,7 @@ PearsonGL.External.rootJS = (function() {
        ↓ 
        * ←—————————————————————————————————————————————————————————————————————→ */
        latexToText: function(expr){
-        expr = expr.replace(/\-/g,' − ');
+        expr = ''+expr;
         expr = expr.replace(/\+/g,' + ');
         expr = expr.replace(/,/g,', ');
         expr = expr.replace(/\^2/g,'²');
@@ -162,6 +162,8 @@ PearsonGL.External.rootJS = (function() {
         expr = expr.replace(/\\left\(/g,'(');
         expr = expr.replace(/\\right/g,'');
         expr = expr.replace(/\\left/g,'');
+        expr = expr.replace(/([^  ])\-/g,'$1 − ');
+        expr = expr.replace(/\-/g,'−');
         return expr;
        },
       /* ←— labelPoint ———————→———————————————————————————————————————————→ *\
@@ -416,7 +418,7 @@ PearsonGL.External.rootJS = (function() {
        * ←————————————————————————————————————————————————————————————————→ */
        reportValue: function(options={}) {
         var o = hs.parseOptions(options);
-        var expr = '' + o.name + ' = ' + o.value;
+        var expr = '' + o.name + '=' + o.value;
         if (o.log) o.log('Setting expression \'' + o.name + '\' to \'' + expr + '\'.');
         o.desmos.setExpression({id:o.name,latex:expr});
        }
@@ -459,7 +461,7 @@ PearsonGL.External.rootJS = (function() {
        * ←————————————————————————————————————————————————————————————————→ */
        labelEquation: function(options={}) {
         var o = hs.parseOptions(options);
-        var expr = hs.latexToText(o.name) + ' = ' + o.value;
+        var expr = hs.latexToText(o.name) + ' = ' + o.value;
         if (o.log) o.log('Setting point label ' + expr);;
         o.desmos.setExpression({id:o.name,label:expr});
        }
@@ -670,13 +672,25 @@ PearsonGL.External.rootJS = (function() {
         var o = hs.parseOptions(options);
         switch (o.name) {
           case '\\theta_1':
-            o.desmos.setExpression({id:'a1',label:('𝑚∠2 ='+o.value+'°')});
+            o.desmos.setExpression({id:'a1',label:('𝑚∠2 = '+o.value+'°')});
             break;
           case '\\theta_2':
-            o.desmos.setExpression({id:'a2',label:('𝑚∠1 ='+o.value+'°')});
+            o.desmos.setExpression({id:'a2',label:('𝑚∠1 = '+o.value+'°')});
             break;
           };
         }
+     };
+
+    /* ←— A0597598_A FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0597598_A = {
+      /* ←— labelAngle ————————————————————————————————————————————————————→ *\
+       | updates the label of the angle of rotation
+       | observe with \theta_x
+       * ←———————————————————————————————————————————————————————————————————→ */
+       labelAngle: function(options={}) {
+        var o = hs.parseOptions(options);
+        o.desmos.setExpression({id:'angle_label',label:('a = '+hs.latexToText(o.value)+'°')});
+       }
      };
 
     /* ←— A0597629 FUNCTIONS ——————————————————————————————————————————————→ */
