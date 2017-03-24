@@ -635,17 +635,49 @@ PearsonGL.External.rootJS = (function() {
         var o = hs.parseOptions(options);
         switch (o.name) {
           case '\\theta_1':
-            o.desmos.setExpression({id:'a1',label:(o.value)});
-            console.log(o.value);
+            o.desmos.setExpression({id:'a1',label:(o.value+'°')});
             break;
           case '\\theta_2':
-            o.desmos.setExpression({id:'a2',label:(o.value)});
+            o.desmos.setExpression({id:'a2',label:(o.value+'°')});
             break;
           case '\\theta_3':
-            o.desmos.setExpression({id:'a3',label:(o.value)});
+            o.desmos.setExpression({id:'a3',label:(o.value+'°')});
             break;
           case '\\theta_4':
-            o.desmos.setExpression({id:'a4',label:(o.value)});
+            o.desmos.setExpression({id:'a4',label:(o.value+'°')});
+            break;
+          };
+        }
+     };
+
+    /* ←— A0597538 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0597538 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variables
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        var o = hs.parseOptions(options);
+        vs[o.uniqueId] = {
+        };
+       },
+      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
+       | updates the labels of theta 1 and 2 based on change to ray 
+       | updates the label showing sum of theta 1 and theta 2
+       |       
+       | Hidden points must be authored with showLabel:true,
+       | and the IDs a1, a2, a3
+       * ←———————————————————————————————————————————————————————————————————→ */
+       updateLabels: function(options={}) {
+        var o = hs.parseOptions(options);
+        switch (o.name) {
+          case '\\theta_1':
+            o.desmos.setExpression({id:'a1',label:('𝑚∠2 ='+o.value+'°')});
+            break;
+          case '\\theta_2':
+            o.desmos.setExpression({id:'a2',label:('𝑚∠1 ='+o.value+'°')});
+            break;
+          case '\\theta_3':
+            o.desmos.setExpression({id:'a3',label:('𝑚∠1 + 𝑚∠2 ='+o.value+'°')});
             break;
           };
         }
