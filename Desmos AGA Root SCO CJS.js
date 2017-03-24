@@ -624,7 +624,6 @@ PearsonGL.External.rootJS = (function() {
        },
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
        | updates the labels of theta 1 and 2 based on change to ray 
-       | updates the label showing sum of theta 1 and theta 2
        |       
        | Hidden points must be authored with showLabel:true,
        | and the IDs a1, a2, a3
@@ -637,9 +636,6 @@ PearsonGL.External.rootJS = (function() {
             break;
           case '\\theta_2':
             o.desmos.setExpression({id:'a2',label:('𝑚∠1 ='+o.value+'°')});
-            break;
-          case '\\theta_3':
-            o.desmos.setExpression({id:'a3',label:('𝑚∠1 + 𝑚∠2 ='+o.value+'°')});
             break;
           };
         }
