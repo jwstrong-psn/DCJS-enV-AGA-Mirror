@@ -209,23 +209,31 @@ PearsonGL.External.rootJS = (function() {
        | Line returned is oriented counter-clockwise, such that a point to
        |  the left of the second point from the perspective of the first is
        |  on a "higher" contour, and a point to the right is lower.
-       | The coefficients are not normalized.
+       | The coefficients are normalized.
        * ←————————————————————————————————————————————————————————————————→ */
        lineTwoPoints: function(point1, point2) {
-        return {
+        var line = {
           a:point1.y-point2.y,
           b:point2.x-point1.y,
           c:point1.x*point2.y-point1.y*point2.x
         };
+
+        var magnitude = Math.sqrt(line.a*line.a+line.b*line.b);
+        
+        line.a = line.a/magnitude;
+        line.b = line.b/magnitude;
+        line.c = line.c/magnitude;
+
+        return line;
        },
       /* ←— number to letter (lowercase) —————————————————————————————————→ *\
        | Convert a number to its lowercase letter with `cs.alpha[n]`
        * ←————————————————————————————————————————————————————————————————→ */
-       alpha:'abcdefghijklmnopqrstuvwxyz',
+       alpha:'_abcdefghijklmnopqrstuvwxyz',
       /* ←— number to letter (uppercase) —————————————————————————————————→ *\
        | Convert a number to its uppercase letter with `cs.ALPHA[n]`
        * ←————————————————————————————————————————————————————————————————→ */
-       ALPHA:'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+       ALPHA:'_ABCDEFGHIJKLMNOPQRSTUVWXYZ'
      }
   /* ←—PRIVATE CONSTANTS———————————————————————————————————————————————————→ *\
        | Constants, e.g. for tolerances or LaTeX strings.
