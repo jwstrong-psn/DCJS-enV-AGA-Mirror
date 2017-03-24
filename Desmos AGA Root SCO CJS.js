@@ -219,7 +219,7 @@ PearsonGL.External.rootJS = (function() {
         };
 
         var magnitude = Math.sqrt(line.a*line.a+line.b*line.b);
-        
+
         line.a = line.a/magnitude;
         line.b = line.b/magnitude;
         line.c = line.c/magnitude;
@@ -664,7 +664,63 @@ PearsonGL.External.rootJS = (function() {
         var i = eval(o.name.match(/[0-9]+/)[0]);
         var val = o.value;
 
-        console.log("Changed:",o);
+        var g = (cs.A0597629.MAX_VERTICES+i-3)%cs.A0597629.MAX_VERTICES+1;
+        var h = h%cs.A0597629.MAX_VERTICES+1;
+        var j = i%cs.A0597629.MAX_VERTICES+1;
+        var k = j%cs.A0597629.MAX_VERTICES+1;
+
+        if (i != vs[o.uniqueId].lastDragged) {
+          // Line formed by the 2 previous vertices
+          vs[o.uniqueId].dragBoundaryLeft = lineTwoPoints(
+            {
+              x:vs[o.uniqueId][n]['x_'+((g>9)?"{"+g+"}":g)],
+              y:vs[o.uniqueId][n]['y_'+((g>9)?"{"+g+"}":g)]
+            },
+            {
+              x:vs[o.uniqueId][n]['x_'+((h>9)?"{"+h+"}":h)],
+              y:vs[o.uniqueId][n]['y_'+((h>9)?"{"+h+"}":h)]
+            }
+          );
+
+          // Line formed by the 2 following vertices
+          vs[o.uniqueId].dragBoundaryLeft = lineTwoPoints(
+            {
+              x:vs[o.uniqueId][n]['x_'+((j>9)?"{"+j+"}":j)],
+              y:vs[o.uniqueId][n]['y_'+((j>9)?"{"+j+"}":j)]
+            },
+            {
+              x:vs[o.uniqueId][n]['x_'+((k>9)?"{"+k+"}":k)],
+              y:vs[o.uniqueId][n]['y_'+((k>9)?"{"+k+"}":k)]
+            }
+          );
+
+          // Line formed by the 2 adjacent vertices
+          vs[o.uniqueId].dragBoundaryLeft = lineTwoPoints(
+            {
+              x:vs[o.uniqueId][n]['x_'+((g>9)?"{"+g+"}":g)],
+              y:vs[o.uniqueId][n]['y_'+((g>9)?"{"+g+"}":g)]
+            },
+            {
+              x:vs[o.uniqueId][n]['x_'+((h>9)?"{"+h+"}":h)],
+              y:vs[o.uniqueId][n]['y_'+((h>9)?"{"+h+"}":h)]
+            }
+          );
+
+          vs[o.uniqueId].lastDragged = i;
+
+        if(distancePointLine(
+            {x:vs[o.uniqueId][n][o.name].replace('y','x'),y:vs[o.uniqueId][n][o.name].replace('y','x')},
+            lineTwoPoints(
+              {x:vs[o.uniqueId][n][o.name].replace('y','x'),y:vs[o.uniqueId][n][o.name].replace('y','x')},
+              {x:vs[o.uniqueId][n][o.name].replace('y','x'),y:vs[o.uniqueId][n][o.name].replace('y','x')}
+            )
+          )*distancePointLine(
+            {x:vs[o.uniqueId][n][o.name].replace('y','x'),y:vs[o.uniqueId][n][o.name].replace('y','x')},
+            lineTwoPoints(
+              {x:vs[o.uniqueId][n][o.name].replace('y','x'),y:vs[o.uniqueId][n][o.name].replace('y','x')},
+              {x:vs[o.uniqueId][n][o.name].replace('y','x'),y:vs[o.uniqueId][n][o.name].replace('y','x')}
+            )
+          ))
 
         vs[o.uniqueId][n][o.name] = val;
        },
@@ -678,59 +734,79 @@ PearsonGL.External.rootJS = (function() {
         var prevn = vs[o.uniqueId].n;
         var n = vs[o.uniqueId].n = o.value;
 
+        o.log("Changed from "+prevn+" sides to "+n+" sides");
+
+        var exprs = [];
+
         // Delete extra vertices
-        for (var i = n+1; i <= prevn; i++) {
-          var exprs = [
-            {
-              id:'vertex'+hs.ALPHA[i],
-              hidden:true,
-              showlabel:false
-            },
-            {
-              id:'segment'+hs.ALPHA[i]+'A',
+        for (var i = cs.A0597629.MAX_VERTICES; i >= n+1; i--) {
+          exprs.push({
+            id:'vertex_'+hs.ALPHA[i],
+            hidden:true,
+            showLabel:false
+          });
+          exprs.push({
+            id:'segment_'+hs.ALPHA[i]+'A',
+            hidden:true
+          });
+          exprs.push({
+              id:'segment_'+hs.ALPHA[i-1]+hs.ALPHA[i],
               hidden:true
-            },
-            {
-              id:'segment'+hs.ALPHA[i-1]+hs.ALPHA[i],
-              hidden:true
-            }
-          ];
-          o.log('Deleting vertex '+i,exprs);
-          o.desmos.setExpressions(exprs)
+          });
+          o.log('Deleting vertex '+hs.ALPHA[i]);
         };
 
         // Add new vertices
-        for (var i = prevn; i < n; i++) {
-          o.desmos.setExpressions([
-            {
-              id:'vertex'+hs.ALPHA[i+1],
-              hidden:false,
-              showLabel:true
-            },
-            {
-              id:'segment'+hs.ALPHA[i]+'A',
+        for (var i = 3; i < n; i++) {
+          exprs.push({
+            id:'vertex_'+hs.ALPHA[i+1],
+            hidden:false,
+            showLabel:true
+          });
+          exprs.push({
+              id:'segment_'+hs.ALPHA[i]+'A',
               hidden:false,
               style:'dashed',
               color:cs.agaColors.red
-            },
-            {
-              id:'segment'+hs.ALPHA[i]+hs.ALPHA[i+1],
+          });
+          exprs.push({
+              id:'segment_'+hs.ALPHA[i]+hs.ALPHA[i+1],
               hidden:false,
               style:'normal',
               color:cs.agaColors.black
-            }
-          ]);
+          });
         };
 
         // Style terminal edge
-        o.desmos.setExpression({
-          id:'vertex'+hs.ALPHA[n]+'A',
+        exprs.push({
+          id:'segment_'+hs.ALPHA[n]+'A',
           hidden:false,
           style:'normal',
           color:cs.agaColors.black
         });
 
-        console.log("Changed from "+prevn+" sides to "+n+"sides");
+        o.log('Changed figures:',exprs);
+
+        o.desmos.setExpressions(exprs);
+
+        exprs = [];
+
+        // Update coordinates
+        for (var i = 1; i <= n; i++) {
+          exprs.push({
+            id:'x_'+i,
+            latex:'x_'+((i>9)?"{"+i+"}":i)+'='+vs[o.uniqueId][n]['x_'+((i>9)?"{"+i+"}":i)]
+          });
+          exprs.push({
+            id:'y_'+i,
+            latex:'y_'+((i>9)?"{"+i+"}":i)+'='+vs[o.uniqueId][n]['y_'+((i>9)?"{"+i+"}":i)]
+          });
+          //o.log('Moving vertex '+hs.ALPHA[i]+' to ('+vs[o.uniqueId][n]['x_'+((i>9)?"{"+i+"}":i)]+','+vs[o.uniqueId][n]['y_'+((i>9)?"{"+i+"}":i)]+')');
+        }
+
+        o.log('Changed coordinates:',exprs);
+
+        o.desmos.setExpressions(exprs);
        }
      }
 
