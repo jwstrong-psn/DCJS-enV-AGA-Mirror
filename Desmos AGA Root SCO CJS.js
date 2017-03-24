@@ -643,17 +643,17 @@ PearsonGL.External.rootJS = (function() {
             log:o.log || function(){}
           })});
          };
-         o.log("Observers initialized:",vs[o.uniqueId]);
 
         // Set up variables for vertices of each polygon
          for(var i=3;i<=cs.A0597629.MAX_VERTICES;i++) {
           vs[o.uniqueId][i]={};
           for(var j=1;j<=i;j++) {
-            vs[o.uniqueId][i]["x_"+((j>9)?"{"+j+"}":j)] = cs.A0597629.RADIUS*Math.round(1000000*Math.sin(2*Math.PI*(1-(j-1)/i)))/1000000;
-            vs[o.uniqueId][i]["y_"+((j>9)?"{"+j+"}":j)] = cs.A0597629.RADIUS*Math.round(1000000*Math.cos(2*Math.PI*(1-(j-1)/i)))/1000000;
+            vs[o.uniqueId][i]["x_"+((j>9)?"{"+j+"}":j)] = cs.A0597629.RADIUS*Math.round(1000000*Math.sin(2*Math.PI*((j-1)/i)))/1000000;
+            vs[o.uniqueId][i]["y_"+((j>9)?"{"+j+"}":j)] = cs.A0597629.RADIUS*Math.round(1000000*Math.cos(2*Math.PI*((j-1)/i)))/1000000;
           };
-          o.log("Variables initialized for "+i+" vertices:",vs[o.uniqueId][i]);
          };
+        
+        o.log("Observers initialized:",vs[o.uniqueId]);
        },
       /* ←— coordinateChanged ———————————————————————————————————————————————→ *\
        | updates variables, and corrects if the user tries to cross diagonals
