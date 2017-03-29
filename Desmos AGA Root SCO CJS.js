@@ -693,6 +693,112 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
+    /* ←— A0596385 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0596385 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        var o = hs.parseOptions(options);
+        vs[o.uniqueId] = {prevError:0,A:0,B:0,C:0};
+       },
+      /* ←— updateAngles ————————————————————————————————————————————————————→ *\
+       | updates the labels of the triangle's vertices with their respective
+       | angle measures.
+       * ←———————————————————————————————————————————————————————————————————→ */
+       updateAngles: function(options={}) {
+        var o = hs.parseOptions(options);
+        var vertex = o.name[o.name.length-1];
+        var val = Math.round(180*o.value/Math.PI);
+        var oldVal = vs[o.uniqueId][vertex];
+
+        // Only update stuff if the one of the values has changed
+        if (vs[o.uniqueId].upToDate === true && val == oldVal) return;
+
+        // Calculate the value it should have to match the other two angles
+        var calculated;
+        switch (vertex) {
+          case 'A':
+            calculated = 180-(vs[o.uniqueId].B+vs[o.uniqueId].C);
+            break;
+          case 'B':
+            calculated = 180-(vs[o.uniqueId].A+vs[o.uniqueId].C);
+            break;
+          default:
+            calculated = 180-(vs[o.uniqueId].A+vs[o.uniqueId].B);
+        }
+
+        // If all is gravy, update the labels to match.
+        if (val == calculated) {
+          vs[o.uniqueId][vertex] = val;
+          o.desmos.setExpression({id:'pointA',label:('m∠A = '+vs[o.uniqueId].A+'°')});
+          o.desmos.setExpression({id:'pointB',label:('m∠B = '+vs[o.uniqueId].B+'°')});
+          o.desmos.setExpression({id:'pointC',label:('m∠C = '+vs[o.uniqueId].C+'°')});
+          vs[o.uniqueId].upToDate = true;
+        } else {
+          // If this angle is closer to its (re-)calculated value than the last one was, correct this one and let the others keep their original values.
+          var newErr = Math.abs(180*o.value/Math.PI-calculated);
+          if (newErr < vs[o.uniqueId].prevError && newErr < 1) {
+            // Note: <1 makes rounding floor or ceiling only; if there is a spin where the error
+            //       is always > 1, something has gone seriously wrong.
+            // correct this one and update the 3 labels
+            vs[o.uniqueId][vertex] = val = calculated;
+            o.desmos.setExpression({id:'pointA',label:('m∠A = '+vs[o.uniqueId].A+'°')});
+            o.desmos.setExpression({id:'pointB',label:('m∠B = '+vs[o.uniqueId].B+'°')});
+            o.desmos.setExpression({id:'pointC',label:('m∠C = '+vs[o.uniqueId].C+'°')});
+            vs[o.uniqueId].prevError = newErr;
+            vs[o.uniqueId].upToDate = true;
+          } else {
+            // If the other angles are closer, this one should keep its given value, and will be updated
+            // when the closer angles' measures are next polled.
+            vs[o.uniqueId][vertex] = val;
+            vs[o.uniqueId].prevError = newErr;
+            vs[o.uniqueId].upToDate = false;
+          }
+        }
+
+        if ((oldVal-90)*(val-90)<=0) {
+          // This angle just became obtuse or non-obtuse.
+          if (val>90) fs.A0596385.drawExtensions(o); // this angle just became obtuse
+          else if ((90-vs[o.uniqueId].A)*(90-vs[o.uniqueId].B)*(90-vs[o.uniqueId].C)>=0) {
+            // This angle just became non-obtuse, and neither other angle is obtuse
+            o.desmos.setExpressions([
+                {id:'ext1',latex:''},
+                {id:'ext2',latex:''},
+                {id:'extA',latex:''},
+                {id:'extB',latex:''},
+                {id:'extC',latex:''}
+              ]);
+          }
+        }
+       },
+      /* ←— drawExtensions ——————————————————————————————————————————————————→ *\
+       | Adds any side-extensions necessary; pass in name of obtuse angle
+       * ←———————————————————————————————————————————————————————————————————→ */
+       drawExtensions: function(options={}) {
+        var o = hs.parseOptions(options);
+        var obtuse = (o.name[o.name.length-1] == 'A')?1:((o.name[o.name.length-1] == 'B')?2:3);
+        var Ext1 = hs.ALPHA[obtuse%3+1];
+        var ext1 = hs.alpha[obtuse%3+1];
+        var Ext2 = hs.ALPHA[(obtuse+1)%3+1];
+        var ext2 = hs.alpha[(obtuse+1)%3+1];
+        obtuse = hs.ALPHA[obtuse];
+        var exprs = [];
+
+        // Side extensions
+        exprs.push({id:'ext1',latex:('e_{xt1}=p_'+obtuse+'\\left(1-t\\left(1-\\frac{t_{ick}}{'+ext1+'}\\right)\\right)+p_{h'+Ext1+'}t-p_'+Ext2+'\\frac{t_{ick}}{'+ext1+'}t')});
+        exprs.push({id:'ext2',latex:('e_{xt2}=p_'+obtuse+'\\left(1-t\\left(1-\\frac{t_{ick}}{'+ext2+'}\\right)\\right)+p_{h'+Ext2+'}t-p_'+Ext1+'\\frac{t_{ick}}{'+ext2+'}t')});
+
+        // Altitude extensions
+        exprs.push({id:('ext'+obtuse),latex:('h_{ext'+obtuse+'}=p_'+obtuse+'+t\\left(p_O-p_'+obtuse+'\\right)\\left(1+\\frac{t_{ick}}{D_{pp}\\left(p_'+obtuse+',p_O\\right)}\\right)')});
+        exprs.push({id:('ext'+Ext1),latex:('h_{ext'+Ext1+'}=p_{h'+Ext1+'}+t\\left(p_O-p_{h'+Ext1+'}\\right)\\left(1+\\frac{t_{ick}}{D_{pp}\\left(p_O,p_{h'+Ext1+'}\\right)}\\right)')});
+        exprs.push({id:('ext'+Ext2),latex:('h_{ext'+Ext2+'}=p_{h'+Ext2+'}\\left(1-t\\left(1-\\frac{t_{ick}}{h_'+ext2+'}\\right)\\right)+tp_O-t\\frac{t_{ick}}{h_'+ext2+'}p_'+Ext2)});
+
+        o.desmos.setExpressions(exprs);
+
+
+        // Backup: expr = '\\left(x_1+\\frac{O_x-x_1}{o_A}\\left(t\\max \\left(o_a,h_a,o_A\\right)+\\left\\{\\theta _A\\ge \\frac{\\pi }{2}:tt_{ick}-h_a,\\max \\left(\\theta _B,\\theta _C\\right)\\ge \\frac{\\pi }{2}:tt_{ick},0\\right\}\\right),y_1+\\frac{O_y-y_1}{o_A}\\left(t\\max \\left(o_a,h_a,o_A\\right)+\\left\\{\\theta _A\\ge \\frac{\\pi }{2}:tt_{ick}-h_a,\\max \\left(\\theta _B,\\theta _C\\right)\\ge \\frac{\\pi }{2}:tt_{ick},0\\right\\}\\right)\\right)'
+       }
+     };
+
     /* ←— A0597629 FUNCTIONS ——————————————————————————————————————————————→ */
       cs.A0597629 = {
         MAX_VERTICES:14,
@@ -746,7 +852,7 @@ PearsonGL.External.rootJS = (function() {
           })};
           vs[o.uniqueId]["y_"+((i>9)?"{"+i+"}":i)].observe('numericValue.correction',hs[o.uniqueId]["y_"+((i>9)?"{"+i+"}":i)]);
          };
-
+        /*
         hs[o.uniqueId].n.observe('numericValue',function(){fs.A0597629.switchPolygon({
           name:'n',
           value:hs[o.uniqueId].n.numericValue,
@@ -754,7 +860,7 @@ PearsonGL.External.rootJS = (function() {
           uniqueId:o.uniqueId,
           log:o.log || function(){}
         })});
-
+        */
         
         o.log("Observers initialized:",vs[o.uniqueId]);
        },
