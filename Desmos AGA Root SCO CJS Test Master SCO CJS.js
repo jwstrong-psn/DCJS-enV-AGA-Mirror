@@ -86,6 +86,11 @@ PearsonGL.External.masterJS = (function() {
   }
 
   //* functions for test purposes only
+  ts.shared.init.shareState = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.shared_init_shareState({'value':val,'name':name,'desmos':desmos,'log':console.log});
+  }
+
+  //* functions for test purposes only
   ts.A0597514_init = function(val, name, desmos) {
     return PearsonGL.External.rootJS.A0597514_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
   }
