@@ -283,7 +283,7 @@ PearsonGL.External.rootJS = (function() {
        },
       delay:{ // delay values for timed events, in ms
         SAVE:1000, // delay to save after the most recent modification
-        LOAD:1000 // delay to load after each save
+        LOAD:1000 // consider a `setState` complete once the state is static for this long
       }
      }
 
@@ -412,32 +412,50 @@ PearsonGL.External.rootJS = (function() {
        shareState: function(options={}) {
         let o = hs.parseOptions(options);
         let myGuid = o.desmos.guid;
-        if (vs.shared[o.uniqueId] === undefined) vs.shared[o.uniqueId] = {sharingInstances:{},queuedActions:{}};
+        if (vs.shared[o.uniqueId] === undefined) vs.shared[o.uniqueId] = {sharingInstances:{},queuedActions:{},recentLoad:{}};
         let vars = vs.shared[o.uniqueId];
 
         vars.sharingInstances[myGuid] = o.desmos;
-        if (vars.sharedState !== undefined) o.desmos.setState(vars.sharedState);
-
-        var delayedSave = function() {
-
-          vars.sharedState = o.desmos.getState();
-
-          for (guid in vars.sharingInstances) {
-            if (guid != myGuid) {
-              let instance = vars.sharingInstances[guid];
-              if (queuedActions[guid] !== undefined) clearTimeout(queuedActions[guid]);
-              queuedActions[guid] = setTimeout(function(){
-                  instance.setState(vars.sharedState);
-              },cs.delay.LOAD);
-            }
-          }
-
-          delete vars.queuedActions[myGuid];
+        if (vars.sharedState !== undefined) {
+          o.desmos.setState(vars.sharedState);
+          o.log('Loading state from '+vars.lastSavedFrom+' into '+myGuid);
         }
 
+        o.log(myGuid+' initialized.',vars);
+
+        var delayedSave = function() {
+          o.log('Saving state from '+myGuid);
+          vars.sharedState = o.desmos.getState();
+          vars.lastSavedFrom = myGuid;
+          if (vars.queuedActions[myGuid] !== undefined) clearTimeout(vars.queuedActions[myGuid]);
+          delete vars.queuedActions[myGuid];
+
+          // Load into all the others
+          for (guid in vars.sharingInstances) {
+            if (guid != myGuid) {
+              o.log('Loading state from '+myGuid+' into '+guid);
+              vars.recentLoad[guid] = true;
+              vars.sharingInstances[guid].setState(vars.sharedState);
+              // The `'change.save'` event will ensure the load is confirmed
+            } else o.log('Skipped loading into '+guid)
+          }
+        };
+
+        var confirmLoad = function(guid) {
+          o.log('Considering '+guid+' loaded.');
+          vars.recentLoad[guid] = false;
+          delete vars.queuedActions[guid];
+        };
+
         o.desmos.observeEvent('change.save',function(){
-          if (queuedActions[myGuid] !== undefined) clearTimeout(queuedActions[myGuid]);
-          queuedActions[myGuid] = setTimeout(delayedSave,cs.delay.SAVE);
+          if (vars.queuedActions[myGuid] !== undefined) clearTimeout(vars.queuedActions[myGuid]);
+          if (vars.recentLoad[myGuid]) {
+            o.log('Not saving from '+myGuid+'; loaded too recently.');
+            vars.queuedActions[myGuid] = setTimeout(confirmLoad,cs.delay.LOAD);
+          } else {
+            o.log('Queueing save from '+myGuid);
+            vars.queuedActions[myGuid] = setTimeout(delayedSave,cs.delay.SAVE);
+          }
         });
        }
      };
