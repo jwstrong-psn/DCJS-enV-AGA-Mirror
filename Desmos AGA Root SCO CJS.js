@@ -417,7 +417,7 @@ PearsonGL.External.rootJS = (function() {
 
         vars.sharingInstances[myGuid] = o.desmos;
         if (vars.sharedState === undefined) {
-          o.log('Queueing save from '+myGuid);
+          o.log('Queueing initial save from '+myGuid);
           vars.queuedActions[myGuid] = setTimeout(delayedSave,cs.delay.SAVE);
         } else {
           o.desmos.setState(vars.sharedState);
@@ -426,7 +426,7 @@ PearsonGL.External.rootJS = (function() {
 
         o.log(myGuid+' initialized.',vars);
 
-        var delayedSave = function() {
+        function delayedSave() {
           o.log('Saving state from '+myGuid);
           vars.sharedState = o.desmos.getState();
           vars.lastSavedFrom = myGuid;
@@ -444,7 +444,7 @@ PearsonGL.External.rootJS = (function() {
           }
         };
 
-        var confirmLoad = function() {
+        function confirmLoad() {
           o.log('Considering '+myGuid+' loaded.');
           vars.recentLoad[myGuid] = false;
           delete vars.queuedActions[myGuid];
@@ -453,10 +453,10 @@ PearsonGL.External.rootJS = (function() {
         o.desmos.observeEvent('change.save',function(){
           if (vars.queuedActions[myGuid] !== undefined) clearTimeout(vars.queuedActions[myGuid]);
           if (vars.recentLoad[myGuid]) {
-            o.log('Not saving from '+myGuid+'; loaded too recently.');
+            // o.log('Not saving from '+myGuid+'; loaded too recently.');
             vars.queuedActions[myGuid] = setTimeout(confirmLoad,cs.delay.LOAD);
           } else {
-            o.log('Queueing save from '+myGuid);
+            // o.log('Queueing save from '+myGuid);
             vars.queuedActions[myGuid] = setTimeout(delayedSave,cs.delay.SAVE);
           }
         });
