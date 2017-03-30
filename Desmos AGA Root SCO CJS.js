@@ -280,7 +280,11 @@ PearsonGL.External.rootJS = (function() {
       precision:{ // # of decimal places to round to; inverse powers of 10
         COORDINATES:2,
         DEGREES:0
-       }
+       },
+      delay:{ // delay values for timed events, in ms
+        SAVE:1000, // delay to save after the most recent modification
+        LOAD:1000 // delay to load after each save
+      }
      }
 
   /* ←— EXPORTS / PUBLIC FUNCTIONS ————————————————————————————————————————→ *\
@@ -399,6 +403,42 @@ PearsonGL.External.rootJS = (function() {
           o.desmos.setExpression({id:'y_pxScale',latex:'y_{pxScale}='+1/newScale.y});
 
         });
+       },
+      /* ←— shareState ————————————————————————————————————————————————————→ *\
+       | Shares the state of this widget between multiple widgets in the same SCO
+       | NOTE: this initialization function is incompatible with state-based
+       |       HelperExpressions
+       * ←———————————————————————————————————————————————————————————————————→ */
+       shareState: function(options={}) {
+        let o = hs.parseOptions(options);
+        let myGuid = o.desmos.guid;
+        if (vs.shared[o.uniqueId] === undefined) vs.shared[o.uniqueId] = {sharingInstances:{},queuedActions:{}};
+        let vars = vs.shared[o.uniqueId];
+
+        vars.sharingInstances[myGuid] = o.desmos;
+        if (vars.sharedState !== undefined) o.desmos.setState(vars.sharedState);
+
+        var delayedSave = function() {
+
+          vars.sharedState = o.desmos.getState();
+
+          for (guid in vars.sharingInstances) {
+            if (guid != myGuid) {
+              let instance = vars.sharingInstances[guid];
+              if (queuedActions[guid] !== undefined) clearTimeout(queuedActions[guid]);
+              queuedActions[guid] = setTimeout(function(){
+                  instance.setState(vars.sharedState);
+              },cs.delay.LOAD);
+            }
+          }
+
+          delete vars.queuedActions[myGuid];
+        }
+
+        o.desmos.observeEvent('change.save',function(){
+          if (queuedActions[myGuid] !== undefined) clearTimeout(queuedActions[myGuid]);
+          queuedActions[myGuid] = setTimeout(delayedSave,cs.delay.SAVE);
+        });
        }
      };
     /* ←— SHARED LATEX FUNCTIONS ——————————————————————————————————————————→ */
@@ -503,7 +543,7 @@ PearsonGL.External.rootJS = (function() {
             if (o.log) o.log('Saving value of ' + o.name + ' as vs.' + o.uniqueId + '.' + name);
            };
          })(varName);
-       };
+     };
 
     /* ←— A0597514 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597514 = {
