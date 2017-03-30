@@ -416,7 +416,10 @@ PearsonGL.External.rootJS = (function() {
         let vars = vs.shared[o.uniqueId];
 
         vars.sharingInstances[myGuid] = o.desmos;
-        if (vars.sharedState !== undefined) {
+        if (vars.sharedState === undefined) {
+          o.log('Queueing save from '+myGuid);
+          vars.queuedActions[myGuid] = setTimeout(delayedSave,cs.delay.SAVE);
+        } else {
           o.desmos.setState(vars.sharedState);
           o.log('Loading state from '+vars.lastSavedFrom+' into '+myGuid);
         }
@@ -441,10 +444,10 @@ PearsonGL.External.rootJS = (function() {
           }
         };
 
-        var confirmLoad = function(guid) {
-          o.log('Considering '+guid+' loaded.');
-          vars.recentLoad[guid] = false;
-          delete vars.queuedActions[guid];
+        var confirmLoad = function() {
+          o.log('Considering '+myGuid+' loaded.');
+          vars.recentLoad[myGuid] = false;
+          delete vars.queuedActions[myGuid];
         };
 
         o.desmos.observeEvent('change.save',function(){
