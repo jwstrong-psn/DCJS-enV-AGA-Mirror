@@ -279,7 +279,8 @@ PearsonGL.External.rootJS = (function() {
        },
       precision:{ // # of decimal places to round to; inverse powers of 10
         COORDINATES:2,
-        DEGREES:0
+        DEGREES:0,
+        EVAL:1
        },
       delay:{ // delay values for timed events, in ms
         SAVE:1000, // delay to save after the most recent modification
@@ -520,10 +521,10 @@ PearsonGL.External.rootJS = (function() {
        | For testing, use option {log:console.log}, which will log whenever
        |  the expression's value changes.
        * ←————————————————————————————————————————————————————————————————→ */
-       labelEquation: function(options={}) {
+       labelEquation: function(options={},prec=cs.precision.EVAL) {
         var o = hs.parseOptions(options);
-        var expr = hs.latexToText(o.name) + ' = ' + o.value;
-        if (o.log) o.log('Setting point label ' + expr);;
+        var expr = hs.latexToText(o.name) + ' = ' + Math.round(o.value*Math.pow(10,prec))/Math.pow(10,prec);
+        o.log('Setting point label ' + expr);
         o.desmos.setExpression({id:o.name,label:expr});
        },
       /* ←— labelTriAngles ——————————————————————————————————————————————————→ *\
