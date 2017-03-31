@@ -525,6 +525,79 @@ PearsonGL.External.rootJS = (function() {
         var expr = hs.latexToText(o.name) + ' = ' + o.value;
         if (o.log) o.log('Setting point label ' + expr);;
         o.desmos.setExpression({id:o.name,label:expr});
+       },
+      /* ←— labelTriAngles ——————————————————————————————————————————————————→ *\
+       | Updates the labels of the triangle's vertices with their respective
+       | angle measures. Defaults to triangle ABC.
+       | Execute when observing each angle's measure, with options.value that measure.
+       | prec is the number of decimal places to round to.
+       |   !REQUIRES Initializing vs[o.uniqueId] with: 
+       |             ('triAngle'+pointNames.A+pointNames.B+pointNames.C): {
+       |               prevError:0,
+       |               (pointNames.A):0,
+       |               (pointNames.B):0,
+       |               (pointNames.C):0
+       |             }
+       |   !REQUIRES Angle points to be labeled have ids 'point'+pointNames.A, etc.
+       |   !REQUIRES options.name end in pointNames.A, etc.
+       |   !REQUIRES options.value be the angle's value, in Radians.
+       * ←———————————————————————————————————————————————————————————————————→ */
+       labelTriAngles: function(options={},pointNames={A:'A',B:'B',C:'C'},prec=cs.precision.DEGREES) {
+        var o = hs.parseOptions(options);
+        var A = pointNames.A;
+        var B = pointNames.B;
+        var C = pointNames.C;
+        var vertex = o.name[o.name.length-1];
+        var val = Math.round(180*o.value/Math.PI*Math.pow(10,prec))/Math.pow(10,prec);
+        var vars = vs[o.uniqueId]['triAngle'+A+B+C];
+        var oldVal = vars[vertex];
+
+        if (vars.upToDate === undefined) o.log('Labeling angles of △'+A+B+C+' to '+prec+' decimal places.');
+
+        // Only update stuff if the one of the values has changed
+        if (vars.upToDate === true && val == oldVal) return;
+
+        // Calculate the value it should have to match the other two angles
+        var calculated;
+        switch (vertex) {
+          case A:
+            calculated = 180-(vars[B]+vars[C]);
+            break;
+          case B:
+            calculated = 180-(vars[A]+vars[C]);
+            break;
+          default:
+            calculated = 180-(vars[A]+vars[B]);
+        }
+
+        // If all is gravy, update the labels to match.
+        if (val == calculated) {
+          vars[vertex] = val;
+          o.desmos.setExpression({id:'point'+A,label:('m∠'+A+' = '+vars[A]+'°')});
+          o.desmos.setExpression({id:'point'+B,label:('m∠'+B+' = '+vars[B]+'°')});
+          o.desmos.setExpression({id:'point'+C,label:('m∠'+C+' = '+vars[C]+'°')});
+          vars.upToDate = true;
+        } else {
+          // If this angle is closer to its (re-)calculated value than the last one was, correct this one and let the others keep their original values.
+          var newErr = Math.abs(180*o.value/Math.PI-calculated);
+          if (newErr < vars.prevError && newErr < 1) {
+            // Note: <1 makes rounding floor or ceiling only; if there is a spin where the error
+            //       is always > 1, something has gone seriously wrong.
+            // correct this one and update the 3 labels
+            vars[vertex] = val = Math.round(calculated*Math.pow(10,prec))/Math.pow(10,prec);
+            o.desmos.setExpression({id:'point'+A,label:('m∠'+A+' = '+vars[A]+'°')});
+            o.desmos.setExpression({id:'point'+B,label:('m∠'+B+' = '+vars[B]+'°')});
+            o.desmos.setExpression({id:'point'+C,label:('m∠'+C+' = '+vars[C]+'°')});
+            vars.prevError = newErr;
+            vars.upToDate = true;
+          } else {
+            // If the other angles are closer, this one should keep its given value, and will be updated
+            // when the closer angles' measures are next polled.
+            vars[vertex] = val;
+            vars.prevError = newErr;
+            vars.upToDate = false;
+          }
+        }
        }
      };
     /* ←— VALUE STORAGE FUNCTIONS —————————————————————————————————————————→ */
@@ -754,12 +827,21 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
+    /* ←— A0596392 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0596392 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        var o = hs.parseOptions(options);
+        vs[o.uniqueId] = {triAngleABC:{prevError:0,A:0,B:0,C:0}};
+       }
+     };
+
     /* ←— A0596385 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0596385 = {
       /* ←— init ————————————————————————————————————————————————————————————→ */
        init: function(options={}) {
         var o = hs.parseOptions(options);
-        vs[o.uniqueId] = {prevError:0,A:0,B:0,C:0};
+        vs[o.uniqueId] = {triAngleABC:{prevError:0,A:0,B:0,C:0}};
        },
       /* ←— updateAngles ————————————————————————————————————————————————————→ *\
        | updates the labels of the triangle's vertices with their respective
@@ -769,57 +851,18 @@ PearsonGL.External.rootJS = (function() {
         var o = hs.parseOptions(options);
         var vertex = o.name[o.name.length-1];
         var val = Math.round(180*o.value/Math.PI);
-        var oldVal = vs[o.uniqueId][vertex];
+        var vars = vs[o.uniqueId].triAngleABC;
+        var oldVal = vars[vertex];
 
         // Only update stuff if the one of the values has changed
-        if (vs[o.uniqueId].upToDate === true && val == oldVal) return;
+        if (vars.upToDate === true && val == oldVal) return;
 
-        // Calculate the value it should have to match the other two angles
-        var calculated;
-        switch (vertex) {
-          case 'A':
-            calculated = 180-(vs[o.uniqueId].B+vs[o.uniqueId].C);
-            break;
-          case 'B':
-            calculated = 180-(vs[o.uniqueId].A+vs[o.uniqueId].C);
-            break;
-          default:
-            calculated = 180-(vs[o.uniqueId].A+vs[o.uniqueId].B);
-        }
-
-        // If all is gravy, update the labels to match.
-        if (val == calculated) {
-          vs[o.uniqueId][vertex] = val;
-          o.desmos.setExpression({id:'pointA',label:('m∠A = '+vs[o.uniqueId].A+'°')});
-          o.desmos.setExpression({id:'pointB',label:('m∠B = '+vs[o.uniqueId].B+'°')});
-          o.desmos.setExpression({id:'pointC',label:('m∠C = '+vs[o.uniqueId].C+'°')});
-          vs[o.uniqueId].upToDate = true;
-        } else {
-          // If this angle is closer to its (re-)calculated value than the last one was, correct this one and let the others keep their original values.
-          var newErr = Math.abs(180*o.value/Math.PI-calculated);
-          if (newErr < vs[o.uniqueId].prevError && newErr < 1) {
-            // Note: <1 makes rounding floor or ceiling only; if there is a spin where the error
-            //       is always > 1, something has gone seriously wrong.
-            // correct this one and update the 3 labels
-            vs[o.uniqueId][vertex] = val = calculated;
-            o.desmos.setExpression({id:'pointA',label:('m∠A = '+vs[o.uniqueId].A+'°')});
-            o.desmos.setExpression({id:'pointB',label:('m∠B = '+vs[o.uniqueId].B+'°')});
-            o.desmos.setExpression({id:'pointC',label:('m∠C = '+vs[o.uniqueId].C+'°')});
-            vs[o.uniqueId].prevError = newErr;
-            vs[o.uniqueId].upToDate = true;
-          } else {
-            // If the other angles are closer, this one should keep its given value, and will be updated
-            // when the closer angles' measures are next polled.
-            vs[o.uniqueId][vertex] = val;
-            vs[o.uniqueId].prevError = newErr;
-            vs[o.uniqueId].upToDate = false;
-          }
-        }
+        fs.shared.label.labelTriAngles(o);
 
         if ((oldVal-90)*(val-90)<=0) {
           // This angle just became obtuse or non-obtuse.
           if (val>90) fs.A0596385.drawExtensions(o); // this angle just became obtuse
-          else if ((90-vs[o.uniqueId].A)*(90-vs[o.uniqueId].B)*(90-vs[o.uniqueId].C)>=0) {
+          else if ((90-vars.A)*(90-vars.B)*(90-vars.C)>=0) {
             // This angle just became non-obtuse, and neither other angle is obtuse
             o.desmos.setExpressions([
                 {id:'ext1',latex:''},
