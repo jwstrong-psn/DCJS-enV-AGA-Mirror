@@ -41,9 +41,9 @@ PearsonGL.External.masterJS = (function() {
   
   var ts = { // test functions only
     shared:{ // Shared Helpers have functions that can be called by any Widget.
-      init:{ // Initialization Helpers are called only once, using HelperExpression({latex:"1"})
+      init:{}, // Initialization Helpers are called only once, using HelperExpression({latex:"1"})
         observeZoom:'' // Tracks zoom level in units/px as x_{pxScale} and y_{pxScale}
-      }
+      label:{} // Label functions are used for labeling points with certain values
     },
     sliderVal:function(val,name,desmos){return PearsonGL.External.rootJS.shared_label_valueOnly({'value':val,'name':name,'desmos':desmos,'log':console.log});}
   }
@@ -87,7 +87,17 @@ PearsonGL.External.masterJS = (function() {
 
   //* functions for test purposes only
   ts.shared.init.shareState = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.shared_init_shareState({'value':val,'name':name,'desmos':desmos,'log':console.log});
+    return PearsonGL.External.rootJS.shared_init_shareState({'value':val,'name':name,'desmos':desmos,'log':console.log, 'uniqueId':'shared'});
+  }
+
+  //* functions for test purposes only
+  ts.shared.label.labelEquation = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.shared_label_labelEquation({'value':val,'name':name,'desmos':desmos,'log':console.log, 'uniqueId':'shared'});
+  }
+
+  //* functions for test purposes only
+  ts.shared.label.labelTriAngles = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.shared_label_labelTriAngles({'value':val,'name':name,'desmos':desmos,'log':console.log, 'uniqueId':'shared'});
   }
 
   //* functions for test purposes only
