@@ -909,7 +909,7 @@ PearsonGL.External.rootJS = (function() {
         MAX_VERTICES:14,
         RADIUS:10,
         DRAG_BUFFER:0.25,
-        DRAG_BUFFER_REBOUND:1.1 // How much to bounce back when going past the buffer
+        DRAG_BUFFER_REBOUND:0.1 // How much to bounce back when going past the buffer
        };
      fs.A0597629 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
@@ -918,6 +918,7 @@ PearsonGL.External.rootJS = (function() {
        init: function(options={}) {
         let o = hs.parseOptions(options);
         hs[o.uniqueId] = {n:o.desmos.HelperExpression({latex:'n'})};
+        o.log(hs[o.uniqueId]);
         vs[o.uniqueId] = {n:hs[o.uniqueId].n.numericValue};
 
 
@@ -977,7 +978,8 @@ PearsonGL.External.rootJS = (function() {
         if (vs[o.uniqueId].lastDragged === null) return;
         let n = vs[o.uniqueId].n;
         let i = eval(o.name.match(/[0-9]+/)[0]);
-        let oldPoint = {x:vs[o.uniqueId][n]['x_'+((i>9)?"{"+i+"}":i)],y:vs[o.uniqueId][n]['y_'+((i>9)?"{"+i+"}":i)]};
+        var coords = vs[o.uniqueId][n];
+        let oldPoint = {x:coords['x_'+((i>9)?"{"+i+"}":i)],y:coords['y_'+((i>9)?"{"+i+"}":i)]};
         let newPoint = {x:vs[o.uniqueId]["x_"+((i>9)?"{"+i+"}":i)].numericValue,y:vs[o.uniqueId]["y_"+((i>9)?"{"+i+"}":i)].numericValue};
 
         if (i != vs[o.uniqueId].lastDragged) {
@@ -992,72 +994,72 @@ PearsonGL.External.rootJS = (function() {
           // Line formed by the 2 previous vertices
           vs[o.uniqueId].dragBoundaryLeft = hs.lineTwoPoints(
             {
-              x:vs[o.uniqueId][n]['x_'+((g>9)?"{"+g+"}":g)],
-              y:vs[o.uniqueId][n]['y_'+((g>9)?"{"+g+"}":g)]
+              x:coords['x_'+((g>9)?"{"+g+"}":g)],
+              y:coords['y_'+((g>9)?"{"+g+"}":g)]
             },
             {
-              x:vs[o.uniqueId][n]['x_'+((h>9)?"{"+h+"}":h)],
-              y:vs[o.uniqueId][n]['y_'+((h>9)?"{"+h+"}":h)]
+              x:coords['x_'+((h>9)?"{"+h+"}":h)],
+              y:coords['y_'+((h>9)?"{"+h+"}":h)]
             }
            );
 
            var vertexPad = ((n>3)?hs.distancePointLine({
-              x:vs[o.uniqueId][n]['x_'+((j>9)?"{"+j+"}":j)],
-              y:vs[o.uniqueId][n]['y_'+((j>9)?"{"+j+"}":j)]
+              x:coords['x_'+((j>9)?"{"+j+"}":j)],
+              y:coords['y_'+((j>9)?"{"+j+"}":j)]
             },vs[o.uniqueId].dragBoundaryLeft)/3:-cs.A0597629.DRAG_BUFFER);
 
            vs[o.uniqueId].dragBoundaryLeft.c -= Math.max( // Max because these will all be clockwise
             -cs.A0597629.DRAG_BUFFER, // base amount of padding from the boundaries
             vertexPad,
             hs.distancePointLine({ // Don't pad past the starting location
-                x:vs[o.uniqueId][n]['x_'+((i>9)?"{"+i+"}":i)],
-                y:vs[o.uniqueId][n]['y_'+((i>9)?"{"+i+"}":i)]
+                x:coords['x_'+((i>9)?"{"+i+"}":i)],
+                y:coords['y_'+((i>9)?"{"+i+"}":i)]
               },vs[o.uniqueId].dragBoundaryLeft)/3
             );
 
           // Line formed by the 2 following vertices
           vs[o.uniqueId].dragBoundaryRight = hs.lineTwoPoints(
             {
-              x:vs[o.uniqueId][n]['x_'+((j>9)?"{"+j+"}":j)],
-              y:vs[o.uniqueId][n]['y_'+((j>9)?"{"+j+"}":j)]
+              x:coords['x_'+((j>9)?"{"+j+"}":j)],
+              y:coords['y_'+((j>9)?"{"+j+"}":j)]
             },
             {
-              x:vs[o.uniqueId][n]['x_'+((k>9)?"{"+k+"}":k)],
-              y:vs[o.uniqueId][n]['y_'+((k>9)?"{"+k+"}":k)]
+              x:coords['x_'+((k>9)?"{"+k+"}":k)],
+              y:coords['y_'+((k>9)?"{"+k+"}":k)]
             }
            );
 
            vertexPad = ((n>3)?hs.distancePointLine({
-              x:vs[o.uniqueId][n]['x_'+((h>9)?"{"+h+"}":h)],
-              y:vs[o.uniqueId][n]['y_'+((h>9)?"{"+h+"}":h)]
+              x:coords['x_'+((h>9)?"{"+h+"}":h)],
+              y:coords['y_'+((h>9)?"{"+h+"}":h)]
             },vs[o.uniqueId].dragBoundaryRight)/3:-cs.A0597629.DRAG_BUFFER);
 
            vs[o.uniqueId].dragBoundaryRight.c -= Math.max( // Max because these will all be clockwise
             -cs.A0597629.DRAG_BUFFER, // base amount of padding from the boundaries
             vertexPad,
             hs.distancePointLine({ // Don't pad past the starting location
-                x:vs[o.uniqueId][n]['x_'+((i>9)?"{"+i+"}":i)],
-                y:vs[o.uniqueId][n]['y_'+((i>9)?"{"+i+"}":i)]
+                x:coords['x_'+((i>9)?"{"+i+"}":i)],
+                y:coords['y_'+((i>9)?"{"+i+"}":i)]
               },vs[o.uniqueId].dragBoundaryRight)/3
             );
 
           // Line formed by the 2 adjacent vertices
           vs[o.uniqueId].dragBoundaryBase = hs.lineTwoPoints(
             {
-              x:vs[o.uniqueId][n]['x_'+((h>9)?"{"+h+"}":h)],
-              y:vs[o.uniqueId][n]['y_'+((h>9)?"{"+h+"}":h)]
+              x:coords['x_'+((h>9)?"{"+h+"}":h)],
+              y:coords['y_'+((h>9)?"{"+h+"}":h)]
             },
             {
-              x:vs[o.uniqueId][n]['x_'+((j>9)?"{"+j+"}":j)],
-              y:vs[o.uniqueId][n]['y_'+((j>9)?"{"+j+"}":j)]
+              x:coords['x_'+((j>9)?"{"+j+"}":j)],
+              y:coords['y_'+((j>9)?"{"+j+"}":j)]
             }
            );
 
            vs[o.uniqueId].dragBoundaryBase.c -= Math.min( // Min because these will all be clockwise
             cs.A0597629.DRAG_BUFFER, // base amount of padding from the boundaries
             hs.distancePointLine({ // Don't pad past the starting location
-                x:vs[o.uniqueId][n]['x_'+((i>9)?"{"+i+"}":i)],
-                y:vs[o.uniqueId][n]['y_'+((i>9)?"{"+i+"}":i)]
+                x:coords['x_'+((i>9)?"{"+i+"}":i)],
+                y:coords['y_'+((i>9)?"{"+i+"}":i)]
               },vs[o.uniqueId].dragBoundaryBase)/3
             );
 
@@ -1082,54 +1084,62 @@ PearsonGL.External.rootJS = (function() {
             }]);
           };
         };
-        /**
+        /** GETTING THERE!
           var newDistL=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryLeft);
           var newDistR=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryRight);
           var newDistB=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryBase);
-          var giveUp = false;
-          window.setTimeout(function(){giveUp=true;},100);
+          window.giveUp = false;
+          setTimeout(function(){window.giveUp=true;},100);
 
-          while ((newDistL >= 0 || newDistR >= 0 || newDistB <= 0) && !giveUp) { 
+          while ((newDistL >= 0 || newDistR >= 0 || newDistB <= 0) && !(window.giveUp)) {
+            o.log('Trying L: '+Math.round(newDistL*100)/100+', R: '+Math.round(newDistR*100)/100+', B: '+Math.round(newDistB*100)/100);
             var newDist = newDistL;
             if(newDist>=0) {
+              o.log('Correcting L');
               var oldDist = hs.distancePointLine(oldPoint,vs[o.uniqueId].dragBoundaryLeft);
               var distOldNew = Math.sqrt(Math.pow(oldPoint.x-newPoint.x,2)+Math.pow(oldPoint.y-newPoint.y,2));
-              var t = newDist*distOldNew/(newDist-oldDist)*cs.A0597629.DRAG_BUFFER_REBOUND;
-              newPoint.x = oldPoint.x+(newPoint.x-oldPoint.x)*t;
-              newPoint.y = oldPoint.x+(newPoint.x-oldPoint.x)*t;
+              var t = newDist/(newDist-oldDist);
+              newPoint.x = oldPoint.x+(newPoint.x-oldPoint.x)*t*(1-cs.A0597629.DRAG_BUFFER_REBOUND);
+              newPoint.y = oldPoint.y+(newPoint.y-oldPoint.y)*t*(1-cs.A0597629.DRAG_BUFFER_REBOUND);
             };
 
             newDist = newDistR;
             if(newDist>=0) {
+              o.log('Correcting R');
               var oldDist = hs.distancePointLine(oldPoint,vs[o.uniqueId].dragBoundaryRight);
               var distOldNew = Math.sqrt(Math.pow(oldPoint.x-newPoint.x,2)+Math.pow(oldPoint.y-newPoint.y,2));
-              var t = newDist*distOldNew/(newDist-oldDist)*cs.A0597629.DRAG_BUFFER_REBOUND;
-              newPoint.x = oldPoint.x+(newPoint.x-oldPoint.x)*t;
-              newPoint.y = oldPoint.x+(newPoint.x-oldPoint.x)*t;
+              var t = newDist/(newDist-oldDist);
+              newPoint.x = oldPoint.x+(newPoint.x-oldPoint.x)*t*(1-cs.A0597629.DRAG_BUFFER_REBOUND);
+              newPoint.y = oldPoint.y+(newPoint.y-oldPoint.y)*t*(1-cs.A0597629.DRAG_BUFFER_REBOUND);
             };
 
             newDist = newDistB;
             if(newDist<=0) {
+              o.log('Correcting B');
               var oldDist = hs.distancePointLine(oldPoint,vs[o.uniqueId].dragBoundaryBase);
               var distOldNew = Math.sqrt(Math.pow(oldPoint.x-newPoint.x,2)+Math.pow(oldPoint.y-newPoint.y,2));
-              var t = newDist*distOldNew/(newDist-oldDist)*cs.A0597629.DRAG_BUFFER_REBOUND;
-              newPoint.x = oldPoint.x+(newPoint.x-oldPoint.x)*t;
-              newPoint.y = oldPoint.x+(newPoint.x-oldPoint.x)*t;
+              var t = newDist/(newDist-oldDist);
+              newPoint.x = oldPoint.x+(newPoint.x-oldPoint.x)*t*(1-cs.A0597629.DRAG_BUFFER_REBOUND);
+              newPoint.y = oldPoint.y+(newPoint.y-oldPoint.y)*t*(1-cs.A0597629.DRAG_BUFFER_REBOUND);
             };
 
-            o.log('Correcting to '+hs.ALPHA[i]+'('+newPoint.x+','+newPoint.y+')');
+            o.log('Correcting '+hs.ALPHA[i]+'('+
+              Math.round(oldPoint.x*100)/100+','+
+              Math.round(oldPoint.y*100)/100+') to '+hs.ALPHA[i]+'('+
+              Math.round(newPoint.x*100)/100+','+
+              Math.round(newPoint.y*100)/100+')');
 
             newDistL=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryLeft);
             newDistR=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryRight);
             newDistB=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryBase);
           }
-        **/
+        //**/
 
         if(newPoint[o.name[0]]==o.value) {
-          vs[o.uniqueId][n][o.name]=o.value;
+          coords[o.name]=o.value;
         } else {
 
-          o.log('Adjusting vertex '+hs.ALPHA[i]+'_'+n+'('+vs[o.uniqueId][n][o.name.replace('y','x')]+','+vs[o.uniqueId][n][o.name.replace('x','y')]+'); bounded by:');
+          o.log('Adjusting vertex '+hs.ALPHA[i]+'_'+n+'('+coords[o.name.replace('y','x')]+','+coords[o.name.replace('x','y')]+'); bounded by:');
           o.log({
             left:vs[o.uniqueId].dragBoundaryLeft,
             right:vs[o.uniqueId].dragBoundaryRight,
