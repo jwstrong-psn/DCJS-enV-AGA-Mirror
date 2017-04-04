@@ -226,6 +226,47 @@ PearsonGL.External.rootJS = (function() {
 
         return line;
        },
+      /* ←— polygonConstrain —————————————————————————————————————————————→ *\
+       | Constrain a point to a (convex) polygon.
+       |
+       | Point {x,y}, and an arbitrary number of lines [{a,b,c},…].
+       | Polygon is defined by the set of all points a nonnegative distance from
+       | all edges.
+       | Point returned will be the closest point inside the polygon.
+       | Optional buffer distance places the returned point inside the polygon.
+       * ←————————————————————————————————————————————————————————————————→ /
+       polygonConstrain: function(point, lines, buffer=cs.distance.CONSTRAIN_BUFFER) {
+        var constrained = {x:point.x,y:point.y};
+
+        function viable(testPoint) {
+          for (i in lines;i<lines.length;i++) {
+            if (distancePointLine(testPoint,lines[i])<buffer) return false;
+          };
+          return true;
+        }
+
+        if (viable(point)) return constrained;
+
+        var buffered = [];
+        for (line in lines) buffered.push({a:lines[line].a,b:lines[line].b,c:lines[line].c-buffer*Math.pow(2,cs.ts.BUFFER_BUFFER)}); // Overcompensate to guarantee success
+        var points = [];
+        constrained = null;
+
+        for (i in lines;i<lines.length;i++) {
+          let projected = projectPointLine(point,buffered[i]);
+          if (viable(projected)) {
+            if (constrained === null) constrained = projected;
+            if (Math.sqrt(Math.pow(projected.x-point.x,2)+Math.pow(projected.y-point.y,2))<Math.sqrt(Math.pow(constrained.x-point.x,2)+Math.pow(constrained.x-point.x,2))) constrained = projected;
+          };
+          for (j = i+1;j<lines.length;j++) {
+            let intersected = intersectLines(buffered[i],buffered[j]);
+            if (viable(intersected)) {
+              if (constrained === null) constrained = intersected;
+              if (Math.sqrt(Math.pow(intersected.x-point.x,2)+Math.pow(intersected.y-point.y,2))<Math.sqrt(Math.pow(constrained.x-point.x,2)+Math.pow(constrained.x-point.x,2))) constrained = intersected;
+            };
+          };
+        }
+       },*/
       /* ←— Intersect Two Lines ——————————————————————————————————————————→ *\
        | Find the point of intersection between two lines
        |
