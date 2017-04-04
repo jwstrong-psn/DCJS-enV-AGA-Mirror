@@ -227,46 +227,57 @@ PearsonGL.External.rootJS = (function() {
         return line;
        },
       /* ←— polygonConstrain —————————————————————————————————————————————→ *\
-       | Constrain a point to a (convex) polygon.
+       | Constrain a point to a convex polygon.
        |
        | Point {x,y}, and an arbitrary number of lines [{a,b,c},…].
        | Polygon is defined by the set of all points a nonnegative distance from
        | all edges.
        | Point returned will be the closest point inside the polygon.
        | Optional buffer distance places the returned point inside the polygon.
-       * ←————————————————————————————————————————————————————————————————→ /
+       | Returns null if there are no points inside the buffered polygon
+       * ←————————————————————————————————————————————————————————————————→ */
        polygonConstrain: function(point, lines, buffer=cs.distance.CONSTRAIN_BUFFER) {
-        var constrained = {x:point.x,y:point.y};
 
         function viable(testPoint) {
+          if (testPoint == null) return false;
           for (i in lines;i<lines.length;i++) {
             if (distancePointLine(testPoint,lines[i])<buffer) return false;
           };
           return true;
         }
 
-        if (viable(point)) return constrained;
+        if (viable(point)) return point;
 
         var buffered = [];
-        for (line in lines) buffered.push({a:lines[line].a,b:lines[line].b,c:lines[line].c-buffer*Math.pow(2,cs.ts.BUFFER_BUFFER)}); // Overcompensate to guarantee success
-        var points = [];
-        constrained = null;
 
-        for (i in lines;i<lines.length;i++) {
-          let projected = projectPointLine(point,buffered[i]);
-          if (viable(projected)) {
-            if (constrained === null) constrained = projected;
-            if (Math.sqrt(Math.pow(projected.x-point.x,2)+Math.pow(projected.y-point.y,2))<Math.sqrt(Math.pow(constrained.x-point.x,2)+Math.pow(constrained.x-point.x,2))) constrained = projected;
+        for (line in lines) {
+          let bufferedLine = {a:lines[line].a,b:lines[line].b,c:lines[line].c-buffer*Math.pow(2,cs.ts.BUFFER_BUFFER)}; // Overcompensate to guarantee success
+          if (distancePointLine(point,lines[i])<buffer) {
+            // For a convex polygon, if projecting to a crossed boundary results in a valid point, then that point is definitely the closest.
+            let projected = hs.projectPointLine(point,bufferedLine);
+            if (viable(projected)) return projected;
           };
+          // Otherwise, all lines need to be considered to account for acute angles, where projecting may cross from inside one boundary to outside it.
+          buffered.push(bufferedLine);
+        }
+
+        // If projecting to an edge doesn't work, find the closest vertex of the polygon.
+        constrained = null;
+        for (i in lines;i<lines.length;i++) {
           for (j = i+1;j<lines.length;j++) {
-            let intersected = intersectLines(buffered[i],buffered[j]);
+            let intersected = hs.intersectLines(buffered[i],buffered[j]);
             if (viable(intersected)) {
-              if (constrained === null) constrained = intersected;
-              if (Math.sqrt(Math.pow(intersected.x-point.x,2)+Math.pow(intersected.y-point.y,2))<Math.sqrt(Math.pow(constrained.x-point.x,2)+Math.pow(constrained.x-point.x,2))) constrained = intersected;
+              if (constrained === null || (
+                Math.sqrt(Math.pow(intersected.x-point.x,2)
+                  +Math.pow(intersected.y-point.y,2))
+                <Math.sqrt(Math.pow(constrained.x-point.x,2)
+                  +Math.pow(constrained.x-point.x,2))
+              )) constrained = intersected;
             };
           };
-        }
-       },*/
+        };
+        return constrained;
+       },
       /* ←— Intersect Two Lines ——————————————————————————————————————————→ *\
        | Find the point of intersection between two lines
        |
