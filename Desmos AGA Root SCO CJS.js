@@ -998,58 +998,71 @@ PearsonGL.External.rootJS = (function() {
        * ←———————————————————————————————————————————————————————————————————→ */
        init: function(options={}) {
         let o = hs.parseOptions(options);
-        hs[o.uniqueId] = {n:o.desmos.HelperExpression({latex:'n'})};
-        o.log(hs[o.uniqueId]);
-        vs[o.uniqueId] = {n:hs[o.uniqueId].n.numericValue,placeHolder:{k:0,x:0,y:0}};
+        o.log(hfs);
+        let vars = vs[o.uniqueId] = {n:o.desmos.HelperExpression({latex:'n'}).numericValue,placeHolder:{vertexNum:0,x:0,y:0}};
+        let hfs = vars.helperFunctions = {};
+        let cons = cs.A0597629;
 
 
-        // Set up variables for vertices of each polygon
-         for(var i=3;i<=cs.A0597629.MAX_VERTICES;i++) {
-          vs[o.uniqueId][i]={};
-          for(var j=1;j<=i;j++) {
-            vs[o.uniqueId][i]["x_"+((j>9)?"{"+j+"}":j)] = cs.A0597629.RADIUS*Math.round(1000000*Math.sin(2*Math.PI*((j-1)/i)))/1000000;
-            vs[o.uniqueId][i]["y_"+((j>9)?"{"+j+"}":j)] = cs.A0597629.RADIUS*Math.round(1000000*Math.cos(2*Math.PI*((j-1)/i)))/1000000;
+        // Set up variables and observers for vertices of each polygon
+         for(let i=1;i<=cons.MAX_VERTICES;i++) {
+          // Track x & y for this vertex
+          vars["x_"+i] = o.desmos.HelperExpression({latex:hs.sub('x',i)});
+          vars["y_"+i] = o.desmos.HelperExpression({latex:hs.sub('x',i)});
+          vars[i]={};
+          if (i >= 3) for(var j=1;j<=i;j++) {
+            if (i == vars.n) {
+              // Initialize active polygon to current state
+              vars[i]['x_'+j] = vars['x_'+i].numericValue;
+              vars[i]['y_'+j] = vars['y_'+i].numericValue;
+            } else {
+              // Initialize inactive polygons to default
+              vars[i]['x_'+j] = cons.RADIUS*Math.round(Math.pow(10,cons.INITIAL_COORDINATES_PRECISION)*Math.sin(2*Math.PI*((j-1)/i)))/Math.pow(10,cons.INITIAL_COORDINATES_PRECISION);
+              vars[i]['y_'+j] = cons.RADIUS*Math.round(Math.pow(10,cons.INITIAL_COORDINATES_PRECISION)*Math.cos(2*Math.PI*((j-1)/i)))/Math.pow(10,cons.INITIAL_COORDINATES_PRECISION);
+            }
           };
+          // Set up observers for when the user drags a point
+          hfs["x_"+i] = function(){fs.A0597629.coordinateChanged({
+            name:hs.sub('x',i),
+            value:vars['x_'+i].numericValue,
+            desmos:o.desmos,
+            uniqueId:o.uniqueId,
+            log:o.log || function(){}
+          })};
+          hfs['y_'+i] = function(){fs.A0597629.coordinateChanged({
+            name:hs.sub('y',i),
+            value:vars['y_'+i].numericValue,
+            desmos:o.desmos,
+            uniqueId:o.uniqueId,
+            log:o.log || function(){}
+          })};
+          vars["x_"+i].observe('numericValue.correction',hfs['x_'+i]);
+          vars['y_'+i].observe('numericValue.correction',hfs['y_'+i]);
          };
 
-        // Set up observers for all the coordinates.
-         for(let i=1;i<=cs.A0597629.MAX_VERTICES;i++) {
-          // Observe x
-          vs[o.uniqueId]["x_"+((i>9)?"{"+i+"}":i)] = o.desmos.HelperExpression({
-            latex:"x_"+((i>9)?"{"+i+"}":i)
-          });
-          hs[o.uniqueId]["x_"+((i>9)?"{"+i+"}":i)] = function(){fs.A0597629.coordinateChanged({
-            name:"x_"+((i>9)?"{"+i+"}":i),
-            value:vs[o.uniqueId]["x_"+((i>9)?"{"+i+"}":i)].numericValue,
-            desmos:o.desmos,
-            uniqueId:o.uniqueId,
-            log:o.log || function(){}
-          })};
-          vs[o.uniqueId]["x_"+((i>9)?"{"+i+"}":i)].observe('numericValue.correction',hs[o.uniqueId]["x_"+((i>9)?"{"+i+"}":i)]);
-          // Observe y
-          vs[o.uniqueId]["y_"+((i>9)?"{"+i+"}":i)] = o.desmos.HelperExpression({
-            latex:"y_"+((i>9)?"{"+i+"}":i)
-          });
-          hs[o.uniqueId]["y_"+((i>9)?"{"+i+"}":i)] = function(){fs.A0597629.coordinateChanged({
-            name:"y_"+((i>9)?"{"+i+"}":i),
-            value:vs[o.uniqueId]["y_"+((i>9)?"{"+i+"}":i)].numericValue,
-            desmos:o.desmos,
-            uniqueId:o.uniqueId,
-            log:o.log || function(){}
-          })};
-          vs[o.uniqueId]["y_"+((i>9)?"{"+i+"}":i)].observe('numericValue.correction',hs[o.uniqueId]["y_"+((i>9)?"{"+i+"}":i)]);
-         };
         /*
-        hs[o.uniqueId].n.observe('numericValue',function(){fs.A0597629.switchPolygon({
+        hfs.n.observe('numericValue',function(){fs.A0597629.switchPolygon({
           name:'n',
-          value:hs[o.uniqueId].n.numericValue,
+          value:hfs.n.numericValue,
           desmos:o.desmos,
           uniqueId:o.uniqueId,
           log:o.log || function(){}
         })});
         */
         
-        o.log("Observers initialized:",vs[o.uniqueId]);
+        o.log("Observers initialized:",vars);
+       },
+      /* ←— clearPlaceholder ————————————————————————————————————————————————→ *\
+       | moves the last dragged vertex back to the placeholder vertex's location
+       | 
+       * ←———————————————————————————————————————————————————————————————————→ */
+       clearPlaceholder: function(options={}) {
+        let o = hs.parseOptions(options);
+        let vars = vs[o.uniqueId];
+        let i = vars.lastDragged;
+        let n = vars.n;
+
+        o.desmos.setExpression({id:'x_'+i,latex:'x_'+((i>9)?"{"+i+"}":i)+'='+vars[n][i]})
        },
       /* ←— coordinateChanged ———————————————————————————————————————————————→ *\
        | updates variables, and corrects if the user tries to cross diagonals
