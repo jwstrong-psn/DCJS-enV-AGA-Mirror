@@ -955,7 +955,8 @@ PearsonGL.External.rootJS = (function() {
         MAX_VERTICES:14,
         RADIUS:10,
         DRAG_BUFFER:0.25,
-        DRAG_BUFFER_REBOUND:0.1 // How much to bounce back when going past the buffer
+        DRAG_BUFFER_REBOUND:0.1, // How much to bounce back when going past the buffer
+        SEGMENT_TEMPLATE:'\\left(x_U\\left(1-t\\right)+x_Vt,y_U\\left(1-t\\right)+y_Vt\\right)'
        };
      fs.A0597629 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
@@ -965,7 +966,7 @@ PearsonGL.External.rootJS = (function() {
         let o = hs.parseOptions(options);
         hs[o.uniqueId] = {n:o.desmos.HelperExpression({latex:'n'})};
         o.log(hs[o.uniqueId]);
-        vs[o.uniqueId] = {n:hs[o.uniqueId].n.numericValue};
+        vs[o.uniqueId] = {n:hs[o.uniqueId].n.numericValue,placeHolder:{k:0,x:0,y:0}};
 
 
         // Set up variables for vertices of each polygon
