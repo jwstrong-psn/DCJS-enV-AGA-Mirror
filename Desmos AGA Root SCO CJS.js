@@ -148,7 +148,7 @@ PearsonGL.External.rootJS = (function() {
        ↓ 
        * ←—————————————————————————————————————————————————————————————————————→ */
        latexToText: function(expr){
-        expr = expr.replace(/\-/g,' − ');
+        expr = ''+expr;
         expr = expr.replace(/\+/g,' + ');
         expr = expr.replace(/,/g,', ');
         expr = expr.replace(/\^2/g,'²');
@@ -162,6 +162,8 @@ PearsonGL.External.rootJS = (function() {
         expr = expr.replace(/\\left\(/g,'(');
         expr = expr.replace(/\\right/g,'');
         expr = expr.replace(/\\left/g,'');
+        expr = expr.replace(/([^  ])\-/g,'$1 − ');
+        expr = expr.replace(/\-/g,'−');
         return expr;
        },
       /* ←— labelPoint ———————→———————————————————————————————————————————→ *\
@@ -224,6 +226,47 @@ PearsonGL.External.rootJS = (function() {
 
         return line;
        },
+      /* ←— polygonConstrain —————————————————————————————————————————————→ *\
+       | Constrain a point to a (convex) polygon.
+       |
+       | Point {x,y}, and an arbitrary number of lines [{a,b,c},…].
+       | Polygon is defined by the set of all points a nonnegative distance from
+       | all edges.
+       | Point returned will be the closest point inside the polygon.
+       | Optional buffer distance places the returned point inside the polygon.
+       * ←————————————————————————————————————————————————————————————————→ /
+       polygonConstrain: function(point, lines, buffer=cs.distance.CONSTRAIN_BUFFER) {
+        var constrained = {x:point.x,y:point.y};
+
+        function viable(testPoint) {
+          for (i in lines;i<lines.length;i++) {
+            if (distancePointLine(testPoint,lines[i])<buffer) return false;
+          };
+          return true;
+        }
+
+        if (viable(point)) return constrained;
+
+        var buffered = [];
+        for (line in lines) buffered.push({a:lines[line].a,b:lines[line].b,c:lines[line].c-buffer*Math.pow(2,cs.ts.BUFFER_BUFFER)}); // Overcompensate to guarantee success
+        var points = [];
+        constrained = null;
+
+        for (i in lines;i<lines.length;i++) {
+          let projected = projectPointLine(point,buffered[i]);
+          if (viable(projected)) {
+            if (constrained === null) constrained = projected;
+            if (Math.sqrt(Math.pow(projected.x-point.x,2)+Math.pow(projected.y-point.y,2))<Math.sqrt(Math.pow(constrained.x-point.x,2)+Math.pow(constrained.x-point.x,2))) constrained = projected;
+          };
+          for (j = i+1;j<lines.length;j++) {
+            let intersected = intersectLines(buffered[i],buffered[j]);
+            if (viable(intersected)) {
+              if (constrained === null) constrained = intersected;
+              if (Math.sqrt(Math.pow(intersected.x-point.x,2)+Math.pow(intersected.y-point.y,2))<Math.sqrt(Math.pow(constrained.x-point.x,2)+Math.pow(constrained.x-point.x,2))) constrained = intersected;
+            };
+          };
+        }
+       },*/
       /* ←— Intersect Two Lines ——————————————————————————————————————————→ *\
        | Find the point of intersection between two lines
        |
@@ -264,7 +307,8 @@ PearsonGL.External.rootJS = (function() {
        },
       ts:{ // Tolerances for tuning; measured in log2 increments.
         AR:0.01, // Aspect Ratio, detectably non-square
-        ZOOM:0.3 // For reporting coarse changes in the zoom level
+        ZOOM:0.3, // For reporting coarse changes in the zoom level
+        BUFFER_BUFFER:0.01
        },
       enum:{
         LINEAR_SLOPE_INTERCEPT_FORM:'LMB',
@@ -277,7 +321,16 @@ PearsonGL.External.rootJS = (function() {
        },
       precision:{ // # of decimal places to round to; inverse powers of 10
         COORDINATES:2,
-        DEGREES:0
+        DEGREES:0,
+        EVAL:1,
+        FLOAT_PRECISION:10
+       },
+      delay:{ // delay values for timed events, in ms
+        SAVE:1000, // delay to save after the most recent modification
+        LOAD:1000 // consider a `setState` complete once the state is static for this long
+       },
+      distance:{
+        CONSTRAIN_BUFFER:0.000001
        }
      }
 
@@ -397,6 +450,63 @@ PearsonGL.External.rootJS = (function() {
           o.desmos.setExpression({id:'y_pxScale',latex:'y_{pxScale}='+1/newScale.y});
 
         });
+       },
+      /* ←— shareState ————————————————————————————————————————————————————→ *\
+       | Shares the state of this widget between multiple widgets in the same SCO
+       | NOTE: this initialization function is incompatible with state-based
+       |       HelperExpressions
+       * ←———————————————————————————————————————————————————————————————————→ */
+       shareState: function(options={}) {
+        let o = hs.parseOptions(options);
+        let myGuid = o.desmos.guid;
+        if (vs.shared[o.uniqueId] === undefined) vs.shared[o.uniqueId] = {sharingInstances:{},queuedActions:{},recentLoad:{}};
+        let vars = vs.shared[o.uniqueId];
+
+        vars.sharingInstances[myGuid] = o.desmos;
+        if (vars.sharedState === undefined) {
+          o.log('Queueing initial save from '+myGuid);
+          vars.queuedActions[myGuid] = setTimeout(delayedSave,cs.delay.SAVE);
+        } else {
+          o.desmos.setState(vars.sharedState);
+          o.log('Loading state from '+vars.lastSavedFrom+' into '+myGuid);
+        }
+
+        o.log(myGuid+' initialized.',vars);
+
+        function delayedSave() {
+          o.log('Saving state from '+myGuid);
+          vars.sharedState = o.desmos.getState();
+          vars.lastSavedFrom = myGuid;
+          if (vars.queuedActions[myGuid] !== undefined) clearTimeout(vars.queuedActions[myGuid]);
+          delete vars.queuedActions[myGuid];
+
+          // Load into all the others
+          for (guid in vars.sharingInstances) {
+            if (guid != myGuid) {
+              o.log('Loading state from '+myGuid+' into '+guid);
+              vars.recentLoad[guid] = true;
+              vars.sharingInstances[guid].setState(vars.sharedState);
+              // The `'change.save'` event will ensure the load is confirmed
+            } else o.log('Skipped loading into '+guid)
+          }
+        };
+
+        function confirmLoad() {
+          o.log('Considering '+myGuid+' loaded.');
+          vars.recentLoad[myGuid] = false;
+          delete vars.queuedActions[myGuid];
+        };
+
+        o.desmos.observeEvent('change.save',function(){
+          if (vars.queuedActions[myGuid] !== undefined) clearTimeout(vars.queuedActions[myGuid]);
+          if (vars.recentLoad[myGuid]) {
+            // o.log('Not saving from '+myGuid+'; loaded too recently.');
+            vars.queuedActions[myGuid] = setTimeout(confirmLoad,cs.delay.LOAD);
+          } else {
+            // o.log('Queueing save from '+myGuid);
+            vars.queuedActions[myGuid] = setTimeout(delayedSave,cs.delay.SAVE);
+          }
+        });
        }
      };
     /* ←— SHARED LATEX FUNCTIONS ——————————————————————————————————————————→ */
@@ -416,7 +526,7 @@ PearsonGL.External.rootJS = (function() {
        * ←————————————————————————————————————————————————————————————————→ */
        reportValue: function(options={}) {
         var o = hs.parseOptions(options);
-        var expr = '' + o.name + ' = ' + o.value;
+        var expr = '' + o.name + '=' + o.value;
         if (o.log) o.log('Setting expression \'' + o.name + '\' to \'' + expr + '\'.');
         o.desmos.setExpression({id:o.name,latex:expr});
        }
@@ -457,11 +567,84 @@ PearsonGL.External.rootJS = (function() {
        | For testing, use option {log:console.log}, which will log whenever
        |  the expression's value changes.
        * ←————————————————————————————————————————————————————————————————→ */
-       labelEquation: function(options={}) {
+       labelEquation: function(options={},prec=cs.precision.EVAL) {
         var o = hs.parseOptions(options);
-        var expr = hs.latexToText(o.name) + ' = ' + o.value;
-        if (o.log) o.log('Setting point label ' + expr);;
+        var expr = hs.latexToText(o.name) + ' = ' + Math.round(o.value*Math.pow(10,prec))/Math.pow(10,prec);
+        o.log('Setting point label ' + expr);
         o.desmos.setExpression({id:o.name,label:expr});
+       },
+      /* ←— labelTriAngles ——————————————————————————————————————————————————→ *\
+       | Updates the labels of the triangle's vertices with their respective
+       | angle measures. Defaults to triangle ABC.
+       | Execute when observing each angle's measure, with options.value that measure.
+       | prec is the number of decimal places to round to.
+       |   !REQUIRES Initializing vs[o.uniqueId] with: 
+       |             ('triAngle'+pointNames.A+pointNames.B+pointNames.C): {
+       |               prevError:0,
+       |               (pointNames.A):0,
+       |               (pointNames.B):0,
+       |               (pointNames.C):0
+       |             }
+       |   !REQUIRES Angle points to be labeled have ids 'point'+pointNames.A, etc.
+       |   !REQUIRES options.name end in pointNames.A, etc.
+       |   !REQUIRES options.value be the angle's value, in Radians.
+       * ←———————————————————————————————————————————————————————————————————→ */
+       labelTriAngles: function(options={},pointNames={A:'A',B:'B',C:'C'},prec=cs.precision.DEGREES) {
+        var o = hs.parseOptions(options);
+        var A = pointNames.A;
+        var B = pointNames.B;
+        var C = pointNames.C;
+        var vertex = o.name[o.name.length-1];
+        var val = Math.round(180*o.value/Math.PI*Math.pow(10,prec))/Math.pow(10,prec);
+        var vars = vs[o.uniqueId]['triAngle'+A+B+C];
+        var oldVal = vars[vertex];
+
+        if (vars.upToDate === undefined) o.log('Labeling angles of △'+A+B+C+' to '+prec+' decimal places.');
+
+        // Only update stuff if the one of the values has changed
+        if (vars.upToDate === true && val == oldVal) return;
+
+        // Calculate the value it should have to match the other two angles
+        var calculated;
+        switch (vertex) {
+          case A:
+            calculated = 180-(vars[B]+vars[C]);
+            break;
+          case B:
+            calculated = 180-(vars[A]+vars[C]);
+            break;
+          default:
+            calculated = 180-(vars[A]+vars[B]);
+        }
+
+        // If all is gravy, update the labels to match.
+        if (val == calculated) {
+          vars[vertex] = val;
+          o.desmos.setExpression({id:'point'+A,label:('m∠'+A+' = '+vars[A]+'°')});
+          o.desmos.setExpression({id:'point'+B,label:('m∠'+B+' = '+vars[B]+'°')});
+          o.desmos.setExpression({id:'point'+C,label:('m∠'+C+' = '+vars[C]+'°')});
+          vars.upToDate = true;
+        } else {
+          // If this angle is closer to its (re-)calculated value than the last one was, correct this one and let the others keep their original values.
+          var newErr = Math.abs(180*o.value/Math.PI-calculated);
+          if (newErr < vars.prevError && newErr < 1) {
+            // Note: <1 makes rounding floor or ceiling only; if there is a spin where the error
+            //       is always > 1, something has gone seriously wrong.
+            // correct this one and update the 3 labels
+            vars[vertex] = val = Math.round(calculated*Math.pow(10,prec))/Math.pow(10,prec);
+            o.desmos.setExpression({id:'point'+A,label:('m∠'+A+' = '+vars[A]+'°')});
+            o.desmos.setExpression({id:'point'+B,label:('m∠'+B+' = '+vars[B]+'°')});
+            o.desmos.setExpression({id:'point'+C,label:('m∠'+C+' = '+vars[C]+'°')});
+            vars.prevError = newErr;
+            vars.upToDate = true;
+          } else {
+            // If the other angles are closer, this one should keep its given value, and will be updated
+            // when the closer angles' measures are next polled.
+            vars[vertex] = val;
+            vars.prevError = newErr;
+            vars.upToDate = false;
+          }
+        }
        }
      };
     /* ←— VALUE STORAGE FUNCTIONS —————————————————————————————————————————→ */
@@ -501,7 +684,7 @@ PearsonGL.External.rootJS = (function() {
             if (o.log) o.log('Saving value of ' + o.name + ' as vs.' + o.uniqueId + '.' + name);
            };
          })(varName);
-       };
+     };
 
     /* ←— A0597514 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597514 = {
@@ -702,23 +885,111 @@ PearsonGL.External.rootJS = (function() {
         var o = hs.parseOptions(options);
         switch (o.name) {
           case '\\theta_1':
-            o.desmos.setExpression({id:'a1',label:('𝑚∠2 ='+o.value+'°')});
+            o.desmos.setExpression({id:'a1',label:('𝑚∠2 = '+o.value+'°')});
             break;
           case '\\theta_2':
-            o.desmos.setExpression({id:'a2',label:('𝑚∠1 ='+o.value+'°')});
+            o.desmos.setExpression({id:'a2',label:('𝑚∠1 = '+o.value+'°')});
             break;
           };
         }
      };
 
-    /* ←— A0597629 FUNCTIONS ——————————————————————————————————————————————→ */
-     cs.A0597629 = {
-      MAX_VERTICES:14,
-      RADIUS:10,
-      DRAG_BUFFER:0.25,
-      DRAG_BUFFER_REBOUND:1.1 // How much to bounce back when going past the buffer
+    /* ←— A0597598_A FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0597598_A = {
+      /* ←— labelAngle ————————————————————————————————————————————————————→ *\
+       | updates the label of the angle of rotation
+       | observe with \theta_x
+       * ←———————————————————————————————————————————————————————————————————→ */
+       labelAngle: function(options={}) {
+        var o = hs.parseOptions(options);
+        o.desmos.setExpression({id:'angle_label',label:('a = '+hs.latexToText(o.value)+'°')});
+       }
      };
 
+    /* ←— A0596392 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0596392 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        var o = hs.parseOptions(options);
+        vs[o.uniqueId] = {triAngleABC:{prevError:0,A:0,B:0,C:0}};
+       }
+     };
+
+    /* ←— A0596385 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0596385 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        var o = hs.parseOptions(options);
+        vs[o.uniqueId] = {triAngleABC:{prevError:0,A:0,B:0,C:0}};
+       },
+      /* ←— updateAngles ————————————————————————————————————————————————————→ *\
+       | updates the labels of the triangle's vertices with their respective
+       | angle measures.
+       * ←———————————————————————————————————————————————————————————————————→ */
+       updateAngles: function(options={}) {
+        var o = hs.parseOptions(options);
+        var vertex = o.name[o.name.length-1];
+        var val = Math.round(180*o.value/Math.PI);
+        var vars = vs[o.uniqueId].triAngleABC;
+        var oldVal = vars[vertex];
+
+        // Only update stuff if the one of the values has changed
+        if (vars.upToDate === true && val == oldVal) return;
+
+        fs.shared.label.labelTriAngles(o);
+
+        if ((oldVal-90)*(val-90)<=0) {
+          // This angle just became obtuse or non-obtuse.
+          if (val>90) fs.A0596385.drawExtensions(o); // this angle just became obtuse
+          else if ((90-vars.A)*(90-vars.B)*(90-vars.C)>=0) {
+            // This angle just became non-obtuse, and neither other angle is obtuse
+            o.desmos.setExpressions([
+                {id:'ext1',latex:''},
+                {id:'ext2',latex:''},
+                {id:'extA',latex:''},
+                {id:'extB',latex:''},
+                {id:'extC',latex:''}
+              ]);
+          }
+        }
+       },
+      /* ←— drawExtensions ——————————————————————————————————————————————————→ *\
+       | Adds any side-extensions necessary; pass in name of obtuse angle
+       * ←———————————————————————————————————————————————————————————————————→ */
+       drawExtensions: function(options={}) {
+        var o = hs.parseOptions(options);
+        var obtuse = (o.name[o.name.length-1] == 'A')?1:((o.name[o.name.length-1] == 'B')?2:3);
+        var Ext1 = hs.ALPHA[obtuse%3+1];
+        var ext1 = hs.alpha[obtuse%3+1];
+        var Ext2 = hs.ALPHA[(obtuse+1)%3+1];
+        var ext2 = hs.alpha[(obtuse+1)%3+1];
+        obtuse = hs.ALPHA[obtuse];
+        var exprs = [];
+
+        // Side extensions
+        exprs.push({id:'ext1',latex:('e_{xt1}=p_'+obtuse+'\\left(1-t\\left(1-\\frac{t_{ick}}{'+ext1+'}\\right)\\right)+p_{h'+Ext1+'}t-p_'+Ext2+'\\frac{t_{ick}}{'+ext1+'}t')});
+        exprs.push({id:'ext2',latex:('e_{xt2}=p_'+obtuse+'\\left(1-t\\left(1-\\frac{t_{ick}}{'+ext2+'}\\right)\\right)+p_{h'+Ext2+'}t-p_'+Ext1+'\\frac{t_{ick}}{'+ext2+'}t')});
+
+        // Altitude extensions
+        exprs.push({id:('ext'+obtuse),latex:('h_{ext'+obtuse+'}=p_'+obtuse+'+t\\left(p_O-p_'+obtuse+'\\right)\\left(1+\\frac{t_{ick}}{D_{pp}\\left(p_'+obtuse+',p_O\\right)}\\right)')});
+        exprs.push({id:('ext'+Ext1),latex:('h_{ext'+Ext1+'}=p_{h'+Ext1+'}+t\\left(p_O-p_{h'+Ext1+'}\\right)\\left(1+\\frac{t_{ick}}{D_{pp}\\left(p_O,p_{h'+Ext1+'}\\right)}\\right)')});
+        exprs.push({id:('ext'+Ext2),latex:('h_{ext'+Ext2+'}=p_{h'+Ext2+'}\\left(1-t\\left(1-\\frac{t_{ick}}{h_'+ext2+'}\\right)\\right)+tp_O-t\\frac{t_{ick}}{h_'+ext2+'}p_'+Ext2)});
+
+        o.desmos.setExpressions(exprs);
+
+
+        // Backup: expr = '\\left(x_1+\\frac{O_x-x_1}{o_A}\\left(t\\max \\left(o_a,h_a,o_A\\right)+\\left\\{\\theta _A\\ge \\frac{\\pi }{2}:tt_{ick}-h_a,\\max \\left(\\theta _B,\\theta _C\\right)\\ge \\frac{\\pi }{2}:tt_{ick},0\\right\}\\right),y_1+\\frac{O_y-y_1}{o_A}\\left(t\\max \\left(o_a,h_a,o_A\\right)+\\left\\{\\theta _A\\ge \\frac{\\pi }{2}:tt_{ick}-h_a,\\max \\left(\\theta _B,\\theta _C\\right)\\ge \\frac{\\pi }{2}:tt_{ick},0\\right\\}\\right)\\right)'
+       }
+     };
+
+    /* ←— A0597629 FUNCTIONS ——————————————————————————————————————————————→ */
+      cs.A0597629 = {
+        MAX_VERTICES:14,
+        RADIUS:10,
+        DRAG_BUFFER:0.25,
+        DRAG_BUFFER_REBOUND:0.1, // How much to bounce back when going past the buffer
+        SEGMENT_TEMPLATE:'\\left(x_U\\left(1-t\\right)+x_Vt,y_U\\left(1-t\\right)+y_Vt\\right)'
+       };
      fs.A0597629 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
@@ -726,7 +997,8 @@ PearsonGL.External.rootJS = (function() {
        init: function(options={}) {
         let o = hs.parseOptions(options);
         hs[o.uniqueId] = {n:o.desmos.HelperExpression({latex:'n'})};
-        vs[o.uniqueId] = {n:hs[o.uniqueId].n.numericValue};
+        o.log(hs[o.uniqueId]);
+        vs[o.uniqueId] = {n:hs[o.uniqueId].n.numericValue,placeHolder:{k:0,x:0,y:0}};
 
 
         // Set up variables for vertices of each polygon
@@ -765,7 +1037,7 @@ PearsonGL.External.rootJS = (function() {
           })};
           vs[o.uniqueId]["y_"+((i>9)?"{"+i+"}":i)].observe('numericValue.correction',hs[o.uniqueId]["y_"+((i>9)?"{"+i+"}":i)]);
          };
-
+        /*
         hs[o.uniqueId].n.observe('numericValue',function(){fs.A0597629.switchPolygon({
           name:'n',
           value:hs[o.uniqueId].n.numericValue,
@@ -773,7 +1045,7 @@ PearsonGL.External.rootJS = (function() {
           uniqueId:o.uniqueId,
           log:o.log || function(){}
         })});
-
+        */
         
         o.log("Observers initialized:",vs[o.uniqueId]);
        },
@@ -785,7 +1057,8 @@ PearsonGL.External.rootJS = (function() {
         if (vs[o.uniqueId].lastDragged === null) return;
         let n = vs[o.uniqueId].n;
         let i = eval(o.name.match(/[0-9]+/)[0]);
-        let oldPoint = {x:vs[o.uniqueId][n]['x_'+((i>9)?"{"+i+"}":i)],y:vs[o.uniqueId][n]['y_'+((i>9)?"{"+i+"}":i)]};
+        var coords = vs[o.uniqueId][n];
+        let oldPoint = {x:coords['x_'+((i>9)?"{"+i+"}":i)],y:coords['y_'+((i>9)?"{"+i+"}":i)]};
         let newPoint = {x:vs[o.uniqueId]["x_"+((i>9)?"{"+i+"}":i)].numericValue,y:vs[o.uniqueId]["y_"+((i>9)?"{"+i+"}":i)].numericValue};
 
         if (i != vs[o.uniqueId].lastDragged) {
@@ -800,72 +1073,72 @@ PearsonGL.External.rootJS = (function() {
           // Line formed by the 2 previous vertices
           vs[o.uniqueId].dragBoundaryLeft = hs.lineTwoPoints(
             {
-              x:vs[o.uniqueId][n]['x_'+((g>9)?"{"+g+"}":g)],
-              y:vs[o.uniqueId][n]['y_'+((g>9)?"{"+g+"}":g)]
+              x:coords['x_'+((g>9)?"{"+g+"}":g)],
+              y:coords['y_'+((g>9)?"{"+g+"}":g)]
             },
             {
-              x:vs[o.uniqueId][n]['x_'+((h>9)?"{"+h+"}":h)],
-              y:vs[o.uniqueId][n]['y_'+((h>9)?"{"+h+"}":h)]
+              x:coords['x_'+((h>9)?"{"+h+"}":h)],
+              y:coords['y_'+((h>9)?"{"+h+"}":h)]
             }
            );
 
            var vertexPad = ((n>3)?hs.distancePointLine({
-              x:vs[o.uniqueId][n]['x_'+((j>9)?"{"+j+"}":j)],
-              y:vs[o.uniqueId][n]['y_'+((j>9)?"{"+j+"}":j)]
+              x:coords['x_'+((j>9)?"{"+j+"}":j)],
+              y:coords['y_'+((j>9)?"{"+j+"}":j)]
             },vs[o.uniqueId].dragBoundaryLeft)/3:-cs.A0597629.DRAG_BUFFER);
 
            vs[o.uniqueId].dragBoundaryLeft.c -= Math.max( // Max because these will all be clockwise
             -cs.A0597629.DRAG_BUFFER, // base amount of padding from the boundaries
             vertexPad,
             hs.distancePointLine({ // Don't pad past the starting location
-                x:vs[o.uniqueId][n]['x_'+((i>9)?"{"+i+"}":i)],
-                y:vs[o.uniqueId][n]['y_'+((i>9)?"{"+i+"}":i)]
+                x:coords['x_'+((i>9)?"{"+i+"}":i)],
+                y:coords['y_'+((i>9)?"{"+i+"}":i)]
               },vs[o.uniqueId].dragBoundaryLeft)/3
             );
 
           // Line formed by the 2 following vertices
           vs[o.uniqueId].dragBoundaryRight = hs.lineTwoPoints(
             {
-              x:vs[o.uniqueId][n]['x_'+((j>9)?"{"+j+"}":j)],
-              y:vs[o.uniqueId][n]['y_'+((j>9)?"{"+j+"}":j)]
+              x:coords['x_'+((j>9)?"{"+j+"}":j)],
+              y:coords['y_'+((j>9)?"{"+j+"}":j)]
             },
             {
-              x:vs[o.uniqueId][n]['x_'+((k>9)?"{"+k+"}":k)],
-              y:vs[o.uniqueId][n]['y_'+((k>9)?"{"+k+"}":k)]
+              x:coords['x_'+((k>9)?"{"+k+"}":k)],
+              y:coords['y_'+((k>9)?"{"+k+"}":k)]
             }
            );
 
            vertexPad = ((n>3)?hs.distancePointLine({
-              x:vs[o.uniqueId][n]['x_'+((h>9)?"{"+h+"}":h)],
-              y:vs[o.uniqueId][n]['y_'+((h>9)?"{"+h+"}":h)]
+              x:coords['x_'+((h>9)?"{"+h+"}":h)],
+              y:coords['y_'+((h>9)?"{"+h+"}":h)]
             },vs[o.uniqueId].dragBoundaryRight)/3:-cs.A0597629.DRAG_BUFFER);
 
            vs[o.uniqueId].dragBoundaryRight.c -= Math.max( // Max because these will all be clockwise
             -cs.A0597629.DRAG_BUFFER, // base amount of padding from the boundaries
             vertexPad,
             hs.distancePointLine({ // Don't pad past the starting location
-                x:vs[o.uniqueId][n]['x_'+((i>9)?"{"+i+"}":i)],
-                y:vs[o.uniqueId][n]['y_'+((i>9)?"{"+i+"}":i)]
+                x:coords['x_'+((i>9)?"{"+i+"}":i)],
+                y:coords['y_'+((i>9)?"{"+i+"}":i)]
               },vs[o.uniqueId].dragBoundaryRight)/3
             );
 
           // Line formed by the 2 adjacent vertices
           vs[o.uniqueId].dragBoundaryBase = hs.lineTwoPoints(
             {
-              x:vs[o.uniqueId][n]['x_'+((h>9)?"{"+h+"}":h)],
-              y:vs[o.uniqueId][n]['y_'+((h>9)?"{"+h+"}":h)]
+              x:coords['x_'+((h>9)?"{"+h+"}":h)],
+              y:coords['y_'+((h>9)?"{"+h+"}":h)]
             },
             {
-              x:vs[o.uniqueId][n]['x_'+((j>9)?"{"+j+"}":j)],
-              y:vs[o.uniqueId][n]['y_'+((j>9)?"{"+j+"}":j)]
+              x:coords['x_'+((j>9)?"{"+j+"}":j)],
+              y:coords['y_'+((j>9)?"{"+j+"}":j)]
             }
            );
 
            vs[o.uniqueId].dragBoundaryBase.c -= Math.min( // Min because these will all be clockwise
             cs.A0597629.DRAG_BUFFER, // base amount of padding from the boundaries
             hs.distancePointLine({ // Don't pad past the starting location
-                x:vs[o.uniqueId][n]['x_'+((i>9)?"{"+i+"}":i)],
-                y:vs[o.uniqueId][n]['y_'+((i>9)?"{"+i+"}":i)]
+                x:coords['x_'+((i>9)?"{"+i+"}":i)],
+                y:coords['y_'+((i>9)?"{"+i+"}":i)]
               },vs[o.uniqueId].dragBoundaryBase)/3
             );
 
@@ -890,54 +1163,62 @@ PearsonGL.External.rootJS = (function() {
             }]);
           };
         };
-/**
-        var newDistL=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryLeft);
-        var newDistR=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryRight);
-        var newDistB=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryBase);
-        var giveUp = false;
-        window.setTimeout(function(){giveUp=true;},100);
+        /** GETTING THERE!
+          var newDistL=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryLeft);
+          var newDistR=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryRight);
+          var newDistB=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryBase);
+          window.giveUp = false;
+          setTimeout(function(){window.giveUp=true;},100);
 
-        while ((newDistL >= 0 || newDistR >= 0 || newDistB <= 0) && !giveUp) { 
-          var newDist = newDistL;
-          if(newDist>=0) {
-            var oldDist = hs.distancePointLine(oldPoint,vs[o.uniqueId].dragBoundaryLeft);
-            var distOldNew = Math.sqrt(Math.pow(oldPoint.x-newPoint.x,2)+Math.pow(oldPoint.y-newPoint.y,2));
-            var t = newDist*distOldNew/(newDist-oldDist)*cs.A0597629.DRAG_BUFFER_REBOUND;
-            newPoint.x = oldPoint.x+(newPoint.x-oldPoint.x)*t;
-            newPoint.y = oldPoint.x+(newPoint.x-oldPoint.x)*t;
-          };
+          while ((newDistL >= 0 || newDistR >= 0 || newDistB <= 0) && !(window.giveUp)) {
+            o.log('Trying L: '+Math.round(newDistL*100)/100+', R: '+Math.round(newDistR*100)/100+', B: '+Math.round(newDistB*100)/100);
+            var newDist = newDistL;
+            if(newDist>=0) {
+              o.log('Correcting L');
+              var oldDist = hs.distancePointLine(oldPoint,vs[o.uniqueId].dragBoundaryLeft);
+              var distOldNew = Math.sqrt(Math.pow(oldPoint.x-newPoint.x,2)+Math.pow(oldPoint.y-newPoint.y,2));
+              var t = newDist/(newDist-oldDist);
+              newPoint.x = oldPoint.x+(newPoint.x-oldPoint.x)*t*(1-cs.A0597629.DRAG_BUFFER_REBOUND);
+              newPoint.y = oldPoint.y+(newPoint.y-oldPoint.y)*t*(1-cs.A0597629.DRAG_BUFFER_REBOUND);
+            };
 
-          newDist = newDistR;
-          if(newDist>=0) {
-            var oldDist = hs.distancePointLine(oldPoint,vs[o.uniqueId].dragBoundaryRight);
-            var distOldNew = Math.sqrt(Math.pow(oldPoint.x-newPoint.x,2)+Math.pow(oldPoint.y-newPoint.y,2));
-            var t = newDist*distOldNew/(newDist-oldDist)*cs.A0597629.DRAG_BUFFER_REBOUND;
-            newPoint.x = oldPoint.x+(newPoint.x-oldPoint.x)*t;
-            newPoint.y = oldPoint.x+(newPoint.x-oldPoint.x)*t;
-          };
+            newDist = newDistR;
+            if(newDist>=0) {
+              o.log('Correcting R');
+              var oldDist = hs.distancePointLine(oldPoint,vs[o.uniqueId].dragBoundaryRight);
+              var distOldNew = Math.sqrt(Math.pow(oldPoint.x-newPoint.x,2)+Math.pow(oldPoint.y-newPoint.y,2));
+              var t = newDist/(newDist-oldDist);
+              newPoint.x = oldPoint.x+(newPoint.x-oldPoint.x)*t*(1-cs.A0597629.DRAG_BUFFER_REBOUND);
+              newPoint.y = oldPoint.y+(newPoint.y-oldPoint.y)*t*(1-cs.A0597629.DRAG_BUFFER_REBOUND);
+            };
 
-          newDist = newDistB;
-          if(newDist<=0) {
-            var oldDist = hs.distancePointLine(oldPoint,vs[o.uniqueId].dragBoundaryBase);
-            var distOldNew = Math.sqrt(Math.pow(oldPoint.x-newPoint.x,2)+Math.pow(oldPoint.y-newPoint.y,2));
-            var t = newDist*distOldNew/(newDist-oldDist)*cs.A0597629.DRAG_BUFFER_REBOUND;
-            newPoint.x = oldPoint.x+(newPoint.x-oldPoint.x)*t;
-            newPoint.y = oldPoint.x+(newPoint.x-oldPoint.x)*t;
-          };
+            newDist = newDistB;
+            if(newDist<=0) {
+              o.log('Correcting B');
+              var oldDist = hs.distancePointLine(oldPoint,vs[o.uniqueId].dragBoundaryBase);
+              var distOldNew = Math.sqrt(Math.pow(oldPoint.x-newPoint.x,2)+Math.pow(oldPoint.y-newPoint.y,2));
+              var t = newDist/(newDist-oldDist);
+              newPoint.x = oldPoint.x+(newPoint.x-oldPoint.x)*t*(1-cs.A0597629.DRAG_BUFFER_REBOUND);
+              newPoint.y = oldPoint.y+(newPoint.y-oldPoint.y)*t*(1-cs.A0597629.DRAG_BUFFER_REBOUND);
+            };
 
-          o.log('Correcting to '+hs.ALPHA[i]+'('+newPoint.x+','+newPoint.y+')');
+            o.log('Correcting '+hs.ALPHA[i]+'('+
+              Math.round(oldPoint.x*100)/100+','+
+              Math.round(oldPoint.y*100)/100+') to '+hs.ALPHA[i]+'('+
+              Math.round(newPoint.x*100)/100+','+
+              Math.round(newPoint.y*100)/100+')');
 
-          newDistL=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryLeft);
-          newDistR=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryRight);
-          newDistB=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryBase);
-        }
-        **/
+            newDistL=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryLeft);
+            newDistR=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryRight);
+            newDistB=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryBase);
+          }
+        //**/
 
         if(newPoint[o.name[0]]==o.value) {
-          vs[o.uniqueId][n][o.name]=o.value;
+          coords[o.name]=o.value;
         } else {
 
-          o.log('Adjusting vertex '+hs.ALPHA[i]+'_'+n+'('+vs[o.uniqueId][n][o.name.replace('y','x')]+','+vs[o.uniqueId][n][o.name.replace('x','y')]+'); bounded by:');
+          o.log('Adjusting vertex '+hs.ALPHA[i]+'_'+n+'('+coords[o.name.replace('y','x')]+','+coords[o.name.replace('x','y')]+'); bounded by:');
           o.log({
             left:vs[o.uniqueId].dragBoundaryLeft,
             right:vs[o.uniqueId].dragBoundaryRight,
@@ -1066,7 +1347,38 @@ PearsonGL.External.rootJS = (function() {
          };
         hs[o.uniqueId].correctionBuffer = window.setTimeout(function(){vs[o.uniqueId].lastDragged = -1;},2000);
 
-       }
+       }/*,
+      /* ←— placeHolder —————————————————————————————————————————————————————→ *\
+       | Manages the placeholder vertex
+       * ←———————————————————————————————————————————————————————————————————→ /
+       placeHolder: function(options={},vertexNum,enable = true) {
+        let o = hs.parseOptions(options);
+        let vars = vs[o.uniqueId];
+        let id = vertexNum;
+        let prevId = vars.placeHolder.k;
+        if (enable && prevId == id) return;
+
+        let leftId = ((id == 1)?vars.n:id-1);
+        let rightId = (id%n+1);
+
+        let leftEdge = cs.A0597629.SEGMENT_TEMPLATE.replace(/U/g,((leftId>9)?'{'+leftId+'}':leftId));
+        let rightEdge = cs.A0597629.SEGMENT_TEMPLATE.replace(/V/g,((rightId>9)?'{'+rightId+'}':rightId));
+        let diag = cs.A0597629.SEGMENT_TEMPLATE.replace(/V/g,1);
+
+        (b,-a,-bx_1+ay_1)
+
+        if (enable) {
+          
+          o.setExpression({id:'placeholder_vertex',hidden:false,label:(hs.ALPHA[id]),showLabel:true});
+        } else {
+          o.setExpression({id:'placeholder_vertex',hidden:true,label:' ',showLabel:false});
+
+          o.setExpression({id:('vertex_'+hs.ALPHA[id]),latex:('\\left(x_'+((middle>9)?"{"+middle+"}":middle)+',y_'+((middle>9)?"{"+middle+"}":middle)+'\\right)'),color:'#000000'});
+          o.setExpression({id:('segment_'+hs.ALPHA[left]+hs.alpha[id]),latex:(cs.A0597629.SEGMENT_TEMPLATE.replace(/U/g,((left>9)?"{"+left+"}":''+left)).replace(/V/g,((middle>9)?"{"+middle+"}":''+middle)))});
+          o.setExpression({id:('segment_'+hs.ALPHA[id]+hs.alpha[right]),latex:(cs.A0597629.SEGMENT_TEMPLATE.replace(/U/g,((id>9)?"{"+id+"}":''+id)).replace(/V/g,((right>9)?"{"+right+"}":''+right)))});
+          if (2<id<n-1) o.setExpression({id:('segment_'+hs.ALPHA[id]+'A'),latex:(cs.A0597629.SEGMENT_TEMPLATE.replace(/U/g,((middle>9)?"{"+middle+"}":''+middle)).replace(/V/g,1))});
+        }
+       }*/
      };
 
   Object.assign(exports,hs.flattenFuncStruct(fs));

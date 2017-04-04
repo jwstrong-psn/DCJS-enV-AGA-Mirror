@@ -42,8 +42,8 @@ PearsonGL.External.masterJS = (function() {
   var ts = { // test functions only
     shared:{ // Shared Helpers have functions that can be called by any Widget.
       init:{ // Initialization Helpers are called only once, using HelperExpression({latex:"1"})
-        observeZoom:'' // Tracks zoom level in units/px as x_{pxScale} and y_{pxScale}
-      }
+        observeZoom:''}, // Tracks zoom level in units/px as x_{pxScale} and y_{pxScale}
+      label:{} // Label functions are used for labeling points with certain values
     },
     sliderVal:function(val,name,desmos){return PearsonGL.External.rootJS.shared_label_valueOnly({'value':val,'name':name,'desmos':desmos,'log':console.log});}
   }
@@ -83,6 +83,21 @@ PearsonGL.External.masterJS = (function() {
   //* functions for test purposes only
   ts.shared.init.observeZoom = function(val, name, desmos) {
     return PearsonGL.External.rootJS.shared_init_observeZoom({'value':val,'name':name,'desmos':desmos,'log':console.log});
+  }
+
+  //* functions for test purposes only
+  ts.shared.init.shareState = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.shared_init_shareState({'value':val,'name':name,'desmos':desmos,'log':console.log, 'uniqueId':'shared'});
+  }
+
+  //* functions for test purposes only
+  ts.shared.label.labelEquation = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.shared_label_labelEquation({'value':val,'name':name,'desmos':desmos,'log':console.log});
+  }
+
+  //* functions for test purposes only
+  ts.shared.label.labelTriAngles = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.shared_label_labelTriAngles({'value':val,'name':name,'desmos':desmos,'log':console.log});
   }
 
   //* functions for test purposes only
@@ -145,6 +160,30 @@ PearsonGL.External.masterJS = (function() {
     return PearsonGL.External.rootJS.A0597538_updateLabels({'value':val,'name':name,'desmos':desmos,'log':console.log});
   }
 
+  //* functions for test purposes only
+  ts.A0597598_A_labelAngle = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.A0597598_A_labelAngle({'value':val,'name':name,'desmos':desmos,'log':console.log});
+  }
+
+  //* functions for test purposes only
+  ts.A0596385_init = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.A0596385_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
+  }
+
+  //* functions for test purposes only
+  ts.A0596385_updateAngles = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.A0596385_updateAngles({'value':val,'name':name,'desmos':desmos,'log':console.log});
+  }
+
+  //* functions for test purposes only
+  ts.A0596392_init = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.A0596392_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
+  }
+
+  //* functions for test purposes only
+  ts.A0596385_drawExtensions = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.A0596385_drawExtensions({'value':val,'name':name,'desmos':desmos,'log':console.log});
+  }
   
   Object.assign(exports,flattenFuncStruct(ts));
 
