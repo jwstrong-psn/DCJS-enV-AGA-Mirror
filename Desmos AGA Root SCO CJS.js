@@ -1315,7 +1315,38 @@ PearsonGL.External.rootJS = (function() {
          };
         hs[o.uniqueId].correctionBuffer = window.setTimeout(function(){vs[o.uniqueId].lastDragged = -1;},2000);
 
-       }
+       }/*,
+      /* ←— placeHolder —————————————————————————————————————————————————————→ *\
+       | Manages the placeholder vertex
+       * ←———————————————————————————————————————————————————————————————————→ /
+       placeHolder: function(options={},vertexNum,enable = true) {
+        let o = hs.parseOptions(options);
+        let vars = vs[o.uniqueId];
+        let id = vertexNum;
+        let prevId = vars.placeHolder.k;
+        if (enable && prevId == id) return;
+
+        let leftId = ((id == 1)?vars.n:id-1);
+        let rightId = (id%n+1);
+
+        let leftEdge = cs.A0597629.SEGMENT_TEMPLATE.replace(/U/g,((leftId>9)?'{'+leftId+'}':leftId));
+        let rightEdge = cs.A0597629.SEGMENT_TEMPLATE.replace(/V/g,((rightId>9)?'{'+rightId+'}':rightId));
+        let diag = cs.A0597629.SEGMENT_TEMPLATE.replace(/V/g,1);
+
+        (b,-a,-bx_1+ay_1)
+
+        if (enable) {
+          
+          o.setExpression({id:'placeholder_vertex',hidden:false,label:(hs.ALPHA[id]),showLabel:true});
+        } else {
+          o.setExpression({id:'placeholder_vertex',hidden:true,label:' ',showLabel:false});
+
+          o.setExpression({id:('vertex_'+hs.ALPHA[id]),latex:('\\left(x_'+((middle>9)?"{"+middle+"}":middle)+',y_'+((middle>9)?"{"+middle+"}":middle)+'\\right)'),color:'#000000'});
+          o.setExpression({id:('segment_'+hs.ALPHA[left]+hs.alpha[id]),latex:(cs.A0597629.SEGMENT_TEMPLATE.replace(/U/g,((left>9)?"{"+left+"}":''+left)).replace(/V/g,((middle>9)?"{"+middle+"}":''+middle)))});
+          o.setExpression({id:('segment_'+hs.ALPHA[id]+hs.alpha[right]),latex:(cs.A0597629.SEGMENT_TEMPLATE.replace(/U/g,((id>9)?"{"+id+"}":''+id)).replace(/V/g,((right>9)?"{"+right+"}":''+right)))});
+          if (2<id<n-1) o.setExpression({id:('segment_'+hs.ALPHA[id]+'A'),latex:(cs.A0597629.SEGMENT_TEMPLATE.replace(/U/g,((middle>9)?"{"+middle+"}":''+middle)).replace(/V/g,1))});
+        }
+       }*/
      };
 
   Object.assign(exports,hs.flattenFuncStruct(fs));
