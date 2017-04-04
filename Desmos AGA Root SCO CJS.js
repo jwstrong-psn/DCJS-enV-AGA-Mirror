@@ -266,7 +266,8 @@ PearsonGL.External.rootJS = (function() {
        },
       ts:{ // Tolerances for tuning; measured in log2 increments.
         AR:0.01, // Aspect Ratio, detectably non-square
-        ZOOM:0.3 // For reporting coarse changes in the zoom level
+        ZOOM:0.3, // For reporting coarse changes in the zoom level
+        BUFFER_BUFFER:0.01
        },
       enum:{
         LINEAR_SLOPE_INTERCEPT_FORM:'LMB',
@@ -280,12 +281,16 @@ PearsonGL.External.rootJS = (function() {
       precision:{ // # of decimal places to round to; inverse powers of 10
         COORDINATES:2,
         DEGREES:0,
-        EVAL:1
+        EVAL:1,
+        FLOAT_PRECISION:10
        },
       delay:{ // delay values for timed events, in ms
         SAVE:1000, // delay to save after the most recent modification
         LOAD:1000 // consider a `setState` complete once the state is static for this long
-      }
+       },
+      distance:{
+        CONSTRAIN_BUFFER:0.000001
+       }
      }
 
   /* ←— EXPORTS / PUBLIC FUNCTIONS ————————————————————————————————————————→ *\
