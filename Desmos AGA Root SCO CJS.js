@@ -226,6 +226,21 @@ PearsonGL.External.rootJS = (function() {
 
         return line;
        },
+      /* ←— Project a point onto a line ——————————————————————————————————→ *\
+       | Returns the intersection of a line with the perpendicular
+       | through a given point.
+       | Line in {a,b,c} ax+by+c=0 and point in {x,y}
+       * ←————————————————————————————————————————————————————————————————→ */
+       projectPointLine: function(point, line) {
+        return hs.intersectLines(line,hs.perpendicular(line, point));
+       },
+      /* ←— Perpendicular to a line through a point ——————————————————————→ *\
+       | Returns the line perpendicular to a given line through a given point.
+       | Line in {a,b,c} ax+by+c=0 and point in {x,y}
+       * ←————————————————————————————————————————————————————————————————→ */
+       perpendicular: function(line, point) {
+        return {line.b,-line.a,line.a*point.y-line.b*point.x};
+       },
       /* ←— polygonConstrain —————————————————————————————————————————————→ *\
        | Constrain a point to a convex polygon.
        |
