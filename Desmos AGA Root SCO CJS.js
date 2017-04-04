@@ -239,7 +239,7 @@ PearsonGL.External.rootJS = (function() {
        | Line in {a,b,c} ax+by+c=0 and point in {x,y}
        * ←————————————————————————————————————————————————————————————————→ */
        perpendicular: function(line, point) {
-        return {line.b,-line.a,line.a*point.y-line.b*point.x};
+        return {a:line.b,b:-line.a,c:line.a*point.y-line.b*point.x};
        },
       /* ←— polygonConstrain —————————————————————————————————————————————→ *\
        | Constrain a point to a convex polygon.
