@@ -313,7 +313,15 @@ PearsonGL.External.rootJS = (function() {
       /* ←— number to letter (uppercase) —————————————————————————————————→ *\
        | Convert a number to its uppercase letter with `cs.ALPHA[n]`
        * ←————————————————————————————————————————————————————————————————→ */
-       ALPHA:'_ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+       ALPHA:'_ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+      /* ←— subscript ————————————————————————————————————————————————————→ *\
+       | Given a variable and an index, return the latex-subscripted variable
+       |  e.g. x_11 becomes x_{11}
+       | Variable name must be an atomic string
+       * ←————————————————————————————————————————————————————————————————→ */
+       sub:function(v,i) {
+        return v+'_'+((i>9)?"{"+i+"}":i);
+       }
      }
   /* ←—PRIVATE CONSTANTS———————————————————————————————————————————————————→ *\
        | Constants, e.g. for tolerances or LaTeX strings.
