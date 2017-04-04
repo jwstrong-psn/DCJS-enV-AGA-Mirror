@@ -1052,6 +1052,59 @@ PearsonGL.External.rootJS = (function() {
         
         o.log("Observers initialized:",vars);
        },
+      /* ←— setPlaceholder ——————————————————————————————————————————————————→ *\
+       | Attaches all segments from a vertex to the placeholder vertex
+       * ←———————————————————————————————————————————————————————————————————→ */
+       setPlaceholder: function(options={},i) {
+        let o = hs.parseOptions(options);
+        let vars = vs[o.uniqueId];
+        let cons = cs.A0597629;
+        let n = vars.n;
+
+        if (i == vars.placeholder) return; // if it ain't broke, don't fix it
+
+        vars.placeholder = i;
+
+        // move the placeholder to the location of the vertex to hold place
+        o.desmos.setExpression({id:'x_0',latex:'x_0='+vars[n]['x_'+i]});
+        o.desmos.setExpression({id:'y_0',latex:'y_0='+vars[n]['y_'+i]});
+
+        // make the placeholder visible, and the dragged vertex invisible
+        o.desmos.setExpression({id:'placeholder_vertex',hidden:false,showLabel:true,label:hs.ALPHA[i],dragMode:Desmos.DragModes.NONE});
+        o.desmos.setExpression({id:'vertex_'+hs.ALPHA[i],showLabel:false,color:cons.HIDDEN_COLOR});
+
+        // Attach the vertex to its edges and diagonals
+        if (i == 1) {
+          // Attach placeholder to B
+          o.desmos.setExpression({
+            id:'segment_AB',
+            latex:cons.SEGMENT_TEMPLATE.replace(/U/g,'0').replace(/V/g,'2')
+          });
+          // Attach every other vertex to placeholder
+          for (j = 3;j<=n;j++) {
+            o.desmos.setExpression({
+              id:'segment_'+hs.ALPHA[j]+'A',
+              latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',j)).replace(/V/g,'0')
+            });
+          }
+        } else {
+          // attach to previous vertex
+          o.desmos.setExpression({
+            id:'segment_'+hs.ALPHA[i-1]+hs.ALPHA[i],
+            latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',i-1)).replace(/V/g,'0')
+          });
+          // attach diagonal to A
+          if (2 < i < n) o.desmos.setExpression({
+              id:'segment_'+hs.ALPHA[i]+'A',
+              latex:cons.SEGMENT_TEMPLATE.replace(/U/g,'0').replace(/V/g,'1')
+            });
+          // Attach to the next vertex
+          o.desmos.setExpression({
+            id:'segment_'+hs.ALPHA[i]+hs.ALPHA[i%n+1],
+            latex:cons.SEGMENT_TEMPLATE.replace(/U/g,'0').replace(/([xy])_V/g,hs.sub('$1',i%n+1))
+          });
+        }
+       },
       /* ←— clearPlaceholder ————————————————————————————————————————————————→ *\
        | moves the last dragged vertex back to the placeholder vertex's location
        | 
@@ -1059,10 +1112,53 @@ PearsonGL.External.rootJS = (function() {
        clearPlaceholder: function(options={}) {
         let o = hs.parseOptions(options);
         let vars = vs[o.uniqueId];
-        let i = vars.lastDragged;
+        let cons = cs.A0597629;
+        let i = vars.placeholder;
         let n = vars.n;
 
-        o.desmos.setExpression({id:'x_'+i,latex:'x_'+((i>9)?"{"+i+"}":i)+'='+vars[n][i]})
+        if (i == 0) return; // if it ain't broke, don't fix it
+
+        // Move the place-held point to the placeholder
+        o.desmos.setExpression({id:'x_'+i,latex:hs.sub('x',i)+'='+vars[n]['x_'+i]});
+        o.desmos.setExpression({id:'y_'+i,latex:hs.sub('y',i)+'='+vars[n]['y_'+i]});
+
+        // Make the place-held point visible, and the placeholder invisible
+        o.desmos.setExpression({id:'placeholder_vertex',hidden:true,showLabel:false});
+        o.desmos.setExpression({id:'vertex_'+hs.ALPHA[i],showLabel:true,color:cons.VERTEX_COLOR});
+
+        // Attach the vertex to its edges and diagonals
+        if (i == 1) {
+          // Attach A to B
+          o.desmos.setExpression({
+            id:'segment_AB',
+            latex:cons.SEGMENT_TEMPLATE.replace(/U/g,'1').replace(/V/g,'2')
+          });
+          // Attach A to every other vertex
+          for (j = 3;j<=n;j++) {
+            o.desmos.setExpression({
+              id:'segment_'+hs.ALPHA[j]+'A',
+              latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',j)).replace(/V/g,'1')
+            });
+          }
+        } else {
+          // attach to previous vertex
+          o.desmos.setExpression({
+            id:'segment_'+hs.ALPHA[i-1]+hs.ALPHA[i],
+            latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',i-1)).replace(/([xy])_V/g,hs.sub('$1',i))
+          });
+          // attach diagonal to A
+          if (2 < i < n) o.desmos.setExpression({
+              id:'segment_'+hs.ALPHA[i]+'A',
+              latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',i)).replace(/V/g,'1')
+            });
+          // Attach to the next vertex
+          o.desmos.setExpression({
+            id:'segment_'+hs.ALPHA[i]+hs.ALPHA[i%n+1],
+            latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',i)).replace(/([xy])_V/g,hs.sub('$1',i%n+1))
+          });
+        }
+
+        vars.placeholder = 0;
        },
       /* ←— coordinateChanged ———————————————————————————————————————————————→ *\
        | updates variables, and corrects if the user tries to cross diagonals
