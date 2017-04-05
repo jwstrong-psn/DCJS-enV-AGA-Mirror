@@ -359,7 +359,7 @@ PearsonGL.External.rootJS = (function() {
         COORDINATES:2,
         DEGREES:0,
         EVAL:1,
-        FLOAT_PRECISION:10
+        FLOAT_PRECISION:6
        },
       delay:{ // delay values for timed events, in ms
         SAVE:1000, // delay to save after the most recent modification
@@ -1039,7 +1039,7 @@ PearsonGL.External.rootJS = (function() {
        init: function(options={}) {
         let o = hs.parseOptions(options);
         let vars = vs[o.uniqueId] = {lastDragged:0,placeholder:0};
-        let hfs = vars.helperFunctions = {n:o.desmos.HelperExpression({latex:'n'})};
+        let hfs = vars.helperFunctions = {n:o.desmos.HelperExpression({latex:'n'}),showDiagonals:o.desmos.HelperExpression({latex:'d_{iags}'})};
         o.log(hfs);
         let cons = cs.A0597629;
 
@@ -1081,6 +1081,25 @@ PearsonGL.External.rootJS = (function() {
           vars['y_'+i].observe('numericValue.correction',hfs['y_'+i]);
          };
 
+         // 
+
+        // Let the user turn the diagonals on and off
+        hfs.showDiagonals.observe('numericValue',function(){
+          var exprs = [];
+          for (var i = 3; i < hfs.n.numericValue; i++) {
+            exprs.push({
+              id:'segment_'+hs.ALPHA[i]+'A',
+              hidden:(vars.helperFunctions.showDiagonals.numericValue == 0)
+            });
+          };
+          exprs.push({
+            id:'centroid-1',
+            showLabel:(vars.helperFunctions.showDiagonals.numericValue == 1)
+          });
+          o.desmos.setExpressions(exprs);
+        });
+
+        // Wait until the state fully loads before initializing the switchPolygon observer
         hfs.n.observe('numericValue.init',function(){
           if (hfs.n.numericValue !== undefined && hfs.n.numericValue>2) {
             vars.n = hfs.n.numericValue;
@@ -1235,12 +1254,9 @@ PearsonGL.External.rootJS = (function() {
         let o = hs.parseOptions(options);
         let vars = vs[o.uniqueId];
         if (vars.switchingPolygons === true) return;
-
         let n = vars.n;
         let i = eval(o.name.match(/[0-9]+/)[0]);
         let newPoint = {x:vars['x_'+i].numericValue,y:vars['y_'+i].numericValue};
-        function coords(id){return vars[id].numericValue;};
-
 
         if (i != vars.lastDragged) {
           o.log('Now dragging n='+n+',i='+i);
@@ -1256,20 +1272,20 @@ PearsonGL.External.rootJS = (function() {
             // NOTE: Since the vertices are numbered clockwise, edges must be defined in reverse so the positive-orientation of the polygon constrain function will work
             for (var j=2;j<n;j++) {
               vars.dragBoundaries.push(hs.lineTwoPoints(
-                {x:coords('x_'+(j+1)),y:coords('y_'+(j+1))},
-                {x:coords('x_'+j),y:coords('y_'+j)}
+                {x:vars[n]['x_'+(j+1)],y:vars[n]['y_'+(j+1)]},
+                {x:vars[n]['x_'+j],y:vars[n]['y_'+j]}
               ));
             };
           } else {
             // Bind by the previous diagonal
             if (2 < i) vars.dragBoundaries.push(hs.lineTwoPoints(
-                {x:coords('x_'+(i-1)),y:coords('y_'+(i-1))},
-                {x:coords('x_1'),y:coords('y_1')}
+                {x:vars[n]['x_'+(i-1)],y:vars[n]['y_'+(i-1)]},
+                {x:vars[n]['x_1'],y:vars[n]['y_1']}
               ));
             // Bind by the next diagonal
             if (i < n) vars.dragBoundaries.push(hs.lineTwoPoints(
-                {x:coords('x_1'),y:coords('y_1')},
-                {x:coords('x_'+(i%n+1)),y:coords('y_'+(i%n+1))}
+                {x:vars[n]['x_1'],y:vars[n]['y_1']},
+                {x:vars[n]['x_'+(i%n+1)],y:vars[n]['y_'+(i%n+1)]}
               ));
           };
 
@@ -1347,7 +1363,7 @@ PearsonGL.External.rootJS = (function() {
           });
           exprs.push({
               id:'segment_'+hs.ALPHA[i]+'A',
-              hidden:false,
+              hidden:(vars.helperFunctions.showDiagonals.numericValue == 0),
               style:'dashed',
               color:cs.agaColors.red
           });
@@ -1365,6 +1381,27 @@ PearsonGL.External.rootJS = (function() {
           hidden:false,
           style:'normal',
           color:cs.agaColors.black
+        });
+
+        // Update centroid and labels
+        var x_centroid = 'x_{centroid}=\\frac{';
+        for (i = 1; i < n; i++) x_centroid+=(hs.sub('x',i)+'+');
+        x_centroid += (hs.sub('x',n)+'}{n}');
+        exprs.push({
+          id:'x_centroid',
+          latex:x_centroid
+        });
+        exprs.push({
+          id:'y_centroid',
+          latex:x_centroid.replace(/x/g,'y')
+        });
+        exprs.push({
+          id:'centroid',
+          label:'n = '+n
+        });
+        exprs.push({
+          id:'centroid-1',
+          label:''+(n-2)+' triangle'+((n>3)?'s':'')
         });
 
         // o.log('Changed figures:',exprs);
