@@ -25,7 +25,7 @@ PearsonGL.External.rootJS = (function() {
        * ←—————————————————————————————————————————————————————————————————————→ */
        flattenFuncStruct: function(funcStruct,prefix='') {
         var functions={};
-        for (key in funcStruct) {
+        for (var key in funcStruct) {
           if (typeof funcStruct[key] == 'object') {
             if (!(Object.assign(functions,hs.flattenFuncStruct(funcStruct[key],prefix+key+'_')))) return false;
           }
@@ -249,14 +249,16 @@ PearsonGL.External.rootJS = (function() {
        | all edges.
        | Point returned will be the closest point inside the polygon.
        | Optional buffer distance places the returned point inside the polygon.
+       | If the point is already inside the buffer zone, returns the point object
+       |  itself. Otherwise, returns a new point object.
        | Returns null if there are no points inside the buffered polygon
        * ←————————————————————————————————————————————————————————————————→ */
        polygonConstrain: function(point, lines, buffer=cs.distance.CONSTRAIN_BUFFER) {
 
         function viable(testPoint) {
           if (testPoint == null) return false;
-          for (i in lines;i<lines.length;i++) {
-            if (distancePointLine(testPoint,lines[i])<buffer) return false;
+          for (var i in lines) {
+            if (hs.distancePointLine(testPoint,lines[i])<buffer) return false;
           };
           return true;
         }
@@ -265,9 +267,9 @@ PearsonGL.External.rootJS = (function() {
 
         var buffered = [];
 
-        for (line in lines) {
+        for (var line in lines) {
           let bufferedLine = {a:lines[line].a,b:lines[line].b,c:lines[line].c-buffer*Math.pow(2,cs.ts.BUFFER_BUFFER)}; // Overcompensate to guarantee success
-          if (distancePointLine(point,lines[i])<buffer) {
+          if (hs.distancePointLine(point,lines[line])<buffer) {
             // For a convex polygon, if projecting to a crossed boundary results in a valid point, then that point is definitely the closest.
             let projected = hs.projectPointLine(point,bufferedLine);
             if (viable(projected)) return projected;
@@ -277,17 +279,17 @@ PearsonGL.External.rootJS = (function() {
         }
 
         // If projecting to an edge doesn't work, find the closest vertex of the polygon.
-        constrained = null;
-        for (i in lines;i<lines.length;i++) {
-          for (j = i+1;j<lines.length;j++) {
-            let intersected = hs.intersectLines(buffered[i],buffered[j]);
+        var constrained = null;
+        for (var line in buffered) {
+          for (var j = (eval(line)+1);j<buffered.length;j++) {
+            let intersected = hs.intersectLines(buffered[line],buffered[j]);
             if (viable(intersected)) {
               if (constrained === null || (
-                Math.sqrt(Math.pow(intersected.x-point.x,2)
-                  +Math.pow(intersected.y-point.y,2))
-                <Math.sqrt(Math.pow(constrained.x-point.x,2)
-                  +Math.pow(constrained.x-point.x,2))
-              )) constrained = intersected;
+                Math.pow(intersected.x-point.x,2)
+                  +Math.pow(intersected.y-point.y,2)
+                <Math.pow(constrained.x-point.x,2)
+                  +Math.pow(constrained.y-point.y,2)
+              )) constrained = {x:intersected.x,y:intersected.y};
             };
           };
         };
@@ -320,7 +322,7 @@ PearsonGL.External.rootJS = (function() {
        | Variable name must be an atomic string
        * ←————————————————————————————————————————————————————————————————→ */
        sub:function(v,i) {
-        return v+'_'+((i>9)?"{"+i+"}":i);
+        return v+'_'+(((''+i).length>1)?"{"+i+"}":i);
        }
      }
   /* ←—PRIVATE CONSTANTS———————————————————————————————————————————————————→ *\
@@ -365,6 +367,9 @@ PearsonGL.External.rootJS = (function() {
        },
       distance:{
         CONSTRAIN_BUFFER:0.000001
+       },
+      debug:{ // various constants for debug logging
+        COORDINATE_DECIMALS:2
        }
      }
 
@@ -515,7 +520,7 @@ PearsonGL.External.rootJS = (function() {
           delete vars.queuedActions[myGuid];
 
           // Load into all the others
-          for (guid in vars.sharingInstances) {
+          for (var guid in vars.sharingInstances) {
             if (guid != myGuid) {
               o.log('Loading state from '+myGuid+' into '+guid);
               vars.recentLoad[guid] = true;
@@ -705,7 +710,7 @@ PearsonGL.External.rootJS = (function() {
        |  the expression's value changes.
        * ←————————————————————————————————————————————————————————————————→ */
        };
-       for(i=0;i<52;i++) {
+       for(var i=0;i<52;i++) {
         var varName = 'QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm'[i];
         fs.value[varName] = (function(l){
           return function(options={}) {
@@ -988,9 +993,12 @@ PearsonGL.External.rootJS = (function() {
       cs.A0597629 = {
         MAX_VERTICES:14,
         RADIUS:10,
+        INITIAL_COORDINATES_PRECISION:6,
         DRAG_BUFFER:0.25,
         DRAG_BUFFER_REBOUND:0.1, // How much to bounce back when going past the buffer
-        SEGMENT_TEMPLATE:'\\left(x_U\\left(1-t\\right)+x_Vt,y_U\\left(1-t\\right)+y_Vt\\right)'
+        SEGMENT_TEMPLATE:'\\left(x_U\\left(1-t\\right)+x_Vt,y_U\\left(1-t\\right)+y_Vt\\right)',
+        HIDDEN_COLOR:'#FFFFFF', // white is close enough to hidden
+        VERTEX_COLOR:'#000000'
        };
      fs.A0597629 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
@@ -998,17 +1006,18 @@ PearsonGL.External.rootJS = (function() {
        * ←———————————————————————————————————————————————————————————————————→ */
        init: function(options={}) {
         let o = hs.parseOptions(options);
+        let vars = vs[o.uniqueId] = {lastDragged:0,placeholder:0};
+        let hfs = vars.helperFunctions = {n:o.desmos.HelperExpression({latex:'n'})};
         o.log(hfs);
-        let vars = vs[o.uniqueId] = {n:o.desmos.HelperExpression({latex:'n'}).numericValue,placeHolder:{vertexNum:0,x:0,y:0}};
-        let hfs = vars.helperFunctions = {};
         let cons = cs.A0597629;
 
+        vars.switchingPolygons = true;
 
         // Set up variables and observers for vertices of each polygon
          for(let i=1;i<=cons.MAX_VERTICES;i++) {
           // Track x & y for this vertex
           vars["x_"+i] = o.desmos.HelperExpression({latex:hs.sub('x',i)});
-          vars["y_"+i] = o.desmos.HelperExpression({latex:hs.sub('x',i)});
+          vars["y_"+i] = o.desmos.HelperExpression({latex:hs.sub('y',i)});
           vars[i]={};
           if (i >= 3) for(var j=1;j<=i;j++) {
             if (i == vars.n) {
@@ -1040,17 +1049,26 @@ PearsonGL.External.rootJS = (function() {
           vars['y_'+i].observe('numericValue.correction',hfs['y_'+i]);
          };
 
-        /*
-        hfs.n.observe('numericValue',function(){fs.A0597629.switchPolygon({
-          name:'n',
-          value:hfs.n.numericValue,
-          desmos:o.desmos,
-          uniqueId:o.uniqueId,
-          log:o.log || function(){}
-        })});
-        */
+        hfs.n.observe('numericValue.init',function(){
+          if (hfs.n.numericValue !== undefined && hfs.n.numericValue>2) {
+            vars.n = hfs.n.numericValue;
+            o.log('n initialized to '+vars.n);
+            hfs.n.unobserve('numericValue.init');
+            hfs.n.observe('numericValue.switchingPolygon',function(){
+              fs.A0597629.switchPolygon({
+                name:'n',
+                value:hfs.n.numericValue,
+                desmos:o.desmos,
+                uniqueId:o.uniqueId,
+                log:o.log || function(){}
+              });
+            });
+          };
+        });
         
         o.log("Observers initialized:",vars);
+
+        hfs.correctionBuffer = window.setTimeout(function(){vars.switchingPolygons = false;},cs.delay.LOAD);
        },
       /* ←— setPlaceholder ——————————————————————————————————————————————————→ *\
        | Attaches all segments from a vertex to the placeholder vertex
@@ -1058,16 +1076,18 @@ PearsonGL.External.rootJS = (function() {
        setPlaceholder: function(options={},i) {
         let o = hs.parseOptions(options);
         let vars = vs[o.uniqueId];
-        let cons = cs.A0597629;
         let n = vars.n;
 
-        if (i == vars.placeholder) return; // if it ain't broke, don't fix it
+        // move the placeholder to the location of the vertex to hold place
+        o.desmos.setExpression({id:'x_0',latex:'x_0='+Math.round(vars[n]['x_'+i]*Math.pow(10,cs.precision.FLOAT_PRECISION))/Math.pow(10,cs.precision.FLOAT_PRECISION)});
+        o.desmos.setExpression({id:'y_0',latex:'y_0='+Math.round(vars[n]['y_'+i]*Math.pow(10,cs.precision.FLOAT_PRECISION))/Math.pow(10,cs.precision.FLOAT_PRECISION)});
+
+        if (i == vars.placeholder) return; // The rest of this stuff only needs to be done the first time
+
+        o.log('Adding placeholder '+hs.ALPHA[i]);
 
         vars.placeholder = i;
-
-        // move the placeholder to the location of the vertex to hold place
-        o.desmos.setExpression({id:'x_0',latex:'x_0='+vars[n]['x_'+i]});
-        o.desmos.setExpression({id:'y_0',latex:'y_0='+vars[n]['y_'+i]});
+        let cons = cs.A0597629;
 
         // make the placeholder visible, and the dragged vertex invisible
         o.desmos.setExpression({id:'placeholder_vertex',hidden:false,showLabel:true,label:hs.ALPHA[i],dragMode:Desmos.DragModes.NONE});
@@ -1081,23 +1101,30 @@ PearsonGL.External.rootJS = (function() {
             latex:cons.SEGMENT_TEMPLATE.replace(/U/g,'0').replace(/V/g,'2')
           });
           // Attach every other vertex to placeholder
-          for (j = 3;j<=n;j++) {
+          for (var j = 3;j<=n;j++) {
             o.desmos.setExpression({
               id:'segment_'+hs.ALPHA[j]+'A',
               latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',j)).replace(/V/g,'0')
             });
           }
         } else {
-          // attach to previous vertex
-          o.desmos.setExpression({
-            id:'segment_'+hs.ALPHA[i-1]+hs.ALPHA[i],
-            latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',i-1)).replace(/V/g,'0')
-          });
-          // attach diagonal to A
-          if (2 < i < n) o.desmos.setExpression({
-              id:'segment_'+hs.ALPHA[i]+'A',
+          if (i == 2) {
+            o.desmos.setExpression({
+              id:'segment_AB',
               latex:cons.SEGMENT_TEMPLATE.replace(/U/g,'0').replace(/V/g,'1')
             });
+          } else {
+            // attach to previous vertex
+            o.desmos.setExpression({
+              id:'segment_'+hs.ALPHA[i-1]+hs.ALPHA[i],
+              latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',i-1)).replace(/V/g,'0')
+            });
+            // attach diagonal to A
+            if (2 < i < n) o.desmos.setExpression({
+                id:'segment_'+hs.ALPHA[i]+'A',
+                latex:cons.SEGMENT_TEMPLATE.replace(/U/g,'0').replace(/V/g,'1')
+              });
+          }
           // Attach to the next vertex
           o.desmos.setExpression({
             id:'segment_'+hs.ALPHA[i]+hs.ALPHA[i%n+1],
@@ -1118,9 +1145,11 @@ PearsonGL.External.rootJS = (function() {
 
         if (i == 0) return; // if it ain't broke, don't fix it
 
+        o.log('Now clearing placeholder '+hs.ALPHA[i]);
+
         // Move the place-held point to the placeholder
-        o.desmos.setExpression({id:'x_'+i,latex:hs.sub('x',i)+'='+vars[n]['x_'+i]});
-        o.desmos.setExpression({id:'y_'+i,latex:hs.sub('y',i)+'='+vars[n]['y_'+i]});
+        o.desmos.setExpression({id:'x_'+i,latex:hs.sub('x',i)+'='+Math.round(vars[n]['x_'+i]*Math.pow(10,cs.precision.FLOAT_PRECISION))/Math.pow(10,cs.precision.FLOAT_PRECISION)});
+        o.desmos.setExpression({id:'y_'+i,latex:hs.sub('y',i)+'='+Math.round(vars[n]['y_'+i]*Math.pow(10,cs.precision.FLOAT_PRECISION))/Math.pow(10,cs.precision.FLOAT_PRECISION)});
 
         // Make the place-held point visible, and the placeholder invisible
         o.desmos.setExpression({id:'placeholder_vertex',hidden:true,showLabel:false});
@@ -1134,23 +1163,30 @@ PearsonGL.External.rootJS = (function() {
             latex:cons.SEGMENT_TEMPLATE.replace(/U/g,'1').replace(/V/g,'2')
           });
           // Attach A to every other vertex
-          for (j = 3;j<=n;j++) {
+          for (var j = 3;j<=n;j++) {
             o.desmos.setExpression({
               id:'segment_'+hs.ALPHA[j]+'A',
               latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',j)).replace(/V/g,'1')
             });
           }
         } else {
-          // attach to previous vertex
-          o.desmos.setExpression({
-            id:'segment_'+hs.ALPHA[i-1]+hs.ALPHA[i],
-            latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',i-1)).replace(/([xy])_V/g,hs.sub('$1',i))
-          });
-          // attach diagonal to A
-          if (2 < i < n) o.desmos.setExpression({
-              id:'segment_'+hs.ALPHA[i]+'A',
-              latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',i)).replace(/V/g,'1')
+          if (i == 2) {
+            o.desmos.setExpression({
+              id:'segment_AB',
+              latex:cons.SEGMENT_TEMPLATE.replace(/U/g,'1').replace(/V/g,'2')
             });
+          } else {
+            // attach to previous vertex
+            o.desmos.setExpression({
+              id:'segment_'+hs.ALPHA[i-1]+hs.ALPHA[i],
+              latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',i-1)).replace(/([xy])_V/g,hs.sub('$1',i))
+            });
+            // attach diagonal to A
+            o.desmos.setExpression({
+                id:'segment_'+hs.ALPHA[i]+'A',
+                latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',i)).replace(/V/g,'1')
+              });
+          }
           // Attach to the next vertex
           o.desmos.setExpression({
             id:'segment_'+hs.ALPHA[i]+hs.ALPHA[i%n+1],
@@ -1165,193 +1201,71 @@ PearsonGL.External.rootJS = (function() {
        * ←———————————————————————————————————————————————————————————————————→ */
        coordinateChanged: function(options={}) {
         let o = hs.parseOptions(options);
-        if (vs[o.uniqueId].lastDragged === null) return;
-        let n = vs[o.uniqueId].n;
+        let vars = vs[o.uniqueId];
+        if (vars.switchingPolygons === true) return;
+
+        let n = vars.n;
         let i = eval(o.name.match(/[0-9]+/)[0]);
-        var coords = vs[o.uniqueId][n];
-        let oldPoint = {x:coords['x_'+((i>9)?"{"+i+"}":i)],y:coords['y_'+((i>9)?"{"+i+"}":i)]};
-        let newPoint = {x:vs[o.uniqueId]["x_"+((i>9)?"{"+i+"}":i)].numericValue,y:vs[o.uniqueId]["y_"+((i>9)?"{"+i+"}":i)].numericValue};
+        let newPoint = {x:vars['x_'+i].numericValue,y:vars['y_'+i].numericValue};
+        function coords(id){return vars[id].numericValue;};
 
-        if (i != vs[o.uniqueId].lastDragged) {
 
-          let g = (n+i-3)%n+1;
-          let h = g%n+1;
-          let j = i%n+1;
-          let k = j%n+1;
+        if (i != vars.lastDragged) {
+          o.log('Now dragging n='+n+',i='+i);
+          vars.lastDragged = i;
 
-          // o.log('Checking vertices '+hs.ALPHA[g]+hs.ALPHA[h]+hs.ALPHA[i]+hs.ALPHA[j]+hs.ALPHA[k]);
+          // First, put the last dragged vertex back.
+          fs.A0597629.clearPlaceholder(o);
 
-          // Line formed by the 2 previous vertices
-          vs[o.uniqueId].dragBoundaryLeft = hs.lineTwoPoints(
-            {
-              x:coords['x_'+((g>9)?"{"+g+"}":g)],
-              y:coords['y_'+((g>9)?"{"+g+"}":g)]
-            },
-            {
-              x:coords['x_'+((h>9)?"{"+h+"}":h)],
-              y:coords['y_'+((h>9)?"{"+h+"}":h)]
-            }
-           );
-
-           var vertexPad = ((n>3)?hs.distancePointLine({
-              x:coords['x_'+((j>9)?"{"+j+"}":j)],
-              y:coords['y_'+((j>9)?"{"+j+"}":j)]
-            },vs[o.uniqueId].dragBoundaryLeft)/3:-cs.A0597629.DRAG_BUFFER);
-
-           vs[o.uniqueId].dragBoundaryLeft.c -= Math.max( // Max because these will all be clockwise
-            -cs.A0597629.DRAG_BUFFER, // base amount of padding from the boundaries
-            vertexPad,
-            hs.distancePointLine({ // Don't pad past the starting location
-                x:coords['x_'+((i>9)?"{"+i+"}":i)],
-                y:coords['y_'+((i>9)?"{"+i+"}":i)]
-              },vs[o.uniqueId].dragBoundaryLeft)/3
-            );
-
-          // Line formed by the 2 following vertices
-          vs[o.uniqueId].dragBoundaryRight = hs.lineTwoPoints(
-            {
-              x:coords['x_'+((j>9)?"{"+j+"}":j)],
-              y:coords['y_'+((j>9)?"{"+j+"}":j)]
-            },
-            {
-              x:coords['x_'+((k>9)?"{"+k+"}":k)],
-              y:coords['y_'+((k>9)?"{"+k+"}":k)]
-            }
-           );
-
-           vertexPad = ((n>3)?hs.distancePointLine({
-              x:coords['x_'+((h>9)?"{"+h+"}":h)],
-              y:coords['y_'+((h>9)?"{"+h+"}":h)]
-            },vs[o.uniqueId].dragBoundaryRight)/3:-cs.A0597629.DRAG_BUFFER);
-
-           vs[o.uniqueId].dragBoundaryRight.c -= Math.max( // Max because these will all be clockwise
-            -cs.A0597629.DRAG_BUFFER, // base amount of padding from the boundaries
-            vertexPad,
-            hs.distancePointLine({ // Don't pad past the starting location
-                x:coords['x_'+((i>9)?"{"+i+"}":i)],
-                y:coords['y_'+((i>9)?"{"+i+"}":i)]
-              },vs[o.uniqueId].dragBoundaryRight)/3
-            );
-
-          // Line formed by the 2 adjacent vertices
-          vs[o.uniqueId].dragBoundaryBase = hs.lineTwoPoints(
-            {
-              x:coords['x_'+((h>9)?"{"+h+"}":h)],
-              y:coords['y_'+((h>9)?"{"+h+"}":h)]
-            },
-            {
-              x:coords['x_'+((j>9)?"{"+j+"}":j)],
-              y:coords['y_'+((j>9)?"{"+j+"}":j)]
-            }
-           );
-
-           vs[o.uniqueId].dragBoundaryBase.c -= Math.min( // Min because these will all be clockwise
-            cs.A0597629.DRAG_BUFFER, // base amount of padding from the boundaries
-            hs.distancePointLine({ // Don't pad past the starting location
-                x:coords['x_'+((i>9)?"{"+i+"}":i)],
-                y:coords['y_'+((i>9)?"{"+i+"}":i)]
-              },vs[o.uniqueId].dragBoundaryBase)/3
-            );
-
-          vs[o.uniqueId].lastDragged = i;
-
-          if(o.log === console.log) {
-            o.desmos.setExpressions([
-            {
-              id:'left',
-              latex:vs[o.uniqueId].dragBoundaryLeft.a+'x+'+vs[o.uniqueId].dragBoundaryLeft.b+'y+'+vs[o.uniqueId].dragBoundaryLeft.c+'=0',
-              color:cs.agaColors.red
-            },
-            {
-              id:'right',
-              latex:vs[o.uniqueId].dragBoundaryRight.a+'x+'+vs[o.uniqueId].dragBoundaryRight.b+'y+'+vs[o.uniqueId].dragBoundaryRight.c+'=0',
-              color:cs.agaColors.blue
-            },
-            {
-              id:'base',
-              latex:vs[o.uniqueId].dragBoundaryBase.a+'x+'+vs[o.uniqueId].dragBoundaryBase.b+'y+'+vs[o.uniqueId].dragBoundaryBase.c+'=0',
-              color:cs.agaColors.green
-            }]);
+          // Now create a list of all the new boundaries
+          vars.dragBoundaries = [];
+          if (i == 1) {
+            // All edges are boundaries, except [n]A and AB
+            // NOTE: Since the vertices are numbered clockwise, edges must be defined in reverse so the positive-orientation of the polygon constrain function will work
+            for (var j=2;j<n;j++) {
+              vars.dragBoundaries.push(hs.lineTwoPoints(
+                {x:coords('x_'+(j+1)),y:coords('y_'+(j+1))},
+                {x:coords('x_'+j),y:coords('y_'+j)}
+              ));
+            };
+          } else {
+            // Bind by the previous diagonal
+            if (2 < i) vars.dragBoundaries.push(hs.lineTwoPoints(
+                {x:coords('x_'+(i-1)),y:coords('y_'+(i-1))},
+                {x:coords('x_1'),y:coords('y_1')}
+              ));
+            // Bind by the next diagonal
+            if (i < n) vars.dragBoundaries.push(hs.lineTwoPoints(
+                {x:coords('x_1'),y:coords('y_1')},
+                {x:coords('x_'+(i%n+1)),y:coords('y_'+(i%n+1))}
+              ));
           };
+
+          o.log('Now constraining by:',vars.dragBoundaries);
+
+          // Note: in previous versions, bound instead to keep the polygon convex.
+          //  This meant binding by line(i-1,i+1), line(i-1,i-2), and line(i+2,i+1).
         };
-        /** GETTING THERE!
-          var newDistL=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryLeft);
-          var newDistR=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryRight);
-          var newDistB=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryBase);
-          window.giveUp = false;
-          setTimeout(function(){window.giveUp=true;},100);
 
-          while ((newDistL >= 0 || newDistR >= 0 || newDistB <= 0) && !(window.giveUp)) {
-            o.log('Trying L: '+Math.round(newDistL*100)/100+', R: '+Math.round(newDistR*100)/100+', B: '+Math.round(newDistB*100)/100);
-            var newDist = newDistL;
-            if(newDist>=0) {
-              o.log('Correcting L');
-              var oldDist = hs.distancePointLine(oldPoint,vs[o.uniqueId].dragBoundaryLeft);
-              var distOldNew = Math.sqrt(Math.pow(oldPoint.x-newPoint.x,2)+Math.pow(oldPoint.y-newPoint.y,2));
-              var t = newDist/(newDist-oldDist);
-              newPoint.x = oldPoint.x+(newPoint.x-oldPoint.x)*t*(1-cs.A0597629.DRAG_BUFFER_REBOUND);
-              newPoint.y = oldPoint.y+(newPoint.y-oldPoint.y)*t*(1-cs.A0597629.DRAG_BUFFER_REBOUND);
-            };
+        var constrained = hs.polygonConstrain(newPoint,vars.dragBoundaries);
 
-            newDist = newDistR;
-            if(newDist>=0) {
-              o.log('Correcting R');
-              var oldDist = hs.distancePointLine(oldPoint,vs[o.uniqueId].dragBoundaryRight);
-              var distOldNew = Math.sqrt(Math.pow(oldPoint.x-newPoint.x,2)+Math.pow(oldPoint.y-newPoint.y,2));
-              var t = newDist/(newDist-oldDist);
-              newPoint.x = oldPoint.x+(newPoint.x-oldPoint.x)*t*(1-cs.A0597629.DRAG_BUFFER_REBOUND);
-              newPoint.y = oldPoint.y+(newPoint.y-oldPoint.y)*t*(1-cs.A0597629.DRAG_BUFFER_REBOUND);
-            };
+        vars[n]['x_'+i] = constrained.x;
+        vars[n]['y_'+i] = constrained.y;
 
-            newDist = newDistB;
-            if(newDist<=0) {
-              o.log('Correcting B');
-              var oldDist = hs.distancePointLine(oldPoint,vs[o.uniqueId].dragBoundaryBase);
-              var distOldNew = Math.sqrt(Math.pow(oldPoint.x-newPoint.x,2)+Math.pow(oldPoint.y-newPoint.y,2));
-              var t = newDist/(newDist-oldDist);
-              newPoint.x = oldPoint.x+(newPoint.x-oldPoint.x)*t*(1-cs.A0597629.DRAG_BUFFER_REBOUND);
-              newPoint.y = oldPoint.y+(newPoint.y-oldPoint.y)*t*(1-cs.A0597629.DRAG_BUFFER_REBOUND);
-            };
-
-            o.log('Correcting '+hs.ALPHA[i]+'('+
-              Math.round(oldPoint.x*100)/100+','+
-              Math.round(oldPoint.y*100)/100+') to '+hs.ALPHA[i]+'('+
-              Math.round(newPoint.x*100)/100+','+
-              Math.round(newPoint.y*100)/100+')');
-
-            newDistL=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryLeft);
-            newDistR=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryRight);
-            newDistB=hs.distancePointLine(newPoint,vs[o.uniqueId].dragBoundaryBase);
-          }
-        //**/
-
-        if(newPoint[o.name[0]]==o.value) {
-          coords[o.name]=o.value;
+        if (constrained == newPoint) {
+          fs.A0597629.clearPlaceholder(o);
         } else {
-
-          o.log('Adjusting vertex '+hs.ALPHA[i]+'_'+n+'('+coords[o.name.replace('y','x')]+','+coords[o.name.replace('x','y')]+'); bounded by:');
-          o.log({
-            left:vs[o.uniqueId].dragBoundaryLeft,
-            right:vs[o.uniqueId].dragBoundaryRight,
-            base:vs[o.uniqueId].dragBoundaryBase
-          });
-
-          vs[o.uniqueId][o.name.replace('y','x')].unobserve('numericValue.correction');
-          vs[o.uniqueId][o.name.replace('x','y')].unobserve('numericValue.correction');
-          o.desmos.setExpressions([
-            {
-              id:o.name.replace('y','x'),
-              latex:o.name.replace('y','x')+'='+newPoint.x
-            },
-            {
-              id:o.name.replace('x','y'),
-              latex:o.name.replace('x','y')+'='+newPoint.y
-            }
-          ]);
-          vs[o.uniqueId][o.name.replace('y','x')].observe('numericValue.correction',hs[o.uniqueId][o.name.replace('y','x')]);
-          vs[o.uniqueId][o.name.replace('x','y')].observe('numericValue.correction',hs[o.uniqueId][o.name.replace('x','y')]);
+          /** o.log('Correcting ('+
+            Math.round(Math.pow(10,cs.debug.COORDINATE_DECIMALS)*newPoint.x)/Math.pow(10,cs.debug.COORDINATE_DECIMALS)
+            +','+
+            Math.round(Math.pow(10,cs.debug.COORDINATE_DECIMALS)*newPoint.y)/Math.pow(10,cs.debug.COORDINATE_DECIMALS)
+            +') to ('+
+            Math.round(Math.pow(10,cs.debug.COORDINATE_DECIMALS)*constrained.x)/Math.pow(10,cs.debug.COORDINATE_DECIMALS)
+            +','+
+            Math.round(Math.pow(10,cs.debug.COORDINATE_DECIMALS)*constrained.y)/Math.pow(10,cs.debug.COORDINATE_DECIMALS)
+            +')'); **/
+          fs.A0597629.setPlaceholder(o,i);
         };
-
        },
       /* ←— switchPolygon ———————————————————————————————————————————————————→ *\
        | Adds and removes vertices and edges
@@ -1360,19 +1274,22 @@ PearsonGL.External.rootJS = (function() {
        * ←———————————————————————————————————————————————————————————————————→ */
        switchPolygon: function(options={}) {
         var o = hs.parseOptions(options);
-        var prevn = vs[o.uniqueId].n;
-        var n = vs[o.uniqueId].n = o.value;
+        let vars = vs[o.uniqueId];
+        let hfs = vars.helperFunctions;
+        let cons = cs.A0597629;
+        vars.switchingPolygons = true;
 
-        // Clear dragging memory
-        vs[o.uniqueId].lastDragged = null;
+        fs.A0597629.clearPlaceholder(o);
 
+        let prevn = vars.n;
+        var n = vars.n = o.value;
 
-        o.log("Changed from "+prevn+" sides to "+n+" sides");
+        o.log("Changing from "+prevn+" sides to "+n+" sides");
 
         var exprs = [];
 
         // Delete extra vertices
-        for (var i = cs.A0597629.MAX_VERTICES; i >= n+1; i--) {
+        for (var i = cons.MAX_VERTICES; i >= n+1; i--) {
           exprs.push({
             id:'vertex_'+hs.ALPHA[i],
             hidden:true,
@@ -1428,68 +1345,38 @@ PearsonGL.External.rootJS = (function() {
         for (var i = 1; i <= n; i++) {
           exprs.push({
             id:'x_'+i,
-            latex:'x_'+((i>9)?"{"+i+"}":i)+'='+vs[o.uniqueId][n]['x_'+((i>9)?"{"+i+"}":i)]
+            latex:hs.sub('x',i)+'='+vars[n]['x_'+i]
           });
           exprs.push({
             id:'y_'+i,
-            latex:'y_'+((i>9)?"{"+i+"}":i)+'='+vs[o.uniqueId][n]['y_'+((i>9)?"{"+i+"}":i)]
+            latex:hs.sub('y',i)+'='+vars[n]['y_'+i]
           });
-          //o.log('Moving vertex '+hs.ALPHA[i]+' to ('+vs[o.uniqueId][n]['x_'+((i>9)?"{"+i+"}":i)]+','+vs[o.uniqueId][n]['y_'+((i>9)?"{"+i+"}":i)]+')');
+          //o.log('Moving vertex '+hs.ALPHA[i]+' to ('+vars[n]['x_'+i]+','+vars[n]['y_'+i]+')');
         }
 
         // o.log('Changed coordinates:',exprs);
 
         // clear observers
-        for(let i=1;i<=cs.A0597629.MAX_VERTICES;i++){
-          vs[o.uniqueId]["x_"+((i>9)?"{"+i+"}":i)].unobserve('numericValue.correction');
-          vs[o.uniqueId]["y_"+((i>9)?"{"+i+"}":i)].unobserve('numericValue.correction');
+        for(var i=1;i<=cons.MAX_VERTICES;i++){
+          vars['x_'+i].unobserve('numericValue.correction');
+          vars['y_'+i].unobserve('numericValue.correction');
         };
 
-        if (hs[o.uniqueId].correctionBuffer !== undefined) window.clearTimeout(hs[o.uniqueId].correctionBuffer);
+        if (hfs.correctionBuffer !== undefined) window.clearTimeout(hfs.correctionBuffer);
 
         o.desmos.setExpressions(exprs);
 
         // Reinitialize observers.
-         for(let i=1;i<=n;i++) {
+         for(var i=1;i<=n;i++) {
           // Observe x
-          vs[o.uniqueId]["x_"+((i>9)?"{"+i+"}":i)].observe('numericValue.correction',hs[o.uniqueId]["x_"+((i>9)?"{"+i+"}":i)]);
+          vars["x_"+i].observe('numericValue.correction',hfs["x_"+i]);
           // Observe y
-          vs[o.uniqueId]["y_"+((i>9)?"{"+i+"}":i)].observe('numericValue.correction',hs[o.uniqueId]["y_"+((i>9)?"{"+i+"}":i)]);
+          vars["y_"+i].observe('numericValue.correction',hfs["y_"+i]);
          };
-        hs[o.uniqueId].correctionBuffer = window.setTimeout(function(){vs[o.uniqueId].lastDragged = -1;},2000);
 
-       }/*,
-      /* ←— placeHolder —————————————————————————————————————————————————————→ *\
-       | Manages the placeholder vertex
-       * ←———————————————————————————————————————————————————————————————————→ /
-       placeHolder: function(options={},vertexNum,enable = true) {
-        let o = hs.parseOptions(options);
-        let vars = vs[o.uniqueId];
-        let id = vertexNum;
-        let prevId = vars.placeHolder.k;
-        if (enable && prevId == id) return;
+        hfs.correctionBuffer = window.setTimeout(function(){vars.switchingPolygons = false;},cs.delay.LOAD);
 
-        let leftId = ((id == 1)?vars.n:id-1);
-        let rightId = (id%n+1);
-
-        let leftEdge = cs.A0597629.SEGMENT_TEMPLATE.replace(/U/g,((leftId>9)?'{'+leftId+'}':leftId));
-        let rightEdge = cs.A0597629.SEGMENT_TEMPLATE.replace(/V/g,((rightId>9)?'{'+rightId+'}':rightId));
-        let diag = cs.A0597629.SEGMENT_TEMPLATE.replace(/V/g,1);
-
-        (b,-a,-bx_1+ay_1)
-
-        if (enable) {
-          
-          o.setExpression({id:'placeholder_vertex',hidden:false,label:(hs.ALPHA[id]),showLabel:true});
-        } else {
-          o.setExpression({id:'placeholder_vertex',hidden:true,label:' ',showLabel:false});
-
-          o.setExpression({id:('vertex_'+hs.ALPHA[id]),latex:('\\left(x_'+((middle>9)?"{"+middle+"}":middle)+',y_'+((middle>9)?"{"+middle+"}":middle)+'\\right)'),color:'#000000'});
-          o.setExpression({id:('segment_'+hs.ALPHA[left]+hs.alpha[id]),latex:(cs.A0597629.SEGMENT_TEMPLATE.replace(/U/g,((left>9)?"{"+left+"}":''+left)).replace(/V/g,((middle>9)?"{"+middle+"}":''+middle)))});
-          o.setExpression({id:('segment_'+hs.ALPHA[id]+hs.alpha[right]),latex:(cs.A0597629.SEGMENT_TEMPLATE.replace(/U/g,((id>9)?"{"+id+"}":''+id)).replace(/V/g,((right>9)?"{"+right+"}":''+right)))});
-          if (2<id<n-1) o.setExpression({id:('segment_'+hs.ALPHA[id]+'A'),latex:(cs.A0597629.SEGMENT_TEMPLATE.replace(/U/g,((middle>9)?"{"+middle+"}":''+middle)).replace(/V/g,1))});
-        }
-       }*/
+       }
      };
 
   Object.assign(exports,hs.flattenFuncStruct(fs));
