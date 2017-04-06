@@ -96,6 +96,16 @@ PearsonGL.External.masterJS = (function() {
   }
 
   //* functions for test purposes only
+  ts.shared.label.valueOnly = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.shared_label_valueOnly({'value':val,'name':name,'desmos':desmos,'log':console.log});
+  }
+
+  //* functions for test purposes only
+  ts.shared.label.labelAngle = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.shared_label_labelAngle({'value':val,'name':name,'desmos':desmos,'log':console.log});
+  }
+
+  //* functions for test purposes only
   ts.shared.label.labelTriAngles = function(val, name, desmos) {
     return PearsonGL.External.rootJS.shared_label_labelTriAngles({'value':val,'name':name,'desmos':desmos,'log':console.log});
   }
@@ -158,6 +168,11 @@ PearsonGL.External.masterJS = (function() {
   //* functions for test purposes only
   ts.A0597538_updateLabels = function(val, name, desmos) {
     return PearsonGL.External.rootJS.A0597538_updateLabels({'value':val,'name':name,'desmos':desmos,'log':console.log});
+  }
+
+  //* functions for test purposes only
+  ts.A0597720_labelEquation = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.A0597720_labelEquation({'value':val,'name':name,'desmos':desmos,'log':console.log});
   }
 
   //* functions for test purposes only
