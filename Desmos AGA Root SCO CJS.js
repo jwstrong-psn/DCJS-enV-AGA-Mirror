@@ -1731,27 +1731,23 @@ PearsonGL.External.rootJS = (function() {
 
           // Now create a list of all the new boundaries
           vars.dragBoundaries = [];
-          if (i == 1) {
-            // All edges are boundaries, except [n]A and AB
-            // NOTE: Since the vertices are numbered clockwise, edges must be defined in reverse so the positive-orientation of the polygon constrain function will work
-            for (var j=2;j<n;j++) {
-              vars.dragBoundaries.push(hs.lineTwoPoints(
-                {x:vars[n]['x_'+(j+1)],y:vars[n]['y_'+(j+1)]},
-                {x:vars[n]['x_'+j],y:vars[n]['y_'+j]}
-              ));
-            };
-          } else {
-            // Bind by the previous diagonal
-            if (2 < i) vars.dragBoundaries.push(hs.lineTwoPoints(
-                {x:vars[n]['x_'+(i-1)],y:vars[n]['y_'+(i-1)]},
-                {x:vars[n]['x_1'],y:vars[n]['y_1']}
-              ));
-            // Bind by the next diagonal
-            if (i < n) vars.dragBoundaries.push(hs.lineTwoPoints(
-                {x:vars[n]['x_1'],y:vars[n]['y_1']},
-                {x:vars[n]['x_'+(i%n+1)],y:vars[n]['y_'+(i%n+1)]}
-              ));
-          };
+          // Bind by the 2-previous edge
+          vars.dragBoundaries.push(hs.lineTwoPoints(
+              {x:vars[n]['x_'+((n+i-3)%n+1)],y:vars[n]['y_'+((n+i-3)%n+1)]},
+              {x:vars[n]['x_'+((n+i-2)%n+1)],y:vars[n]['y_'+((n+i-2)%n+1)]}
+            ));
+
+          // Bind by the in-between edge
+          vars.dragBoundaries.push(hs.lineTwoPoints(
+              {x:vars[n]['x_'+(i%n+1)],y:vars[n]['y_'+(i%n+1)]},
+              {x:vars[n]['x_'+((n+i-2)%n+1)],y:vars[n]['y_'+((n+i-2)%n+1)]}
+            ));
+
+          // Bind by the 2-next edge
+          if (i < n) vars.dragBoundaries.push(hs.lineTwoPoints(
+              {x:vars[n]['x_'+(i%n+1)],y:vars[n]['y_'+(i%n+1)]},
+              {x:vars[n]['x_'+((i+1)%n+1)],y:vars[n]['y_'+((i+1)%n+1)]}
+            ));
 
           o.log('Now constraining by:',vars.dragBoundaries);
 
@@ -1761,8 +1757,8 @@ PearsonGL.External.rootJS = (function() {
 
         var constrained = hs.polygonConstrain(newPoint,vars.dragBoundaries);
 
-        vars[n]['x_'+i] = constrained.x;
-        vars[n]['y_'+i] = constrained.y;
+        if (constrained !== null) vars[n]['x_'+i] = constrained.x;
+        if (constrained !== null) vars[n]['y_'+i] = constrained.y;
 
         if (constrained == newPoint) {
           fs.A0597630.clearPlaceholder(o);
