@@ -363,7 +363,8 @@ PearsonGL.External.rootJS = (function() {
        },
       delay:{ // delay values for timed events, in ms
         SAVE:1000, // delay to save after the most recent modification
-        LOAD:1000 // consider a `setState` complete once the state is static for this long
+        LOAD:1000, // consider a `setState` complete once the state is static for this long
+        SET_EXPRESSION:100 // consider a `setExpression` complete after this amount of time
        },
       distance:{
         CONSTRAIN_BUFFER:0.000001
@@ -574,7 +575,7 @@ PearsonGL.External.rootJS = (function() {
      fs.shared.label = {
       /* ←— valueOnly —————————————————————————————————————————————————————→ *\
        | Label a point according to the value of an expression.
-       | Use for labeling anonymous sliders.
+       | Use for labeling anonymous sliders, or e.g. side lengths.
        |
        | POINT MUST FIRST BE MANUALLY AUTHORED USING API:
        |  calculator.setExpression({
@@ -582,14 +583,25 @@ PearsonGL.External.rootJS = (function() {
        |    latex:'[pointLaTeX]',
        |    showLabel:true
        |  });
-       | 
-       | For testing, use option {log:console.log}, which will log whenever
-       |  the expression's value changes.
        * ←————————————————————————————————————————————————————————————————→ */
        valueOnly: function(options={}) {
         var o = hs.parseOptions(options);
-        if (o.log) o.log('Setting point label equal to the value of ' + o.name + ': ' + o.value);;
         o.desmos.setExpression({id:o.name,label:''+o.value});
+       },
+      /* ←— labelAngle ——————————————————————————————————————————————————→ *\
+       | Label a point according to the value of an expression, with degree marker
+       | Use for labeling anonymous sliders or e.g. angle vertices.
+       |
+       | POINT MUST FIRST BE MANUALLY AUTHORED USING API:
+       |  calculator.setExpression({
+       |    id:'[expressionLaTeX]',
+       |    latex:'[pointLaTeX]',
+       |    showLabel:true
+       |  });
+       * ←————————————————————————————————————————————————————————————————→ */
+       labelAngle: function(options={}) {
+        var o = hs.parseOptions(options);
+        o.desmos.setExpression({id:o.name,label:''+o.value+'°'});
        },
       /* ←— labelEquation ———————————————————————————————————————————————→ *\
        | Label a point according to an equation with an expression equal to
@@ -954,6 +966,15 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
+    /* ←— A0597720 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0597720 = {
+      /* ←— labelEquation ————————————————————————————————————————————————————→ */
+       labelEquation: function(options={}) {
+        var o = hs.parseOptions(options);
+        o.desmos.setExpression({id:'equation',label:''+(180-o.value)+'° + '+o.value+'° = 180°'});
+       }
+     };
+
     /* ←— A0596385 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0596385 = {
       /* ←— init ————————————————————————————————————————————————————————————→ */
@@ -1043,7 +1064,7 @@ PearsonGL.External.rootJS = (function() {
         o.log(hfs);
         let cons = cs.A0597629;
 
-        vars.switchingPolygons = true;
+        vars.belayCorrection = true;
 
         // Set up variables and observers for vertices of each polygon
          for(let i=1;i<=cons.MAX_VERTICES;i++) {
@@ -1119,7 +1140,7 @@ PearsonGL.External.rootJS = (function() {
         
         o.log("Observers initialized:",vars);
 
-        hfs.correctionBuffer = window.setTimeout(function(){vars.switchingPolygons = false;},cs.delay.LOAD);
+        hfs.correctionBuffer = window.setTimeout(function(){vars.belayCorrection = false;},cs.delay.LOAD);
        },
       /* ←— setPlaceholder ——————————————————————————————————————————————————→ *\
        | Attaches all segments from a vertex to the placeholder vertex
@@ -1190,6 +1211,7 @@ PearsonGL.External.rootJS = (function() {
        clearPlaceholder: function(options={}) {
         let o = hs.parseOptions(options);
         let vars = vs[o.uniqueId];
+        let hfs = vars.helperFunctions;
         let cons = cs.A0597629;
         let i = vars.placeholder;
         let n = vars.n;
@@ -1198,9 +1220,15 @@ PearsonGL.External.rootJS = (function() {
 
         o.log('Now clearing placeholder '+hs.ALPHA[i]);
 
+        // Don't recorrect while clearing the placeholder
+        if (hfs.correctionBuffer !== undefined) window.clearTimeout(hfs.correctionBuffer);
+        vars.belayCorrection = true;
+
         // Move the place-held point to the placeholder
         o.desmos.setExpression({id:'x_'+i,latex:hs.sub('x',i)+'='+Math.round(vars[n]['x_'+i]*Math.pow(10,cs.precision.FLOAT_PRECISION))/Math.pow(10,cs.precision.FLOAT_PRECISION)});
         o.desmos.setExpression({id:'y_'+i,latex:hs.sub('y',i)+'='+Math.round(vars[n]['y_'+i]*Math.pow(10,cs.precision.FLOAT_PRECISION))/Math.pow(10,cs.precision.FLOAT_PRECISION)});
+
+        hfs.correctionBuffer = window.setTimeout(function(){vars.belayCorrection = false;},cs.delay.SET_EXPRESSION);
 
         // Make the place-held point visible, and the placeholder invisible
         o.desmos.setExpression({id:'placeholder_vertex',hidden:true,showLabel:false});
@@ -1253,7 +1281,7 @@ PearsonGL.External.rootJS = (function() {
        coordinateChanged: function(options={}) {
         let o = hs.parseOptions(options);
         let vars = vs[o.uniqueId];
-        if (vars.switchingPolygons === true) return;
+        if (vars.belayCorrection === true) return;
         let n = vars.n;
         let i = eval(o.name.match(/[0-9]+/)[0]);
         let newPoint = {x:vars['x_'+i].numericValue,y:vars['y_'+i].numericValue};
@@ -1325,7 +1353,7 @@ PearsonGL.External.rootJS = (function() {
         let vars = vs[o.uniqueId];
         let hfs = vars.helperFunctions;
         let cons = cs.A0597629;
-        vars.switchingPolygons = true;
+        vars.belayCorrection = true;
 
         fs.A0597629.clearPlaceholder(o);
 
@@ -1443,7 +1471,7 @@ PearsonGL.External.rootJS = (function() {
           vars["y_"+i].observe('numericValue.correction',hfs["y_"+i]);
          };
 
-        hfs.correctionBuffer = window.setTimeout(function(){vars.switchingPolygons = false;},cs.delay.LOAD);
+        hfs.correctionBuffer = window.setTimeout(function(){vars.belayCorrection = false;},cs.delay.LOAD);
 
        }
      };
