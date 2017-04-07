@@ -696,6 +696,136 @@ PearsonGL.External.rootJS = (function() {
             vars.upToDate = false;
           }
         }
+       },
+      /* ←— labelPolyAngles —————————————————————————————————————————————————→ *\
+       | Updates the labels of a polygon's vertices with their respective
+       | angle measures, to ensure they sum to 180n-360. Defaults to polygon ABCD…
+       | Execute when observing each angle's measure, with options.value that measure.
+       | prec is the number of decimal places to round to.
+       |   !REQUIRES Initializing vs[o.uniqueId] with: 
+       |              polygonName:('polygon'+pointNames.A+pointNames.B+…),
+       |             (polygonName+'_angles'): {
+       |               (pointNames.A):0,
+       |               (pointNames.B):0,
+       |               …
+       |             }
+       |   !REQUIRES Angle measure label points have ids matching name of their measures
+       |             e.g., 'm_A', 'm_B', etc.
+       |   !REQUIRES Angle measures to be stored using `value_P`
+       |   !REQUIRES options.name end in pointNames.A, etc.
+       |   !REQUIRES options.value be the angle's value, in degrees.
+       * ←———————————————————————————————————————————————————————————————————→ */
+       labelPolyAngles: function(options={},refreshAll=false,prec=cs.precision.DEGREES) {
+        var o = hs.parseOptions(options);
+        var v = o.name[o.name.length-1];
+        var vars = vs[o.uniqueId];
+        var p = vars[vars.polygonName+'_angles'];
+        var vertices = vars.polygonName.slice(7,vars.polygonName.length).split('');
+
+        function measure(x) {return vars[values][x]}
+
+        if (refreshAll) {
+          // Sort the points by the error they produce (larger error closer to ends).
+          var sorted = [];
+          for (name of vertices.values()) {
+            var thisError = Math.round(Math.pow(10,cs.precision.FLOAT_PRECISION)*(Math.round(measure(name))-measure(name)))/Math.pow(10,cs.precision.FLOAT_PRECISION);
+            for (var i = 0;i<=sorted.length;i++) {
+              var thatError = Math.round(Math.pow(10,cs.precision.FLOAT_PRECISION)*(Math.round(measure(sorted[i]))-measure(sorted[i])))/Math.pow(10,cs.precision.FLOAT_PRECISION);
+              if(!(thisError<thatError)) {
+                // If the errors are the same, then prioritise the smaller relative error
+                if (thisError == thatError) {
+                  if (measure(name) == measure(sorted[i])) {if (2*Math.random()>1) i++;}
+                  else if ((measure(name) < measure(sorted[i])) == (thisError > 0)) i++;
+                }
+                sorted.splice(i,0,name);
+                break;
+              }
+            }
+          }
+
+          var desiredSum = 180*(vertices.length-2);
+          var apparentSum = 0;
+          for (name of vertices.values()) {
+            var rounded = Math.round(Math.pow(10,prec)*measure(name))/10;
+            p[name] = rounded;
+            apparentSum += rounded;
+          }
+
+          // Points with the largest error introduce the least error when rounded oppositely
+          // So, re-round points with the largest error to get the sum you want (but each one only once)
+          while (apparentSum > desiredSum && sorted.length>1) {
+            var adjusting = sorted.shift();
+            p[adjusting] = (Math.pow(10,prec)*p[adjusting]-1)/Math.pow(10,prec);
+            apparentSum = (Math.pow(10,prec)*apparentSum-1)/Math.pow(10,prec);
+          }
+          while (apparentSum < desiredSum && sorted.length>1) {
+            p[sorted.pop()] += Math.pow(10,-prec);
+            apparentSum += Math.pow(10,-prec);
+          }
+          if (sorted.length>1) o.log('Something went wrong trying to fix the angle lengths. Wound up with angle sum of '+apparentSum+' out of '+desiredSum+'. With angle measures:',p);
+          else for (name of vertices.values()) {
+            o.desmos.setExpression({id:'m_'+name,label:''+p[name]+'°'});
+            vars.upToDate = true;
+          }
+          return;
+         }
+
+        if (vars.upToDate === undefined) o.log('Labeling angles of '+vars.polygonName+' to '+prec+' decimal places.');
+
+        var prev = vertices[(vertices.indexOf[v]+vertices.length-1)%vertices.length];
+        var next = vertices[(vertices.indexOf[v]+1)%vertices.length];
+
+        var prevVal = Math.round(measure(prev)*Math.pow(10,prec));
+        var val = Math.round(measure(v)*Math.pow(10,prec));
+        var nextVal = Math.round(measure(prev)*Math.pow(10,prec));
+        
+        // Only update stuff if the one of the values has changed
+        if (vars.upToDate === true && val == p[v] && prevVal == p[prev] && nextVal == p[next]) return;
+
+        // The apparent sum of the three affected angles shouldn't change, else other angles will have to change.
+        var expectedSum = Math.round((p[prev] + p[v] + p[next])*Math.pow(10,prec));
+        var apparentSum = prevVal + val + nextVal;
+
+        while (apparentSum > expectedSum) {
+          var prevError = prevVal - measure(prev);
+          var thisError = val - measure(v);
+          var nextError = nextVal - measure(next);
+
+          var errors = [prevError,thisError,nextError];
+
+          var pos = errors.indexOf(Math.max(errors));
+
+          if (pos == 0) prevVal--;
+          else if (pos == 1) val--;
+          else nextVal--;
+
+          apparentSum--;
+        }
+        while (apparentSum < expectedSum) {
+          var prevError = prevVal - measure(prev);
+          var thisError = val - measure(v);
+          var nextError = nextVal - measure(next);
+
+          var errors = [prevError,thisError,nextError];
+
+          var pos = errors.indexOf(Math.min(errors));
+
+          if (pos == 0) prevVal++;
+          else if (pos == 1) val++;
+          else nextVal++;
+
+          apparentSum++;
+        }
+
+        p[prev] = prevVal/Math.pow(10,prec);
+        p[v] = val/Math.pow(10,prec);
+        p[next] = nextVal/Math.pow(10,prec);
+        o.desmos.setExpression({id:'m_'+prev,label:(prevVal+'°')});
+        o.desmos.setExpression({id:'m_'+v,label:(val+'°')});
+        o.desmos.setExpression({id:'m_'+next,label:(nextVal+'°')});
+        vars.upToDate = true;
+
+        }
        }
      };
     /* ←— VALUE STORAGE FUNCTIONS —————————————————————————————————————————→ */
