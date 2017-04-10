@@ -1675,8 +1675,8 @@ PearsonGL.External.rootJS = (function() {
                 return;
               }
               // Initialize active polygon to current state
-              vars[i]['x_'+j] = vars['x_'+i].numericValue;
-              vars[i]['y_'+j] = vars['y_'+i].numericValue;
+              vars[i]['x_'+j] = vars['x_'+j].numericValue;
+              vars[i]['y_'+j] = vars['y_'+j].numericValue;
             } else if (vars[i]['x_'+j] === undefined || vars[i]['y_'+j] === undefined) {
               // Initialize inactive polygons to default
               vars[i]['x_'+j] = cons.RADIUS*Math.round(Math.pow(10,cons.INITIAL_COORDINATES_PRECISION)*Math.sin(2*Math.PI*((j-1)/i)))/Math.pow(10,cons.INITIAL_COORDINATES_PRECISION);
