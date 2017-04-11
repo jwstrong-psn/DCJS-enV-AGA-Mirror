@@ -1631,8 +1631,7 @@ PearsonGL.External.rootJS = (function() {
         DRAG_BUFFER:0.25,
         DRAG_BUFFER_REBOUND:0.1, // How much to bounce back when going past the buffer
         SEGMENT_TEMPLATE:'\\left(x_U\\left(1-t\\right)+x_Vt,y_U\\left(1-t\\right)+y_Vt\\right)',
-        LABEL_TEMPLATE:'U_{label}=P_{xyrt}\\left(x_U,y_U,t_{ick},\\frac{m_U}{2}+\\theta _{xy}\\left(x_V-x_U,y_V-y_U\\right)\\right)',
-        MEASURE_TEMPLATE:'m_A=\\theta _{LVL}\\left(C,A,B\\right)',
+        MEASURE_TEMPLATE:'m_U=\\theta _{LVL}\\left(W,U,Z\\right)',
         HIDDEN_COLOR:'#FFFFFF', // white is close enough to hidden
         VERTEX_COLOR:'#000000'
        };
@@ -1642,7 +1641,7 @@ PearsonGL.External.rootJS = (function() {
        * ←———————————————————————————————————————————————————————————————————→ */
        init: function(options={}) {
         let o = hs.parseOptions(options);
-        let vars = vs[o.uniqueId] = ((vs[o.uniqueId] === undefined)?{lastDragged:0,placeholder:0}:vs[o.uniqueId]);
+        let vars = vs[o.uniqueId] = Object.assign(((vs[o.uniqueId] === undefined)?{}:vs[o.uniqueId]),{lastDragged:0,placeholder:0});
         let hfs = vars.helperFunctions = ((vars.helperFunctions === undefined)?{n:o.desmos.HelperExpression({latex:'n'})}:vars.helperFunctions);
         o.log(hfs);
         let cons = cs.A0597630;
@@ -1900,7 +1899,7 @@ PearsonGL.External.rootJS = (function() {
             ));
 
           // Bind by the 2-next edge
-          if (i < n) vars.dragBoundaries.push(hs.lineTwoPoints(
+          vars.dragBoundaries.push(hs.lineTwoPoints(
               {x:vars[n]['x_'+((i+1)%n+1)],y:vars[n]['y_'+((i+1)%n+1)]},
               {x:vars[n]['x_'+(i%n+1)],y:vars[n]['y_'+(i%n+1)]}
             ));
@@ -1962,15 +1961,15 @@ PearsonGL.External.rootJS = (function() {
         // Move terminal vertex
          exprs.push({
           id:'measure'+hs.ALPHA[prevn],
-          latex:cons.MEASURE_TEMPLATE.replace(/A/g,hs.ALPHA[prevn]).replace(/C/g,hs.ALPHA[prevn-1]).replace(/B/g,hs.ALPHA[prevn%cons.MAX_VERTICES+1])
+          latex:cons.MEASURE_TEMPLATE.replace(/U/g,hs.ALPHA[prevn]).replace(/W/g,hs.ALPHA[prevn-1]).replace(/Z/g,hs.ALPHA[prevn%cons.MAX_VERTICES+1])
          });
          exprs.push({
           id:'measureA',
-          latex:cons.MEASURE_TEMPLATE.replace(/C/g,hs.ALPHA[n])
+          latex:cons.MEASURE_TEMPLATE.replace(/U/g,'A').replace(/W/g,hs.ALPHA[n]).replace(/Z/g,'B')
          });
          exprs.push({
-          id:'m_A',
-          latex:cons.LABEL_TEMPLATE.replace(/U/g,'A').replace(/V/g,hs.ALPHA[n])
+          id:'measure'+hs.ALPHA[n],
+          latex:cons.MEASURE_TEMPLATE.replace(/U/g,hs.ALPHA[n]).replace(/W/g,hs.ALPHA[n-1]).replace(/Z/g,'A')
          });
          exprs.push({
           id:'segment_'+hs.ALPHA[n]+'A',
@@ -2058,7 +2057,6 @@ PearsonGL.External.rootJS = (function() {
           vars['y_'+i].numericValue = vars[n]['y_'+i];
           //o.log('Moving vertex '+hs.ALPHA[i]+' to ('+vars[n]['x_'+i]+','+vars[n]['y_'+i]+')');
         }
-
         // o.log('Changed coordinates:',exprs);
 
         if (hfs.correctionBuffer !== undefined) window.clearTimeout(hfs.correctionBuffer);
