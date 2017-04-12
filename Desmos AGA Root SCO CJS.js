@@ -1104,6 +1104,42 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
+    /* ←— A0597616 FUNCTIONS ——————————————————————————————————————————————→ */
+     cs.A0597616 = {CM_PRECISION:1};
+     fs.A0597616 = {
+      /* ←— label —————————————————————————————————————————————————————————→ */
+       label: function(options={}) {
+        var o = hs.parseOptions(options);
+        switch (o.name) {
+          case 'm_B':
+            var value = vs[o.uniqueId].B = Math.round(o.value);
+            o.desmos.setExpression({id:'labelB',label:''+value+'°'});
+            if (0 < value < 155) o.desmos.setExpressions([
+              {id:'labelX',label:''+Math.round(155-value)+'°',showLabel:true},
+              {id:'labelAX',showLabel:true},
+              {id:'labelBX',showLabel:true}
+              ]);
+            else o.desmos.setExpressions([
+              {id:'labelX',showLabel:false},
+              {id:'labelAX',showLabel:false},
+              {id:'labelBX',showLabel:false}
+              ]);
+            break;
+          case 'd_{AX}':
+            var value = Math.round(o.value*Math.pow(10,cs.A0597616.CM_PRECISION))/Math.pow(10,cs.A0597616.CM_PRECISION);
+            value = Math.max(value,1/Math.pow(10,cs.A0597616.CM_PRECISION));
+            o.desmos.setExpression({id:'labelAX',label:''+value+' cm'});
+            break;
+          case 'd_{BX}':
+            var value = Math.round(o.value*Math.pow(10,cs.A0597616.CM_PRECISION))/Math.pow(10,cs.A0597616.CM_PRECISION);
+            value = Math.max(value,1/Math.pow(10,cs.A0597616.CM_PRECISION));
+            if (vs[o.uniqueId].B !== undefined && vs[o.uniqueId].B < 65) value = Math.min(value,Math.round(Math.pow(10,cs.A0597616.CM_PRECISION)*3-1)/Math.pow(10,cs.A0597616.CM_PRECISION));
+            o.desmos.setExpression({id:'labelBX',label:''+value+' cm'});
+            break;
+        }
+       }
+     };
+
     /* ←— A0596392 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0596392 = {
       /* ←— init ————————————————————————————————————————————————————————————→ */
