@@ -1115,7 +1115,6 @@ PearsonGL.External.rootJS = (function() {
             var value = vs[o.uniqueId].B = Math.round(o.value);
             o.desmos.setExpression({id:'labelB',label:''+value+'°'});
             if (0 < value && value < 155) {
-              o.log(''+value+' < 155');
               o.desmos.setExpression({id:'labelX',label:''+Math.round(155-value)+'°',showLabel:true});
               var AX = Math.round(Math.pow(10,cs.A0597616.CM_PRECISION)*3*Math.sin(Math.PI*value/180)/Math.sin(Math.PI*((155-value)/180)))/Math.pow(10,cs.A0597616.CM_PRECISION);
               var BX = Math.round(Math.pow(10,cs.A0597616.CM_PRECISION)*3*Math.sin(Math.PI*25/180)/Math.sin(Math.PI*((155-value)/180)))/Math.pow(10,cs.A0597616.CM_PRECISION);
@@ -1141,6 +1140,25 @@ PearsonGL.External.rootJS = (function() {
             o.desmos.setExpression({id:'labelBX',label:''+value+' cm'});
             break;
         } */
+       },
+      /* ←— label_noCorrection ————————————————————————————————————————————→ */
+       label_noCorrection: function(options={}) {
+        var o = hs.parseOptions(options);
+        var value = vs[o.uniqueId].B = Math.round(o.value);
+        o.desmos.setExpression({id:'labelB',label:''+value+'°'});
+        if (0 < value && value < 155) {
+          o.desmos.setExpression({id:'labelX',label:''+Math.round(155-value)+'°',showLabel:true});
+          var AX = Math.round(Math.pow(10,cs.A0597616.CM_PRECISION)*3*Math.sin(Math.PI*o.value/180)/Math.sin(Math.PI*((155-o.value)/180)))/Math.pow(10,cs.A0597616.CM_PRECISION);
+          var BX = Math.round(Math.pow(10,cs.A0597616.CM_PRECISION)*3*Math.sin(Math.PI*25/180)/Math.sin(Math.PI*((155-o.value)/180)))/Math.pow(10,cs.A0597616.CM_PRECISION);
+          o.desmos.setExpressions([
+            {id:'labelAX',label:''+AX+' cm',showLabel:true},
+            {id:'labelBX',label:''+BX+' cm',showLabel:true}
+          ]);
+        } else o.desmos.setExpressions([
+          {id:'labelX',showLabel:false},
+          {id:'labelAX',showLabel:false},
+          {id:'labelBX',showLabel:false}
+        ]);
        }
      };
 
