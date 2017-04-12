@@ -176,6 +176,11 @@ PearsonGL.External.masterJS = (function() {
   }
 
   //* functions for test purposes only
+  ts.A0597616_label_noCorrection = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.A0597616_label_noCorrection({'value':val,'name':name,'desmos':desmos,'log':console.log});
+  }
+
+  //* functions for test purposes only
   ts.A0597720_labelEquation = function(val, name, desmos) {
     return PearsonGL.External.rootJS.A0597720_labelEquation({'value':val,'name':name,'desmos':desmos,'log':console.log});
   }
