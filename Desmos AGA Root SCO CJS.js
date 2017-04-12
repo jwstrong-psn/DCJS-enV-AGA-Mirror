@@ -1353,6 +1353,10 @@ PearsonGL.External.rootJS = (function() {
             });
           };
         });
+
+        // prepare to clear placeholders
+        document.addEventListener('mouseup',function(){fs.A0597629.clearPlaceholder(o);});
+        document.addEventListener('touchend',function(){fs.A0597629.clearPlaceholder(o);});
         
         o.log("Observers initialized:",vars);
 
@@ -1794,6 +1798,10 @@ PearsonGL.External.rootJS = (function() {
             log:o.log
           });
         });
+
+        // prepare to clear placeholders
+        document.addEventListener('mouseup',function(){fs.A0597630.clearPlaceholder(o);});
+        document.addEventListener('touchend',function(){fs.A0597630.clearPlaceholder(o);});
       
         o.log("Observers initialized:",vars);
 
