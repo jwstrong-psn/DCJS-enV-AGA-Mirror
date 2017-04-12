@@ -1180,6 +1180,17 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
+    /* ←— A0597631 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0597631 = {
+      /* ←— equation ——————————————————————————————————————————————————————→ *\
+       | Updates the equation (expression) with the new value of `n`
+       * ←—————————————————————————————————————————————————————————————————→ */
+       equation: function(options={}) {
+        var o = hs.parseOptions(options);
+        o.desmos.setExpression({id:'equation',latex:'\\frac{180\\left('+o.value+'-2\\right)}{'+o.value+'}'});
+       }
+     };
+
     /* ←— A0596385 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0596385 = {
       /* ←— init ————————————————————————————————————————————————————————————→ */
