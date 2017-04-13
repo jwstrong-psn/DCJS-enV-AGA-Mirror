@@ -715,8 +715,9 @@ PearsonGL.External.rootJS = (function() {
        |   !REQUIRES options.name end in pointNames.A, etc.
        |   !REQUIRES options.value be the angle's value, in degrees.
        * ←———————————————————————————————————————————————————————————————————→ */
-       labelPolyAngles: function(options={},refreshAll=false,prec=cs.precision.DEGREES) {
+       labelPolyAngles: function(options={},params={},prec=cs.precision.DEGREES) {
         var o = hs.parseOptions(options);
+        var ps = Object.assign({refreshAll:false,exterior:false},params);
         var v = o.name[o.name.length-1];
         var vars = vs[o.uniqueId];
         var p = vars[vars.polygonName+'_angles'];
@@ -724,7 +725,7 @@ PearsonGL.External.rootJS = (function() {
 
         function measure(x) {return (Math.pow(10,prec)*vars['P_'+x]);}
 
-        if (refreshAll) {
+        if (ps.refreshAll) {
           // Sort the points by the error they produce (larger error closer to ends).
           var sorted = [];
           for (name of vertices) {
@@ -776,7 +777,7 @@ PearsonGL.External.rootJS = (function() {
           }
           if (sorted.length < 1) o.log('Something went wrong trying to fix the angle lengths. Wound up with angle sum of '+apparentSum+' out of '+desiredSum+'. With angle measures:',p);
           else for (name of vertices) {
-            o.desmos.setExpression({id:'m_'+name,label:''+(p[name]/Math.pow(10,prec))+'°'});
+            o.desmos.setExpression({id:'m_'+name,label:''+(((ps.exterior)?90*Math.pow(10,prec)-p[name]:p[name])/Math.pow(10,prec))+'°'});
             vars.upToDate = true;
           }
 
@@ -847,9 +848,9 @@ PearsonGL.External.rootJS = (function() {
           apparentSum++;
         }
 
-        p[prev] = prevVal;
-        p[v] = val;
-        p[next] = nextVal;
+        p[prev] = ((ps.exterior)?Math.round(90*Math.pow(10,prec)-prevVal):prevVal);
+        p[v] = ((ps.exterior)?Math.round(90*Math.pow(10,prec)-val):val);
+        p[next] = ((ps.exterior)?Math.round(90*Math.pow(10,prec)-nextVal):nextVal);
         o.desmos.setExpression({id:'m_'+prev,label:((prevVal/Math.pow(10,prec))+'°')});
         o.desmos.setExpression({id:'m_'+v,label:((val/Math.pow(10,prec))+'°')});
         o.desmos.setExpression({id:'m_'+next,label:((nextVal/Math.pow(10,prec))+'°')});
