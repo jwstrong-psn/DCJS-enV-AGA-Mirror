@@ -722,14 +722,14 @@ PearsonGL.External.rootJS = (function() {
         var p = vars[vars.polygonName+'_angles'];
         var vertices = vars.polygonName.slice(7,vars.polygonName.length).split('');
 
-        function measure(x) {return ((vars.values == undefined)?undefined:Math.pow(10,prec)*vars.values['P_'+x]);}
+        function measure(x) {return (Math.pow(10,prec)*vars['P_'+x]);}
 
         if (refreshAll) {
           // Sort the points by the error they produce (larger error closer to ends).
           var sorted = [];
-          for (name of vertices.values()) {
+          for (name of vertices) {
             // Delay if the value hasn't been reported yet.
-            if (measure(name) === undefined) {
+            if (measure(name) === undefined || isNaN(measure(name))) {
               o.log('Angles of '+vars.polygonName+' not all defined. Delaying full refresh by '+cs.delay.SET_EXPRESSION+'ms');
               setTimeout(function(){fs.shared.label.labelPolyAngles(o,true,prec);},cs.delay.LOAD);
               return;
@@ -752,28 +752,36 @@ PearsonGL.External.rootJS = (function() {
 
           var desiredSum = 180*(vertices.length-2)*Math.pow(10,prec);
           var apparentSum = 0;
-          for (name of vertices.values()) {
+          for (name of vertices) {
             var rounded = Math.round(measure(name));
             p[name] = rounded;
             apparentSum += rounded;
           }
 
+          o.log('Measured angles:',Object.assign({},p));
+
           // Points with the largest error introduce the least error when rounded oppositely
           // So, re-round points with the largest error to get the sum you want (but each one only once)
           while (apparentSum > desiredSum && sorted.length>1) {
             var adjusting = sorted.shift();
+            o.log('Apparent sum of '+apparentSum+' too high; reducing value of angle '+adjusting+' by 1.');
             p[adjusting]--;
             apparentSum--;
           }
           while (apparentSum < desiredSum && sorted.length>1) {
-            p[sorted.pop()]++;
+            var adjusting = sorted.pop();
+            o.log('Apparent sum of '+apparentSum+' too low; increasing value of angle '+adjusting+' by 1.');
+            p[adjusting]++;
             apparentSum++;
           }
-          if (sorted.length>1) o.log('Something went wrong trying to fix the angle lengths. Wound up with angle sum of '+apparentSum+' out of '+desiredSum+'. With angle measures:',p);
-          else for (name of vertices.values()) {
+          if (sorted.length < 1) o.log('Something went wrong trying to fix the angle lengths. Wound up with angle sum of '+apparentSum+' out of '+desiredSum+'. With angle measures:',p);
+          else for (name of vertices) {
             o.desmos.setExpression({id:'m_'+name,label:''+(p[name]/Math.pow(10,prec))+'°'});
             vars.upToDate = true;
           }
+
+          o.log('Corrected angles:',Object.assign({},p));
+
           return;
          }
 
@@ -782,10 +790,10 @@ PearsonGL.External.rootJS = (function() {
           return;
         }
 
-        if (vars.upToDate === undefined) o.log('Labeling angles of '+vars.polygonName+' to '+prec+' decimal places.');
+        if (vars.upToDate !== true) o.log('Labeling angles of '+vars.polygonName+' to '+prec+' decimal places.');
 
-        var prev = vertices[(vertices.indexOf[v]+vertices.length-1)%vertices.length];
-        var next = vertices[(vertices.indexOf[v]+1)%vertices.length];
+        var prev = vertices[(vertices.indexOf(v)+vertices.length-1)%vertices.length];
+        var next = vertices[(vertices.indexOf(v)+1)%vertices.length];
 
         var prevVal = Math.round(measure(prev));
         var val = Math.round(measure(v));
@@ -793,7 +801,7 @@ PearsonGL.External.rootJS = (function() {
         
         if (isNaN(prevVal) || isNaN(nextVal) || isNaN(val)) {
           o.log('Angles of vertices '+prev+', '+v+', and '+next+' not all defined. Refreshing polygon '+vars.polygonName+' in '+cs.delay.SET_EXPRESSION+'ms');
-          setTimeout(function(){hs.labelPolyAngles(o,true,prec);},cs.delay.SET_EXPRESSION);
+          setTimeout(function(){fs.shared.label.labelPolyAngles(o,true,prec);},cs.delay.SET_EXPRESSION*300);
           return;
         }
 
@@ -811,7 +819,9 @@ PearsonGL.External.rootJS = (function() {
 
           var errors = [prevError,thisError,nextError];
 
-          var pos = errors.indexOf(Math.max(errors));
+          var pos = errors.indexOf(Math.max.apply(null,errors));
+
+          o.log('Angle sum '+apparentSum+'° too large for expected sum of '+expectedSum+'°; decreasing '+[prev,v,next][pos]+' from '+[prevVal,val,nextVal][pos]+'.');
 
           if (pos == 0) prevVal--;
           else if (pos == 1) val--;
@@ -826,7 +836,9 @@ PearsonGL.External.rootJS = (function() {
 
           var errors = [prevError,thisError,nextError];
 
-          var pos = errors.indexOf(Math.min(errors));
+          var pos = errors.indexOf(Math.min.apply(null,errors));
+
+          o.log('Angle sum '+apparentSum+'° too small for expected sum of '+expectedSum+'°; increasing '+[prev,v,next][pos]+' from '+[prevVal,val,nextVal][pos]+'.');
 
           if (pos == 0) prevVal++;
           else if (pos == 1) val++;
@@ -1705,7 +1717,8 @@ PearsonGL.External.rootJS = (function() {
         DRAG_BUFFER_REBOUND:0.1, // How much to bounce back when going past the buffer
         SEGMENT_TEMPLATE:'\\left(x_U\\left(1-t\\right)+x_Vt,y_U\\left(1-t\\right)+y_Vt\\right)',
         MEASURE_TEMPLATE:'m_U=\\theta _{LVL}\\left(W,U,Z\\right)',
-        HIDDEN_COLOR:'#FFFFFF', // white is close enough to hidden
+        LABEL_TEMPLATE:'W_{label}=P_{xyrt}\\left(xU,yU,\\frac{3}{2}t_{ick},\\theta _{xy}\\left(xZ-xU,yZ-yU\\right)-\\frac{\\theta _{LVL}\\left(S,W,Q\\right)}{2}\\right)',
+        HIDDEN_COLOR:'#000000', // white is close enough to hidden
         VERTEX_COLOR:'#000000'
        };
      fs.A0597630 = {
@@ -1736,11 +1749,11 @@ PearsonGL.External.rootJS = (function() {
           o.log('n not yet initialized; delaying initialization by '+cs.delay.SET_EXPRESSION+'ms');
           setTimeout(function(){fs.A0597630.init(o);},cs.delay.SET_EXPRESSION);
           return;
-         } else vars.n = hfs.n.numericValue;
+         } else var n = vars.n = hfs.n.numericValue;
 
          for(let i=1;i<=cons.MAX_VERTICES;i++) {
           if (i >= 3) for(var j=1;j<=i;j++) {
-            if (i == vars.n) {
+            if (i == n) {
               if (vars['x_'+j].numericValue === undefined || vars['y_'+j].numericValue === undefined) {
                 o.log('Vertex '+hs.ALPHA[j]+' not yet initialized; delaying initialization by '+cs.delay.SET_EXPRESSION+'ms')
                 setTimeout(function(){fs.A0597630.init(o);},cs.delay.SET_EXPRESSION);
@@ -1759,14 +1772,16 @@ PearsonGL.External.rootJS = (function() {
 
         // Initialize angles and set observers
          vars.polygonName = 'polygonABC';
-         vars.polygonABC = {A:0,B:0,C:0};
+         vars.polygonABC_angles = {A:60,B:60,C:60};
          for(let i=1;i<=cons.MAX_VERTICES;i++) {
           // Set up polygon angle values for the polygon terminating in this vertex
           if (i > 3) {
-            var newPoly = Object.assign({},vars[vars.polygonName]);
+            var newPoly = Object.assign({},vars[vars.polygonName+'_angles']);
             newPoly[hs.ALPHA[i]]=0;
             vars.polygonName+=hs.ALPHA[i];
-            vars[vars.polygonName] = newPoly;
+            vars[vars.polygonName+'_angles'] = newPoly;
+            vars[vars.polygonName+'_vertices'] = vars[i];
+            o.log('Initializing '+vars.polygonName+' with angles:',vars[vars.polygonName+'_angles']);
           }
           // Set up observers for when the user drags a point
           hfs["x_"+i] = function(){fs.A0597630.coordinateChanged({
@@ -1787,7 +1802,21 @@ PearsonGL.External.rootJS = (function() {
           vars['y_'+i].observe('numericValue.correction',hfs['y_'+i]);
           o.log('Vertex '+hs.ALPHA[i]+' initialized at ('+vars['x_'+i].numericValue+', '+vars['y_'+i].numericValue+')');
          };
-         vars.polygonName = vars.polygonName.slice(0,7+vars.n);
+         vars.polygonName = vars.polygonName.slice(0,7+n);
+
+         for (var i = 1; i <= n; i++) {
+          var asquared = Math.pow(vars[n]['x_'+((i+n-2)%n+1)]-vars[n]['x_'+i],2)+Math.pow(vars[n]['y_'+((i+n-2)%n+1)]-vars[n]['y_'+i],2);
+          var bsquared = Math.pow(vars[n]['x_'+(i%n+1)]-vars[n]['x_'+i],2)+Math.pow(vars[n]['y_'+(i%n+1)]-vars[n]['y_'+i],2);
+          var csquared = Math.pow(vars[n]['x_'+((i+n-2)%n+1)]-vars[n]['x_'+(i%n+1)],2)+Math.pow(vars[n]['y_'+((i+n-2)%n+1)]-vars[n]['y_'+(i%n+1)],2);
+          vars['P_'+hs.ALPHA[i]] = 180*Math.acos((asquared+bsquared-csquared)/(2*Math.sqrt(asquared*bsquared)))/Math.PI;
+         };
+
+         fs.shared.label.labelPolyAngles(o,true);
+
+        var expr = '';
+        for (var j = 1;j <= n;j++) expr+=(vars[vars.polygonName+'_angles'][hs.ALPHA[j]]+'+');
+        expr = expr.slice(0,expr.length-1);
+        o.desmos.setExpression({id:'sum',latex:expr});
 
         hfs.n.observe('numericValue.switchingPolygon',function(){
           fs.A0597630.switchPolygon({
@@ -1805,7 +1834,12 @@ PearsonGL.External.rootJS = (function() {
       
         o.log("Observers initialized:",vars);
 
-        hfs.correctionBuffer = window.setTimeout(function(){vars.belayCorrection = false;},cs.delay.LOAD);
+        hfs.correctionBuffer = window.setTimeout(function(){
+          // set up the initial angles
+          fs.shared.label.labelPolyAngles(o,true);
+
+          vars.belayCorrection = false;
+        },cs.delay.LOAD);
        },
       /* ←— setPlaceholder ——————————————————————————————————————————————————→ *\
        | Attaches all segments from a vertex to the placeholder vertex
@@ -1829,6 +1863,12 @@ PearsonGL.External.rootJS = (function() {
         // make the placeholder visible, and the dragged vertex invisible
         o.desmos.setExpression({id:'placeholder_vertex',hidden:false,showLabel:true,label:hs.ALPHA[i],dragMode:Desmos.DragModes.NONE});
         o.desmos.setExpression({id:'vertex_'+hs.ALPHA[i],showLabel:false,color:cons.HIDDEN_COLOR});
+
+        // Attach the angle label to the placeholder
+        o.desmos.setExpression({
+            id:'m_'+hs.ALPHA[i],
+            latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',0)).replace(/Z/g,hs.sub('',i%n+1)).replace(/W/g,'P').replace(/Q/g,hs.ALPHA[(i+n-2)%n+1]).replace(/S/g,hs.ALPHA[i%n+1]).replace(/P_{label/g,hs.ALPHA[i]+'_{label')
+        });
 
         // Attach the vertex to its edges and diagonals
         if (i == 1) {
@@ -1892,6 +1932,12 @@ PearsonGL.External.rootJS = (function() {
         // Move the place-held point to the placeholder
         o.desmos.setExpression({id:'x_'+i,latex:hs.sub('x',i)+'='+Math.round(vars[n]['x_'+i]*Math.pow(10,cs.precision.FLOAT_PRECISION))/Math.pow(10,cs.precision.FLOAT_PRECISION)});
         o.desmos.setExpression({id:'y_'+i,latex:hs.sub('y',i)+'='+Math.round(vars[n]['y_'+i]*Math.pow(10,cs.precision.FLOAT_PRECISION))/Math.pow(10,cs.precision.FLOAT_PRECISION)});
+
+        // Detach the angle label from the placeholder
+        o.desmos.setExpression({
+            id:'m_'+hs.ALPHA[i],
+            latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',i)).replace(/Z/g,hs.sub('',i%n+1)).replace(/W/g,hs.ALPHA[i]).replace(/Q/g,hs.ALPHA[(i+n-2)%n+1]).replace(/S/g,hs.ALPHA[i%n+1])
+        });
 
         hfs.correctionBuffer = window.setTimeout(function(){vars.belayCorrection = false;},cs.delay.SET_EXPRESSION);
 
@@ -1987,9 +2033,6 @@ PearsonGL.External.rootJS = (function() {
             let line = vars.dragBoundaries[id];
             o.desmos.setExpression({id:'boundary'+id,latex:'b_'+id+'\\left(x,y\\right)='+line.a+'x+'+line.b+'y+'+line.c});
           }
-
-          // Note: in previous versions, bound instead to keep the polygon convex.
-          //  This meant binding by line(i-1,i+1), line(i-1,i-2), and line(i+2,i+1).
         };
 
         var constrained = hs.polygonConstrain(newPoint,vars.dragBoundaries);
@@ -1999,18 +2042,23 @@ PearsonGL.External.rootJS = (function() {
           vars[n]['y_'+i] = constrained.y;
         }
 
+        for (var j of [(i+n-2)%n+1,i,i%n+1]) {
+          var asquared = Math.pow(vars[n]['x_'+((j+n-2)%n+1)]-vars[n]['x_'+j],2)+Math.pow(vars[n]['y_'+((j+n-2)%n+1)]-vars[n]['y_'+j],2);
+          var bsquared = Math.pow(vars[n]['x_'+(j%n+1)]-vars[n]['x_'+j],2)+Math.pow(vars[n]['y_'+(j%n+1)]-vars[n]['y_'+j],2);
+          var csquared = Math.pow(vars[n]['x_'+((j+n-2)%n+1)]-vars[n]['x_'+(j%n+1)],2)+Math.pow(vars[n]['y_'+((j+n-2)%n+1)]-vars[n]['y_'+(j%n+1)],2);
+          vars['P_'+hs.ALPHA[j]] = 180*Math.acos((asquared+bsquared-csquared)/(2*Math.sqrt(asquared*bsquared)))/Math.PI;
+        }
+
+        fs.shared.label.labelPolyAngles(Object.assign({},o,{name:'m_'+hs.ALPHA[i],value:vars['P_'+hs.ALPHA[i]]}));
+
+        var expr = '';
+        for (var j = 1;j <= n;j++) expr+=(vars[vars.polygonName+'_angles'][hs.ALPHA[j]]+'+');
+        expr = expr.slice(0,expr.length-1);
+        o.desmos.setExpression({id:'sum',latex:expr});
+
         if (constrained == newPoint) {
           fs.A0597630.clearPlaceholder(o);
         } else {
-          /** o.log('Correcting ('+
-            Math.round(Math.pow(10,cs.debug.COORDINATE_DECIMALS)*newPoint.x)/Math.pow(10,cs.debug.COORDINATE_DECIMALS)
-            +','+
-            Math.round(Math.pow(10,cs.debug.COORDINATE_DECIMALS)*newPoint.y)/Math.pow(10,cs.debug.COORDINATE_DECIMALS)
-            +') to ('+
-            Math.round(Math.pow(10,cs.debug.COORDINATE_DECIMALS)*constrained.x)/Math.pow(10,cs.debug.COORDINATE_DECIMALS)
-            +','+
-            Math.round(Math.pow(10,cs.debug.COORDINATE_DECIMALS)*constrained.y)/Math.pow(10,cs.debug.COORDINATE_DECIMALS)
-            +')'); **/
           fs.A0597630.setPlaceholder(o,i);
         };
        },
@@ -2030,28 +2078,13 @@ PearsonGL.External.rootJS = (function() {
 
         let prevn = vars.n;
         var n = vars.n = o.value;
+        vars.polygonName = 'polygonABCDEFGHIJKLMNOPQRSTUVWXYZ'.slice(0,7+n);
 
         o.log("Changing from "+prevn+" sides to "+n+" sides");
 
         var exprs = [];
 
         // Move terminal vertex
-         exprs.push({
-          id:'measure'+hs.ALPHA[prevn],
-          latex:cons.MEASURE_TEMPLATE.replace(/U/g,hs.ALPHA[prevn]).replace(/W/g,hs.ALPHA[prevn-1]).replace(/Z/g,hs.ALPHA[prevn%cons.MAX_VERTICES+1])
-         });
-         exprs.push({
-          id:'measureA',
-          latex:cons.MEASURE_TEMPLATE.replace(/U/g,'A').replace(/W/g,hs.ALPHA[n]).replace(/Z/g,'B')
-         });
-         exprs.push({
-          id:'measure'+hs.ALPHA[n],
-          latex:cons.MEASURE_TEMPLATE.replace(/U/g,hs.ALPHA[n]).replace(/W/g,hs.ALPHA[n-1]).replace(/Z/g,'A')
-         });
-         exprs.push({
-          id:'segment_'+hs.ALPHA[n]+'A',
-          hidden:false,
-         });
          exprs.push({
           id:'segment_'+hs.ALPHA[prevn]+'A',
           hidden:true,
@@ -2076,19 +2109,20 @@ PearsonGL.External.rootJS = (function() {
          };
 
         // Add new vertices
-         for (var i = 3; i < n; i++) {
+         for (var i = 3; i <= n; i++) {
           exprs.push({
-            id:'vertex_'+hs.ALPHA[i+1],
+            id:'vertex_'+hs.ALPHA[i%n+1],
             hidden:false,
             showLabel:true
           });
           exprs.push({
-            id:'segment_'+hs.ALPHA[i]+hs.ALPHA[i+1],
+            id:'segment_'+hs.ALPHA[i]+hs.ALPHA[i%n+1],
             hidden:false,
           });
           exprs.push({
             id:'m_'+hs.ALPHA[i],
-            showLabel:true
+            showLabel:true,
+            latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',i)).replace(/Z/g,hs.sub('',i%n+1)).replace(/W/g,hs.ALPHA[i]).replace(/Q/g,hs.ALPHA[(i+n-2)%n+1]).replace(/S/g,hs.ALPHA[i%n+1])
           });
          };
 
@@ -2117,6 +2151,20 @@ PearsonGL.External.rootJS = (function() {
 
         o.desmos.setExpressions(exprs);
 
+        for (var i = 1; i <= n; i++) {
+          var asquared = Math.pow(vars[n]['x_'+((i+n-2)%n+1)]-vars[n]['x_'+i],2)+Math.pow(vars[n]['y_'+((i+n-2)%n+1)]-vars[n]['y_'+i],2);
+          var bsquared = Math.pow(vars[n]['x_'+(i%n+1)]-vars[n]['x_'+i],2)+Math.pow(vars[n]['y_'+(i%n+1)]-vars[n]['y_'+i],2);
+          var csquared = Math.pow(vars[n]['x_'+((i+n-2)%n+1)]-vars[n]['x_'+(i%n+1)],2)+Math.pow(vars[n]['y_'+((i+n-2)%n+1)]-vars[n]['y_'+(i%n+1)],2);
+          vars['P_'+hs.ALPHA[i]] = 180*Math.acos((asquared+bsquared-csquared)/(2*Math.sqrt(asquared*bsquared)))/Math.PI;
+        };
+
+        fs.shared.label.labelPolyAngles(o,true);
+
+        var expr = '';
+        for (var j = 1;j <= n;j++) expr+=(vars[vars.polygonName+'_angles'][hs.ALPHA[j]]+'+');
+        expr = expr.slice(0,expr.length-1);
+        o.desmos.setExpression({id:'sum',latex:expr});
+
         exprs = [];
 
         // Update coordinates
@@ -2142,7 +2190,6 @@ PearsonGL.External.rootJS = (function() {
 
         hfs.correctionBuffer = window.setTimeout(function(){
           vars.belayCorrection = false;
- //         fs.A0597630.updateLabels(o,true);
         },cs.delay.LOAD);
 
        }
