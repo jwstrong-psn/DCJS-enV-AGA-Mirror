@@ -153,8 +153,8 @@ PearsonGL.External.rootJS = (function() {
         expr = expr.replace(/,/g,', ');
         expr = expr.replace(/\^2/g,'²');
         expr = expr.replace(/\^3/g,'³');
-        expr = expr.replace(/\\theta /g,'θ');
-        expr = expr.replace(/\\pi /g,'π');
+        expr = expr.replace(/\\theta ?/g,'θ');
+        expr = expr.replace(/\\pi ?/g,'π');
         expr = expr.replace(/_0/g,'₀');
         expr = expr.replace(/_1/g,'₁');
         expr = expr.replace(/_2/g,'₂');
@@ -1266,7 +1266,7 @@ PearsonGL.External.rootJS = (function() {
         o.desmos.setExpressions(exprs);
 
 
-        // Backup: expr = '\\left(x_1+\\frac{O_x-x_1}{o_A}\\left(t\\max \\left(o_a,h_a,o_A\\right)+\\left\\{\\theta _A\\ge \\frac{\\pi }{2}:tt_{ick}-h_a,\\max \\left(\\theta _B,\\theta _C\\right)\\ge \\frac{\\pi }{2}:tt_{ick},0\\right\}\\right),y_1+\\frac{O_y-y_1}{o_A}\\left(t\\max \\left(o_a,h_a,o_A\\right)+\\left\\{\\theta _A\\ge \\frac{\\pi }{2}:tt_{ick}-h_a,\\max \\left(\\theta _B,\\theta _C\\right)\\ge \\frac{\\pi }{2}:tt_{ick},0\\right\\}\\right)\\right)'
+        // Backup: expr = '\\left(x_1+\\frac{O_x-x_1}{o_A}\\left(t\\max \\left(o_a,h_a,o_A\\right)+\\left\\{\\theta_A\\ge \\frac{\\pi}{2}:tt_{ick}-h_a,\\max \\left(\\theta_B,\\theta_C\\right)\\ge \\frac{\\pi}{2}:tt_{ick},0\\right\}\\right),y_1+\\frac{O_y-y_1}{o_A}\\left(t\\max \\left(o_a,h_a,o_A\\right)+\\left\\{\\theta_A\\ge \\frac{\\pi}{2}:tt_{ick}-h_a,\\max \\left(\\theta_B,\\theta_C\\right)\\ge \\frac{\\pi}{2}:tt_{ick},0\\right\\}\\right)\\right)'
        }
      };
 
@@ -1716,8 +1716,8 @@ PearsonGL.External.rootJS = (function() {
         DRAG_BUFFER:0.25,
         DRAG_BUFFER_REBOUND:0.1, // How much to bounce back when going past the buffer
         SEGMENT_TEMPLATE:'\\left(x_U\\left(1-t\\right)+x_Vt,y_U\\left(1-t\\right)+y_Vt\\right)',
-        MEASURE_TEMPLATE:'m_U=\\theta _{LVL}\\left(W,U,Z\\right)',
-        LABEL_TEMPLATE:'W_{label}=P_{xyrt}\\left(xU,yU,\\frac{3}{2}t_{ick},\\theta _{xy}\\left(xZ-xU,yZ-yU\\right)-\\frac{\\theta _{LVL}\\left(S,W,Q\\right)}{2}\\right)',
+        MEASURE_TEMPLATE:'m_U=\\theta_{LVL}\\left(W,U,Z\\right)',
+        LABEL_TEMPLATE:'W_{label}=P_{xyrt}\\left(xU,yU,\\frac{3}{2}t_{ick},\\theta_{xy}\\left(xZ-xU,yZ-yU\\right)-\\frac{\\theta_{LVL}\\left(S,W,Q\\right)}{2}\\right)',
         HIDDEN_COLOR:'#000000', // white is close enough to hidden
         VERTEX_COLOR:'#000000'
        };
@@ -2119,6 +2119,7 @@ PearsonGL.External.rootJS = (function() {
             id:'segment_'+hs.ALPHA[i]+hs.ALPHA[i%n+1],
             hidden:false,
           });
+          o.log(cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',i)).replace(/Z/g,hs.sub('',i%n+1)).replace(/W/g,hs.ALPHA[i]).replace(/Q/g,hs.ALPHA[(i+n-2)%n+1]).replace(/S/g,hs.ALPHA[i%n+1]));
           exprs.push({
             id:'m_'+hs.ALPHA[i],
             showLabel:true,
