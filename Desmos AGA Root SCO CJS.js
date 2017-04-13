@@ -732,7 +732,7 @@ PearsonGL.External.rootJS = (function() {
             // Delay if the value hasn't been reported yet.
             if (measure(name) === undefined || isNaN(measure(name))) {
               o.log('Angles of '+vars.polygonName+' not all defined. Delaying full refresh by '+cs.delay.SET_EXPRESSION+'ms');
-              setTimeout(function(){fs.shared.label.labelPolyAngles(o,true,prec);},cs.delay.LOAD);
+              setTimeout(function(){fs.shared.label.labelPolyAngles(o,Object.assign({},ps,{refreshAll:true}),prec);},cs.delay.LOAD);
               return;
             }
 
@@ -777,7 +777,7 @@ PearsonGL.External.rootJS = (function() {
           }
           if (sorted.length < 1) o.log('Something went wrong trying to fix the angle lengths. Wound up with angle sum of '+apparentSum+' out of '+desiredSum+'. With angle measures:',p);
           else for (name of vertices) {
-            o.desmos.setExpression({id:'m_'+name,label:''+(((ps.exterior)?90*Math.pow(10,prec)-p[name]:p[name])/Math.pow(10,prec))+'°'});
+            o.desmos.setExpression({id:'m_'+name,label:''+(((ps.exterior)?180*Math.pow(10,prec)-p[name]:p[name])/Math.pow(10,prec))+'°'});
             vars.upToDate = true;
           }
 
@@ -802,7 +802,7 @@ PearsonGL.External.rootJS = (function() {
         
         if (isNaN(prevVal) || isNaN(nextVal) || isNaN(val)) {
           o.log('Angles of vertices '+prev+', '+v+', and '+next+' not all defined. Refreshing polygon '+vars.polygonName+' in '+cs.delay.SET_EXPRESSION+'ms');
-          setTimeout(function(){fs.shared.label.labelPolyAngles(o,true,prec);},cs.delay.SET_EXPRESSION*300);
+          setTimeout(function(){fs.shared.label.labelPolyAngles(o,Object.assign({},ps,{refreshAll:true}),prec);},cs.delay.SET_EXPRESSION*300);
           return;
         }
 
@@ -848,9 +848,9 @@ PearsonGL.External.rootJS = (function() {
           apparentSum++;
         }
 
-        p[prev] = ((ps.exterior)?Math.round(90*Math.pow(10,prec)-prevVal):prevVal);
-        p[v] = ((ps.exterior)?Math.round(90*Math.pow(10,prec)-val):val);
-        p[next] = ((ps.exterior)?Math.round(90*Math.pow(10,prec)-nextVal):nextVal);
+        p[prev] = ((ps.exterior)?Math.round(180*Math.pow(10,prec)-prevVal):prevVal);
+        p[v] = ((ps.exterior)?Math.round(180*Math.pow(10,prec)-val):val);
+        p[next] = ((ps.exterior)?Math.round(180*Math.pow(10,prec)-nextVal):nextVal);
         o.desmos.setExpression({id:'m_'+prev,label:((prevVal/Math.pow(10,prec))+'°')});
         o.desmos.setExpression({id:'m_'+v,label:((val/Math.pow(10,prec))+'°')});
         o.desmos.setExpression({id:'m_'+next,label:((nextVal/Math.pow(10,prec))+'°')});
