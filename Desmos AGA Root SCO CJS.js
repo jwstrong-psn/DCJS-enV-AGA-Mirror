@@ -848,12 +848,12 @@ PearsonGL.External.rootJS = (function() {
           apparentSum++;
         }
 
-        p[prev] = ((ps.exterior)?Math.round(180*Math.pow(10,prec)-prevVal):prevVal);
-        p[v] = ((ps.exterior)?Math.round(180*Math.pow(10,prec)-val):val);
-        p[next] = ((ps.exterior)?Math.round(180*Math.pow(10,prec)-nextVal):nextVal);
-        o.desmos.setExpression({id:'m_'+prev,label:((prevVal/Math.pow(10,prec))+'°')});
-        o.desmos.setExpression({id:'m_'+v,label:((val/Math.pow(10,prec))+'°')});
-        o.desmos.setExpression({id:'m_'+next,label:((nextVal/Math.pow(10,prec))+'°')});
+        p[prev] = prevVal;
+        p[v] = val;
+        p[next] = nextVal;
+        o.desmos.setExpression({id:'m_'+prev,label:((((ps.exterior)?Math.round(180*Math.pow(10,prec)-prevVal):prevVal)/Math.pow(10,prec))+'°')});
+        o.desmos.setExpression({id:'m_'+v,label:((((ps.exterior)?Math.round(180*Math.pow(10,prec)-val):val)/Math.pow(10,prec))+'°')});
+        o.desmos.setExpression({id:'m_'+next,label:((((ps.exterior)?Math.round(180*Math.pow(10,prec)-nextVal):nextVal)/Math.pow(10,prec))+'°')});
         vars.upToDate = true;
 
        }
