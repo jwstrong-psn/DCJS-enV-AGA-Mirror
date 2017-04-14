@@ -229,6 +229,16 @@ PearsonGL.External.masterJS = (function() {
   ts.A0596385_drawExtensions = function(val, name, desmos) {
     return PearsonGL.External.rootJS.A0596385_drawExtensions({'value':val,'name':name,'desmos':desmos,'log':console.log});
   }
+
+  //* functions for test purposes only
+  ts.A0597724_init = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.A0597724_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
+  }
+
+  //* functions for test purposes only
+  ts.A0597724_dragging = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.A0597724_dragging({'value':val,'name':name,'desmos':desmos,'log':console.log});
+  }
   
   Object.assign(exports,flattenFuncStruct(ts));
 
