@@ -1712,7 +1712,7 @@ PearsonGL.External.rootJS = (function() {
     /* ←— A0597630 FUNCTIONS ——————————————————————————————————————————————→ */
       cs.A0597630 = {
         MAX_VERTICES:14,
-        RADIUS:10,
+        RADIUS:4,
         INITIAL_COORDINATES_PRECISION:6,
         DRAG_BUFFER:0.25,
         DRAG_BUFFER_REBOUND:0.1, // How much to bounce back when going past the buffer
@@ -2073,6 +2073,7 @@ PearsonGL.External.rootJS = (function() {
         for (var j = 1;j <= n;j++) expr+=(vars[vars.polygonName+'_angles'][hs.ALPHA[j]]+'+');
         expr = expr.slice(0,expr.length-1);
         o.desmos.setExpression({id:'sum',latex:expr});
+        o.desmos.setExpression({id:'product',latex:'180\\left('+n+'-2\\right)'});
 
         if (constrained == newPoint) {
           fs.A0597630.clearPlaceholder(o);
