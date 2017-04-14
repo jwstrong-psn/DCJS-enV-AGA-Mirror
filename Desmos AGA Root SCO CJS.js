@@ -1193,6 +1193,64 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
+    /* ←— A0597724 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0597724 = {
+      /* ←— init ——————————————————————————————————————————————————————→ *\
+       | Prepares the widget to listen to user input
+       * ←—————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        let o = hs.parseOptions(options);
+        let vars = vs[o.uniqueId] = {
+          x_1:8,
+          y_1:4,
+          x_2:-2,
+          y_2:4,
+          dragging:0
+        };
+        vars.d1 = o.desmos.HelperExpression({latex:'d_1'});
+        vars.d2 = o.desmos.HelperExpression({latex:'d_2'});
+
+        function startDragging(){
+          vars.dragging = -1;
+        }
+
+        function stopDragging(){
+          if (vars.dragging > 0) o.desmos.setExpressions([
+            {id:'x_1',latex:'x_1='+vars['x_1']},
+            {id:'y_1',latex:'y_1='+vars['y_1']},
+            {id:'x_2',latex:'x_2='+vars['x_2']},
+            {id:'y_2',latex:'y_2='+vars['y_2']}
+          ]);
+          vars.dragging = 0;
+        }
+
+        // prepare to clear placeholders
+        setTimeout(function(){
+          document.addEventListener('mousedown',startDragging);
+          document.addEventListener('touchstart',startDragging);
+          document.addEventListener('mouseup',stopDragging);
+          document.addEventListener('touchend',stopDragging);
+        },cs.delay.LOAD);
+       },
+      /* ←— dragging ——————————————————————————————————————————————————————→ *\
+       | Fixes the diagonal not being dragged to rotate, but not scale, with
+       | the dragged point.
+       * ←—————————————————————————————————————————————————————————————————→ */
+       dragging: function(options={}){
+        var o = hs.parseOptions(options);
+        var vars = vs[o.uniqueId];
+
+        vars[o.name] = o.value;
+
+        if (vars.dragging > -1) return;
+
+        vars.dragging = o.name[o.name.length-1];
+
+        o.desmos.setExpression({id:'x_'+(3-vars.dragging),latex:'x_'+(3-vars.dragging)+'='+vars['d'+(3-vars.dragging)].numericValue+'\\frac{'+((vars.dragging == 1)?'':'-')+'y_'+vars.dragging+'}{d_'+vars.dragging+'}'});
+        o.desmos.setExpression({id:'y_'+(3-vars.dragging),latex:'y_'+(3-vars.dragging)+'='+vars['d'+(3-vars.dragging)].numericValue+'\\frac{'+((vars.dragging == 1)?'-':'')+'x_'+vars.dragging+'}{d_'+vars.dragging+'}'});
+       }
+     };
+
     /* ←— A0597631 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597631 = {
       /* ←— equation ——————————————————————————————————————————————————————→ *\
