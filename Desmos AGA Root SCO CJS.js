@@ -48,7 +48,7 @@ PearsonGL.External.rootJS = (function() {
        * ←—————————————————————————————————————————————————————————————————→ */
        parseOptions: function(options={}) {
         var desmos = options['desmos'] || window['calculator'] || window['Calc'];
-        return Object.assign({
+        return Object.assign({},options,{
           desmos:desmos,
           name:((options['name'] === undefined) ? '' : options['name']),
           value:((options['value'] === undefined) ? NaN : options['value']),
