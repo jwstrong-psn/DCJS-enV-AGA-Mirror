@@ -1812,12 +1812,13 @@ PearsonGL.External.rootJS = (function() {
           vars['P_'+hs.ALPHA[i]] = 180*Math.acos((asquared+bsquared-csquared)/(2*Math.sqrt(asquared*bsquared)))/Math.PI;
          };
 
-         fs.shared.label.labelPolyAngles(o,true);
+         fs.shared.label.labelPolyAngles(o,{refreshAll:true});
 
         var expr = '';
         for (var j = 1;j <= n;j++) expr+=(vars[vars.polygonName+'_angles'][hs.ALPHA[j]]+'+');
         expr = expr.slice(0,expr.length-1);
         o.desmos.setExpression({id:'sum',latex:expr});
+        o.desmos.setExpression({id:'product',latex:'180\\left('+n+'-2\\right)'});
 
         hfs.n.observe('numericValue.switchingPolygon',function(){
           fs.A0597630.switchPolygon({
@@ -1837,7 +1838,7 @@ PearsonGL.External.rootJS = (function() {
 
         hfs.correctionBuffer = window.setTimeout(function(){
           // set up the initial angles
-          fs.shared.label.labelPolyAngles(o,true);
+          fs.shared.label.labelPolyAngles(o,{refreshAll:true});
 
           vars.belayCorrection = false;
         },cs.delay.LOAD);
@@ -1867,8 +1868,16 @@ PearsonGL.External.rootJS = (function() {
 
         // Attach the angle label to the placeholder
         o.desmos.setExpression({
-            id:'m_'+hs.ALPHA[i],
-            latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',0)).replace(/Z/g,hs.sub('',i%n+1)).replace(/W/g,'P').replace(/Q/g,hs.ALPHA[(i+n-2)%n+1]).replace(/S/g,hs.ALPHA[i%n+1]).replace(/P_{label/g,hs.ALPHA[i]+'_{label')
+          id:'m_'+hs.ALPHA[i],
+          latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',0)).replace(/Z/g,hs.sub('',i%n+1)).replace(/W/g,'P').replace(/Q/g,hs.ALPHA[(i+n-2)%n+1]).replace(/S/g,hs.ALPHA[i%n+1]).replace(/P_{label/g,hs.ALPHA[i]+'_{label')
+        });
+        o.desmos.setExpression({
+          id:'m_'+hs.ALPHA[(i+n-2)%n+1],
+          latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',((i+n-2)%n+1))).replace(/Z/g,hs.sub('',0)).replace(/W/g,hs.ALPHA[(i+n-2)%n+1]).replace(/Q/g,'P').replace(/S/g,hs.ALPHA[(i+n-3)%n+1]).replace(/P_{label/g,hs.ALPHA[(i+n-2)%n+1]+'_{label')
+        });
+        o.desmos.setExpression({
+          id:'m_'+hs.ALPHA[i%n+1],
+          latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',i%n+1)).replace(/Z/g,hs.sub('',(i+1)%n+1)).replace(/W/g,hs.ALPHA[i%n+1]).replace(/Q/g,hs.ALPHA[(i+1)%n+1]).replace(/S/g,'P').replace(/P_{label/g,hs.ALPHA[i%n+1]+'_{label')
         });
 
         // Attach the vertex to its edges and diagonals
@@ -1938,6 +1947,14 @@ PearsonGL.External.rootJS = (function() {
         o.desmos.setExpression({
             id:'m_'+hs.ALPHA[i],
             latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',i)).replace(/Z/g,hs.sub('',i%n+1)).replace(/W/g,hs.ALPHA[i]).replace(/Q/g,hs.ALPHA[(i+n-2)%n+1]).replace(/S/g,hs.ALPHA[i%n+1])
+        });
+        o.desmos.setExpression({
+          id:'m_'+hs.ALPHA[(i+n-2)%n+1],
+          latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',((i+n-2)%n+1))).replace(/Z/g,hs.sub('',i)).replace(/W/g,hs.ALPHA[(i+n-2)%n+1]).replace(/Q/g,hs.ALPHA[i]).replace(/S/g,hs.ALPHA[(i+n-3)%n+1]).replace(/P_{label/g,hs.ALPHA[(i+n-2)%n+1]+'_{label')
+        });
+        o.desmos.setExpression({
+          id:'m_'+hs.ALPHA[i%n+1],
+          latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',i%n+1)).replace(/Z/g,hs.sub('',(i+1)%n+1)).replace(/W/g,hs.ALPHA[i%n+1]).replace(/Q/g,hs.ALPHA[(i+1)%n+1]).replace(/S/g,hs.ALPHA[i]).replace(/P_{label/g,hs.ALPHA[i%n+1]+'_{label')
         });
 
         hfs.correctionBuffer = window.setTimeout(function(){vars.belayCorrection = false;},cs.delay.SET_EXPRESSION);
