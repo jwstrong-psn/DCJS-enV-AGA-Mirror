@@ -48,13 +48,32 @@ PearsonGL.External.rootJS = (function() {
        * ←—————————————————————————————————————————————————————————————————→ */
        parseOptions: function(options={}) {
         var desmos = options['desmos'] || window['calculator'] || window['Calc'];
-        return Object.assign({},options,{
+        var output = Object.assign({},options,{
           desmos:desmos,
           name:((options['name'] === undefined) ? '' : options['name']),
           value:((options['value'] === undefined) ? NaN : options['value']),
           uniqueId:options['uniqueId'] || ((desmos === undefined) ? 'undefinedId' : desmos['guid']),
           log:options['log'] || function(){}
-        })
+        });
+        if (window.widget === undefined && output.log === console.log) {
+          window.widget = output.desmos;
+          window.reportDesmosError = function() {
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify({
+                id: output.uniqueId,
+                state: output.desmos.getState(),
+                variables: vs[output.uniqueId],
+                helpers: hs[output.uniqueId],
+                screenshot: output.desmos.screenshot()
+              },null,"\t")));
+            element.setAttribute('download', 'Widget Error Report '+((new Date()).toISOString())+'.json');
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+          };
+        };
+        return output;
        },
       /* ←— updateExpForm —————————————————————————————————————————————————————→ *\
        ↑ Create a LaTeX expression for an exponential function, given parameters
