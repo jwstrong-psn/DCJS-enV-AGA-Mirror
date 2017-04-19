@@ -1,4 +1,4 @@
-var xs = { // Commonly useful Desmos expressions (in LaTeX string form)
+window.xs = { // Commonly useful Desmos expressions (in LaTeX string form)
   /* — pointAlongArc ————————————————————————————————————————————————→ *\
    | pointAlongArc: For drawing points by polar reference from a point.
    |
@@ -20,7 +20,7 @@ var xs = { // Commonly useful Desmos expressions (in LaTeX string form)
    | #TIP: Multiply t by an animation slider to animate the drawing of the arc.
    | #TIP: Use P_onArc(x,y,x+1,y,r,0,1,theta) to draw vector <r,theta> from (x,y)
    * ←—————————————————————————————————————————————————————————————————→ */
-   pointAlongArc:{id:'pointAlongArc',latex:'P_{onArc}\\left(x,y,x_{functionArg},y_{functionArg},r_{functionArg},\\theta,\\theta_{functionArg},t_{functionArg}\\right)=\\left(x+r_{functionArg}\\cos \\left(\\theta_{xy}\\left(x_{functionArg}-x,y_{functionArg}-y\\right)+\\theta\\left(1-t_{functionArg}\\right)+\\theta_{functionArg}t_{functionArg}\\right),y+r_{functionArg}\\sin \\left(\\theta_{xy}\\left(x_{functionArg}-x,y_{functionArg}-y\\right)+\\theta\\left(1-t_{functionArg}\\right)+\\theta_{functionArg}t_{functionArg}\\right)\\right)',hidden:true},
+   pointAlongArc:[{"id":"pointAlongArc","latex":"P_{onArc}\\left(x,y,x_{functionArg},y_{functionArg},r_{functionArg},\\theta,\\theta_{functionArg},t_{functionArg}\\right)=\\left(x+r_{functionArg}\\cos \\left(\\theta_{xy}\\left(x_{functionArg}-x,y_{functionArg}-y\\right)+\\theta\\left(1-t_{functionArg}\\right)+\\theta_{functionArg}t_{functionArg}\\right),y+r_{functionArg}\\sin \\left(\\theta_{xy}\\left(x_{functionArg}-x,y_{functionArg}-y\\right)+\\theta\\left(1-t_{functionArg}\\right)+\\theta_{functionArg}t_{functionArg}\\right)\\right)","hidden":"true"}],
   /* — tick —————————————————————————————————————————————————————————→ *\
    | tick: measurement of tick size in units (based on 18px standard)
    |
@@ -29,7 +29,7 @@ var xs = { // Commonly useful Desmos expressions (in LaTeX string form)
    |
    | Used for extending auxiliary lines and arcs, and drawing congruence markers
    * ←—————————————————————————————————————————————————————————————————→ */
-   tick:"{id:'tick',latex:'t_{ick}=18x_{pxScale}',hidden:true},{id:'x_pxScale',latex:'x_{pxScale}'},{id:'y_pxScale',latex:'y_{pxScale}'}",
+   tick:[{"id":"tick","latex":"t_{ick}=18x_{pxScale}","hidden":"true"},{"id":"x_pxScale","latex":"x_{pxScale}"},{"id":"y_pxScale","latex":"y_{pxScale}"}],
   /* — cong —————————————————————————————————————————————————————————→ *\
    | cong: draws a congruence tick mark
    |
@@ -41,7 +41,7 @@ var xs = { // Commonly useful Desmos expressions (in LaTeX string form)
    |  numTicks is the number of congruence markes for the segment.
    |  t is a parameter, -1<=t<=1 draws the tick
    * ←—————————————————————————————————————————————————————————————————→ */
-   cong:{id:'cong',latex:'c_{ong}\\left(x,y,x_{functionArg},y_{functionArg},\\theta ,t_{functionArg}\\right)=\\left(\\frac{x+x_{functionArg}}{2}+\\frac{x_{functionArg}-x}{\\operatorname{distance}\\left(\\left(x,y\\right),\\left(x_{functionArg},y_{functionArg}\\right)\\right)}\\cdot \\frac{t_{ick}}{3}\\cdot \\left[-\\frac{\\theta -1}{2}...\\frac{\\theta -1}{2}\\right]+\\frac{y_{functionArg}-y}{\\operatorname{distance}\\left(\\left(x,y\\right),\\left(x_{functionArg},y_{functionArg}\\right)\\right)}\\cdot t_{functionArg}\\cdot \\frac{t_{ick}}{2},\\frac{y+y_{functionArg}}{2}+\\frac{y_{functionArg}-y}{\\operatorname{distance}\\left(\\left(x,y\\right),\\left(x_{functionArg},y_{functionArg}\\right)\\right)}\\frac{t_{ick}}{3}\\cdot \\left[-\\frac{\\theta -1}{2}...\\frac{\\theta -1}{2}\\right]+\\frac{x-x_{functionArg}}{\\operatorname{distance}\\left(\\left(x,y\\right),\\left(x_{functionArg},y_{functionArg}\\right)\\right)}\\cdot \\frac{t_{functionArg}t_{ick}}{2}\\right)',hidden:true},
+   cong:[{"id":"cong","latex":"c_{ong}\\left(x,y,x_{functionArg},y_{functionArg},\\theta ,t_{functionArg}\\right)=\\left(\\frac{x+x_{functionArg}}{2}+\\frac{x_{functionArg}-x}{\\operatorname{distance}\\left(\\left(x,y\\right),\\left(x_{functionArg},y_{functionArg}\\right)\\right)}\\cdot \\frac{t_{ick}}{3}\\cdot \\left[-\\frac{\\theta -1}{2}...\\frac{\\theta -1}{2}\\right]+\\frac{y_{functionArg}-y}{\\operatorname{distance}\\left(\\left(x,y\\right),\\left(x_{functionArg},y_{functionArg}\\right)\\right)}\\cdot t_{functionArg}\\cdot \\frac{t_{ick}}{2},\\frac{y+y_{functionArg}}{2}+\\frac{y_{functionArg}-y}{\\operatorname{distance}\\left(\\left(x,y\\right),\\left(x_{functionArg},y_{functionArg}\\right)\\right)}\\frac{t_{ick}}{3}\\cdot \\left[-\\frac{\\theta -1}{2}...\\frac{\\theta -1}{2}\\right]+\\frac{x-x_{functionArg}}{\\operatorname{distance}\\left(\\left(x,y\\right),\\left(x_{functionArg},y_{functionArg}\\right)\\right)}\\cdot \\frac{t_{functionArg}t_{ick}}{2}\\right)","hidden":"true"}],
   /* — parall —————————————————————————————————————————————————————————→ *\
    | parall: draws a parallel arrow marker
    |
@@ -52,9 +52,9 @@ var xs = { // Commonly useful Desmos expressions (in LaTeX string form)
    |  (x1,y1) and (x2,y2) are endpoints of the segment.
    |  numTicks is the number of congruence markes for the segment.
    |  t is a parameter, -1<=t<=1 draws the tick
-   |  angle is the angle the arrow's sides should make with the line (recommend 15°)
+   |  angle is the angle the arrow"s sides should make with the line (recommend 15°)
    * ←—————————————————————————————————————————————————————————————————→ */
-   parall:{id:'parall',latex:'p_{arall}\\left(x,y,x_{functionArg},y_{functionArg},\\theta ,t_{functionArg},\\theta_{functionArg}\\right)=\\left(\\frac{x+x_{functionArg}}{2}+\\frac{x_{functionArg}-x}{\\operatorname{distance}\\left(\\left(x,y\\right),\\left(x_{functionArg},y_{functionArg}\\right)\\right)}t_{ick}\\cdot \\left(\\left(\\frac{1}{2}-\\left|t_{functionArg}\\right|\\right)\\cdot \\frac{\\cos \\theta_{functionArg}}{2}+\\left[-\\frac{\\theta -1}{2}...\\frac{\\theta -1}{2}\\right]\\right)+\\frac{y_{functionArg}-y}{\\operatorname{distance}\\left(\\left(x,y\\right),\\left(x_{functionArg},y_{functionArg}\\right)\\right)}\\cdot t_{functionArg}\\cdot \\frac{t_{ick}\\sin \\theta_{functionArg}}{2},\\frac{y+y_{functionArg}}{2}+\\frac{y_{functionArg}-y}{\\operatorname{distance}\\left(\\left(x,y\\right),\\left(x_{functionArg},y_{functionArg}\\right)\\right)}t_{ick}\\cdot \\left(\\left(\\frac{1}{2}-\\left|t_{functionArg}\\right|\\right)\\cdot \\frac{\\cos \\theta_{functionArg}}{2}+\\left[-\\frac{\\theta -1}{2}...\\frac{\\theta -1}{2}\\right]\\right)+\\frac{x-x_{functionArg}}{\\operatorname{distance}\\left(\\left(x,y\\right),\\left(x_{functionArg},y_{functionArg}\\right)\\right)}\\cdot t_{functionArg}\\frac{t_{ick}\\sin \\theta_{functionArg}}{2}\\right)',hidden:true},
+   parall:[{"id":"parall","latex":"p_{arall}\\left(x,y,x_{functionArg},y_{functionArg},\\theta ,t_{functionArg},\\theta_{functionArg}\\right)=\\left(\\frac{x+x_{functionArg}}{2}+\\frac{x_{functionArg}-x}{\\operatorname{distance}\\left(\\left(x,y\\right),\\left(x_{functionArg},y_{functionArg}\\right)\\right)}t_{ick}\\cdot \\left(\\left(\\frac{1}{2}-\\left|t_{functionArg}\\right|\\right)\\cdot \\frac{\\cos \\theta_{functionArg}}{2}+\\left[-\\frac{\\theta -1}{2}...\\frac{\\theta -1}{2}\\right]\\right)+\\frac{y_{functionArg}-y}{\\operatorname{distance}\\left(\\left(x,y\\right),\\left(x_{functionArg},y_{functionArg}\\right)\\right)}\\cdot t_{functionArg}\\cdot \\frac{t_{ick}\\sin \\theta_{functionArg}}{2},\\frac{y+y_{functionArg}}{2}+\\frac{y_{functionArg}-y}{\\operatorname{distance}\\left(\\left(x,y\\right),\\left(x_{functionArg},y_{functionArg}\\right)\\right)}t_{ick}\\cdot \\left(\\left(\\frac{1}{2}-\\left|t_{functionArg}\\right|\\right)\\cdot \\frac{\\cos \\theta_{functionArg}}{2}+\\left[-\\frac{\\theta -1}{2}...\\frac{\\theta -1}{2}\\right]\\right)+\\frac{x-x_{functionArg}}{\\operatorname{distance}\\left(\\left(x,y\\right),\\left(x_{functionArg},y_{functionArg}\\right)\\right)}\\cdot t_{functionArg}\\frac{t_{ick}\\sin \\theta_{functionArg}}{2}\\right)","hidden":"true"}],
   /* — compassArcRadians ————————————————————————————————————————————→ *\
    | compassArcRadians: Angle for tracing a compass arc, including ticks on ends
    |
@@ -68,7 +68,7 @@ var xs = { // Commonly useful Desmos expressions (in LaTeX string form)
    |
    | @Returns: angle measured from the first endpoint, between -tick/r and theta+tick/r
    * ←—————————————————————————————————————————————————————————————————→ */
-   compassArcRadians:{id:'compassArcRadians',latex:'\\theta_{compR}\\left(x,\\theta ,y\\right)=y\\theta +\\left(2y-1\\right)\\max \\left(\\frac{\\pi }{6},\\frac{t_{ick}}{x}\\right)',hidden:true},
+   compassArcRadians:[{"id":"compassArcRadians","latex":"\\theta_{compR}\\left(x,\\theta ,y\\right)=y\\theta +\\left(2y-1\\right)\\max \\left(\\frac{\\pi }{6},\\frac{t_{ick}}{x}\\right)","hidden":"true"}],
   /* — compassArcDegrees ————————————————————————————————————————————→ *\
    | compassArcDegrees: Angle for tracing a compass arc, including ticks on ends
    |
@@ -82,7 +82,7 @@ var xs = { // Commonly useful Desmos expressions (in LaTeX string form)
    |
    | @Returns: angle measured from the first endpoint
    * ←—————————————————————————————————————————————————————————————————→ */
-   compassArcDegrees:{id:'compassArcDegrees',latex:'\\theta_{compD}\\left(x,\\theta ,y\\right)=y\\theta +\\left(2y-1\\right)\\max \\left(30,\\frac{180t_{ick}}{\\pi x}\\right)',hidden:true},
+   compassArcDegrees:[{"id":"compassArcDegrees","latex":"\\theta_{compD}\\left(x,\\theta ,y\\right)=y\\theta +\\left(2y-1\\right)\\max \\left(30,\\frac{180t_{ick}}{\\pi x}\\right)","hidden":"true"}],
   /* — rotCPTheta ———————————————————————————————————————————————————→ *\
    | rotCPTheta: Rotate a point a given angle around a given center
    |
@@ -92,7 +92,7 @@ var xs = { // Commonly useful Desmos expressions (in LaTeX string form)
    |
    | @Returns: image of the rotated point in Homogeneous coordinates
    * ←—————————————————————————————————————————————————————————————————→ */
-   rotCPTheta:{id:'rotCPTheta',latex:'P_{rot}\\left(x,y,\\theta \\right)=\\frac{x+\\left[\\operatorname{total}\\left(\\left(\\frac{yx\\left[3\\right]}{y\\left[3\\right]}-x\\right)\\cdot \\left[\\cos \\theta ,-\\sin \\theta ,0\\right]\\right),\\operatorname{total}\\left(\\left(\\frac{yx\\left[3\\right]}{y\\left[3\\right]}-x\\right)\\cdot \\left[\\sin \\theta ,\\cos \\theta ,0\\right]\\right),0\\right]}{x\\left[3\\right]}',hidden:true},
+   rotCPTheta:[{"id":"rotCPTheta","latex":"P_{rot}\\left(x,y,\\theta \\right)=\\frac{x+\\left[\\operatorname{total}\\left(\\left(\\frac{yx\\left[3\\right]}{y\\left[3\\right]}-x\\right)\\cdot \\left[\\cos \\theta ,-\\sin \\theta ,0\\right]\\right),\\operatorname{total}\\left(\\left(\\frac{yx\\left[3\\right]}{y\\left[3\\right]}-x\\right)\\cdot \\left[\\sin \\theta ,\\cos \\theta ,0\\right]\\right),0\\right]}{x\\left[3\\right]}","hidden":"true"}],
   /* — polarFromXY ——————————————————————————————————————————————————→ *\
    | polarFromXY: For drawing points by polar reference from a point.
    |
@@ -102,7 +102,7 @@ var xs = { // Commonly useful Desmos expressions (in LaTeX string form)
    |
    | @Returns: a point that is the translation of (x,y) by <r,theta>
    * ←—————————————————————————————————————————————————————————————————→ */
-   polarFromXY:{id:'polarFromXY',latex:'P_{xyrt}\\left(x,y,r_{functionArg},\\theta \\right)=\\left(x+r_{functionArg}\\cos \\theta ,y+r_{functionArg}\\sin \\theta \\right)',hidden:true},
+   polarFromXY:[{"id":"polarFromXY","latex":"P_{xyrt}\\left(x,y,r_{functionArg},\\theta \\right)=\\left(x+r_{functionArg}\\cos \\theta ,y+r_{functionArg}\\sin \\theta \\right)","hidden":"true"}],
   /* — thetaXY ——————————————————————————————————————————————————————→ *\
    | thetaXY: Extracts the angle from a vector in cartesian coordinates
    |
@@ -116,7 +116,7 @@ var xs = { // Commonly useful Desmos expressions (in LaTeX string form)
    |
    | #TIP: Use theta_xy(x2-x1,y2-y1) to set a base angle for drawing an arc
    * ←—————————————————————————————————————————————————————————————————→ */
-   thetaXY:{id:'thetaXY',latex:'\\theta_{xy}\\left(x,y\\right)=\\left\\{y=0:\\frac{\\pi }{2}-\\frac{\\pi }{2}\\operatorname{sign}\\left(x\\right),\\operatorname{arccot}\\frac{x}{y}-\\pi \\operatorname{round}\\left(\\frac{1-\\operatorname{sign}\\left(y\\right)}{2}\\right)\\right\\}',hidden:true},
+   thetaXY:[{"id":"thetaXY","latex":"\\theta_{xy}\\left(x,y\\right)=\\left\\{y=0:\\frac{\\pi }{2}-\\frac{\\pi }{2}\\operatorname{sign}\\left(x\\right),\\operatorname{arccot}\\frac{x}{y}-\\pi \\operatorname{round}\\left(\\frac{1-\\operatorname{sign}\\left(y\\right)}{2}\\right)\\right\\}","hidden":"true"}],
   /* — angleLVL ———————————————————————————————————————————————————————→ *\
    | angleLVL: measures an angle given by three points, with the vertex
    |           in the middle.
@@ -126,7 +126,7 @@ var xs = { // Commonly useful Desmos expressions (in LaTeX string form)
    |
    | #EXAMPLE: 
    * ←—————————————————————————————————————————————————————————————————→ */
-   angleLVL: {id:'angleLVL',latex:'\\theta_{LVL}\\left(x,\\theta ,y\\right)=\\arccos \\left(\\frac{\\operatorname{distance}\\left(x,\\theta \\right)^2+\\operatorname{distance}\\left(y,\\theta \\right)^2-\\operatorname{distance}\\left(x,y\\right)^2}{2\\operatorname{distance}\\left(x,\\theta \\right)\\operatorname{distance}\\left(y,\\theta \\right)}\\right)'},
+   angleLVL: {id:"angleLVL",latex:"\\theta_{LVL}\\left(x,\\theta ,y\\right)=\\arccos \\left(\\frac{\\operatorname{distance}\\left(x,\\theta \\right)^2+\\operatorname{distance}\\left(y,\\theta \\right)^2-\\operatorname{distance}\\left(x,y\\right)^2}{2\\operatorname{distance}\\left(x,\\theta \\right)\\operatorname{distance}\\left(y,\\theta \\right)}\\right)"},
   /* — rXY ——————————————————————————————————————————————————————————→ *\
    | rXY: Extracts the magnitude from a vector in cartesian coordinates
    |
@@ -138,7 +138,7 @@ var xs = { // Commonly useful Desmos expressions (in LaTeX string form)
    |
    | #TIP: use distance((x1,y1),(x2,y2)) to find the distance between two points
    * ←—————————————————————————————————————————————————————————————————→ */
-   rXY:{id:'rXY',latex:'r_{xy}\\left(x,y\\right)=\\sqrt{x^2+y^2}',hidden:true},
+   rXY:[{"id":"rXY","latex":"r_{xy}\\left(x,y\\right)=\\sqrt{x^2+y^2}","hidden":"true"}],
   /* — linePP ———————————————————————————————————————————————————————→ *\
    | linePP: Returns standard coefficients of a line through two points
    |
@@ -153,7 +153,7 @@ var xs = { // Commonly useful Desmos expressions (in LaTeX string form)
    |
    | #TIP: Compute signed distance with total([x0,y0,1]*line_PP(…))
    * ←—————————————————————————————————————————————————————————————————→ */
-   linePP:{id:'linePP',latex:'U_{through}\\left(x,y\\right)=\\frac{\\left[y\\left[2\\right]-x\\left[2\\right],x\\left[1\\right]-y\\left[1\\right],y\\left[1\\right]x\\left[2\\right]-y\\left[2\\right]x\\left[1\\right]\\right]}{D_{pp}\\left(x,y\\right)}',hidden:true},
+   linePP:[{"id":"linePP","latex":"U_{through}\\left(x,y\\right)=\\frac{\\left[y\\left[2\\right]-x\\left[2\\right],x\\left[1\\right]-y\\left[1\\right],y\\left[1\\right]x\\left[2\\right]-y\\left[2\\right]x\\left[1\\right]\\right]}{D_{pp}\\left(x,y\\right)}","hidden":"true"}],
   /* — linePerp ———————————————————————————————————————————————————————→ *\
    | linePerp: Returns standard coefficients of a line perpendicular
    |           to a line through a given point
@@ -165,7 +165,7 @@ var xs = { // Commonly useful Desmos expressions (in LaTeX string form)
    |
    | #EXAMPLE: 
    * ←—————————————————————————————————————————————————————————————————→ */
-   linePerp:{id:'linePerp',latex:'U_{perp}\\left(x,y\\right)=\\left[x\\left[2\\right],-x\\left[1\\right],\\frac{-x\\left[2\\right]y\\left[1\\right]+x\\left[1\\right]y\\left[2\\right]}{y\\left[3\\right]}\\right]',hidden:true},
+   linePerp:[{"id":"linePerp","latex":"U_{perp}\\left(x,y\\right)=\\left[x\\left[2\\right],-x\\left[1\\right],\\frac{-x\\left[2\\right]y\\left[1\\right]+x\\left[1\\right]y\\left[2\\right]}{y\\left[3\\right]}\\right]","hidden":"true"}],
   /* — distancePP —————————————————————————————————————————————————————→ *\
    | distancePP: Returns the distance between two points expressed in
    |             homogeneous coordinates
@@ -176,7 +176,7 @@ var xs = { // Commonly useful Desmos expressions (in LaTeX string form)
    |
    | #EXAMPLE: 
    * ←—————————————————————————————————————————————————————————————————→ */
-   distancePP:{id:'distancePP',latex:'D_{pp}\\left(x,y\\right)=\\sqrt{\\operatorname{total}\\left(\\left(\\frac{x}{x\\left[3\\right]}-\\frac{y}{y\\left[3\\right]}\\right)^2\\right)}',hidden:true},
+   distancePP:[{"id":"distancePP","latex":"D_{pp}\\left(x,y\\right)=\\sqrt{\\operatorname{total}\\left(\\left(\\frac{x}{x\\left[3\\right]}-\\frac{y}{y\\left[3\\right]}\\right)^2\\right)}","hidden":"true"}],
   /* — distancePL —————————————————————————————————————————————————————→ *\
    | distancePL: Returns the distance between two points expressed in
    |             homogeneous coordinates
@@ -188,7 +188,7 @@ var xs = { // Commonly useful Desmos expressions (in LaTeX string form)
    |
    | #EXAMPLE: 
    * ←—————————————————————————————————————————————————————————————————→ */
-   distancePL:{id:'distancePL',latex:'D_{pl}\\left(x,y\\right)=\\operatorname{total}\\left(\\frac{x}{x\\left[3\\right]}\\cdot \\frac{y}{\\sqrt{y\\left[1\\right]^2+y\\left[2\\right]^2}}\\right)',hidden:true},
+   distancePL:[{"id":"distancePL","latex":"D_{pl}\\left(x,y\\right)=\\operatorname{total}\\left(\\frac{x}{x\\left[3\\right]}\\cdot \\frac{y}{\\sqrt{y\\left[1\\right]^2+y\\left[2\\right]^2}}\\right)","hidden":"true"}],
   /* — intersectLL ————————————————————————————————————————————————————→ *\
    | intersectLL: Returns the point of intersection between two lines in
    |              homogeneous coordinates
@@ -199,7 +199,7 @@ var xs = { // Commonly useful Desmos expressions (in LaTeX string form)
    |
    | #EXAMPLE: 
    * ←—————————————————————————————————————————————————————————————————→ */
-   intersectLL:{id:'intersectLL',latex:'I_{ll}\\left(x,y\\right)=\\left[\\frac{x\\left[2\\right]y\\left[3\\right]-y\\left[2\\right]x\\left[3\\right]}{x\\left[1\\right]y\\left[2\\right]-y\\left[1\\right]x\\left[2\\right]},\\frac{y\\left[1\\right]x\\left[3\\right]-x\\left[1\\right]y\\left[3\\right]}{x\\left[1\\right]y\\left[2\\right]-y\\left[1\\right]x\\left[2\\right]},1\\right]',hidden:true},
+   intersectLL:[{"id":"intersectLL","latex":"I_{ll}\\left(x,y\\right)=\\left[\\frac{x\\left[2\\right]y\\left[3\\right]-y\\left[2\\right]x\\left[3\\right]}{x\\left[1\\right]y\\left[2\\right]-y\\left[1\\right]x\\left[2\\right]},\\frac{y\\left[1\\right]x\\left[3\\right]-x\\left[1\\right]y\\left[3\\right]}{x\\left[1\\right]y\\left[2\\right]-y\\left[1\\right]x\\left[2\\right]},1\\right]","hidden":"true"}],
   /* — reflectPL ——————————————————————————————————————————————————————→ *\
    | reflectPL: Reflects a given point across a given line
    |              homogeneous coordinates
@@ -215,26 +215,26 @@ var xs = { // Commonly useful Desmos expressions (in LaTeX string form)
    |
    | #EXAMPLE: 
    * ←—————————————————————————————————————————————————————————————————→ */
-   reflectPL: {id:'reflectPL',latex:'P_{reflPL}\\left(x,y\\right)=I_{ll}\\left(U_{perp}\\left(y,x\\right),y+\\left[0,0,D_{pl}\\left(x,y\\right)\\right]\\right)',hidden:true}
+   reflectPL:[{"id":"reflectPL","latex":"P_{reflPL}\\left(x,y\\right)=I_{ll}\\left(U_{perp}\\left(y,x\\right),y+\\left[0,0,D_{pl}\\left(x,y\\right)\\right]\\right)","hidden":"true"}]
  }
 
-function addHelper(name,desmos=(window['calculator'] || window['Calc'])) {
-  desmos.setExpression({id:name,latex:xs[name]});
+window.addHelper = function(name,desmos=(window["calculator"] || window["Calc"])) {
+  desmos.setExpressions(window.xs[name]);
 }
 
-function drawTriangle(desmos=(window['calculator'] || window['Calc'])) {
+function drawTriangle(desmos=(window["calculator"] || window["Calc"])) {
   desmos.setExpressions([
-    {id:'vertexA',latex:'\\left(x_1,y_1\\right)'},
-    {id:'vertexB',latex:'\\left(x_2,y_2\\right)'},
-    {id:'vertexC',latex:'\\left(x_3,y_3\\right)'},
-    {id:'sideA',latex:'\\left(x_2t+x_3\\left(1-t\\right),y_2t+y_3\\left(1-t\\right)\\right)'},
-    {id:'sideB',latex:'\\left(x_1t+x_3\\left(1-t\\right),y_1t+y_3\\left(1-t\\right)\\right)'},
-    {id:'sideC',latex:'\\left(x_1t+x_2\\left(1-t\\right),y_1t+y_2\\left(1-t\\right)\\right)'},
-    {id:'x1',latex:'x_1=1'},
-    {id:'y1',latex:'y_1=1'},
-    {id:'x2',latex:'x_2=1'},
-    {id:'y2',latex:'y_2=2'},
-    {id:'x3',latex:'x_3=2'},
-    {id:'y3',latex:'y_3=1'}
+    {id:"vertexA",latex:"\\left(x_1,y_1\\right)"},
+    {id:"vertexB",latex:"\\left(x_2,y_2\\right)"},
+    {id:"vertexC",latex:"\\left(x_3,y_3\\right)"},
+    {id:"sideA",latex:"\\left(x_2t+x_3\\left(1-t\\right),y_2t+y_3\\left(1-t\\right)\\right)"},
+    {id:"sideB",latex:"\\left(x_1t+x_3\\left(1-t\\right),y_1t+y_3\\left(1-t\\right)\\right)"},
+    {id:"sideC",latex:"\\left(x_1t+x_2\\left(1-t\\right),y_1t+y_2\\left(1-t\\right)\\right)"},
+    {id:"x1",latex:"x_1=1"},
+    {id:"y1",latex:"y_1=1"},
+    {id:"x2",latex:"x_2=1"},
+    {id:"y2",latex:"y_2=2"},
+    {id:"x3",latex:"x_3=2"},
+    {id:"y3",latex:"y_3=1"}
   ]);
 }
