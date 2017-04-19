@@ -11,6 +11,7 @@
   <script src="https://www.desmos.com/api/v0.9/geometry.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
   <script src="./Desmos AGA Root SCO CJS.js"></script>
   <script src="./Desmos AGA Root SCO CJS Test Master SCO CJS.js"></script>
+  <script src="./Desmos Helper Functions.js"></script>
   <style>
     html,
     body {
@@ -151,7 +152,7 @@
       var offbuttoncolor = "red";
       var offtextcolor = "white";
       const DOM_ID_PREFIX = "dom_guid_";
-      var AUTO_SAVE_INTERVAL = 5000;
+      window.AUTO_SAVE_INTERVAL = 5000;
       const LOADING_TIME_ALLOTMENT = 2500;
       var previewHeight = 100;
       var previewWidth = 100;
@@ -986,7 +987,12 @@
             $('.'+id+'_new').click(function(){check('new');});
             $('.'+id+'_clear').click(function(){check('clear');});
           }
-          $('.'+id+'_download').click(function(){window.download(state,name)});
+          $('.'+id+'_download').click(download);
+        }
+
+        function download() {
+          var file = {name:name,type:type,state:state,helpers:helpers};
+          window.download(file,name);
         }
 
         function check(type) {
@@ -1391,7 +1397,7 @@
           if (!autoSaveQueued) {
             autoSaveQueued = true;
             console.log('Queueing autosave…');
-            window.queuedSave = window.setTimeout(autoSave,AUTO_SAVE_INTERVAL);
+            window.queuedSave = window.setTimeout(autoSave,window.AUTO_SAVE_INTERVAL);
           }
         });
 
@@ -1514,7 +1520,7 @@
       };
       window.download = function(state, filename="unnamed_widget") {
         var element = document.createElement('a');
-        element.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(state)));
+        element.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(state,null,"\t")));
         element.setAttribute('download', ((filename == '')?"unnamed_widget":filename)+'.json');
         element.style.display = 'none';
         document.body.appendChild(element);
