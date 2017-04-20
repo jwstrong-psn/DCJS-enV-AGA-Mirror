@@ -222,7 +222,7 @@ window.xs = { // Commonly useful Desmos expressions (in LaTeX string form)
    |  root 1 uses the positive root and root -1 the negative root
    | @Returns: 
    |
-   | #EXAMPLE: P+T_{clp}(C,L,P,1)*[L[1],-L[2],0] gives the point of intersection
+   | #EXAMPLE: P+T_{clp}(C,L,P,1)*[L[2],-L[1],0] gives the point of intersection
    |           of C with L, assuming P is a point on L
    * ←—————————————————————————————————————————————————————————————————→ */
    distanceCLP:[{"id":"distanceCLP","latex":"T_{clp}\\left(x,y,\\theta,n_{egRootFunctionArg}\\right)=y\\left[1\\right]\\left(\\theta\\left[2\\right]-x\\left[2\\right]\\right)-y\\left[2\\right]\\left(\\theta\\left[1\\right]-x\\left[1\\right]\\right)+n_{egRootFunctionArg}\\sqrt{x\\left[3\\right]^2-\\left(y\\left[1\\right]\\left(\\theta\\left[1\\right]-x\\left[1\\right]\\right)+y\\left[2\\right]\\left(\\theta\\left[2\\right]-x\\left[2\\right]\\right)\\right)^2}","hidden":"true"}],
