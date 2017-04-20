@@ -200,6 +200,18 @@ window.xs = { // Commonly useful Desmos expressions (in LaTeX string form)
    | #EXAMPLE: 
    * ←—————————————————————————————————————————————————————————————————→ */
    intersectLL:[{"id":"intersectLL","latex":"I_{ll}\\left(x,y\\right)=\\left[\\frac{x\\left[2\\right]y\\left[3\\right]-y\\left[2\\right]x\\left[3\\right]}{x\\left[1\\right]y\\left[2\\right]-y\\left[1\\right]x\\left[2\\right]},\\frac{y\\left[1\\right]x\\left[3\\right]-x\\left[1\\right]y\\left[3\\right]}{x\\left[1\\right]y\\left[2\\right]-y\\left[1\\right]x\\left[2\\right]},1\\right]","hidden":"true"}],
+  /* — intersectCL ————————————————————————————————————————————————————→ *\
+   | intersectLL: Returns the point of intersection between two lines in
+   |              homogeneous coordinates
+   |
+   | @Args: circle, line
+   |  circle in [x,y,r] with center (x,y)
+   |  line in homogeneous coordinates, [a,b,c]
+   | @Returns: 
+   |
+   | #EXAMPLE: 
+   * ←—————————————————————————————————————————————————————————————————→ */
+   intersectCL:[{"id":"intersectCL","latex":"P_{cl}\\left(x,y,\\theta \\right)=\\left\\{D_{pl}\\left(\\left[x\\left[1\\right],x\\left[2\\right],1\\right],y\\right)\\le x\\left[3\\right]\\right\\}P_{rot}\\left(\\left[x\\left[1\\right],x\\left[2\\right],1\\right],\\left[x\\left[1\\right]+x\\left[3\\right],x\\left[2\\right],1\\right],\\operatorname{arccot}\\left(-\\frac{y\\left[2\\right]}{y\\left[1\\right]}\\right)+\\left\\{y\\left[1\\right]\\ge 0:90,-90\\right\\}+\\theta \\arccos \\left(\\frac{D_{pl}\\left(\\left[x\\left[1\\right],x\\left[2\\right],1\\right],y\\right)}{x\\left[3\\right]}\\right)\\right)","hidden":"true"}],
   /* — reflectPL ——————————————————————————————————————————————————————→ *\
    | reflectPL: Reflects a given point across a given line
    |              homogeneous coordinates
