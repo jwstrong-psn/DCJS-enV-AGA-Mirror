@@ -106,17 +106,15 @@ window.xs = { // Commonly useful Desmos expressions (in LaTeX string form)
   /* — thetaXY ——————————————————————————————————————————————————————→ *\
    | thetaXY: Extracts the angle from a vector in cartesian coordinates
    |
-   | !REQUIRES: degreemode:false
-   |
    | @Args: x, y
-   | @Returns: -pi < theta ≤ pi from the positive x-axis
+   | @Returns: -180 < theta ≤ 180 (or -pi < theta ≤ pi) from the positive x-axis
 
    | #EXAMPLE: Find the angle of the vector <1,4>
    |  theta_1 = theta_xy(1,4)
    |
    | #TIP: Use theta_xy(x2-x1,y2-y1) to set a base angle for drawing an arc
    * ←—————————————————————————————————————————————————————————————————→ */
-   thetaXY:[{"id":"thetaXY","latex":"\\theta_{xy}\\left(x,y\\right)=\\left\\{y=0:\\frac{\\pi }{2}-\\frac{\\pi }{2}\\operatorname{sign}\\left(x\\right),\\operatorname{arccot}\\frac{x}{y}-\\pi \\operatorname{round}\\left(\\frac{1-\\operatorname{sign}\\left(y\\right)}{2}\\right)\\right\\}","hidden":"true"}],
+   thetaXY:[{"id":"thetaXY","latex":"\\theta_{xy}\\left(x,y\\right)=\\left\\{y=0:\\operatorname{arccos}\\left(0\\right)\\left(1-\\operatorname{sign}\\left(x\\right)\\right),\\operatorname{arccot}\\frac{x}{y}-\\operatorname{arccos}\\left(-1\\right)\\operatorname{round}\\left(\\frac{1-\\operatorname{sign}\\left(y\\right)}{2}\\right)\\right\\}","hidden":"true"}],
   /* — angleLVL ———————————————————————————————————————————————————————→ *\
    | angleLVL: measures an angle given by three points, with the vertex
    |           in the middle.
@@ -204,14 +202,30 @@ window.xs = { // Commonly useful Desmos expressions (in LaTeX string form)
    | intersectLL: Returns the point of intersection between two lines in
    |              homogeneous coordinates
    |
-   | @Args: circle, line
+   | @Args: circle, line, root
    |  circle in [x,y,r] with center (x,y)
    |  line in homogeneous coordinates, [a,b,c]
+   |  root 1 uses the positive root and root −1 the negative root
    | @Returns: 
    |
    | #EXAMPLE: 
    * ←—————————————————————————————————————————————————————————————————→ */
    intersectCL:[{"id":"intersectCL","latex":"P_{cl}\\left(x,y,\\theta \\right)=\\left\\{D_{pl}\\left(\\left[x\\left[1\\right],x\\left[2\\right],1\\right],y\\right)\\le x\\left[3\\right]\\right\\}P_{rot}\\left(\\left[x\\left[1\\right],x\\left[2\\right],1\\right],\\left[x\\left[1\\right]+x\\left[3\\right],x\\left[2\\right],1\\right],\\operatorname{arccot}\\left(-\\frac{y\\left[2\\right]}{y\\left[1\\right]}\\right)+\\left\\{y\\left[1\\right]\\ge 0:90,-90\\right\\}+\\theta \\arccos \\left(\\frac{D_{pl}\\left(\\left[x\\left[1\\right],x\\left[2\\right],1\\right],y\\right)}{x\\left[3\\right]}\\right)\\right)","hidden":"true"}],
+  /* — distanceCLP ————————————————————————————————————————————————————→ *\
+   | intersectLL: Returns the distance between a point on a line and the
+   |              point of intersection of that line with a circle
+   |
+   | @Args: circle, line, point, root
+   |  circle in [x,y,r] with center (x,y) and radius r
+   |  line in homogeneous coordinates, [a,b,c], MUST BE NORMALIZED
+   |  point in homogeneous coordinates, [x,y,1], MUST BE NORMALIZED
+   |  root 1 uses the positive root and root -1 the negative root
+   | @Returns: 
+   |
+   | #EXAMPLE: P+T_{clp}(C,L,P,1)*[L[1],-L[2],0] gives the point of intersection
+   |           of C with L, assuming P is a point on L
+   * ←—————————————————————————————————————————————————————————————————→ */
+   distanceCLP:[{"id":"distanceCLP","latex":"T_{clp}\\left(x,y,\\theta,n_{egRootFunctionArg}\\right)=y\\left[1\\right]\\left(\\theta\\left[2\\right]-x\\left[2\\right]\\right)-y\\left[2\\right]\\left(\\theta\\left[1\\right]-x\\left[1\\right]\\right)+n_{egRootFunctionArg}\\sqrt{x\\left[3\\right]^2-\\left(y\\left[1\\right]\\left(\\theta\\left[1\\right]-x\\left[1\\right]\\right)+y\\left[2\\right]\\left(\\theta\\left[2\\right]-x\\left[2\\right]\\right)\\right)^2}","hidden":"true"}],
   /* — reflectPL ——————————————————————————————————————————————————————→ *\
    | reflectPL: Reflects a given point across a given line
    |              homogeneous coordinates
