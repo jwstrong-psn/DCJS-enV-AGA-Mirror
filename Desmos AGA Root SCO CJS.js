@@ -2930,6 +2930,53 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
+    /* ←— TESTING_TESTING_123 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.TESTING_TESTING_123 = {
+      /* ←— circleConstrain ———————————————————————————————————————————————→ *\
+       | Monitors x_1 and y_1 and corrects them if they go outside the circle
+       |  centered at x_0, y_0 with radius r_0
+       | (Initialization option; starts the whole graph)
+       * ←—————————————————————————————————————————————————————————————————→ */
+       circleConstrain: function(options={}) {
+        var o = hs.parseOptions(options);
+        var vars = vs[o.uniqueId];
+        var exps = vars.helperExpressions = {};
+        vars.belayCorrection = true;
+
+        o.desmos.setExpressions([
+          {id:'circle',latex:'\\left(x-x_0\\right)^2+\\left(y-y_0\\right)^2=r_0^2'},
+          {id:'center',latex:'\\left(x_0,y_0\\right)'},
+          {id:'draggable',latex:'\\left(x_1,y_1\\right)'},
+          {id:'corrected',latex:'\\left(x_{corrected},y_{corrected}\\right)',hidden:true,dragMode:"NONE"},
+          {id:'x_0',latex:'x_0=0'},
+          {id:'y_0',latex:'y_0=0'},
+          {id:'r_0',latex:'r_0=1'},
+          {id:'x_1',latex:'x_1=0.5'},
+          {id:'y_1',latex:'y_1=0.5'},
+          {id:'x_corrected',latex:'x_{corrected}=x_1'},
+          {id:'y_corrected',latex:'y_{corrected}=y_1'}
+        ]);
+
+       Object.assign(exps,{
+        x_0:o.desmos.HelperExpression({latex:'x_0'}),
+        y_0:o.desmos.HelperExpression({latex:'y_0'}),
+        r_0:o.desmos.HelperExpression({latex:'r_0'}),
+        x_1:o.desmos.HelperExpression({latex:'x_1'}),
+        y_1:o.desmos.HelperExpression({latex:'y_1'})
+       });
+
+       exps.x_0.observe('numericValue',function(){correctIt('x_0');});
+       exps.y_0.observe('numericValue',function(){correctIt('y_0');});
+       exps.x_1.observe('numericValue',function(){correctIt('x_1');});
+       exps.y_1.observe('numericValue',function(){correctIt('y_1');});
+       exps.r_0.observe('numericValue',function(){correctIt('r_0');});
+
+       function correctIt() {
+        return;
+       }
+       }
+     };
+
   Object.assign(exports,hs.flattenFuncStruct(fs));
 
   return exports;
