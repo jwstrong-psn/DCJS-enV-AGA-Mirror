@@ -314,6 +314,50 @@ PearsonGL.External.rootJS = (function() {
         };
         return constrained;
        },
+      /* ←— circleConstrain —————————————————————————————————————————————→ *\
+       | Constrain a point to the a circle.
+       |
+       | Point {x,y}, circle {x,y,r}, and side cs.enum.INTERIOR, EXTERIOR, or PERIMETER.
+       |
+       | Point returned will be the closest point inside, outside, or on the circle.
+       |
+       | Optional buffer distance shrinks (or expands) the acceptable circle region
+       | If the point is already inside the buffer zone, returns the point object
+       |  itself. Otherwise, returns a new point object.
+       | Returns null if there are no points inside the buffered polygon
+       * ←————————————————————————————————————————————————————————————————→ */
+       circleConstrain: function(point, circle, side=cs.enum.PERIMETER, buffer=cs.distance.CONSTRAIN_BUFFER) {
+
+        var dSquared = Math.pow(point.x-circle.x,2)+Math.pow(point.y-circle.y,2);
+        var output = {x:point.x,y:point.y};
+        var scaleBack;
+
+        switch (side) {
+          case cs.enum.PERIMETER:
+            if ((buffer > 0) && (Math.pow(circle.r-buffer,2) < dSquared < Math.pow(circle.r+buffer,2))) return point;
+            scaleBack = circle.r;
+            break;
+          case cs.enum.INTERIOR:
+            if (dSquared < Math.pow(circle.r-buffer,2)) return point;
+            scaleBack = circle.r-buffer*Math.pow(2,cs.ts.BUFFER_BUFFER);
+            break;
+          case cs.enum.EXTERIOR:
+            if (dSquared > Math.pow(circle.r+buffer,2)) return point;
+            scaleBack = circle.r+buffer*Math.pow(2,cs.ts.BUFFER_BUFFER);
+            break;
+          default:
+            return null;
+        }
+
+        if (scaleBack < 0) return null;
+
+        scaleBack /= Math.sqrt(dSquared);
+
+        return {
+          x:(circle.x+(point.x-circle.x)*scaleback),
+          y:(circle.y+(point.y-circle.y)*scaleback)
+        };
+       },
       /* ←— Intersect Two Lines ——————————————————————————————————————————→ *\
        | Find the point of intersection between two lines
        |
@@ -372,6 +416,9 @@ PearsonGL.External.rootJS = (function() {
         QUADRATIC_VERTEX_FORM:'QVFAHK',
         QUADRATIC_STANDARD_FORM:'QSFABC',
         QUADRATIC_FACTORED_FORM:'QFFARR',
+        INTERIOR:'INTERIOR',
+        EXTERIOR:'EXTERIOR',
+        PERIMETER:'PERIMETER',
         expform:{ABXC:'abxc',AEBC:'aebc',EABC:'eabc',EAHK:'eahk'}
        },
       precision:{ // # of decimal places to round to; inverse powers of 10
