@@ -124,7 +124,7 @@ window.xs = { // Commonly useful Desmos expressions (in LaTeX string form)
    |
    | #EXAMPLE: 
    * ←—————————————————————————————————————————————————————————————————→ */
-   angleLVL: {id:"angleLVL",latex:"\\theta_{LVL}\\left(x,\\theta ,y\\right)=\\arccos \\left(\\frac{\\operatorname{distance}\\left(x,\\theta \\right)^2+\\operatorname{distance}\\left(y,\\theta \\right)^2-\\operatorname{distance}\\left(x,y\\right)^2}{2\\operatorname{distance}\\left(x,\\theta \\right)\\operatorname{distance}\\left(y,\\theta \\right)}\\right)"},
+   angleLVL: [{id:"angleLVL",latex:"\\theta_{LVL}\\left(x,\\theta ,y\\right)=\\arccos \\left(\\frac{\\operatorname{distance}\\left(x,\\theta \\right)^2+\\operatorname{distance}\\left(y,\\theta \\right)^2-\\operatorname{distance}\\left(x,y\\right)^2}{2\\operatorname{distance}\\left(x,\\theta \\right)\\operatorname{distance}\\left(y,\\theta \\right)}\\right)"}],
   /* — rXY ——————————————————————————————————————————————————————————→ *\
    | rXY: Extracts the magnitude from a vector in cartesian coordinates
    |
