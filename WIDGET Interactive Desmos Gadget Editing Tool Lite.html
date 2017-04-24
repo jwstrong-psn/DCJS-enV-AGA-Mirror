@@ -126,7 +126,7 @@
 
         // Instantiate the calculator and set its state
         if (type == 'graphing') {
-          window.calculator = window.Calc = Desmos.GraphingCalculator($elt[0]);
+          window.calculator = window.Calc = Desmos.GraphingCalculator($elt[0],{administerSecretFolders:true});
           if (calcPrevState) window.calculator.setState(calcPrevState);
           if (calcDefaultState) window.calculator.setDefaultState(calcDefaultState);
           else window.calculator.setDefaultState(window.calculator.getState());
