@@ -1170,6 +1170,34 @@ PearsonGL.External.rootJS = (function() {
           };
         }
      };
+     /* ←— A0597546 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0597546 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variables
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        var o = hs.parseOptions(options);
+        vs[o.uniqueId] = {
+        };
+       },
+      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
+       | updates the labels of theta 1, 2 based on changes to two lines
+       |
+       | Hidden points P_1, P_2 must be authored with showLabel:true,
+       | and the IDs P1, P2 *******
+       * ←———————————————————————————————————————————————————————————————————→ */
+       updateLabels: function(options={}) {
+        var o = hs.parseOptions(options);
+        switch (o.name) {
+          case '\\theta_1':
+            o.desmos.setExpression({id:'100',label:(o.value+'°')});
+            break;
+          case '\\theta_2':
+            o.desmos.setExpression({id:'101',label:(o.value+'°')});
+            break;
+          };
+        }
+     };
 
     /* ←— A0597538 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597538 = {
