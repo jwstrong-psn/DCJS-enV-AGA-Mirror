@@ -159,6 +159,15 @@ PearsonGL.External.masterJS = (function() {
   ts.A0597544_updateLabels = function(val, name, desmos) {
     return PearsonGL.External.rootJS.A0597544_updateLabels({'value':val,'name':name,'desmos':desmos,'log':console.log});
   }
+    //* functions for test purposes only
+  ts.A0597546_init = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.A0597546_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
+  }
+
+  //* functions for test purposes only
+  ts.A0597546_updateLabels = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.A0597546_updateLabels({'value':val,'name':name,'desmos':desmos,'log':console.log});
+  }
 
   //* functions for test purposes only
   ts.A0597714_init = function(val, name, desmos) {
