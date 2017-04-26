@@ -329,12 +329,11 @@ PearsonGL.External.rootJS = (function() {
        circleConstrain: function(point, circle, side=cs.enum.PERIMETER, buffer=cs.distance.CONSTRAIN_BUFFER) {
 
         var dSquared = Math.pow(point.x-circle.x,2)+Math.pow(point.y-circle.y,2);
-        var output = {x:point.x,y:point.y};
         var scaleBack;
 
         switch (side) {
           case cs.enum.PERIMETER:
-            if ((buffer > 0) && (Math.pow(circle.r-buffer,2) < dSquared < Math.pow(circle.r+buffer,2))) return point;
+            if ((buffer > 0) && (Math.pow(circle.r-buffer,2) < dSquared && dSquared < Math.pow(circle.r+buffer,2))) return point;
             scaleBack = circle.r;
             break;
           case cs.enum.INTERIOR:
@@ -353,10 +352,12 @@ PearsonGL.External.rootJS = (function() {
 
         scaleBack /= Math.sqrt(dSquared);
 
-        return {
-          x:(circle.x+(point.x-circle.x)*scaleback),
-          y:(circle.y+(point.y-circle.y)*scaleback)
+        var output = {
+          x:(circle.x+(point.x-circle.x)*scaleBack),
+          y:(circle.y+(point.y-circle.y)*scaleBack)
         };
+
+        return output;
        },
       /* ←— Intersect Two Lines ——————————————————————————————————————————→ *\
        | Find the point of intersection between two lines
@@ -393,16 +394,19 @@ PearsonGL.External.rootJS = (function() {
        | Access with cs.type.NAME
        * ←—————————————————————————————————————————————————————————————————————→ */
     const cs = {
-      agaColors:{ // Colors for AGA
-        blue: '#0092C8',
-        red: '#F15A22',
-        green: '#0AB14B',
-        teal: '#36C1CD',
-        orange: '#EFA038',
-        lime: '#95CA59',
-        purple: '#812990',
-        black: '#000000',
-        grey: '#58595B'
+      color:{
+        agaColors:{ // Colors for AGA
+          blue: '#0092C8',
+          red: '#F15A22',
+          green: '#0AB14B',
+          teal: '#36C1CD',
+          orange: '#EFA038',
+          lime: '#95CA59',
+          purple: '#812990',
+          black: '#000000',
+          grey: '#58595B'
+        },
+        HIDDEN_COLOR:'#FFFFFF'
        },
       ts:{ // Tolerances for tuning; measured in log2 increments.
         AR:0.01, // Aspect Ratio, detectably non-square
@@ -1779,13 +1783,13 @@ PearsonGL.External.rootJS = (function() {
               id:'segment_'+hs.ALPHA[i]+'A',
               hidden:(vars.helperFunctions.showDiagonals.numericValue == 0),
               style:'dashed',
-              color:cs.agaColors.red
+              color:cs.color.agaColors.red
           });
           exprs.push({
               id:'segment_'+hs.ALPHA[i]+hs.ALPHA[i+1],
               hidden:false,
               style:'normal',
-              color:cs.agaColors.black
+              color:cs.color.agaColors.black
           });
         };
 
@@ -1794,7 +1798,7 @@ PearsonGL.External.rootJS = (function() {
           id:'segment_'+hs.ALPHA[n]+'A',
           hidden:false,
           style:'normal',
-          color:cs.agaColors.black
+          color:cs.color.agaColors.black
         });
 
         // Update centroid and labels
@@ -2938,42 +2942,94 @@ PearsonGL.External.rootJS = (function() {
        | (Initialization option; starts the whole graph)
        * ←—————————————————————————————————————————————————————————————————→ */
        circleConstrain: function(options={}) {
-        var o = hs.parseOptions(options);
-        var vars = vs[o.uniqueId];
-        var exps = vars.helperExpressions = {};
-        vars.belayCorrection = true;
+        let o = hs.parseOptions(options);
+        let vars = vs[o.uniqueId] = (vs[o.uniqueId] || {});
+        let exps = vars.helperExpressions = {};
+        vars.belayUntil = Date.now()+cs.delay.LOAD;
 
         o.desmos.setExpressions([
           {id:'circle',latex:'\\left(x-x_0\\right)^2+\\left(y-y_0\\right)^2=r_0^2'},
           {id:'center',latex:'\\left(x_0,y_0\\right)'},
           {id:'draggable',latex:'\\left(x_1,y_1\\right)'},
-          {id:'corrected',latex:'\\left(x_{corrected},y_{corrected}\\right)',hidden:true,dragMode:"NONE"},
+          {id:'adjusted',latex:'\\left(x_{adjusted},y_{adjusted}\\right)',hidden:true,dragMode:"NONE"},
           {id:'x_0',latex:'x_0=0'},
           {id:'y_0',latex:'y_0=0'},
           {id:'r_0',latex:'r_0=1'},
           {id:'x_1',latex:'x_1=0.5'},
           {id:'y_1',latex:'y_1=0.5'},
-          {id:'x_corrected',latex:'x_{corrected}=x_1'},
-          {id:'y_corrected',latex:'y_{corrected}=y_1'}
+          {id:'x_adjusted',latex:'x_{adjusted}=x_1'},
+          {id:'y_adjusted',latex:'y_{adjusted}=y_1'}
         ]);
 
-       Object.assign(exps,{
-        x_0:o.desmos.HelperExpression({latex:'x_0'}),
-        y_0:o.desmos.HelperExpression({latex:'y_0'}),
-        r_0:o.desmos.HelperExpression({latex:'r_0'}),
-        x_1:o.desmos.HelperExpression({latex:'x_1'}),
-        y_1:o.desmos.HelperExpression({latex:'y_1'})
-       });
+        Object.assign(exps,{
+          x_0:o.desmos.HelperExpression({latex:'x_0'}),
+          y_0:o.desmos.HelperExpression({latex:'y_0'}),
+          r_0:o.desmos.HelperExpression({latex:'r_0'}),
+          x_1:o.desmos.HelperExpression({latex:'x_1'}),
+          y_1:o.desmos.HelperExpression({latex:'y_1'})
+        });
 
-       exps.x_0.observe('numericValue',function(){correctIt('x_0');});
-       exps.y_0.observe('numericValue',function(){correctIt('y_0');});
-       exps.x_1.observe('numericValue',function(){correctIt('x_1');});
-       exps.y_1.observe('numericValue',function(){correctIt('y_1');});
-       exps.r_0.observe('numericValue',function(){correctIt('r_0');});
+        function clearPlaceholder() {
+          vars.belayUntil = Date.now() + cs.delay.SET_EXPRESSION;
+          var corrected = hs.circleConstrain(
+            {x:exps.x_1.numericValue,y:exps.y_1.numericValue},
+            {x:exps.x_0.numericValue,y:exps.y_0.numericValue,r:exps.r_0.numericValue},
+            cs.enum.EXTERIOR
+          );
+          o.desmos.setExpressions([
+            {id:'x_1',latex:'x_1='+corrected.x},
+            {id:'y_1',latex:'y_1='+corrected.y},
+            {id:'x_adjusted',latex:'x_{adjusted}=x_1'},
+            {id:'y_adjusted',latex:'y_{adjusted}=y_1'},
+            {id:'adjusted',hidden:true},
+            {id:'draggable',color:cs.color.agaColors.green}
+          ]);
+          setTimeout(function(){vars.placeholder = false;},cs.delay.SET_EXPRESSION);
+         }
 
-       function correctIt() {
-        return;
-       }
+        function setPlaceholder() {
+          vars.placeholder = true;
+          vars.belayUntil = Date.now() + cs.delay.SET_EXPRESSION;
+          o.desmos.setExpressions([
+            {id:'x_adjusted',latex:'x_{adjusted}=x_0+\\left(x_1-x_0\\right)\\frac{r_0}{\\sqrt{\\left(x_1-x_0\\right)^2+\\left(y_1-y_0\\right)^2}}'},
+            {id:'y_adjusted',latex:'y_{adjusted}=y_0+\\left(y_1-y_0\\right)\\frac{r_0}{\\sqrt{\\left(x_1-x_0\\right)^2+\\left(y_1-y_0\\right)^2}}'},
+            {id:'adjusted',hidden:false},
+            {id:'draggable',color:cs.color.HIDDEN_COLOR}
+          ]);
+         }
+
+        function correctIt(coord) {
+          if(coord == 'x_1' || coord == 'y_1') {
+            if (vars.belayUntil > Date.now()) return;
+            if (Math.pow(exps.x_1.numericValue-exps.x_0.numericValue,2)+Math.pow(exps.y_1.numericValue-exps.y_0.numericValue,2) <= Math.pow(exps.r_0.numericValue,2)) {
+              if (!(vars.placeholder)) setPlaceholder();
+            } else {
+              if (vars.placeholder) clearPlaceholder();
+            }
+          } else {
+            var point = {x:exps.x_1.numericValue,y:exps.y_1.numericValue}
+            var corrected = hs.circleConstrain(
+              point,
+              {x:exps.x_0.numericValue,y:exps.y_0.numericValue,r:exps.r_0.numericValue},
+              cs.enum.EXTERIOR
+            );
+            if (point != corrected) setPlaceholder();
+            else clearPlaceholder();
+          }
+          return;
+         }
+        // prepare to clear placeholders
+        document.addEventListener('mouseup',function(){clearPlaceholder();});
+        document.addEventListener('touchend',function(){clearPlaceholder();});
+
+        setTimeout(function(){
+          clearPlaceholder();
+          exps.x_0.observe('numericValue',function(){correctIt('x_0');});
+          exps.y_0.observe('numericValue',function(){correctIt('y_0');});
+          exps.x_1.observe('numericValue',function(){correctIt('x_1');});
+          exps.y_1.observe('numericValue',function(){correctIt('y_1');});
+          exps.r_0.observe('numericValue',function(){correctIt('r_0');});
+        },cs.delay.LOAD);
        }
      };
 
