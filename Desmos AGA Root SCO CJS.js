@@ -348,9 +348,10 @@ PearsonGL.External.rootJS = (function() {
             return null;
         }
 
-        if (scaleBack < 0) return null;
+        if (scaleBack < 0) {o.log('Negative circle constraint '+scaleBack); return null;}
 
-        scaleBack /= Math.sqrt(dSquared);
+        if(dSquared != 0) scaleBack /= Math.sqrt(dSquared);
+        else scaleBack = 0;
 
         var output = {
           x:(hs.number(circle.x+(point.x-circle.x)*scaleBack)),
@@ -3010,7 +3011,8 @@ PearsonGL.External.rootJS = (function() {
           n2_x:o.desmos.HelperExpression({latex:'P_{NC2}\\left[1\\right]'}),
           n2_y:o.desmos.HelperExpression({latex:'P_{NC2}\\left[2\\right]'}),
           D:o.desmos.HelperExpression({latex:'D'}),
-          i_nv:o.desmos.HelperExpression({latex:'i_{nv}'})
+          i_nv:o.desmos.HelperExpression({latex:'i_{nv}'}),
+          t_ick:o.desmos.HelperExpression({latex:'t_{ick}'})
         });
 
         function isolateHandle(which) {
@@ -3018,11 +3020,11 @@ PearsonGL.External.rootJS = (function() {
           for (helper in hxs) hxs[helper].unobserve('numericValue.dragging');
           vars.dragging = true;
           var exprs = [
-            /*{id:'intersection',hidden:(which[2]!='1')},
+            {id:'intersection',hidden:(which[2]!='1')},
             {id:'handleM1',hidden:(!(/[uv]_2/.test(which)))},
             {id:'handleM2',hidden:(!(/[wz]_2/.test(which)))},
             {id:'handleN1',hidden:(!(/[uv]_3/.test(which)))},
-            {id:'handleN2',hidden:(!(/[wz]_3/.test(which)))}*/
+            {id:'handleN2',hidden:(!(/[wz]_3/.test(which)))}//*/
           ];
           switch (which[2]) {
             case '0':
@@ -3082,6 +3084,7 @@ PearsonGL.External.rootJS = (function() {
           o.desmos.setExpressions(exprs);
 
           vars.belayUntil = Date.now()+cs.delay.SET_EXPRESSION;
+          setTimeout(activateHandles,cs.delay.SET_EXPRESSION);
         }
 
         function replaceHandles() {
@@ -3123,7 +3126,6 @@ PearsonGL.External.rootJS = (function() {
           o.desmos.setExpressions(exprs);
 
           setTimeout(adjustHandles,cs.delay.SET_EXPRESSION);
-          setTimeout(activateHandles,cs.delay.SET_EXPRESSION);
         }
 
         function activateHandles() {
@@ -3133,10 +3135,10 @@ PearsonGL.External.rootJS = (function() {
           o.desmos.setExpressions([
             {id:'center',hidden:false},
             {id:'intersection',hidden:false},
-            {id:'handleM1',hidden:false},
-            {id:'handleM2',hidden:false},
-            {id:'handleN1',hidden:false},
-            {id:'handleN2',hidden:false}
+            {id:'handleM1',hidden:(Math.pow(hxs.m1_x.numericValue-hxs.u_1.numericValue,2)+Math.pow(hxs.m1_y.numericValue-hxs.v_1.numericValue,2)<Math.pow(hxs.t_ick.numericValue,2))},
+            {id:'handleM2',hidden:(Math.pow(hxs.m2_x.numericValue-hxs.u_1.numericValue,2)+Math.pow(hxs.m2_y.numericValue-hxs.v_1.numericValue,2)<Math.pow(hxs.t_ick.numericValue,2))},
+            {id:'handleN1',hidden:(Math.pow(hxs.n1_x.numericValue-hxs.u_1.numericValue,2)+Math.pow(hxs.n1_y.numericValue-hxs.v_1.numericValue,2)<Math.pow(hxs.t_ick.numericValue,2))},
+            {id:'handleN2',hidden:(Math.pow(hxs.n2_x.numericValue-hxs.u_1.numericValue,2)+Math.pow(hxs.n2_y.numericValue-hxs.v_1.numericValue,2)<Math.pow(hxs.t_ick.numericValue,2))}
           ]);
 
           for (let helper in hxs) {
@@ -3269,8 +3271,8 @@ PearsonGL.External.rootJS = (function() {
         // prepare to clear placeholders
         document.addEventListener('mousedown',function(){vars.dragging=true;});
         document.addEventListener('touchstart',function(){vars.dragging=true;});
-        document.addEventListener('mouseup',function(){vars.dragging=false;replaceHandles();});
-        document.addEventListener('touchend',function(){vars.dragging=false;replaceHandles();});
+        document.addEventListener('mouseup',function(){setTimeout(function(){vars.dragging=false;replaceHandles();},cs.delay.LOAD)});
+        document.addEventListener('touchend',function(){setTimeout(function(){vars.dragging=false;replaceHandles();},cs.delay.LOAD)});
 
         setTimeout(function(){
           activateHandles();
