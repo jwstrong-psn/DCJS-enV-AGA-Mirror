@@ -170,13 +170,23 @@ PearsonGL.External.masterJS = (function() {
   }
 
   //* functions for test purposes only
-  ts.A0597714_init = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597714_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
+  ts.A0597772_init = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.A0597772_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
   }
 
   //* functions for test purposes only
-  ts.A0597772_init = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597772_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
+  ts.A0598652_init = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.A0598652_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
+  }
+
+  //* functions for test purposes only
+  ts.A0598652_updateLabels = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.A0598652_updateLabels({'value':val,'name':name,'desmos':desmos,'log':console.log});
+  }
+
+  //* functions for test purposes only
+  ts.A0597714_init = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.A0597714_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
   }
 
   //* functions for test purposes only
