@@ -1907,6 +1907,7 @@ PearsonGL.External.rootJS = (function() {
         MAX_VERTICES:14,
         RADIUS:4,
         INITIAL_COORDINATES_PRECISION:6,
+        ANGLE_PRECISION:2,
         DRAG_BUFFER:0.25,
         DRAG_BUFFER_REBOUND:0.1, // How much to bounce back when going past the buffer
         SEGMENT_TEMPLATE:'\\left(x_U\\left(1-t\\right)+x_Vt,y_U\\left(1-t\\right)+y_Vt\\right)',
@@ -2005,10 +2006,10 @@ PearsonGL.External.rootJS = (function() {
           vars['P_'+hs.ALPHA[i]] = 180*Math.acos((asquared+bsquared-csquared)/(2*Math.sqrt(asquared*bsquared)))/Math.PI;
          };
 
-         fs.shared.label.labelPolyAngles(o,{refreshAll:true});
+         fs.shared.label.labelPolyAngles(o,{refreshAll:true},cons.ANGLE_PRECISION);
 
         var expr = '';
-        for (var j = 1;j <= n;j++) expr+=(vars[vars.polygonName+'_angles'][hs.ALPHA[j]]+'+');
+        for (var j = 1;j <= n;j++) expr+=((vars[vars.polygonName+'_angles'][hs.ALPHA[j]]/Math.pow(10,cons.ANGLE_PRECISION))+'+');
         expr = expr.slice(0,expr.length-1);
         o.desmos.setExpression({id:'sum',latex:expr});
         o.desmos.setExpression({id:'product',latex:'180\\left('+n+'-2\\right)'});
@@ -2031,7 +2032,7 @@ PearsonGL.External.rootJS = (function() {
 
         hfs.correctionBuffer = window.setTimeout(function(){
           // set up the initial angles
-          fs.shared.label.labelPolyAngles(o,{refreshAll:true});
+          fs.shared.label.labelPolyAngles(o,{refreshAll:true},cons.ANGLE_PRECISION);
 
           vars.belayCorrection = false;
         },cs.delay.LOAD);
@@ -2203,6 +2204,7 @@ PearsonGL.External.rootJS = (function() {
        coordinateChanged: function(options={}) {
         let o = hs.parseOptions(options);
         let vars = vs[o.uniqueId];
+        let cons = cs.A0597634;
         if (vars.belayCorrection === true) {
           o.log('Belaying order to correct '+o.name);
           return;
@@ -2260,10 +2262,10 @@ PearsonGL.External.rootJS = (function() {
           vars['P_'+hs.ALPHA[j]] = 180*Math.acos((asquared+bsquared-csquared)/(2*Math.sqrt(asquared*bsquared)))/Math.PI;
         }
 
-        fs.shared.label.labelPolyAngles(Object.assign({},o,{name:'m_'+hs.ALPHA[i],value:vars['P_'+hs.ALPHA[i]]}));
+        fs.shared.label.labelPolyAngles(Object.assign({},o,{name:'m_'+hs.ALPHA[i],value:vars['P_'+hs.ALPHA[i]]}),{},cons.ANGLE_PRECISION);
 
         var expr = '';
-        for (var j = 1;j <= n;j++) expr+=(vars[vars.polygonName+'_angles'][hs.ALPHA[j]]+'+');
+        for (var j = 1;j <= n;j++) expr+=((vars[vars.polygonName+'_angles'][hs.ALPHA[j]]/Math.pow(10,cons.ANGLE_PRECISION))+'+');
         expr = expr.slice(0,expr.length-1);
         o.desmos.setExpression({id:'sum',latex:expr});
         o.desmos.setExpression({id:'product',latex:'180\\left('+n+'-2\\right)'});
@@ -2375,10 +2377,10 @@ PearsonGL.External.rootJS = (function() {
           vars['P_'+hs.ALPHA[i]] = 180*Math.acos((asquared+bsquared-csquared)/(2*Math.sqrt(asquared*bsquared)))/Math.PI;
         };
 
-        fs.shared.label.labelPolyAngles(o,{refreshAll:true});
+        fs.shared.label.labelPolyAngles(o,{refreshAll:true},cons.ANGLE_PRECISION);
 
         var expr = '';
-        for (var j = 1;j <= n;j++) expr+=(vars[vars.polygonName+'_angles'][hs.ALPHA[j]]+'+');
+        for (var j = 1;j <= n;j++) expr+=((vars[vars.polygonName+'_angles'][hs.ALPHA[j]]/Math.pow(10,cons.ANGLE_PRECISION))+'+');
         expr = expr.slice(0,expr.length-1);
         o.desmos.setExpression({id:'sum',latex:expr});
         o.desmos.setExpression({id:'product',latex:'180\\left('+n+'-2\\right)'});
@@ -2419,6 +2421,7 @@ PearsonGL.External.rootJS = (function() {
         RADIUS:4,
         EXTENSION_LENGTH:3, // in ticks
         INITIAL_COORDINATES_PRECISION:6,
+        ANGLE_PRECISION:2,
         DRAG_BUFFER:0.25,
         DRAG_BUFFER_REBOUND:0.1, // How much to bounce back when going past the buffer
         SEGMENT_TEMPLATE:'\\left(x_U\\left(1-t\\right)+x_Vt,y_U\\left(1-t\\right)+y_Vt\\right)',
@@ -2519,10 +2522,10 @@ PearsonGL.External.rootJS = (function() {
           vars['P_'+hs.ALPHA[i]] = 180*Math.acos((asquared+bsquared-csquared)/(2*Math.sqrt(asquared*bsquared)))/Math.PI;
          };
 
-         fs.shared.label.labelPolyAngles(o,{refreshAll:true,exterior:true});
+         fs.shared.label.labelPolyAngles(o,{refreshAll:true,exterior:true},cons.ANGLE_PRECISION);
 
         var expr = '';
-        for (var j = 1;j <= n;j++) expr+=(Math.round(180-vars[vars.polygonName+'_angles'][hs.ALPHA[j]])+'+');
+        for (var j = 1;j <= n;j++) expr+=((Math.round(180*Math.pow(10,cons.ANGLE_PRECISION)-vars[vars.polygonName+'_angles'][hs.ALPHA[j]])/Math.pow(10,cons.ANGLE_PRECISION))+'+');
         expr = expr.slice(0,expr.length-1);
         o.desmos.setExpression({id:'sum',latex:expr});
 
@@ -2544,7 +2547,7 @@ PearsonGL.External.rootJS = (function() {
 
         hfs.correctionBuffer = window.setTimeout(function(){
           // set up the initial angles
-          fs.shared.label.labelPolyAngles(o,{refreshAll:true,exterior:true});
+          fs.shared.label.labelPolyAngles(o,{refreshAll:true,exterior:true},cons.ANGLE_PRECISION);
 
           vars.belayCorrection = false;
         },cs.delay.LOAD);
@@ -2750,6 +2753,7 @@ PearsonGL.External.rootJS = (function() {
        coordinateChanged: function(options={}) {
         let o = hs.parseOptions(options);
         let vars = vs[o.uniqueId];
+        let cons = cs.A0597634;
         if (vars.belayCorrection === true) {
           o.log('Belaying order to correct '+o.name);
           return;
@@ -2807,10 +2811,10 @@ PearsonGL.External.rootJS = (function() {
           vars['P_'+hs.ALPHA[j]] = 180*Math.acos((asquared+bsquared-csquared)/(2*Math.sqrt(asquared*bsquared)))/Math.PI;
         }
 
-        fs.shared.label.labelPolyAngles(Object.assign({},o,{name:'m_'+hs.ALPHA[i],value:vars['P_'+hs.ALPHA[i]]}),{exterior:true});
+        fs.shared.label.labelPolyAngles(Object.assign({},o,{name:'m_'+hs.ALPHA[i],value:vars['P_'+hs.ALPHA[i]]}),{exterior:true},cons.ANGLE_PRECISION);
 
         var expr = '';
-        for (var j = 1;j <= n;j++) expr+=(Math.round(180-vars[vars.polygonName+'_angles'][hs.ALPHA[j]])+'+');
+        for (var j = 1;j <= n;j++) expr+=((Math.round(180*Math.pow(10,cons.ANGLE_PRECISION)-vars[vars.polygonName+'_angles'][hs.ALPHA[j]])/Math.pow(10,cons.ANGLE_PRECISION))+'+');
         expr = expr.slice(0,expr.length-1);
         o.desmos.setExpression({id:'sum',latex:expr});
 
@@ -2933,10 +2937,10 @@ PearsonGL.External.rootJS = (function() {
           vars['P_'+hs.ALPHA[i]] = 180*Math.acos((asquared+bsquared-csquared)/(2*Math.sqrt(asquared*bsquared)))/Math.PI;
         };
 
-        fs.shared.label.labelPolyAngles(o,{refreshAll:true,exterior:true});
+        fs.shared.label.labelPolyAngles(o,{refreshAll:true,exterior:true},cons.ANGLE_PRECISION);
 
         var expr = '';
-        for (var j = 1;j <= n;j++) expr+=(Math.round(180-vars[vars.polygonName+'_angles'][hs.ALPHA[j]])+'+');
+        for (var j = 1;j <= n;j++) expr+=((Math.round(180*Math.pow(10,cons.ANGLE_PRECISION)-vars[vars.polygonName+'_angles'][hs.ALPHA[j]])/Math.pow(10,cons.ANGLE_PRECISION))+'+');
         expr = expr.slice(0,expr.length-1);
         o.desmos.setExpression({id:'sum',latex:expr});
 
