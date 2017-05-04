@@ -1240,6 +1240,32 @@ PearsonGL.External.rootJS = (function() {
         }
      };
 
+    /* ←— A0598652 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0598652 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variables
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        var o = hs.parseOptions(options);
+        vs[o.uniqueId] = {
+        };
+       },
+      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
+       | updates the distance label 
+       |       
+       | Hidden point D must be authored with showLabel:true,
+       | and the ID distance
+       * ←———————————————————————————————————————————————————————————————————→ */
+       updateLabels: function(options={}) {
+        var o = hs.parseOptions(options);
+        switch (o.name) {
+          case 'd_2':
+            o.desmos.setExpression({id:'distance',label:(o.value+' blocks')});
+            break;
+          };
+        }
+     };
+
     /* ←— A0597598_A FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597598_A = {
       /* ←— labelAngle ————————————————————————————————————————————————————→ *\
