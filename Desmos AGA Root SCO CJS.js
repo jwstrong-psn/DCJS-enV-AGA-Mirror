@@ -3421,15 +3421,15 @@ PearsonGL.External.rootJS = (function() {
 
           o.desmos.setExpressions([
             {id:'center',hidden:false},
-            {id:'intersection',hidden:false},
-            {id:'handleM1',hidden:(Math.pow(hxs.m1_x.numericValue-hxs.u_1.numericValue,2)+Math.pow(hxs.m1_y.numericValue-hxs.v_1.numericValue,2)<Math.pow(hxs.t_ick.numericValue,2))},
-            {id:'handleM2',hidden:(Math.pow(hxs.m2_x.numericValue-hxs.u_1.numericValue,2)+Math.pow(hxs.m2_y.numericValue-hxs.v_1.numericValue,2)<Math.pow(hxs.t_ick.numericValue,2))},
-            {id:'handleN1',hidden:(Math.pow(hxs.n1_x.numericValue-hxs.u_1.numericValue,2)+Math.pow(hxs.n1_y.numericValue-hxs.v_1.numericValue,2)<Math.pow(hxs.t_ick.numericValue,2))},
-            {id:'handleN2',hidden:(Math.pow(hxs.n2_x.numericValue-hxs.u_1.numericValue,2)+Math.pow(hxs.n2_y.numericValue-hxs.v_1.numericValue,2)<Math.pow(hxs.t_ick.numericValue,2))}
+            {id:'vertex_handle',hidden:false},
+            {id:'leg1_handle_near',hidden:false}, // TK STUB hide handles that crash with each other
+            {id:'leg1_handle_far',hidden:false},
+            {id:'leg2_handle_near',hidden:false}, // TK
+            {id:'leg2_handle_far',hidden:false}
           ]);
 
           for (let helper in hxs) {
-            if (/[uvwz]_/.test(helper)) hxs[helper].observe(
+            if (/(?:[uv]_|_C)/.test(helper)) hxs[helper].observe(
               'numericValue.dragging',
               function(){if(vars.dragging)isolateHandle(helper);}
             );
