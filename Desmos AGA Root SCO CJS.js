@@ -3323,6 +3323,7 @@ PearsonGL.External.rootJS = (function() {
         THETAS_DEPENDENT_ON_D:'\\theta_LEGNUM=SIGN\\min\\left(PREVMEASURE,\\arcsin\\left(\\min\\left(1,\\frac{r_C}{d}\\right)\\right)\\right)'
        };
      fs.A0597773 = {
+      // TK TODO STUB differentiate parts a, b, c
       /* ←— circleConstrain ———————————————————————————————————————————————→ *\
        | Monitors x_1 and y_1 and corrects them if they go outside the circle
        |  centered at x_0, y_0 with radius r_0
@@ -3431,7 +3432,7 @@ PearsonGL.External.rootJS = (function() {
             {id:'y_V',latex:(cons.VERTEX_COORDINATE.replace(/COORDINATE/g,'y').replace(/HANDLE/g,'v')}//*/
           ];
 
-          o.log('Adjusting handles');// setting expressions:',exprs);
+          // o.log('Adjusting handles; setting expressions:',exprs);
 
           o.desmos.setExpressions(exprs);
 
@@ -3442,7 +3443,7 @@ PearsonGL.External.rootJS = (function() {
         function replaceHandles() {
           // o.log('Replacing Handles');
 
-          // adjustHandles();
+          adjustHandles();
 
           // o.log(hxs.x_V.latex+'='+hxs.x_V.numericValue,hxs.x_C.latex+'='+hxs.x_C.numericValue,hxs.y_V.latex+'='+hxs.y_V.numericValue,hxs.y_C.latex+'='+hxs.y_C.numericValue);
 
@@ -3453,8 +3454,6 @@ PearsonGL.External.rootJS = (function() {
             {id:'theta_2',latex:('\\theta_2='+hxs.theta_2.numericValue)},
             {id:'maximumDistance',latex:cons.R_DEPENDENT_ON_THETAS}
           ];
-
-          // STUB TK place handles
 
           // o.log('Replacing handles; setting expressions:',exprs);
 
@@ -3470,7 +3469,7 @@ PearsonGL.External.rootJS = (function() {
           vars.lastRadius = hxs.r_C.numericValue;
 
           var exprs=[
-            {id:'center',hidden:false},
+            {id:'center',hidden:true},
             {id:'vertex_handle',hidden:false},
             {id:'H1near',hidden:(Math.abs(Math.sin(Math.PI*hxs.theta_1near.numericValue/180)*hxs.r_C.numericValue/Math.sin(Math.PI*hxs.theta_1.numericValue/180))<hxs.t_ick.numericValue)},
             {id:'H1far',hidden:false},
