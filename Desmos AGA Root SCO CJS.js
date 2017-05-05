@@ -3317,10 +3317,10 @@ PearsonGL.External.rootJS = (function() {
         CENTER_COLOR:cs.color.agaColors.black,
         INTERSECTION_COLOR:cs.color.agaColors.black,
         HIDDEN_COLOR:'#FFFFFF',
-        LEG_HANDLE:'\\theta_LEGNUM=SIGN\\operatorname{sign}\\left(D_{pl}\\left(\\left[u_{HLEGNUMPOINTID},v_{HLEGNUMPOINTID},1\\right],U_{through}\\left(\\left[0,0,1\\right],\\left[x_V,y_V,1\\right]\\right)\\right)\\right)\\min\\left(\\arcsin\\left(\\frac{r_C}{d}\\right),\\theta_{LVL}\\left(H_{LEGNUMPOINTID},V,C\\right)\\right)',
+        LEG_HANDLE:'\\theta_LEGNUM=SIGN\\operatorname{sign}\\left(D_{pl}\\left(\\left[u_{HLEGNUMPOINTID},v_{HLEGNUMPOINTID},1\\right],U_{through}\\left(\\left[0,0,1\\right],\\left[x_V,y_V,1\\right]\\right)\\right)\\right)\\min\\left(\\arcsin\\left(\\min\\left(1,\\frac{r_C}{d}\\right)\\right),\\theta_{LVL}\\left(H_{LEGNUMPOINTID},V,C\\right)\\right)',
         VERTEX_COORDINATE:'COORDINATE_V=COORDINATE_C+HANDLE_V\\max\\left(\\frac{r_C\\left(1+10^{-10}\\right)}{D},\\min\\left(1,\\frac{R}{D}\\right)\\right)',
         R_DEPENDENT_ON_THETAS:'R=\\left\\{\\theta_1=0:\\left\\{\\theta_2=0:10^{100}r_C,R_2\\right\\},\\theta_2=0:R_1,\\min\\left(R_1,R_2\\right)\\right\\}',
-        THETAS_DEPENDENT_ON_D:'\\theta_LEGNUM=SIGN\\min\\left(PREVMEASURE,\\arcsin\\left(\\frac{r_C}{d}\\right)\\right)'
+        THETAS_DEPENDENT_ON_D:'\\theta_LEGNUM=SIGN\\min\\left(PREVMEASURE,\\arcsin\\left(\\min\\left(1,\\frac{r_C}{d}\\right)\\right)\\right)'
        };
      fs.A0597773 = {
       /* ←— circleConstrain ———————————————————————————————————————————————→ *\
@@ -3472,9 +3472,9 @@ PearsonGL.External.rootJS = (function() {
           var exprs=[
             {id:'center',hidden:false},
             {id:'vertex_handle',hidden:false},
-            {id:'H1near',hidden:false}, // TK STUB hide handles that crash with each other
+            {id:'H1near',hidden:(Math.abs(Math.sin(Math.PI*hxs.theta_1near.numericValue/180)*hxs.r_C.numericValue/Math.sin(Math.PI*hxs.theta_1.numericValue/180))<hxs.t_ick.numericValue)},
             {id:'H1far',hidden:false},
-            {id:'H2near',hidden:false}, // TK
+            {id:'H2near',hidden:(Math.abs(Math.sin(Math.PI*hxs.theta_2near.numericValue/180)*hxs.r_C.numericValue/Math.sin(Math.PI*hxs.theta_2.numericValue/180))<hxs.t_ick.numericValue)},
             {id:'H2far',hidden:false}
           ];
 
@@ -3499,7 +3499,11 @@ PearsonGL.External.rootJS = (function() {
           o.desmos.setExpression({id:'center',label:expr});
         }
 
-        function logChanges() {
+        function debug() {
+          hxs.theta_1.observe('numericValue',function(){if (isNaN(hxs.theta_1.numericValue)) {
+            escape();
+            return;//*/
+          }});
         }
 
         function click() {
@@ -3515,6 +3519,13 @@ PearsonGL.External.rootJS = (function() {
           setTimeout(replaceHandles,cs.delay.LOAD);
         }
 
+        function escape() {
+          document.removeEventListener('mousedown',click);
+          document.removeEventListener('touchstart',click);
+          document.removeEventListener('mouseup',unclick);
+          document.removeEventListener('touchend',unclick);
+        }
+
         document.addEventListener('mousedown',click);
         document.addEventListener('touchstart',click);
         document.addEventListener('mouseup',unclick);
@@ -3526,7 +3537,7 @@ PearsonGL.External.rootJS = (function() {
           hxs.arc_far.observe('numericValue',updateEquation);
           hxs.arc_near.observe('numericValue',updateEquation);
           updateEquation();
-          // logChanges();
+          debug();
         },cs.delay.LOAD);
        }
      };
