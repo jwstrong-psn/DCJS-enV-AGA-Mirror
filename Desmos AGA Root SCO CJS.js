@@ -3541,6 +3541,316 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
+    /* ←— A0597777 FUNCTIONS ——————————————————————————————————————————————→ */
+      cs.A0597777 = {
+        CENTER_COLOR:cs.color.agaColors.black,
+        INTERSECTION_COLOR:cs.color.agaColors.black,
+        HIDDEN_COLOR:'#FFFFFF',
+        PRECISION:2
+       };
+     fs.A0597777 = {
+      // TK TODO STUB differentiate parts a, b, c
+      /* ←— circleConstrain ———————————————————————————————————————————————→ *\
+       | Monitors x_1 and y_1 and corrects them if they go outside the circle
+       |  centered at x_0, y_0 with radius r_0
+       | (Initialization option; starts the whole graph)
+       * ←—————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        let o = hs.parseOptions(options);
+        let vars = vs[o.uniqueId] = (vs[o.uniqueId] || {draggingPoint:null,dragging:false});
+        let hxs = vars.helperExpressions = {};
+        let cons = cs.A0597777;
+        vars.belayUntil = Date.now()+cs.delay.LOAD;
+
+        Object.assign(hxs,{
+          x_0:o.desmos.HelperExpression({latex:'x_0'}),
+          y_0:o.desmos.HelperExpression({latex:'y_0'}),
+          x_1:o.desmos.HelperExpression({latex:'x_1'}),
+          y_1:o.desmos.HelperExpression({latex:'y_1'}),
+          x_2:o.desmos.HelperExpression({latex:'x_2'}),
+          y_2:o.desmos.HelperExpression({latex:'y_2'}),
+          x_3:o.desmos.HelperExpression({latex:'x_3'}),
+          y_3:o.desmos.HelperExpression({latex:'y_3'}),
+
+          m2_x:o.desmos.HelperExpression({latex:'P_{MC2}\\left[1\\right]'}),
+          m2_y:o.desmos.HelperExpression({latex:'P_{MC2}\\left[2\\right]'}),
+          n2_x:o.desmos.HelperExpression({latex:'P_{NC2}\\left[1\\right]'}),
+          n2_y:o.desmos.HelperExpression({latex:'P_{NC2}\\left[2\\right]'}),
+          
+          R:o.desmos.HelperExpression({latex:'R'}),
+          D:o.desmos.HelperExpression({latex:'D'}),
+          D_H:o.desmos.HelperExpression({latex:'D_H'}),
+          D_M:o.desmos.HelperExpression({latex:'D_M'}),
+          D_N:o.desmos.HelperExpression({latex:'D_N'}),
+
+          t_M1:o.desmos.HelperExpression({latex:'t_{M1}'}),
+          t_M2:o.desmos.HelperExpression({latex:'t_{M2}'}),
+          t_N1:o.desmos.HelperExpression({latex:'t_{N1}'}),
+          t_N2:o.desmos.HelperExpression({latex:'t_{N2}'}),
+          
+          m_tangent:o.desmos.HelperExpression({latex:'m_{tngnt}'}),
+          n_tangent:o.desmos.HelperExpression({latex:'n_{tngnt}'}),
+
+          t_ick:o.desmos.HelperExpression({latex:'t_{ick}'})
+        });
+
+        function isolateHandle(which) {
+          // o.log('Isolating Handles');
+          for (helper in hxs) hxs[helper].unobserve('numericValue.dragging');
+
+          // o.log(which+' changed.');
+
+
+          vars.dragging = true;
+          var exprs = [
+            {id:'vertex_handle',hidden:(which[2]!='V')},
+            {id:'H1near',hidden:(!(/H1near/.test(which)))},
+            {id:'H1far',hidden:(!(/H1far/.test(which)))},
+            {id:'H2near',hidden:(!(/H2near/.test(which)))},
+            {id:'H2far',hidden:(!(/H2far/.test(which)))}//*/
+          ];
+
+          if (which[2]=='H') {
+            exprs.push({id:('theta_'+which[3]),latex:(cons.LEG_HANDLE.replace(/LEGNUM/g,which[3]).replace(/POINTID/g,which.substring(4,which.length)).replace(/SIGN/,((which[3]==1)?'-':'')))});
+            exprs.push({id:'x_V',latex:'x_V=x_C+u_V'});
+            exprs.push({id:'y_V',latex:'y_V=y_C+v_V'});
+            vars.draggingPoint = which.substring(2,which.length);
+          } else if (/[uv]_V/.test(which)) {
+            exprs.push({id:'x_V',latex:(cons.VERTEX_COORDINATE.replace(/COORDINATE/g,'x').replace(/HANDLE/g,'u'))});
+            exprs.push({id:'y_V',latex:(cons.VERTEX_COORDINATE.replace(/COORDINATE/g,'y').replace(/HANDLE/g,'v'))});
+            exprs.push({id:'maximumDistance',latex:'R=10^{100}r_C'});
+            exprs.push({id:'theta_1',latex:cons.THETAS_DEPENDENT_ON_D.replace(/LEGNUM/g,'1').replace(/SIGN/g,((hxs.theta_1.numericValue>=0)?'':'-')).replace(/PREVMEASURE/g,''+Math.abs(hxs.theta_1.numericValue))});
+            exprs.push({id:'theta_2',latex:cons.THETAS_DEPENDENT_ON_D.replace(/LEGNUM/g,'2').replace(/SIGN/g,((hxs.theta_2.numericValue>=0)?'':'-')).replace(/PREVMEASURE/g,''+Math.abs(hxs.theta_2.numericValue))});
+            vars.draggingPoint = 'vertex_handle';
+          } else if (/[xy]_C/.test(which)) {
+            vars.draggingPoint = 'center';
+          } else if (which == 'r_C') {
+            exprs.push({id:'u_V',latex:('u_V=\\frac{r_C}{'+vars.lastRadius+'}\\cdot'+hxs.u_V.numericValue)});
+            exprs.push({id:'v_V',latex:('v_V=\\frac{r_C}{'+vars.lastRadius+'}\\cdot'+hxs.v_V.numericValue)});
+            vars.draggingPoint = 'radius';
+          }
+
+          // o.log('Isolating handle '+which+'; setting expressions:',exprs);
+
+          o.desmos.setExpressions(exprs);
+        }
+
+        function replaceHandles() {
+          // o.log('Replacing Handles');
+
+          adjustHandles();
+
+          var exprs = [
+            {id:'u_1',latex:('u_1='+hxs.x_1.numericValue)},
+            {id:'v_1',latex:('v_1='+hxs.y_1.numericValue)},
+            {id:'u_2',latex:('u_1='+hxs.x_2.numericValue)},
+            {id:'v_2',latex:('v_1='+hxs.y_2.numericValue)},
+            {id:'u_3',latex:('u_1='+hxs.x_3.numericValue)},
+            {id:'v_3',latex:('v_1='+hxs.y_3.numericValue)}
+          ];
+
+          // o.log('Replacing handles; setting expressions:',exprs);
+
+          o.desmos.setExpressions(exprs);
+
+          setTimeout(adjustHandles,cs.delay.SET_EXPRESSION);
+          // setTimeout(activateHandles,cs.delay.SET_EXPRESSION*2);
+        }
+
+        function activateHandles() {
+          // o.log('Activating Handles');
+
+          vars.lastRadius = hxs.r_C.numericValue;
+
+          var exprs=[
+            {id:'center',hidden:false},
+            {id:'vertexHandle',hidden:false},
+            {id:'handleM',hidden:false},
+            {id:'handleN',hidden:false}
+          ];
+
+          // o.log('Activating handles; setting expressions:',exprs);
+
+          o.desmos.setExpressions(exprs);
+
+          for (let helper in hxs) {
+            if (/(?:[uv]_|_C)/.test(helper)) {
+              // o.log('Observing '+helper);
+              hxs[helper].observe(
+                'numericValue.dragging',
+                function(){if(vars.dragging)isolateHandle(helper);}
+              );
+            }
+          }
+        }
+
+        function recalculateLabels() {
+          let prec = cons.PRECISION;
+
+          var nTan = ((hxs.n_tangent.numericValue == 1)?true:false);
+          var mTan = ((hxs.m_tangent.numericValue == 1)?true:false);
+
+          var inv = (vars.t_M1*vars.t_M2 < 0 || vars.t_N1*vars.t_N2 < 0);
+
+          var product;
+          var possiblePs; // Integer representation of rounded values
+          var possibleQs;
+          var fixLeg;
+
+          if (vars.draggingPoint == 'M') {
+            product = Math.round(Math.pow(10,prec)*vars.c*vars.d);
+            possiblePs = [Math.abs(Math.round(Math.pow(10,prec)*vars.t_M1))];
+            possibleQs = [Math.abs(Math.round(Math.pow(10,prec)*vars.t_M2))];
+            fixLeg = 'M';
+          } else if (vars.draggingPoint == 'N') {
+            product = Math.round(Math.pow(10,prec)*vars.a*vars.b);
+            possiblePs = [Math.abs(Math.round(Math.pow(10,prec)*vars.t_N1))];
+            possibleQs = [Math.abs(Math.round(Math.pow(10,prec)*vars.t_N2))];
+            fixLeg = 'N';
+          } else if (vars.draggingPoint == 'T') {
+            var productAB = Math.round(Math.pow(10,prec)*
+              (mTan?Math.pow(vars.t_M1+vars.t_M2,2)/4:vars.t_M1*vars.t_M2));
+            var productCD = Math.round(Math.pow(10,prec)*
+              (nTan?Math.pow(vars.t_N1+vars.t_N2,2)/4:vars.t_N1*vars.t_N2));
+            var actualProduct = vars.t_N1*vars.t_N2;
+            if (Math.abs(productAB-actualProduct) < Math.abs(productCD-actualProduct)) {
+              vars.a = Math.abs(vars.t_M1);
+              vars.b = Math.abs(vars.t_M2);
+              product = productAB;
+              possiblePs = [Math.abs(Math.round(Math.pow(10,prec)*vars.t_N1))];
+              possibleQs = [Math.abs(Math.round(Math.pow(10,prec)*vars.t_N2))];
+              fixLeg = 'N';
+            } else {
+              vars.c = Math.abs(vars.t_N1);
+              vars.d = Math.abs(vars.t_N2);
+              product = productCD;
+              possiblePs = [Math.abs(Math.round(Math.pow(10,prec)*vars.t_M1))];
+              possibleQs = [Math.abs(Math.round(Math.pow(10,prec)*vars.t_M2))];
+              fixLeg = 'M';
+            }
+          }
+
+          var closestP = possiblePs[0];
+          var closestQ = possibleQs[0];
+          var closestProduct = Math.round(closestP*closestQ/Math.pow(10,prec));
+          var minimumSquaredError = 0;
+
+          for (
+              var i = 1;
+              ((closestProduct != product) && 
+                (i < Math.pow(10,prec)) && 
+                (i < Math.abs(possiblePs[0])-1) && 
+                (i < Math.abs(possiblePs[0])-1));
+              i++
+            ) {
+            possiblePs.push(possiblePs[0]+i);
+            possiblePs.push(possiblePs[0]-i);
+
+            for (var j = 0; j < possibleQs.length; j++) {
+              var newSquaredError = Math.pow(i,2)+Math.pow(Math.ceil(j/2),2);
+              var newProduct = Math.round(possiblePs[2*i-1]*possibleQs[j]/Math.pow(10,prec));
+              if ((Math.abs(newProduct-product) < Math.abs(closestProduct-product)) ||
+                  ((Math.abs(newProduct-product) == Math.abs(closestProduct-product)) &&
+                   (newSquaredError < minimumSquaredError))) {
+                closestP = possiblePs[2*i-1];
+                closestQ = possibleQs[j];
+                closestProduct = newProduct;
+                minimumSquaredError = newSquaredError;
+              }
+              newProduct = Math.round(possiblePs[2*i]*possibleQs[j]/Math.pow(10,prec));
+              if ((Math.abs(newProduct-product) < Math.abs(closestProduct-product)) ||
+                  ((Math.abs(newProduct-product) == Math.abs(closestProduct-product)) &&
+                   (newSquaredError < minimumSquaredError))) {
+                closestP = possiblePs[2*i];
+                closestQ = possibleQs[j];
+                closestProduct = newProduct;
+                minimumSquaredError = newSquaredError;
+              }
+            }
+
+            possibleQs.push(possibleQs[0]+i);
+            possibleQs.push(possibleQs[0]-i);
+
+            for (var j = 0; j < possiblePs.length; j++) {
+              var newSquaredError = Math.pow(i,2)+Math.pow(Math.ceil(j/2),2);
+              var newProduct = Math.round(possibleQs[2*i-1]*possiblePs[j]/Math.pow(10,prec));
+              if ((Math.abs(newProduct-product) < Math.abs(closestProduct-product)) ||
+                  ((Math.abs(newProduct-product) == Math.abs(closestProduct-product)) &&
+                   (newSquaredError < minimumSquaredError))) {
+                closestP = possiblePs[j];
+                closestQ = possibleQs[2*i-1];
+                closestProduct = newProduct;
+                minimumSquaredError = newSquaredError;
+              }
+              newProduct = Math.round(possiblePs[j]*possibleQs[2*i]/Math.pow(10,prec));
+              if ((Math.abs(newProduct-product) < Math.abs(closestProduct-product)) ||
+                  ((Math.abs(newProduct-product) == Math.abs(closestProduct-product)) &&
+                   (newSquaredError < minimumSquaredError))) {
+                closestP = possiblePs[j];
+                closestQ = possibleQs[2*i];
+                closestProduct = newProduct;
+                minimumSquaredError = newSquaredError;
+              }
+            }
+          }
+
+          if (fixLeg == 'M') {
+            vars.a = closestP/Math.pow(10,prec);
+            vars.b = closestQ/Math.pow(10,prec);
+          } else if (fixLeg == 'N') {
+          }
+        }
+
+        function debug() {
+          hxs.theta_1.observe('numericValue',function(){if (isNaN(hxs.theta_1.numericValue)) {
+            escape();
+            return;//*/
+          }});
+        }
+
+        function click() {
+          vars.dragging=true;
+          // escape();
+        }
+
+        function unclick() {
+          vars.dragging=false;
+          // escape();
+          setTimeout(replaceHandles,cs.delay.LOAD);
+        }
+
+        function escape() {
+          document.removeEventListener('mousedown',click);
+          document.removeEventListener('touchstart',click);
+          document.removeEventListener('mouseup',unclick);
+          document.removeEventListener('touchend',unclick);
+        }
+
+        document.addEventListener('mousedown',click);
+        document.addEventListener('touchstart',click);
+        document.addEventListener('mouseup',unclick);
+        document.addEventListener('touchend',unclick);
+
+        setTimeout(function(){
+          activateHandles();
+
+          vars.t_M1 = vars.a = hxs.t_M1[p];
+          vars.t_M2 = vars.b = hxs.t_M2[p];
+          vars.t_N1 = vars.c = hxs.t_N1[p];
+          vars.t_N2 = vars.d = hxs.t_N2[p];
+
+          hxs.t_M1.observe('numericValue',function(p){vars.t_M1 = hxs.t_M1[p];});
+          hxs.t_M2.observe('numericValue',function(p){vars.t_M2 = hxs.t_M2[p];});
+          hxs.t_N1.observe('numericValue',function(p){vars.t_N1 = hxs.t_N1[p];});
+          hxs.t_N2.observe('numericValue',function(p){vars.t_N2 = hxs.t_N2[p];});
+
+          o.desmos.observeEvent('change',function(){setTimeout(recalculateLabels,0)});
+
+          debug();
+        },cs.delay.LOAD);
+       }
+     };
+
     /* ←— TESTING_TESTING_123 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.TESTING_TESTING_123 = {
       /* ←— circleConstrain ———————————————————————————————————————————————→ *\
