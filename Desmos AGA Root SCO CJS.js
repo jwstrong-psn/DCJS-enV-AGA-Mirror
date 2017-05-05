@@ -168,7 +168,7 @@ PearsonGL.External.rootJS = (function() {
        * ←—————————————————————————————————————————————————————————————————————→ */
        latexToText: function(expr){
         expr = ''+expr;
-        expr = expr.replace(/\+/g,' + ');
+        expr = expr.replace(/([+=])/g,' $1 ');
         expr = expr.replace(/,/g,', ');
         expr = expr.replace(/\^2/g,'²');
         expr = expr.replace(/\^3/g,'³');
@@ -3291,8 +3291,10 @@ PearsonGL.External.rootJS = (function() {
         CENTER_COLOR:cs.color.agaColors.black,
         INTERSECTION_COLOR:cs.color.agaColors.black,
         HIDDEN_COLOR:'#FFFFFF',
-        LEG_HANDLE:'\\theta_LEGNUM=-\\operatorname{sign}\\left(D_{pl}\\left(\\left[u_{HLEGNUMPOINTID},v_{HLEGNUMPOINTID},1\\right],U_{through}\\left(\\left[x_C,y_C,1\\right],\\left[x_C+x_V,y_C+y_V,1\\right]\\right)\\right)\\right)\\min\\left(\\arcsin\\left(\\frac{r_C}{d}\\right),\\theta_{LVL}\\left(H_{LEGNUMPOINTID},V,C\\right)\\right)',
-        VERTEX_COORDINATE:'x_V=x_C+u_V\\max\\left(\\frac{r_C}{D},\\min\\left(1,\\frac{R}{D}\\right)\\right)'
+        LEG_HANDLE:'\\theta_LEGNUM=SIGN\\operatorname{sign}\\left(D_{pl}\\left(\\left[u_{HLEGNUMPOINTID},v_{HLEGNUMPOINTID},1\\right],U_{through}\\left(\\left[0,0,1\\right],\\left[x_V,y_V,1\\right]\\right)\\right)\\right)\\min\\left(\\arcsin\\left(\\frac{r_C}{d}\\right),\\theta_{LVL}\\left(H_{LEGNUMPOINTID},V,C\\right)\\right)',
+        VERTEX_COORDINATE:'COORDINATE_V=COORDINATE_C+HANDLE_V\\max\\left(\\frac{r_C\\left(1+10^{-10}\\right)}{D},\\min\\left(1,\\frac{R}{D}\\right)\\right)',
+        R_DEPENDENT_ON_THETAS:'R=\\left\\{\\theta_1=0:\\left\\{\\theta_2=0:10^{100}r_C,R_2\\right\\},\\theta_2=0:R_1,\\min\\left(R_1,R_2\\right)\\right\\}',
+        THETAS_DEPENDENT_ON_D:'\\theta_LEGNUM=SIGN\\min\\left(PREVMEASURE,\\arcsin\\left(\\frac{r_C}{d}\\right)\\right)'
        };
      fs.A0597773 = {
       /* ←— circleConstrain ———————————————————————————————————————————————→ *\
@@ -3304,6 +3306,7 @@ PearsonGL.External.rootJS = (function() {
         let o = hs.parseOptions(options);
         let vars = vs[o.uniqueId] = (vs[o.uniqueId] || {draggingPoint:null,dragging:false});
         let hxs = vars.helperExpressions = {};
+        let cons = cs.A0597773;
         vars.belayUntil = Date.now()+cs.delay.LOAD;
 
         Object.assign(hxs,{
@@ -3326,32 +3329,57 @@ PearsonGL.External.rootJS = (function() {
           R:o.desmos.HelperExpression({latex:'R'}),
           theta_1:o.desmos.HelperExpression({latex:'\\theta_1'}),
           theta_2:o.desmos.HelperExpression({latex:'\\theta_2'}),
-          
+
+          theta_VC:o.desmos.HelperExpression({latex:'\\theta_{VC}'}),
+          theta_1near:o.desmos.HelperExpression({latex:'\\theta_{1near}'}),
+          theta_1far:o.desmos.HelperExpression({latex:'\\theta_{1far}'}),
+          theta_2near:o.desmos.HelperExpression({latex:'\\theta_{2near}'}),
+          theta_2far:o.desmos.HelperExpression({latex:'\\theta_{2far}'}),
+
+          arc_near:o.desmos.HelperExpression({latex:'\\theta_{arc}\\left[1\\right]'}),
+          arc_far:o.desmos.HelperExpression({latex:'\\theta_{arc}\\left[2\\right]'}),
+          angle:o.desmos.HelperExpression({latex:'\\operatorname{round}\\left(\\left|\\theta_1+\\theta_2\\right|\\right)'}),
+
           t_ick:o.desmos.HelperExpression({latex:'t_{ick}'})
         });
 
         function isolateHandle(which) {
           // o.log('Isolating Handles');
           for (helper in hxs) hxs[helper].unobserve('numericValue.dragging');
+
+          // o.log(which+' changed.');
+
+
           vars.dragging = true;
           var exprs = [
             {id:'vertex_handle',hidden:(which[2]!='V')},
-            {id:'leg1_handle_near',hidden:(!(/H1near/.test(which)))},
-            {id:'leg1_handle_far',hidden:(!(/H1far/.test(which)))},
-            {id:'leg2_handle_near',hidden:(!(/H2near/.test(which)))},
-            {id:'leg2_handle_far',hidden:(!(/H2far/.test(which)))}//*/
+            {id:'H1near',hidden:(!(/H1near/.test(which)))},
+            {id:'H1far',hidden:(!(/H1far/.test(which)))},
+            {id:'H2near',hidden:(!(/H2near/.test(which)))},
+            {id:'H2far',hidden:(!(/H2far/.test(which)))}//*/
           ];
 
-          if (which[3]=='H') {
-            exprs.push({id:('theta_'+which[4]),latex:(cs.A0597773.LEG_HANDLE.replace(/LEGNUM/g,which[4]).replace(/POINTID/g,which.substring(5,which.length-1)))});
+          if (which[2]=='H') {
+            exprs.push({id:('theta_'+which[3]),latex:(cons.LEG_HANDLE.replace(/LEGNUM/g,which[3]).replace(/POINTID/g,which.substring(4,which.length)).replace(/SIGN/,((which[3]==1)?'-':'')))});
             exprs.push({id:'x_V',latex:'x_V=x_C+u_V'});
             exprs.push({id:'y_V',latex:'y_V=y_C+v_V'});
-            vars.draggingPoint = which.substring(3,which.length-1);
-          } else if (which[2]=='V') {
-            vars.draggingPoint = 'vertex';
-          } else if (which[2]=='C') {
+            vars.draggingPoint = which.substring(2,which.length);
+          } else if (/[uv]_V/.test(which)) {
+            exprs.push({id:'x_V',latex:(cons.VERTEX_COORDINATE.replace(/COORDINATE/g,'x').replace(/HANDLE/g,'u'))});
+            exprs.push({id:'y_V',latex:(cons.VERTEX_COORDINATE.replace(/COORDINATE/g,'y').replace(/HANDLE/g,'v'))});
+            exprs.push({id:'maximumDistance',latex:'R=10^{100}r_C'});
+            exprs.push({id:'theta_1',latex:cons.THETAS_DEPENDENT_ON_D.replace(/LEGNUM/g,'1').replace(/SIGN/g,((hxs.theta_1.numericValue>=0)?'':'-')).replace(/PREVMEASURE/g,''+Math.abs(hxs.theta_1.numericValue))});
+            exprs.push({id:'theta_2',latex:cons.THETAS_DEPENDENT_ON_D.replace(/LEGNUM/g,'2').replace(/SIGN/g,((hxs.theta_2.numericValue>=0)?'':'-')).replace(/PREVMEASURE/g,''+Math.abs(hxs.theta_2.numericValue))});
+            vars.draggingPoint = 'vertex_handle';
+          } else if (/[xy]_C/.test(which)) {
             vars.draggingPoint = 'center';
+          } else if (which == 'r_C') {
+            exprs.push({id:'u_V',latex:('u_V=\\frac{r_C}{'+vars.lastRadius+'}\\cdot'+hxs.u_V.numericValue)});
+            exprs.push({id:'v_V',latex:('v_V=\\frac{r_C}{'+vars.lastRadius+'}\\cdot'+hxs.v_V.numericValue)});
+            vars.draggingPoint = 'radius';
           }
+
+          // o.log('Isolating handle '+which+'; setting expressions:',exprs);
 
           o.desmos.setExpressions(exprs);
         }
@@ -3362,16 +3390,23 @@ PearsonGL.External.rootJS = (function() {
 
           vars.belayUntil = Date.now()+cs.delay.EXECUTE_HELPER;
 
+          // o.log('x_C='+hxs.x_C.numericValue,'; y_C='+hxs.r_C.numericValue,'; theta_VC='+hxs.theta_VC.numericValue,'; theta_1near='+hxs.theta_1near.numericValue);
+
           var exprs = [
-            {id:'u_2',latex:'u_2='+hs.number(hxs.m1_x.numericValue-hxs.u_1.numericValue)},
-            {id:'v_2',latex:'v_2='+hs.number(hxs.m1_y.numericValue-hxs.v_1.numericValue)},
-            {id:'w_2',latex:'w_2='+hs.number(hxs.m2_x.numericValue-hxs.u_1.numericValue)},
-            {id:'z_2',latex:'z_2='+hs.number(hxs.m2_y.numericValue-hxs.v_1.numericValue)},
-            {id:'u_3',latex:'u_3='+hs.number(hxs.n1_x.numericValue-hxs.u_1.numericValue)},
-            {id:'v_3',latex:'v_3='+hs.number(hxs.n1_y.numericValue-hxs.v_1.numericValue)},
-            {id:'w_3',latex:'w_3='+hs.number(hxs.n2_x.numericValue-hxs.u_1.numericValue)},
-            {id:'z_3',latex:'z_3='+hs.number(hxs.n2_y.numericValue-hxs.v_1.numericValue)}
+            {id:'u_H1near',latex:'u_{H1near}='+hs.number(hxs.r_C.numericValue*Math.cos(Math.PI*(1+(hxs.theta_VC.numericValue+hxs.theta_1near.numericValue)/180)))},
+            {id:'v_H1near',latex:'v_{H1near}='+hs.number(hxs.r_C.numericValue*Math.sin(Math.PI*(1+(hxs.theta_VC.numericValue+hxs.theta_1near.numericValue)/180)))},
+            {id:'u_H1far',latex:'u_{H1far}='+hs.number(hxs.r_C.numericValue*Math.cos(Math.PI*(1+(hxs.theta_VC.numericValue+hxs.theta_1far.numericValue)/180)))},
+            {id:'v_H1far',latex:'v_{H1far}='+hs.number(hxs.r_C.numericValue*Math.sin(Math.PI*(1+(hxs.theta_VC.numericValue+hxs.theta_1far.numericValue)/180)))},
+            {id:'u_H2near',latex:'u_{H2near}='+hs.number(hxs.r_C.numericValue*Math.cos(Math.PI*(1+(hxs.theta_VC.numericValue-hxs.theta_2near.numericValue)/180)))},
+            {id:'v_H2near',latex:'v_{H2near}='+hs.number(hxs.r_C.numericValue*Math.sin(Math.PI*(1+(hxs.theta_VC.numericValue-hxs.theta_2near.numericValue)/180)))},
+            {id:'u_H2far',latex:'u_{H2far}='+hs.number(hxs.r_C.numericValue*Math.cos(Math.PI*(1+(hxs.theta_VC.numericValue-hxs.theta_2far.numericValue)/180)))},
+            {id:'v_H2far',latex:'v_{H2far}='+hs.number(hxs.r_C.numericValue*Math.sin(Math.PI*(1+(hxs.theta_VC.numericValue-hxs.theta_2far.numericValue)/180)))}/*,
+            {id:'x_V',latex:(cons.VERTEX_COORDINATE.replace(/COORDINATE/g,'x').replace(/HANDLE/g,'u')},
+            {id:'y_V',latex:(cons.VERTEX_COORDINATE.replace(/COORDINATE/g,'y').replace(/HANDLE/g,'v')}//*/
           ];
+
+          o.log('Adjusting handles');// setting expressions:',exprs);
+
           o.desmos.setExpressions(exprs);
 
           vars.belayUntil = Date.now()+cs.delay.SET_EXPRESSION;
@@ -3380,194 +3415,91 @@ PearsonGL.External.rootJS = (function() {
 
         function replaceHandles() {
           // o.log('Replacing Handles');
-          o.log('Placeholder = '+vars.placeholder);
-          if (vars.placeholder !== undefined) clearPlaceholder();
 
-          adjustHandles();
+          // adjustHandles();
+
+          // o.log(hxs.x_V.latex+'='+hxs.x_V.numericValue,hxs.x_C.latex+'='+hxs.x_C.numericValue,hxs.y_V.latex+'='+hxs.y_V.numericValue,hxs.y_C.latex+'='+hxs.y_C.numericValue);
 
           var exprs = [
-            {id:'x_0',latex:'x_0=u_0'},
-            {id:'y_0',latex:'y_0=v_0'},
-            {id:'x_1',latex:'x_1=u_1'},
-            {id:'y_1',latex:'y_1=v_1'}
+            {id:'u_V',latex:('u_V='+hs.number(hxs.x_V.numericValue-hxs.x_C.numericValue))},
+            {id:'v_V',latex:('v_V='+hs.number(hxs.y_V.numericValue-hxs.y_C.numericValue))},
+            {id:'theta_1',latex:('\\theta_1='+hxs.theta_1.numericValue)},
+            {id:'theta_2',latex:('\\theta_2='+hxs.theta_2.numericValue)},
+            {id:'maximumDistance',latex:cons.R_DEPENDENT_ON_THETAS}
           ];
 
-          var intersection = {x:hxs.u_1.numericValue,y:hxs.v_1.numericValue};
-          if (Math.pow(hxs.m1_x.numericValue-intersection.x,2)+
-            Math.pow(hxs.m1_y.numericValue-intersection.y,2) > 
-            Math.pow(hxs.m2_x.numericValue-intersection.x,2) +
-            Math.pow(hxs.m2_y.numericValue-intersection.y,2)) {
-            exprs.push({id:'x_2',latex:'x_2=u_2'});
-            exprs.push({id:'y_2',latex:'y_2=v_2'});
-          } else {
-            exprs.push({id:'x_2',latex:'x_2=-w_2'});
-            exprs.push({id:'y_2',latex:'y_2=-z_2'});
-          }
-          if (Math.pow(hxs.n1_x.numericValue-intersection.x,2)+
-            Math.pow(hxs.n1_y.numericValue-intersection.y,2) > 
-            Math.pow(hxs.n2_x.numericValue-intersection.x,2) +
-            Math.pow(hxs.n2_y.numericValue-intersection.y,2)) {
-            exprs.push({id:'x_3',latex:'x_3=u_3'});
-            exprs.push({id:'y_3',latex:'y_3=v_3'});
-          } else {
-            exprs.push({id:'x_3',latex:'x_3=-w_3'});
-            exprs.push({id:'y_3',latex:'y_3=-z_3'});
-          }
+          // STUB TK place handles
+
+          // o.log('Replacing handles; setting expressions:',exprs);
 
           o.desmos.setExpressions(exprs);
 
           setTimeout(adjustHandles,cs.delay.SET_EXPRESSION);
+          // setTimeout(activateHandles,cs.delay.SET_EXPRESSION*2);
         }
 
         function activateHandles() {
           // o.log('Activating Handles');
-          delete vars.constrainingCircle;
 
-          o.desmos.setExpressions([
+          vars.lastRadius = hxs.r_C.numericValue;
+
+          var exprs=[
             {id:'center',hidden:false},
             {id:'vertex_handle',hidden:false},
-            {id:'leg1_handle_near',hidden:false}, // TK STUB hide handles that crash with each other
-            {id:'leg1_handle_far',hidden:false},
-            {id:'leg2_handle_near',hidden:false}, // TK
-            {id:'leg2_handle_far',hidden:false}
-          ]);
+            {id:'H1near',hidden:false}, // TK STUB hide handles that crash with each other
+            {id:'H1far',hidden:false},
+            {id:'H2near',hidden:false}, // TK
+            {id:'H2far',hidden:false}
+          ];
+
+          // o.log('Activating handles; setting expressions:',exprs);
+
+          o.desmos.setExpressions(exprs);
 
           for (let helper in hxs) {
-            if (/(?:[uv]_|_C)/.test(helper)) hxs[helper].observe(
-              'numericValue.dragging',
-              function(){if(vars.dragging)isolateHandle(helper);}
-            );
+            if (/(?:[uv]_|_C)/.test(helper)) {
+              // o.log('Observing '+helper);
+              hxs[helper].observe(
+                'numericValue.dragging',
+                function(){if(vars.dragging)isolateHandle(helper);}
+              );
+            }
           }
+        }
+
+        function updateEquation() {
+          var expr = hxs.angle.numericValue+'°=½('+hxs.arc_far.numericValue+'°-'+hxs.arc_near.numericValue+'°)';
+          expr = hs.latexToText(expr);
+          o.desmos.setExpression({id:'center',label:expr});
         }
 
         function logChanges() {
-          hxs.u_0.observe('numericValue.log',function(){o.log('center.u:'+hxs.u_0.numericValue);});
-          hxs.v_0.observe('numericValue.log',function(){o.log('center.v:'+hxs.v_0.numericValue);});
-          hxs.u_1.observe('numericValue.log',function(){o.log('intersection.u:'+hxs.u_1.numericValue);});
-          hxs.v_1.observe('numericValue.log',function(){o.log('intersection.v:'+hxs.v_1.numericValue);});
         }
 
-        function enableCorrection() {
-          hxs.D.observe('numericValue.correction',function(){correctIt();});
+        function click() {
+          vars.dragging=true;
+          //document.removeEventListener('mousedown',click);
+          //document.removeEventListener('touchstart',click);
         }
 
-        function disableCorrection() {
-          hxs.D.unobserve('numericValue.correction');
+        function unclick() {
+          vars.dragging=false;
+          //document.removeEventListener('mouseup',unclick);
+          //document.removeEventListener('touchend',unclick);
+          setTimeout(replaceHandles,cs.delay.LOAD);
         }
 
-        function clearPlaceholder(draggingPoint=vars.draggingPoint) {
-          // o.log('Clearing Placeholder');
-          if (vars.placeholder === undefined) return;
-          vars.belayUntil = Date.now() + cs.delay.EXECUTE_HELPER;
-
-          var exprs = [];
-          var corrected;
-
-          switch (draggingPoint) {
-            case 'center':
-              var center = {x:hxs.u_0.numericValue,y:hxs.v_0.numericValue};
-              corrected = hs.circleConstrain(center,vars.constrainingCircle,cs.enum.INTERIOR);
-              exprs.push({id:'center',color:cs.A0597773.CENTER_COLOR});
-              break;
-            case 'intersection':
-              var intersection = {x:hxs.u_1.numericValue,y:hxs.v_1.numericValue};
-              corrected = hs.circleConstrain(intersection,vars.constrainingCircle,cs.enum.INTERIOR);
-              exprs.push({id:'intersection',color:cs.A0597773.INTERSECTION_COLOR});
-              break;
-            default:
-              return;
-          }
-
-          // o.log('Center: ('+hxs.u_0.numericValue+','+hxs.v_0.numericValue+')');
-          // o.log('Intersection: ('+hxs.u_1.numericValue+','+hxs.v_1.numericValue+')');
-          // o.log('Constraint: ('+vars.constrainingCircle.x+','+vars.constrainingCircle.y+','+vars.constrainingCircle.r+')');
-          // o.log('Distance: '+Math.sqrt(Math.pow(hxs.u_0.numericValue-hxs.u_1.numericValue,2)+Math.pow(hxs.v_0.numericValue-hxs.v_1.numericValue,2)));
-          // o.log('Corrected: ('+corrected.x+','+corrected.y+')')
-
-          exprs.push({id:'placeholder',hidden:true});
-
-          exprs.push({id:'u_'+vars.placeholder,latex:'u_'+vars.placeholder+'='+corrected.x});
-          exprs.push({id:'v_'+vars.placeholder,latex:'v_'+vars.placeholder+'='+corrected.y});
-
-          disableCorrection();
-          o.desmos.setExpressions(exprs);
-          delete vars.placeholder;
-          setTimeout(enableCorrection,5*cs.delay.SET_EXPRESSION);
-          vars.belayUntil = Date.now() + cs.delay.SET_EXPRESSION;
-         }
-
-        function setPlaceholder(draggingPoint=vars.draggingPoint) {
-          // o.log('Setting Placeholder');
-          exprs = [];
-          if (vars.placeholder === undefined) {
-            vars.placeholder = ((draggingPoint == 'center')?0:1);
-            exprs.push({id:draggingPoint,color:cs.A0597773.HIDDEN_COLOR});
-            exprs.push({
-              id:'placeholder',
-              latex:'\\left(x_#,y_#\\right)'.replace(/#/g,vars.placeholder),
-              hidden:false,
-              dragMode:Desmos.DragModes.XY
-            });
-          } else return;
-          o.desmos.setExpressions(exprs);
-         }
-
-        function correctIt(draggingPoint=vars.draggingPoint) {
-          o.log('Correcting It; dragging point = '+draggingPoint);
-          switch (draggingPoint) {
-            case 'center':
-              if (hxs.D.numericValue > hxs.R.numericValue-cs.distance.CONSTRAIN_BUFFER) {
-                if (vars.placeholder !== undefined) clearPlaceholder();
-                return;
-              }
-              if (vars.constrainingCircle === undefined) vars.constrainingCircle = {x:hxs.u_1.numericValue,y:hxs.v_1.numericValue,r:hxs.R.numericValue};
-              if (vars.dragging === true) setPlaceholder(draggingPoint);
-              else {
-                var point = {x:hxs.u_0.numericValue,y:hxs.v_0.numericValue};
-                var corrected = hs.circleConstrain(point,vars.constrainingCircle,cs.enum.EXTERIOR);
-                if (corrected != point) {
-                  o.desmos.setExpressions([
-                    {id:'u_0',latex:'u_0='+corrected.x},
-                    {id:'v_0',latex:'v_0='+corrected.y}
-                  ]);
-                  setTimeout(adjustHandles,cs.delay.SET_EXPRESSION);
-                }
-              }
-              break;
-            case 'intersection':
-              if (hxs.D.numericValue > hxs.R.numericValue-cs.distance.CONSTRAIN_BUFFER) {
-                if (vars.placeholder !== undefined) clearPlaceholder();
-                return;
-              }
-              if (vars.constrainingCircle === undefined) vars.constrainingCircle = {x:hxs.u_0.numericValue,y:hxs.v_0.numericValue,r:hxs.R.numericValue};
-              if (vars.dragging === true) setPlaceholder(draggingPoint);
-              else {
-                var point = {x:hxs.u_1.numericValue,y:hxs.v_1.numericValue};
-                var corrected = hs.circleConstrain(point,vars.constrainingCircle,cs.enum.EXTERIOR);
-                if (corrected != point) {
-                  o.desmos.setExpressions([
-                    {id:'u_1',latex:'u_1='+corrected.x},
-                    {id:'v_1',latex:'v_1='+corrected.y}
-                  ]);
-                  setTimeout(adjustHandles,cs.delay.SET_EXPRESSION);
-                }
-              }
-              break;
-            default:
-              return;
-          }
-          return;
-         }
-
-        // prepare to clear placeholders
-        document.addEventListener('mousedown',function(){vars.dragging=true;});
-        document.addEventListener('touchstart',function(){vars.dragging=true;});
-        document.addEventListener('mouseup',function(){setTimeout(function(){vars.dragging=false;replaceHandles();},cs.delay.LOAD)});
-        document.addEventListener('touchend',function(){setTimeout(function(){vars.dragging=false;replaceHandles();},cs.delay.LOAD)});
+        document.addEventListener('mousedown',click);
+        document.addEventListener('touchstart',click);
+        document.addEventListener('mouseup',unclick);
+        document.addEventListener('touchend',unclick);
 
         setTimeout(function(){
           activateHandles();
-          enableCorrection();
+          hxs.angle.observe('numericValue',updateEquation);
+          hxs.arc_far.observe('numericValue',updateEquation);
+          hxs.arc_near.observe('numericValue',updateEquation);
+          updateEquation();
           // logChanges();
         },cs.delay.LOAD);
        }
