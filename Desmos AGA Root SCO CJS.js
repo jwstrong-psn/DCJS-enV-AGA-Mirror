@@ -1946,9 +1946,9 @@ PearsonGL.External.rootJS = (function() {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
        * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
+       init: function(options={},varparam={}) {
         let o = hs.parseOptions(options);
-        let vars = vs[o.uniqueId] = Object.assign(((vs[o.uniqueId] === undefined)?{}:vs[o.uniqueId]),{lastDragged:0,placeholder:0});
+        let vars = vs[o.uniqueId] = Object.assign(varparam,{lastDragged:0,placeholder:0});
         let hfs = vars.helperFunctions = ((vars.helperFunctions === undefined)?{n:o.desmos.HelperExpression({latex:'n'})}:vars.helperFunctions);
         o.log(hfs);
         let cons = cs.A0597630;
@@ -1968,7 +1968,7 @@ PearsonGL.External.rootJS = (function() {
         // Initialize Vertices
          if (hfs.n.numericValue === undefined) {
           o.log('n not yet initialized; delaying initialization by '+cs.delay.SET_EXPRESSION+'ms');
-          setTimeout(function(){fs.A0597630.init(o);},cs.delay.SET_EXPRESSION);
+          setTimeout(function(){fs.A0597630.init(o,vars);},cs.delay.SET_EXPRESSION);
           return;
          } else var n = vars.n = hfs.n.numericValue;
 
@@ -1977,7 +1977,7 @@ PearsonGL.External.rootJS = (function() {
             if (i == n) {
               if (vars['x_'+j].numericValue === undefined || vars['y_'+j].numericValue === undefined) {
                 o.log('Vertex '+hs.ALPHA[j]+' not yet initialized; delaying initialization by '+cs.delay.SET_EXPRESSION+'ms')
-                setTimeout(function(){fs.A0597630.init(o);},cs.delay.SET_EXPRESSION);
+                setTimeout(function(){fs.A0597630.init(o,vars);},cs.delay.SET_EXPRESSION);
                 return;
               }
               // Initialize active polygon to current state
@@ -2461,9 +2461,9 @@ PearsonGL.External.rootJS = (function() {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
        * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
+       init: function(options={},varparam={}) {
         let o = hs.parseOptions(options);
-        let vars = vs[o.uniqueId] = Object.assign(((vs[o.uniqueId] === undefined)?{}:vs[o.uniqueId]),{lastDragged:0,placeholder:0});
+        let vars = vs[o.uniqueId] = Object.assign(varparam,{lastDragged:0,placeholder:0});
         let hfs = vars.helperFunctions = ((vars.helperFunctions === undefined)?{n:o.desmos.HelperExpression({latex:'n'})}:vars.helperFunctions);
         o.log(hfs);
         let cons = cs.A0597634;
@@ -2484,7 +2484,7 @@ PearsonGL.External.rootJS = (function() {
         // Initialize Vertices
          if (hfs.n.numericValue === undefined) {
           o.log('n not yet initialized; delaying initialization by '+cs.delay.SET_EXPRESSION+'ms');
-          setTimeout(function(){fs.A0597634.init(o);},cs.delay.SET_EXPRESSION);
+          setTimeout(function(){fs.A0597634.init(o,vars);},cs.delay.SET_EXPRESSION);
           return;
          } else var n = vars.n = hfs.n.numericValue;
 
@@ -2493,7 +2493,7 @@ PearsonGL.External.rootJS = (function() {
             if (i == n) {
               if (vars['x_'+j].numericValue === undefined || vars['y_'+j].numericValue === undefined) {
                 o.log('Vertex '+hs.ALPHA[j]+' not yet initialized; delaying initialization by '+cs.delay.SET_EXPRESSION+'ms')
-                setTimeout(function(){fs.A0597634.init(o);},cs.delay.SET_EXPRESSION);
+                setTimeout(function(){fs.A0597634.init(o,vars);},cs.delay.SET_EXPRESSION);
                 return;
               }
               // Initialize active polygon to current state
@@ -3493,7 +3493,7 @@ PearsonGL.External.rootJS = (function() {
         }
 
         function updateEquation() {
-          var expr = hxs.angle.numericValue+'°=½('+hxs.arc_far.numericValue+'°-'+hxs.arc_near.numericValue+'°)';
+          var expr = hxs.angle.numericValue+'=½('+hxs.arc_far.numericValue+'-'+hxs.arc_near.numericValue+')';
           expr = hs.latexToText(expr);
           o.desmos.setExpression({id:'center',label:expr});
         }
