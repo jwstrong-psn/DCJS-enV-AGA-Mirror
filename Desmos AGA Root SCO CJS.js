@@ -3929,6 +3929,188 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
+
+    /* ←— A0597768 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0597768 = {
+      /* ←— init ———————————————————————————————————————————————→ *\
+       | stuff
+       * ←—————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        let o = hs.parseOptions(options);
+        let vars = vs[o.uniqueId] = (vs[o.uniqueId] || {draggingPoint:null,dragging:false});
+        let hxs = vars.helperExpressions = {};
+        vars.belayUntil = Date.now()+cs.delay.LOAD;
+
+        Object.assign(hxs,{
+          x_0:o.desmos.HelperExpression({latex:'x_0'}),
+          y_0:o.desmos.HelperExpression({latex:'y_0'}),
+          x_1:o.desmos.HelperExpression({latex:'x_1'}),
+          y_1:o.desmos.HelperExpression({latex:'y_1'}),
+          x_2:o.desmos.HelperExpression({latex:'x_2'}),
+          y_2:o.desmos.HelperExpression({latex:'y_2'}),
+          x_3:o.desmos.HelperExpression({latex:'x_3'}),
+          y_3:o.desmos.HelperExpression({latex:'y_3'}),
+
+          u_1:o.desmos.HelperExpression({latex:'u_1'}),
+          v_1:o.desmos.HelperExpression({latex:'v_1'}),
+          u_2:o.desmos.HelperExpression({latex:'u_2'}),
+          v_2:o.desmos.HelperExpression({latex:'v_2'}),
+          u_3:o.desmos.HelperExpression({latex:'u_3'}),
+          v_3:o.desmos.HelperExpression({latex:'v_3'}),
+
+          R_C:o.desmos.HelperExpression({latex:'R'})
+        });
+
+        function isolateHandle(which) {
+          // o.log('Isolating Handles');
+          for (helper in hxs) {
+            hxs[helper].unobserve('numericValue.dragging');
+            hxs[helper].unobserve('numericValue.checkReplace');
+          }
+
+          // o.log(which+' changed.');
+
+          vars.dragging = true;
+          var exprs = [
+            {id:'center',hidden:(which[2]!='0')},
+            {id:'vertexHandle',hidden:(which[2]!='1')},
+            {id:'handleM',hidden:(which[2]!='2')},
+            {id:'handleN',hidden:(which[2]!='3')}
+          ];
+
+          if (which[2]=='0') vars.draggingPoint = 'C';
+          if (which[2]=='1') {
+            vars.draggingPoint = 'D';
+            exprs.push({id:'x_1',latex:'x_1=x_0+\\left(u_1-x_0\\right)\\max\\left(\\frac{R}{D_H},1\\right)+\\left\\{D_{ofE}=1:\\left(v_1-y_0\\right)\\frac{R}{D_H},0\\right\\}'});
+            exprs.push({id:'y_1',latex:'y_1=y_0+\\left(v_1-y_0\\right)\\max\\left(\\frac{R}{D_H},1\\right)+\\left\\{D_{ofE}=1:\\left(x_0-u_1\\right)\\frac{R}{D_H},0\\right\\}'});
+            exprs.push({id:'x_2',latex:'x_2=\\left\\{D_{ofE}=1:\\left(u_1-x_0\\right)\\frac{R}{D_H},x_1+h\\sin\\theta_r-x_0\\right\\}'});
+            exprs.push({id:'y_2',latex:'y_2=\\left\\{D_{ofE}=1:\\left(v_1-y_0\\right)\\frac{R}{D_H},y_1-h\\cos\\theta_r-y_0\\right\\}'});
+            exprs.push({id:'DofE',latex:'D_{ofE}=\\left\\{D_H\\le R:1,0\\right\\}'});
+          }
+          if (which[2]=='2') {
+            vars.draggingPoint = 'E';
+            exprs.push({id:'x_1',latex:'x_1=x_0+x_2+y_2'});
+            exprs.push({id:'y_1',latex:'y_1=y_0+y_2-x_2'});
+            exprs.push({id:'x_2',latex:'x_2=u_2\\frac{R}{d_M}'});
+            exprs.push({id:'y_2',latex:'y_2=v_2\\frac{R}{d_M}'});
+            exprs.push({id:'DofE',latex:'D_{ofE}=1'});
+          }
+          if (which[2]=='3') vars.draggingPoint = 'A';
+          if (which[0]=='R') vars.draggingPoint = 'R';
+
+          o.log('Isolating handle '+which);//+'; setting expressions:',exprs);
+
+          o.desmos.setExpressions(exprs);
+        }
+
+        function replaceHandles() {
+          // o.log('Replacing Handles');
+
+          let vals = {
+            x_1: hxs.x_1.numericValue,
+            y_1: hxs.y_1.numericValue,
+            x_2: hxs.x_2.numericValue,
+            y_2: hxs.y_2.numericValue,
+            x_3: hxs.x_3.numericValue,
+            y_3: hxs.y_3.numericValue,
+          }
+
+          var exprs = [
+            {id:'u_1',latex:('u_1='+vals.x_1)},
+            {id:'v_1',latex:('v_1='+vals.y_1)},
+            {id:'u_2',latex:('u_2='+vals.x_2)},
+            {id:'v_2',latex:('v_2='+vals.y_2)},
+            {id:'u_3',latex:('u_3='+vals.x_3)},
+            {id:'v_3',latex:('v_3='+vals.y_3)}
+          ];
+
+          function checkReplace(n) {
+            o.log('u_'+n+' = '+hxs['u_'+n].numericValue);
+            o.log('x_'+n+' = '+hxs['x_'+n].numericValue);
+            o.log('v_'+n+' = '+hxs['v_'+n].numericValue);
+            o.log('y_'+n+' = '+hxs['y_'+n].numericValue);
+            if((Math.abs(hxs['u_'+n].numericValue-vals['x_'+n])<cs.precision.FLOAT_PRECISION) &&
+               (Math.abs(hxs['v_'+n].numericValue-vals['y_'+n])<cs.precision.FLOAT_PRECISION)) {
+              hxs['u_'+n].unobserve('numericValue.checkReplace');
+              hxs['v_'+n].unobserve('numericValue.checkReplace');
+              switch(n) {
+                case 1:
+                  o.desmos.setExpression({id:'vertexHandle',hidden:false});
+                  break;
+                case 2:
+                  o.desmos.setExpression({id:'handleM',hidden:false});
+                  break;
+                case 3:
+                  o.desmos.setExpression({id:'handleN',hidden:false});
+                  break;
+              }
+              hxs['u_'+n].observe('numericValue.dragging',function(){if(vars.dragging)isolateHandle('u_'+n);});
+              hxs['v_'+n].observe('numericValue.dragging',function(){if(vars.dragging)isolateHandle('v_'+n);});
+            }
+          }
+
+          exprs.push({id:'center',hidden:false});
+          hxs['x_0'].observe('numericValue.dragging',function(){if(vars.dragging)isolateHandle('x_0');});
+          hxs['y_0'].observe('numericValue.dragging',function(){if(vars.dragging)isolateHandle('y_0');});
+          hxs['R_C'].observe('numericValue.dragging',function(){if(vars.dragging)isolateHandle('x_0');});
+
+          for (let i = 1; i <= 3; i++) {
+            hxs['u_'+i].observe('numericValue.checkReplace',function(){checkReplace(i)});
+            hxs['v_'+i].observe('numericValue.checkReplace',function(){checkReplace(i)});
+            checkReplace(i);
+          }
+
+          // o.log('Replacing handles; setting expressions:',exprs);
+
+          if ((!(isNaN(hxs.x_0.numericValue))) &&
+              (!(isNaN(hxs.y_0.numericValue))) &&
+              (!(isNaN(hxs.x_1.numericValue))) &&
+              (!(isNaN(hxs.y_1.numericValue))) &&
+              (!(isNaN(hxs.x_2.numericValue))) &&
+              (!(isNaN(hxs.y_2.numericValue))) &&
+              (!(isNaN(hxs.x_3.numericValue))) &&
+              (!(isNaN(hxs.y_3.numericValue)))
+              ) o.desmos.setExpressions(exprs);
+        }
+
+        function debug() {}
+
+        function click() {
+          vars.dragging=true;
+          // escape();
+        }
+
+        function unclick() {
+          vars.dragging=false;
+          vars.draggingPoint = undefined;
+          // escape();
+          setTimeout(replaceHandles,cs.delay.SET_EXPRESSION);
+        }
+
+        function escape() {
+          document.removeEventListener('mousedown',click);
+          document.removeEventListener('touchstart',click);
+          document.removeEventListener('mouseup',unclick);
+          document.removeEventListener('touchend',unclick);
+        }
+
+        document.addEventListener('mousedown',click);
+        document.addEventListener('touchstart',click);
+        document.addEventListener('mouseup',unclick);
+        document.addEventListener('touchend',unclick);
+
+        setTimeout(function(){
+          hxs['x_0'].observe('numericValue.dragging',function(){if(vars.dragging)isolateHandle('x_0');});
+          hxs['y_0'].observe('numericValue.dragging',function(){if(vars.dragging)isolateHandle('y_0');});
+          hxs['R_C'].observe('numericValue.dragging',function(){if(vars.dragging)isolateHandle('x_0');});
+          for (var i = 1; i <= 3; i++) {
+            hxs['u_'+i].observe('numericValue.dragging',function(){if(vars.dragging)isolateHandle('u_'+i);});
+            hxs['v_'+i].observe('numericValue.dragging',function(){if(vars.dragging)isolateHandle('v_'+i);});
+          }
+        },cs.delay.LOAD);
+       }
+     };
+
     /* ←— TESTING_TESTING_123 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.TESTING_TESTING_123 = {
       /* ←— circleConstrain ———————————————————————————————————————————————→ *\
