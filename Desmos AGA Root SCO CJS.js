@@ -3979,17 +3979,19 @@ PearsonGL.External.rootJS = (function() {
           ];
 
           if (which[2]=='0') vars.draggingPoint = 'C';
-          if (which[2]=='1') {
-            vars.draggingPoint = 'D';
+          if (which[2]=='1') vars.draggingPoint = 'D';
+          if (which[2]=='2') vars.draggingPoint = 'E';
+          if (which[2]=='3') vars.draggingPoint = 'A';
+          if (which[0]=='R') vars.draggingPoint = 'R';
+
+          if (vars.draggingPoint == 'D') {
             exprs.push({id:'x_1',latex:'x_1=\\left\\{D_{ofE}=0:\\left(u_1\\right)\\max\\left(\\frac{R}{D_H},1\\right),R\\left(cos\\theta_r-sin\\theta_r\\right)\\right\\}'});
             exprs.push({id:'y_1',latex:'y_1=\\left\\{D_{ofE}=0:\\left(v_1\\right)\\max\\left(\\frac{R}{D_H},1\\right),R\\left(sin\\theta_r+cos\\theta_r\\right)\\right\\}'});
             exprs.push({id:'x_2',latex:'x_2=R\\cos\\theta_r'});
             exprs.push({id:'y_2',latex:'y_2=R\\sin\\theta_r'});
             exprs.push({id:'DofE',latex:'D_{ofE}=\\left\\{D_H\\le R:1,0\\right\\}'});
             exprs.push({id:'theta_r',latex:'\\theta_r=\\theta_D-\\theta_h'});
-          }
-          if (which[2]=='2') {
-            vars.draggingPoint = 'E';
+          } else {
             exprs.push({id:'x_1',latex:'x_1=x_2-y_2'});
             exprs.push({id:'y_1',latex:'y_1=y_2+x_2'});
             exprs.push({id:'x_2',latex:'x_2=u_2\\frac{R}{d_M}'});
@@ -3997,8 +3999,6 @@ PearsonGL.External.rootJS = (function() {
             exprs.push({id:'DofE',latex:'D_{ofE}=1'});
             exprs.push({id:'theta_r',latex:'\\theta_r=\\theta_{xy}\\left(u_2,v_2\\right)'});
           }
-          if (which[2]=='3') vars.draggingPoint = 'A';
-          if (which[0]=='R') vars.draggingPoint = 'R';
 
           o.log('Isolating handle '+which);//+'; setting expressions:',exprs);
 
