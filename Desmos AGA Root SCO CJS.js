@@ -3981,19 +3981,21 @@ PearsonGL.External.rootJS = (function() {
           if (which[2]=='0') vars.draggingPoint = 'C';
           if (which[2]=='1') {
             vars.draggingPoint = 'D';
-            exprs.push({id:'x_1',latex:'x_1=x_0+\\left(u_1-x_0\\right)\\max\\left(\\frac{R}{D_H},1\\right)+\\left\\{D_{ofE}=1:\\left(v_1-y_0\\right)\\frac{R}{D_H},0\\right\\}'});
-            exprs.push({id:'y_1',latex:'y_1=y_0+\\left(v_1-y_0\\right)\\max\\left(\\frac{R}{D_H},1\\right)+\\left\\{D_{ofE}=1:\\left(x_0-u_1\\right)\\frac{R}{D_H},0\\right\\}'});
-            exprs.push({id:'x_2',latex:'x_2=\\left\\{D_{ofE}=1:\\left(u_1-x_0\\right)\\frac{R}{D_H},x_1+h\\sin\\theta_r-x_0\\right\\}'});
-            exprs.push({id:'y_2',latex:'y_2=\\left\\{D_{ofE}=1:\\left(v_1-y_0\\right)\\frac{R}{D_H},y_1-h\\cos\\theta_r-y_0\\right\\}'});
+            exprs.push({id:'x_1',latex:'x_1=\\left\\{D_{ofE}=0:\\left(u_1\\right)\\max\\left(\\frac{R}{D_H},1\\right),R\\left(cos\\theta_r-sin\\theta_r\\right)\\right\\}'});
+            exprs.push({id:'y_1',latex:'y_1=\\left\\{D_{ofE}=0:\\left(v_1\\right)\\max\\left(\\frac{R}{D_H},1\\right),R\\left(sin\\theta_r+cos\\theta_r\\right)\\right\\}'});
+            exprs.push({id:'x_2',latex:'x_2=R\\cos\\theta_r'});
+            exprs.push({id:'y_2',latex:'y_2=R\\sin\\theta_r'});
             exprs.push({id:'DofE',latex:'D_{ofE}=\\left\\{D_H\\le R:1,0\\right\\}'});
+            exprs.push({id:'theta_r',latex:'\\theta_r=\\theta_D-\\theta_h'});
           }
           if (which[2]=='2') {
             vars.draggingPoint = 'E';
-            exprs.push({id:'x_1',latex:'x_1=x_0+x_2+y_2'});
-            exprs.push({id:'y_1',latex:'y_1=y_0+y_2-x_2'});
+            exprs.push({id:'x_1',latex:'x_1=x_2-y_2'});
+            exprs.push({id:'y_1',latex:'y_1=y_2+x_2'});
             exprs.push({id:'x_2',latex:'x_2=u_2\\frac{R}{d_M}'});
             exprs.push({id:'y_2',latex:'y_2=v_2\\frac{R}{d_M}'});
             exprs.push({id:'DofE',latex:'D_{ofE}=1'});
+            exprs.push({id:'theta_r',latex:'\\theta_r=\\theta_{xy}\\left(u_2,v_2\\right)'});
           }
           if (which[2]=='3') vars.draggingPoint = 'A';
           if (which[0]=='R') vars.draggingPoint = 'R';
@@ -4025,10 +4027,10 @@ PearsonGL.External.rootJS = (function() {
           ];
 
           function checkReplace(n) {
-            o.log('u_'+n+' = '+hxs['u_'+n].numericValue);
-            o.log('x_'+n+' = '+hxs['x_'+n].numericValue);
-            o.log('v_'+n+' = '+hxs['v_'+n].numericValue);
-            o.log('y_'+n+' = '+hxs['y_'+n].numericValue);
+            // o.log('u_'+n+' = '+hxs['u_'+n].numericValue);
+            // o.log('x_'+n+' = '+hxs['x_'+n].numericValue);
+            // o.log('v_'+n+' = '+hxs['v_'+n].numericValue);
+            // o.log('y_'+n+' = '+hxs['y_'+n].numericValue);
             if((Math.abs(hxs['u_'+n].numericValue-vals['x_'+n])<cs.precision.FLOAT_PRECISION) &&
                (Math.abs(hxs['v_'+n].numericValue-vals['y_'+n])<cs.precision.FLOAT_PRECISION)) {
               hxs['u_'+n].unobserve('numericValue.checkReplace');
@@ -4103,7 +4105,7 @@ PearsonGL.External.rootJS = (function() {
           hxs['x_0'].observe('numericValue.dragging',function(){if(vars.dragging)isolateHandle('x_0');});
           hxs['y_0'].observe('numericValue.dragging',function(){if(vars.dragging)isolateHandle('y_0');});
           hxs['R_C'].observe('numericValue.dragging',function(){if(vars.dragging)isolateHandle('x_0');});
-          for (var i = 1; i <= 3; i++) {
+          for (let i = 1; i <= 3; i++) {
             hxs['u_'+i].observe('numericValue.dragging',function(){if(vars.dragging)isolateHandle('u_'+i);});
             hxs['v_'+i].observe('numericValue.dragging',function(){if(vars.dragging)isolateHandle('v_'+i);});
           }
