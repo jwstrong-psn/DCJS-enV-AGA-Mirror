@@ -174,6 +174,10 @@ PearsonGL.External.masterJS = (function() {
     return PearsonGL.External.rootJS.A0597772_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
   }
 
+  //* functions for test purposes only
+  ts.A0597768_init = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.A0597768_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
+  }
 
   //* functions for test purposes only
   ts.A0597777_init = function(val, name, desmos) {
