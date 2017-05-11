@@ -179,7 +179,7 @@ PearsonGL.External.masterJS = (function() {
     return PearsonGL.External.rootJS.A0597789_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
   }
 
-  //* functions for test purposes only
+  //* functions for test purposes only test
   ts.A0597789_volumeCone = function(val, name, desmos) {
     return PearsonGL.External.rootJS.A0597789_volumeCone({'value':val,'name':name,'desmos':desmos,'log':console.log});
   }
