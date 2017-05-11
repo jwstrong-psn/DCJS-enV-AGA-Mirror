@@ -180,6 +180,16 @@ PearsonGL.External.masterJS = (function() {
   }
 
   //* functions for test purposes only
+  ts.A0597789_volumeCone = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.A0597789_volumeCone({'value':val,'name':name,'desmos':desmos,'log':console.log});
+  }
+
+  //* functions for test purposes only
+  ts.A0597789_volumeStack = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.A0597789_volumeStack({'value':val,'name':name,'desmos':desmos,'log':console.log});
+  }
+
+  //* functions for test purposes only
   ts.A0597768_init = function(val, name, desmos) {
     return PearsonGL.External.rootJS.A0597768_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
   }
