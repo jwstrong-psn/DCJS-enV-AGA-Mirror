@@ -4113,6 +4113,44 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
+    /* ←— A0597789 FUNCTIONS ——————————————————————————————————————————————→ */
+      cs.A0597789 = {
+        MARGIN: 18,
+        LINE_HEIGHT: 24
+       };
+     fs.A0597789 = {
+      /* ←— init ——————————————————————————————————————————————————————→ *\
+       | Preps the watcher
+       * ←—————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        let o = hs.parseOptions(options);
+        o.desmos.observe('graphpaperBounds',function(){
+          var cons = cs.A0597789;
+          var units = o.desmos.graphpaperBounds.mathCoordinates;
+          var pixels = o.desmos.graphpaperBounds.pixelCoordinates;
+          var left = units.left+cons.MARGIN*units.width/pixels.width;
+          var top = units.top-cons.MARGIN*units.height/pixels.height;
+          var second = top-cons.LINE_HEIGHT*units.height/pixels.height;
+          o.desmos.setExpression({id:'volumeCone',latex:'\\left('+left+','+top+'\\right)'});
+          o.desmos.setExpression({id:'volumeStack',latex:'\\left('+left+','+second+'\\right)'});
+        });
+       },
+      /* ←— volumeCone ——————————————————————————————————————————————————————→ *\
+       | Updates the volume of the cone
+       * ←—————————————————————————————————————————————————————————————————→ */
+       volumeCone: function(options={}) {
+        var o = hs.parseOptions(options);
+        o.desmos.setExpression({id:'volumeCone',label:'Volume of cone: '+o.value});
+       },
+      /* ←— volumeStack ——————————————————————————————————————————————————————→ *\
+       | Updates the volume of the stack
+       * ←—————————————————————————————————————————————————————————————————→ */
+       volumeStack: function(options={}) {
+        var o = hs.parseOptions(options);
+        o.desmos.setExpression({id:'volumeStack',label:'Total volume of stack: '+o.value});
+       }
+     };
+
     /* ←— TESTING_TESTING_123 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.TESTING_TESTING_123 = {
       /* ←— circleConstrain ———————————————————————————————————————————————→ *\
