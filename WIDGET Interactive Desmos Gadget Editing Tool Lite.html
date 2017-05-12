@@ -113,6 +113,7 @@
         window.calculator = null;
         if(window.Geo) {
           geoPrevState = window.Geo.getState();
+          window.Geo.detach();
           delete window.Geo;
         }
         if(window.Calc) {
