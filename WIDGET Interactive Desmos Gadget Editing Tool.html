@@ -1067,6 +1067,7 @@
                 geoPrevState = null;
                 desWidth = 550;
                 desHeight = 475;
+                if (window.Geo) window.Geo.detach();
                 $elt.remove();
                 delete window.Calc;
                 delete window.Geo;
@@ -1325,6 +1326,7 @@
         window.calculator = null;
         if(window.Geo) {
           geoPrevState = window.Geo.getState();
+          window.Geo.detach();
           delete window.Geo;
         }
         if(window.Calc) {
