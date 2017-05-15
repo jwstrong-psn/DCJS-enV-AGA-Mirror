@@ -4151,6 +4151,42 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
+    /* ←— A0596370 FUNCTIONS ——————————————————————————————————————————————→ */
+      cs.A0596370 = {
+        ANIM_VAR_NAME:'n_{SlideToAnimate}'
+       };
+     fs.A0596370 = {
+      /* ←— init ——————————————————————————————————————————————————————→ *\
+       | Preps the watcher
+       * ←—————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        let o = hs.parseOptions(options);
+        var cons = cs.A0596370;
+       },
+      /* ←— resetAnimation ——————————————————————————————————————————————————————→ *\
+       | Sets the animation slider to 0
+       | Call observing the Step slider
+       | Plays the animation if given a value of -1, so you can call with an
+       | animation toggle with a max of -1 (hopefully you don't have a Step -1)
+       * ←—————————————————————————————————————————————————————————————————→ */
+       resetAnimation: function(options={}) {
+        let o = hs.parseOptions(options);
+        var cons = cs.A0596370;
+        o.desmos.setExpression({
+          id:'animationSlider',
+          latex:(cons.ANIM_VAR_NAME+'=0'),
+          sliderIsPlaying:(o.value==-1)
+        });
+       },
+      /* ←— changeStep ——————————————————————————————————————————————————————→ *\
+       | Updates the volume of the stack
+       * ←—————————————————————————————————————————————————————————————————→ */
+       changeStep: function(options={}) {
+        let o = hs.parseOptions(options);
+        var cons = cs.A0596370;
+       }
+     };
+
     /* ←— TESTING_TESTING_123 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.TESTING_TESTING_123 = {
       /* ←— circleConstrain ———————————————————————————————————————————————→ *\
