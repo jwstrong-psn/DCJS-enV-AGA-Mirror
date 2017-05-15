@@ -229,6 +229,7 @@ PearsonGL.External.rootJS = (function() {
        |  the left of the second point from the perspective of the first is
        |  on a "higher" contour, and a point to the right is lower.
        | The coefficients are normalized.
+       | Output: {a:_,b:_,c:_} in ax+by+c=0
        * ←————————————————————————————————————————————————————————————————→ */
        lineTwoPoints: function(point1, point2) {
         var line = {
