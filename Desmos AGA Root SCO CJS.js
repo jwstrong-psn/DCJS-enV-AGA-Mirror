@@ -3015,7 +3015,7 @@ PearsonGL.External.rootJS = (function() {
        * ←—————————————————————————————————————————————————————————————————→ */
        init: function(options={}) {
         let o = hs.parseOptions(options);
-        let vars = vs[o.uniqueId] = (vs[o.uniqueId] || {draggingPoint:null,dragging:false});
+        let vars = vs[o.uniqueId] = {draggingPoint:null,dragging:false};
         let hxs = vars.helperExpressions = {};
         vars.belayUntil = Date.now()+cs.delay.LOAD;
 
@@ -3332,7 +3332,7 @@ PearsonGL.External.rootJS = (function() {
        * ←—————————————————————————————————————————————————————————————————→ */
        init: function(options={}) {
         let o = hs.parseOptions(options);
-        let vars = vs[o.uniqueId] = (vs[o.uniqueId] || {draggingPoint:null,dragging:false});
+        let vars = vs[o.uniqueId] = {draggingPoint:null,dragging:false};
         let hxs = vars.helperExpressions = {};
         let cons = cs.A0597773;
         vars.belayUntil = Date.now()+cs.delay.LOAD;
@@ -3374,6 +3374,8 @@ PearsonGL.External.rootJS = (function() {
         function isolateHandle(which) {
           // o.log('Isolating Handles');
           for (helper in hxs) hxs[helper].unobserve('numericValue.dragging');
+          document.addEventListener('mouseup',unclick);
+          document.addEventListener('touchend',unclick);
 
           // o.log(which+' changed.');
 
@@ -3414,7 +3416,7 @@ PearsonGL.External.rootJS = (function() {
 
         function adjustHandles() {
           // o.log('Adjusting Handles');
-          if (Date.now() <= vars.belayUntil) {setTimeout(adjustHandles,vars.belayUntil-Date.now()+1);return;}
+          if (Date.now() < vars.belayUntil) {setTimeout(adjustHandles,vars.belayUntil-Date.now());return;}
 
           vars.belayUntil = Date.now()+cs.delay.EXECUTE_HELPER;
 
@@ -3444,7 +3446,7 @@ PearsonGL.External.rootJS = (function() {
         function replaceHandles() {
           // o.log('Replacing Handles');
 
-          adjustHandles();
+          // adjustHandles();
 
           // o.log(hxs.x_V.latex+'='+hxs.x_V.numericValue,hxs.x_C.latex+'='+hxs.x_C.numericValue,hxs.y_V.latex+'='+hxs.y_V.numericValue,hxs.y_C.latex+'='+hxs.y_C.numericValue);
 
@@ -3460,7 +3462,8 @@ PearsonGL.External.rootJS = (function() {
 
           o.desmos.setExpressions(exprs);
 
-          setTimeout(adjustHandles,cs.delay.SET_EXPRESSION);
+          adjustHandles();
+          setTimeout(adjustHandles,cs.delay.SET_EXPRESSION*5);
           // setTimeout(activateHandles,cs.delay.SET_EXPRESSION*2);
         }
 
@@ -3514,9 +3517,9 @@ PearsonGL.External.rootJS = (function() {
 
         function unclick() {
           vars.dragging=false;
-          //document.removeEventListener('mouseup',unclick);
-          //document.removeEventListener('touchend',unclick);
-          setTimeout(replaceHandles,cs.delay.LOAD);
+          document.removeEventListener('mouseup',unclick);
+          document.removeEventListener('touchend',unclick);
+          setTimeout(replaceHandles,cs.delay.SET_EXPRESSION);
         }
 
         function escape() {
@@ -3528,8 +3531,6 @@ PearsonGL.External.rootJS = (function() {
 
         document.addEventListener('mousedown',click);
         document.addEventListener('touchstart',click);
-        document.addEventListener('mouseup',unclick);
-        document.addEventListener('touchend',unclick);
 
         setTimeout(function(){
           activateHandles();
@@ -3557,7 +3558,7 @@ PearsonGL.External.rootJS = (function() {
        * ←—————————————————————————————————————————————————————————————————→ */
        init: function(options={}) {
         let o = hs.parseOptions(options);
-        let vars = vs[o.uniqueId] = (vs[o.uniqueId] || {draggingPoint:null,dragging:false});
+        let vars = vs[o.uniqueId] = {draggingPoint:null,dragging:false};
         let hxs = vars.helperExpressions = {};
         let cons = cs.A0597777;
         vars.belayUntil = Date.now()+cs.delay.LOAD;
@@ -3598,6 +3599,8 @@ PearsonGL.External.rootJS = (function() {
         function isolateHandle(which) {
           // o.log('Isolating Handles');
           for (helper in hxs) hxs[helper].unobserve('numericValue.dragging');
+          document.addEventListener('mouseup',unclick);
+          document.addEventListener('touchend',unclick);
 
           // o.log(which+' changed.');
 
@@ -3885,8 +3888,13 @@ PearsonGL.External.rootJS = (function() {
         function unclick() {
           vars.dragging=false;
           vars.draggingPoint = undefined;
+          document.removeEventListener('mouseup',unclick);
+          document.removeEventListener('touchend',unclick);
           // escape();
-          setTimeout(replaceHandles,cs.delay.SET_EXPRESSION);
+          setTimeout(function(){
+            if (vars === vs[o.uniqueId]) replaceHandles();
+            else escape();
+          },cs.delay.SET_EXPRESSION);
         }
 
         function escape() {
@@ -3898,8 +3906,6 @@ PearsonGL.External.rootJS = (function() {
 
         document.addEventListener('mousedown',click);
         document.addEventListener('touchstart',click);
-        document.addEventListener('mouseup',unclick);
-        document.addEventListener('touchend',unclick);
 
         setTimeout(function(){
           activateHandles();
@@ -3938,7 +3944,7 @@ PearsonGL.External.rootJS = (function() {
        * ←—————————————————————————————————————————————————————————————————→ */
        init: function(options={}) {
         let o = hs.parseOptions(options);
-        let vars = vs[o.uniqueId] = (vs[o.uniqueId] || {draggingPoint:null,dragging:false});
+        let vars = vs[o.uniqueId] = {draggingPoint:null,dragging:false};
         let hxs = vars.helperExpressions = {};
         vars.belayUntil = Date.now()+cs.delay.LOAD;
 
@@ -3968,6 +3974,9 @@ PearsonGL.External.rootJS = (function() {
             hxs[helper].unobserve('numericValue.dragging');
             hxs[helper].unobserve('numericValue.checkReplace');
           }
+
+          document.addEventListener('mouseup',unclick);
+          document.addEventListener('touchend',unclick);
 
           // o.log(which+' changed.');
 
@@ -4086,8 +4095,13 @@ PearsonGL.External.rootJS = (function() {
         function unclick() {
           vars.dragging=false;
           vars.draggingPoint = undefined;
+          document.removeEventListener('mouseup',unclick);
+          document.removeEventListener('touchend',unclick);
           // escape();
-          setTimeout(replaceHandles,cs.delay.SET_EXPRESSION);
+          setTimeout(function(){
+            if (vars === vs[o.uniqueId]) replaceHandles();
+            else escape();
+          },cs.delay.SET_EXPRESSION);
         }
 
         function escape() {
@@ -4099,8 +4113,6 @@ PearsonGL.External.rootJS = (function() {
 
         document.addEventListener('mousedown',click);
         document.addEventListener('touchstart',click);
-        document.addEventListener('mouseup',unclick);
-        document.addEventListener('touchend',unclick);
 
         setTimeout(function(){
           hxs['x_0'].observe('numericValue.dragging',function(){if(vars.dragging)isolateHandle('x_0');});
@@ -4180,11 +4192,63 @@ PearsonGL.External.rootJS = (function() {
         });
        },
       /* ←— changeStep ——————————————————————————————————————————————————————→ *\
-       | Updates the volume of the stack
+       | Switches to the next step.
        * ←—————————————————————————————————————————————————————————————————→ */
        changeStep: function(options={}) {
         let o = hs.parseOptions(options);
         var cons = cs.A0596370;
+        let exprs = [];
+        if (o.value == 1) { // bisect a
+          exprs.push({id:"tickSideALeft",hidden:true});
+          exprs.push({id:"tickSideARight",hidden:true});
+          exprs.push({id:"tickRadiusA",hidden:false});
+          exprs.push({id:"tickRadiusB",hidden:false});
+          exprs.push({id:"tickRadiusC",hidden:false});
+          exprs.push({id:"radii",hidden:false});
+         } else {
+          exprs.push({id:"tickSideALeft",hidden:false});
+          exprs.push({id:"tickSideARight",hidden:false});
+          exprs.push({id:"tickRadiusA",hidden:true});
+          exprs.push({id:"tickRadiusB",hidden:true});
+          exprs.push({id:"tickRadiusC",hidden:true});
+          exprs.push({id:"radii",hidden:true});
+         }
+
+        if (o.value <= 2) { // bisect b
+          exprs.push({id:"tickSideBLeft",hidden:true});
+          exprs.push({id:"tickSideBRight",hidden:true});
+         } else {
+          exprs.push({id:"tickSideBLeft",hidden:false});
+          exprs.push({id:"tickSideBRight",hidden:false});
+         }
+
+        if (o.value != 5) { // bisect c
+          exprs.push({id:"tickSideCLeft",hidden:true});
+          exprs.push({id:"tickSideCRight",hidden:true});
+         } else {
+          exprs.push({id:"tickSideCLeft",hidden:false});
+          exprs.push({id:"tickSideCRight",hidden:false});
+         }
+
+        switch (o.value) { // Midpoints
+          case 1:
+            exprs.push({id:"pointMidpoints",latex:"1"});
+            break;
+          case 2:
+            exprs.push({id:"pointMidpoints",latex:"\\left(\\left[1,\\left\\{0>1\\right\\},\\left\\{0>1\\right\\}\\right]M_{xabc},M_{yabc}\\right)"});
+            break;
+          case 3:
+            exprs.push({id:"pointMidpoints",latex:"\\left(\\left[1,1,\\left\\{0>1\\right\\}\\right]M_{xabc},M_{yabc}\\right)"});
+            break;
+          case 4:
+            exprs.push({id:"pointMidpoints",latex:"\\left(\\left[1,1,\\left\\{0>1\\right\\}\\right]M_{xabc},M_{yabc}\\right)"});
+            break;
+          case 5:
+            exprs.push({id:"pointMidpoints",latex:"\\left(M_{xabc},M_{yabc}\\right)"});
+            break;
+         }
+
+        o.desmos.setExpressions(exprs);
        }
      };
 
