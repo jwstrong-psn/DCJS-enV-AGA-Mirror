@@ -3049,6 +3049,10 @@ PearsonGL.External.rootJS = (function() {
         function isolateHandle(which) {
           // o.log('Isolating Handles');
           for (helper in hxs) hxs[helper].unobserve('numericValue.dragging');
+
+          document.addEventListener('mouseup',unclick);
+          document.addEventListener('touchend',unclick);
+
           vars.dragging = true;
           var exprs = [
             {id:'intersection',hidden:(which[2]!='1')},
@@ -3299,11 +3303,32 @@ PearsonGL.External.rootJS = (function() {
           return;
          }
 
-        // prepare to clear placeholders
-        document.addEventListener('mousedown',function(){vars.dragging=true;});
-        document.addEventListener('touchstart',function(){vars.dragging=true;});
-        document.addEventListener('mouseup',function(){setTimeout(function(){vars.dragging=false;replaceHandles();},cs.delay.LOAD)});
-        document.addEventListener('touchend',function(){setTimeout(function(){vars.dragging=false;replaceHandles();},cs.delay.LOAD)});
+        function click() {
+          vars.dragging=true;
+          // escape();
+        }
+
+        function unclick() {
+          vars.dragging=false;
+          vars.draggingPoint = undefined;
+          document.removeEventListener('mouseup',unclick);
+          document.removeEventListener('touchend',unclick);
+          // escape();
+          setTimeout(function(){
+            if (vars === vs[o.uniqueId]) replaceHandles();
+            else escape();
+          },cs.delay.SET_EXPRESSION);
+        }
+
+        function escape() {
+          document.removeEventListener('mousedown',click);
+          document.removeEventListener('touchstart',click);
+          document.removeEventListener('mouseup',unclick);
+          document.removeEventListener('touchend',unclick);
+        }
+
+        document.addEventListener('mousedown',click);
+        document.addEventListener('touchstart',click);
 
         setTimeout(function(){
           activateHandles();
