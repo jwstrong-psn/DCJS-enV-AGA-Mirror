@@ -4200,6 +4200,7 @@ PearsonGL.External.rootJS = (function() {
        init: function(options={}) {
         let o = hs.parseOptions(options);
         var cons = cs.A0596370;
+        vs[o.uniqueId] = {lastStep:1};
        },
       /* ←— resetAnimation ——————————————————————————————————————————————————————→ *\
        | Sets the animation slider to 0
@@ -4222,56 +4223,85 @@ PearsonGL.External.rootJS = (function() {
        changeStep: function(options={}) {
         let o = hs.parseOptions(options);
         var cons = cs.A0596370;
-        let exprs = [];
-        if (o.value == 1) { // bisect a
-          exprs.push({id:"tickSideALeft",hidden:true});
-          exprs.push({id:"tickSideARight",hidden:true});
-          exprs.push({id:"tickRadiusA",hidden:false});
-          exprs.push({id:"tickRadiusB",hidden:false});
-          exprs.push({id:"tickRadiusC",hidden:false});
-          exprs.push({id:"radii",hidden:false});
-         } else {
-          exprs.push({id:"tickSideALeft",hidden:false});
-          exprs.push({id:"tickSideARight",hidden:false});
-          exprs.push({id:"tickRadiusA",hidden:true});
-          exprs.push({id:"tickRadiusB",hidden:true});
-          exprs.push({id:"tickRadiusC",hidden:true});
-          exprs.push({id:"radii",hidden:true});
-         }
+        var lastStep = vs[o.uniqueId].lastStep;
+        vs[o.uniqueId].lastStep = o.value;
 
-        if (o.value <= 2) { // bisect b
-          exprs.push({id:"tickSideBLeft",hidden:true});
-          exprs.push({id:"tickSideBRight",hidden:true});
-         } else {
-          exprs.push({id:"tickSideBLeft",hidden:false});
-          exprs.push({id:"tickSideBRight",hidden:false});
-         }
+        var gt1 = (o.value>1);
+        var lt2 = (!gt1);
+        var lt3 = (o.value<3);
+        var lt4 = (o.value<4);
+        var lt5 = (o.value<5);
+          
+        let exprs = [
+          // Step 1: show radii
+          {id:"radii",hidden:gt1},
+          {id:"tickRadiusA",hidden:gt1},
+          {id:"tickRadiusB",hidden:gt1},
+          {id:"tickRadiusC",hidden:gt1},
+          // Step 2: bisect a
+          {id:"tickSideALeft",hidden:lt2},
+          {id:"tickSideARight",hidden:lt2},
+          {id:"midpointA",hidden:lt2},
+          // Step 3: bisect b
+          {id:"tickSideBLeft",hidden:lt3},
+          {id:"tickSideBRight",hidden:lt3},
+          {id:"midpointB",hidden:lt3},
+          // Step 4: show circumcenter
+          {id:"pointCircumcenter",hidden:(gt1&&lt4)},
+          // Step 5: show that c's bisector also passes through circumcenter
+          {id:"tickSideCLeft",hidden:lt5},
+          {id:"tickSideCRight",hidden:lt5},
+          {id:"midpointC",hidden:lt5}
+        ];
 
-        if (o.value != 5) { // bisect c
-          exprs.push({id:"tickSideCLeft",hidden:true});
-          exprs.push({id:"tickSideCRight",hidden:true});
-         } else {
-          exprs.push({id:"tickSideCLeft",hidden:false});
-          exprs.push({id:"tickSideCRight",hidden:false});
-         }
+        if(lt2) exprs.push({id:'rightAngleA',latex:'1'},{id:'bisectorA',latex:'1'});
+        else if((lastStep<2)||((lastStep==2)!=lt3)) {
+          if(lt3) exprs.push(
+          {id:'rightAngleA',latex:
+            '\\left(M_{xabc}\\left[1\\right]+n_{animate}I_{nv}\\left[1\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{yabc}\\left[1\\right]-\\left[1,t\\right]\\theta_{xabc}\\left[1\\right]\\right),M_{yabc}\\left[1\\right]-n_{animate}I_{nv}\\left[1\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{xabc}\\left[1\\right]+\\left[1,t\\right]\\theta_{yabc}\\left[1\\right]\\right)\\right)'
+          }, {id:'bisectorA',latex:
+            '\\left(\\left(M_{xabc}\\left[1\\right]-t_{ick}I_{nv}\\left[1\\right]\\theta_{yabc}\\left[1\\right]\\right)\\left(1-tn_{animate}\\right)+\\left(U_x+t_{ick}I_{nv}\\left[1\\right]\\theta_{yabc}\\left[1\\right]\\right)tn_{animate},\\left(M_{yabc}\\left[1\\right]+t_{ick}I_{nv}\\left[1\\right]\\theta_{xabc}\\left[1\\right]\\right)\\left(1-tn_{animate}\\right)+\\left(U_y-t_{ick}I_{nv}\\left[1\\right]\\theta_{xabc}\\left[1\\right]\\right)tn_{animate}\\right)'
+          });
+          else exprs.push(
+          {id:'rightAngleA',latex:
+            '\\left(M_{xabc}\\left[1\\right]+I_{nv}\\left[1\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{yabc}\\left[1\\right]-\\left[1,t\\right]\\theta_{xabc}\\left[1\\right]\\right),M_{yabc}\\left[1\\right]-I_{nv}\\left[1\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{xabc}\\left[1\\right]+\\left[1,t\\right]\\theta_{yabc}\\left[1\\right]\\right)\\right)'
+          }, {id:'bisectorA',latex:
+            '\\left(\\left(M_{xabc}\\left[1\\right]-t_{ick}I_{nv}\\left[1\\right]\\theta_{yabc}\\left[1\\right]\\right)\\left(1-t\\right)+\\left(U_x+t_{ick}I_{nv}\\left[1\\right]\\theta_{yabc}\\left[1\\right]\\right)t,\\left(M_{yabc}\\left[1\\right]+t_{ick}I_{nv}\\left[1\\right]\\theta_{xabc}\\left[1\\right]\\right)\\left(1-t\\right)+\\left(U_y-t_{ick}I_{nv}\\left[1\\right]\\theta_{xabc}\\left[1\\right]\\right)t\\right)'
+          });
+        }
 
-        switch (o.value) { // Midpoints
-          case 1:
-            exprs.push({id:"pointMidpoints",latex:"1"});
-            break;
-          case 2:
-            exprs.push({id:"pointMidpoints",latex:"\\left(\\left[1,\\left\\{0>1\\right\\},\\left\\{0>1\\right\\}\\right]M_{xabc},M_{yabc}\\right)"});
-            break;
-          case 3:
-            exprs.push({id:"pointMidpoints",latex:"\\left(\\left[1,1,\\left\\{0>1\\right\\}\\right]M_{xabc},M_{yabc}\\right)"});
-            break;
-          case 4:
-            exprs.push({id:"pointMidpoints",latex:"\\left(\\left[1,1,\\left\\{0>1\\right\\}\\right]M_{xabc},M_{yabc}\\right)"});
-            break;
-          case 5:
-            exprs.push({id:"pointMidpoints",latex:"\\left(M_{xabc},M_{yabc}\\right)"});
-            break;
-         }
+        if(lt3) {if(lastStep>2) exprs.push({id:'rightAngleB',latex:'1'},{id:'bisectorB',latex:'1'});}
+        else if((lastStep<3)||((lastStep==3)!=lt4)) {
+          if(lt4) exprs.push(
+          {id:'rightAngleB',latex:
+            '\\left(M_{xabc}\\left[2\\right]+n_{animate}I_{nv}\\left[2\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{yabc}\\left[2\\right]-\\left[1,t\\right]\\theta_{xabc}\\left[2\\right]\\right),M_{yabc}\\left[2\\right]-n_{animate}I_{nv}\\left[2\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{xabc}\\left[2\\right]+\\left[1,t\\right]\\theta_{yabc}\\left[2\\right]\\right)\\right)'
+          }, {id:'bisectorB',latex:
+            '\\left(\\left(M_{xabc}\\left[2\\right]-t_{ick}I_{nv}\\left[2\\right]\\theta_{yabc}\\left[2\\right]\\right)\\left(1-tn_{animate}\\right)+\\left(U_x+t_{ick}I_{nv}\\left[2\\right]\\theta_{yabc}\\left[2\\right]\\right)tn_{animate},\\left(M_{yabc}\\left[2\\right]+t_{ick}I_{nv}\\left[2\\right]\\theta_{xabc}\\left[2\\right]\\right)\\left(1-tn_{animate}\\right)+\\left(U_y-t_{ick}I_{nv}\\left[2\\right]\\theta_{xabc}\\left[2\\right]\\right)tn_{animate}\\right)'
+          });
+          else exprs.push(
+          {id:'rightAngleB',latex:
+            '\\left(M_{xabc}\\left[2\\right]+I_{nv}\\left[2\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{yabc}\\left[2\\right]-\\left[1,t\\right]\\theta_{xabc}\\left[2\\right]\\right),M_{yabc}\\left[2\\right]-I_{nv}\\left[2\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{xabc}\\left[2\\right]+\\left[1,t\\right]\\theta_{yabc}\\left[2\\right]\\right)\\right)'
+          }, {id:'bisectorB',latex:
+            '\\left(\\left(M_{xabc}\\left[2\\right]-t_{ick}I_{nv}\\left[2\\right]\\theta_{yabc}\\left[2\\right]\\right)\\left(1-t\\right)+\\left(U_x+t_{ick}I_{nv}\\left[2\\right]\\theta_{yabc}\\left[2\\right]\\right)t,\\left(M_{yabc}\\left[2\\right]+t_{ick}I_{nv}\\left[2\\right]\\theta_{xabc}\\left[2\\right]\\right)\\left(1-t\\right)+\\left(U_y-t_{ick}I_{nv}\\left[2\\right]\\theta_{xabc}\\left[2\\right]\\right)t\\right)'
+          });
+        }
+
+        if(o.value==4) exprs.push(
+          {id:'circumCircle',latex:
+          'P\\left(R,\\operatorname{sign}\\left(y_A-U_y\\right)\\arccos\\left(\\frac{x_A-U_x}{R}\\right)+2\\pi tn_{animate},U_x,U_y\\right)'},
+          {id:'traceRadius',latex:
+          'P\\left(tR,\\operatorname{sign}\\left(y_A-U_y\\right)\\arccos\\left(\\frac{x_A-U_x}{R}\\right)+2\\pi n_{animate},U_x,U_y\\right)'});
+        else if(lt4&&(!lt2)) exprs.push({id:'circumCircle',latex:'1'},{id:'traceRadius',latex:'1'});
+        else if((lastStep<5)&&(lastStep>1)) exprs.push({id:'circumCircle',latex:'\\left(x-U_x\\right)^2+\\left(y-U_y\\right)^2=R^2'},{id:'traceRadius',latex:'1'});
+
+        if(lt5&&(lastStep==5)) exprs.push({id:'rightAngleC',latex:'1'},{id:'bisectorC',latex:'1'});
+        else if((lastStep<5)&&(!lt5)) exprs.push(
+          {id:'rightAngleC',latex:
+            '\\left(M_{xabc}\\left[3\\right]+n_{animate}I_{nv}\\left[3\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{yabc}\\left[3\\right]-\\left[1,t\\right]\\theta_{xabc}\\left[3\\right]\\right),M_{yabc}\\left[3\\right]-n_{animate}I_{nv}\\left[3\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{xabc}\\left[3\\right]+\\left[1,t\\right]\\theta_{yabc}\\left[3\\right]\\right)\\right)'
+          }, {id:'bisectorC',latex:
+            '\\left(\\left(M_{xabc}\\left[3\\right]-t_{ick}I_{nv}\\left[3\\right]\\theta_{yabc}\\left[3\\right]\\right)\\left(1-tn_{animate}\\right)+\\left(U_x+t_{ick}I_{nv}\\left[3\\right]\\theta_{yabc}\\left[3\\right]\\right)tn_{animate},\\left(M_{yabc}\\left[3\\right]+t_{ick}I_{nv}\\left[3\\right]\\theta_{xabc}\\left[3\\right]\\right)\\left(1-tn_{animate}\\right)+\\left(U_y-t_{ick}I_{nv}\\left[3\\right]\\theta_{xabc}\\left[3\\right]\\right)tn_{animate}\\right)'
+          });
+
 
         o.desmos.setExpressions(exprs);
        }
