@@ -4307,6 +4307,141 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
+    /* ←— A0596373 FUNCTIONS ——————————————————————————————————————————————→ */
+      cs.A0596373 = {
+        ANIM_VAR_NAME:'n_{SlideToAnimate}'
+       };
+     fs.A0596373 = {
+      /* ←— init ——————————————————————————————————————————————————————→ *\
+       | Preps the watcher
+       * ←—————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        let o = hs.parseOptions(options);
+        var cons = cs.A0596373;
+        vs[o.uniqueId] = {lastStep:1};
+       },
+      /* ←— resetAnimation ——————————————————————————————————————————————————————→ *\
+       | Sets the animation slider to 0
+       | Call observing the Step slider
+       | Plays the animation if given a value of -1, so you can call with an
+       | animation toggle with a max of -1 (hopefully you don't have a Step -1)
+       * ←—————————————————————————————————————————————————————————————————→ */
+       resetAnimation: function(options={}) {
+        let o = hs.parseOptions(options);
+        var cons = cs.A0596373;
+        o.desmos.setExpression({
+          id:'animationSlider',
+          latex:(cons.ANIM_VAR_NAME+'=0'),
+          sliderIsPlaying:(o.value==-1)
+        });
+       },
+      /* ←— changeStep ——————————————————————————————————————————————————————→ *\
+       | Switches to the next step.
+       * ←—————————————————————————————————————————————————————————————————→ */
+       changeStep: function(options={}) {
+        let o = hs.parseOptions(options);
+        var cons = cs.A0596373;
+        var lastStep = vs[o.uniqueId].lastStep;
+        vs[o.uniqueId].lastStep = o.value;
+
+        var gt1 = (o.value>1);
+        var lt2 = (!gt1);
+        var lt3 = (o.value<3);
+        var lt4 = (o.value<4);
+        var lt5 = (o.value<5);
+        var lt6 = (o.value<6);
+          
+        let exprs = [
+          // Step 1: show radii congruent
+          {id:"radiiCongruence",hidden:gt1},
+          // Step 2: bisect a
+          {id:"pointIncenter",hidden:(gt1&&lt5),color:((lt6)?'#000000':'#F15A22')},
+          {id:"congruenceA1",hidden:lt2},
+          {id:"congruenceA2",hidden:lt2},
+          // Step 3: bisect b
+          {id:"congruenceB1",hidden:lt3},
+          {id:"congruenceB2",hidden:lt3},
+          // Step 4: bisect c
+          {id:"congruenceC1",hidden:lt4},
+          {id:"congruenceC2",hidden:lt4},
+          // Step 5: draw a radius
+          // Step 6: draw the circle
+        ];
+
+        if(lt2) exprs.push( // Dashed cicle with 3 tangents and 3 congruent radii
+          {id:'bisectors',latex:'1'},
+          {id:'inCircle',color:'#000000',style:'dashed',latex:
+            '\\operatorname{distance}\\left(\\left(x,y\\right),U\\right)=R'
+          },{id:'pointTangents',color:'#000000',hidden:false,latex:
+            'P\\left(I_{nv}R,\\theta_{abc}+\\arccos 0,U_x,U_y\\right)'
+          },{id:'radii',latex:
+            'P\\left(I_{nv}Rt,\\theta_{abc}+\\arccos 0,U_x,U_y\\right)'
+          },{id:'rightAngleSides',latex:
+            '\\left(\\left\\{R>2t_{ick}\\right\\}U_x-I_{nv}\\left(R-tt_{ick}\\right)\\theta_{yabc}+t_{ick}\\theta_{xabc},U_y+I_{nv}\\left(R-tt_{ick}\\right)\\theta_{xabc}+t_{ick}\\theta_{yabc}\\right)'
+          },{id:'rightAngleTops',latex:
+            '\\left(\\left\\{R>2t_{ick}\\right\\}U_x-I_{nv}\\left(R-t_{ick}\\right)\\theta_{yabc}+tt_{ick}\\theta_{xabc},U_y+I_{nv}\\left(R-t_{ick}\\right)\\theta_{xabc}+tt_{ick}\\theta_{yabc}\\right)'
+          });
+        else if(!lt6) { // Only Tangent Point and radius 3, all bisectors, drawing circle
+          exprs.push(
+          {id:'inCircle',color:'#F15A22',style:'normal',latex:
+            'P\\left(R,\\arccos\\left(\\theta_{xabc}\\left[3\\right]\\right)\\operatorname{sign}\\left(\\theta_{yabc}\\left[3\\right]\\right)+I_{nv}\\frac{\\pi}{2}+2\\pi tn_{animation},U_x,U_y\\right)'
+          },{id:'pointTangents',color:'#F15A22',hidden:false,latex:
+            'P\\left(I_{nv}R,\\theta_{abc}\\left[3\\right]+\\arccos 0,U_x,U_y\\right)'
+          },{id:'radii',latex:
+            'P\\left(I_{nv}Rt,\\theta_{abc}\\left[3\\right]+\\arccos 0,U_x,U_y\\right)'
+          });
+          if(lastStep!=5) exprs.push( // static bisectors
+            {id:'bisectors',color:'#000000',latex:
+              '\\left(X_{CAB}\\left(1-t\\right)+tU_x,Y_{CAB}\\left(1-t\\right)+tU_y\\right)'
+            },{id:'rightAngleSides',latex:
+              '\\left(\\left\\{R>2t_{ick}\\right\\}U_x-I_{nv}\\left(R-tt_{ick}\\right)\\theta_{yabc}\\left[3\\right]+t_{ick}\\theta_{xabc}\\left[3\\right],U_y+I_{nv}\\left(R-tt_{ick}\\right)\\theta_{xabc}\\left[3\\right]+t_{ick}\\theta_{yabc}\\left[3\\right]\\right)'
+            },{id:'rightAngleTops',latex:
+              '\\left(\\left\\{R>2t_{ick}\\right\\}U_x-I_{nv}\\left(R-t_{ick}\\right)\\theta_{yabc}\\left[3\\right]+tt_{ick}\\theta_{xabc}\\left[3\\right],U_y+I_{nv}\\left(R-t_{ick}\\right)\\theta_{xabc}\\left[3\\right]+tt_{ick}\\theta_{yabc}\\left[3\\right]\\right)'
+            });
+        } else { // In the construction
+          if((lastStep==1)||(lastStep==6)) {
+            exprs.push({id:'inCircle',latex:'1'});
+            exprs.push({id:'pointTangents',hidden:true});
+          }
+
+          if(lt5&&((lastStep>=5)||(lastStep==1))) exprs.push(
+            {id:'radii',latex:'1'},
+            {id:'rightAngleSides',latex:'1'},
+            {id:'rightAngleTops',latex:'1'}
+            );
+
+          if(lt3) exprs.push( // Bisector A animating
+            {id:'bisectors',color:'#F15A22',latex:
+              '\\left(x_A+\\left(2-n_{animation}\\right)t\\frac{U_x-x_A}{r_{CAB}\\left[2\\right]}t_{ick}+tn_{animation}\\left(U_x-x_A\\right),y_A+\\left(2-n_{animation}\\right)t\\frac{U_y-y_A}{r_{CAB}\\left[2\\right]}t_{ick}+tn_{animation}\\left(U_y-y_A\\right)\\right)'
+            });
+          else if(lt4) exprs.push( // Bisector B animating
+            {id:'bisectors',color:'#F15A22',latex:
+              '\\left(X_{CAB}+\\left(2-\\left[\\left\\{0>1\\right\\},1,n_{animation}\\right]\\right)t\\frac{U_x-X_{CAB}}{r_{CAB}}t_{ick}+\\left[1,1,n_{animation}\\right]t\\left(U_x-X_{CAB}\\right),Y_{CAB}+\\left(2-\\left[1,1,n_{animation}\\right]\\right)t\\frac{U_y-Y_{CAB}}{r_{CAB}}t_{ick}+\\left[1,1,n_{animation}\\right]t\\left(U_y-Y_{CAB}\\right)\\right)'
+            });
+          else if(lt5) exprs.push( // Bisector C animating
+            {id:'bisectors',color:'#F15A22',latex:
+              '\\left(X_{CAB}+\\left(2-\\left[n_{animation},1,1\\right]\\right)t\\frac{U_x-X_{CAB}}{r_{CAB}}t_{ick}+\\left[n_{animation},1,1\\right]t\\left(U_x-X_{CAB}\\right),Y_{CAB}+\\left(2-\\left[n_{animation},1,1\\right]\\right)t\\frac{U_y-Y_{CAB}}{r_{CAB}}t_{ick}+\\left[n_{animation},1,1\\right]t\\left(U_y-Y_{CAB}\\right)\\right)'
+            });
+          else {
+            exprs.push( // draw the radius
+              {id:'radii',latex:
+                'P\\left(I_{nv}\\left(\\left(1-n_{animation}\\right)\\left(R-\\frac{14}{9}t_{ick}\\right)t+R\\left(1-t\\right)\\right),\\theta_{abc}\\left[3\\right]+\\arccos 0,U_x,U_y\\right)'
+              });
+            if(lastStep!=6) exprs.push( // Bisectors fixed
+              {id:'bisectors',color:'#000000',latex:
+                '\\left(X_{CAB}\\left(1-t\\right)+tU_x,Y_{CAB}\\left(1-t\\right)+tU_y\\right)'
+              },{id:'rightAngleSides',latex:
+                '\\left(\\left\\{R>2t_{ick}\\right\\}U_x-I_{nv}\\left(R-tt_{ick}\\right)\\theta_{yabc}\\left[3\\right]+t_{ick}\\theta_{xabc}\\left[3\\right],U_y+I_{nv}\\left(R-tt_{ick}\\right)\\theta_{xabc}\\left[3\\right]+t_{ick}\\theta_{yabc}\\left[3\\right]\\right)'
+              },{id:'rightAngleTops',latex:
+                '\\left(\\left\\{R>2t_{ick}\\right\\}U_x-I_{nv}\\left(R-t_{ick}\\right)\\theta_{yabc}\\left[3\\right]+tt_{ick}\\theta_{xabc}\\left[3\\right],U_y+I_{nv}\\left(R-t_{ick}\\right)\\theta_{xabc}\\left[3\\right]+tt_{ick}\\theta_{yabc}\\left[3\\right]\\right)'
+              });
+          }
+        }
+
+        o.desmos.setExpressions(exprs);
+       }
+     };
+
     /* ←— TESTING_TESTING_123 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.TESTING_TESTING_123 = {
       /* ←— circleConstrain ———————————————————————————————————————————————→ *\
