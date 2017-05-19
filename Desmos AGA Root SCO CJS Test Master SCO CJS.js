@@ -220,6 +220,21 @@ PearsonGL.External.masterJS = (function() {
   }
 
   //* functions for test purposes only
+  ts.A0596373_init = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.A0596373_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
+  }
+
+  //* functions for test purposes only
+  ts.A0596373_changeStep = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.A0596373_changeStep({'value':val,'name':name,'desmos':desmos,'log':console.log});
+  }
+
+  //* functions for test purposes only
+  ts.A0596370_init = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.A0596370_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
+  }
+
+  //* functions for test purposes only
   ts.A0596370_changeStep = function(val, name, desmos) {
     return PearsonGL.External.rootJS.A0596370_changeStep({'value':val,'name':name,'desmos':desmos,'log':console.log});
   }
