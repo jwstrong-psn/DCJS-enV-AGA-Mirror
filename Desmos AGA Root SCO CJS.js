@@ -1845,13 +1845,13 @@ PearsonGL.External.rootJS = (function() {
           exprs.push({
               id:'segment_'+hs.ALPHA[i]+'A',
               hidden:(vars.helperFunctions.showDiagonals.numericValue == 0),
-              style:'dashed',
+              style:((Desmos.Styles!==undefined)?Desmos.Styles.DASHED:'dashed'),
               color:cs.color.agaColors.red
           });
           exprs.push({
               id:'segment_'+hs.ALPHA[i]+hs.ALPHA[i+1],
               hidden:false,
-              style:'normal',
+              style:((Desmos.Styles!==undefined)?Desmos.Styles.SOLID:'normal'),
               color:cs.color.agaColors.black
           });
         };
@@ -1860,7 +1860,7 @@ PearsonGL.External.rootJS = (function() {
         exprs.push({
           id:'segment_'+hs.ALPHA[n]+'A',
           hidden:false,
-          style:'normal',
+          style:((Desmos.Styles!==undefined)?Desmos.Styles.SOLID:'normal'),
           color:cs.color.agaColors.black
         });
 
@@ -4259,7 +4259,7 @@ PearsonGL.External.rootJS = (function() {
           if(lt3) exprs.push(
           {id:'rightAngleA',latex:
             '\\left(M_{xabc}\\left[1\\right]+n_{animate}I_{nv}\\left[1\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{yabc}\\left[1\\right]-\\left[1,t\\right]\\theta_{xabc}\\left[1\\right]\\right),M_{yabc}\\left[1\\right]-n_{animate}I_{nv}\\left[1\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{xabc}\\left[1\\right]+\\left[1,t\\right]\\theta_{yabc}\\left[1\\right]\\right)\\right)'
-          }, {id:'bisectorA',latex:
+          }, {id:'bisectorA',color:'#F15A22',latex:
             '\\left(\\left(M_{xabc}\\left[1\\right]-t_{ick}I_{nv}\\left[1\\right]\\theta_{yabc}\\left[1\\right]\\right)\\left(1-tn_{animate}\\right)+\\left(U_x+t_{ick}I_{nv}\\left[1\\right]\\theta_{yabc}\\left[1\\right]\\right)tn_{animate},\\left(M_{yabc}\\left[1\\right]+t_{ick}I_{nv}\\left[1\\right]\\theta_{xabc}\\left[1\\right]\\right)\\left(1-tn_{animate}\\right)+\\left(U_y-t_{ick}I_{nv}\\left[1\\right]\\theta_{xabc}\\left[1\\right]\\right)tn_{animate}\\right)'
           });
           else exprs.push(
@@ -4275,24 +4275,28 @@ PearsonGL.External.rootJS = (function() {
           if(lt4) exprs.push(
           {id:'rightAngleB',latex:
             '\\left(M_{xabc}\\left[2\\right]+n_{animate}I_{nv}\\left[2\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{yabc}\\left[2\\right]-\\left[1,t\\right]\\theta_{xabc}\\left[2\\right]\\right),M_{yabc}\\left[2\\right]-n_{animate}I_{nv}\\left[2\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{xabc}\\left[2\\right]+\\left[1,t\\right]\\theta_{yabc}\\left[2\\right]\\right)\\right)'
-          }, {id:'bisectorB',latex:
+          }, {id:'bisectorB',color:'#F15A22',latex:
             '\\left(\\left(M_{xabc}\\left[2\\right]-t_{ick}I_{nv}\\left[2\\right]\\theta_{yabc}\\left[2\\right]\\right)\\left(1-tn_{animate}\\right)+\\left(U_x+t_{ick}I_{nv}\\left[2\\right]\\theta_{yabc}\\left[2\\right]\\right)tn_{animate},\\left(M_{yabc}\\left[2\\right]+t_{ick}I_{nv}\\left[2\\right]\\theta_{xabc}\\left[2\\right]\\right)\\left(1-tn_{animate}\\right)+\\left(U_y-t_{ick}I_{nv}\\left[2\\right]\\theta_{xabc}\\left[2\\right]\\right)tn_{animate}\\right)'
-          });
+          }, {id:'bisectorA',color:'#F15A22'});
           else exprs.push(
           {id:'rightAngleB',latex:
             '\\left(M_{xabc}\\left[2\\right]+I_{nv}\\left[2\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{yabc}\\left[2\\right]-\\left[1,t\\right]\\theta_{xabc}\\left[2\\right]\\right),M_{yabc}\\left[2\\right]-I_{nv}\\left[2\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{xabc}\\left[2\\right]+\\left[1,t\\right]\\theta_{yabc}\\left[2\\right]\\right)\\right)'
-          }, {id:'bisectorB',latex:
+          }, {id:'bisectorB',color:'#000000',latex:
             '\\left(\\left(M_{xabc}\\left[2\\right]-t_{ick}I_{nv}\\left[2\\right]\\theta_{yabc}\\left[2\\right]\\right)\\left(1-t\\right)+\\left(U_x+t_{ick}I_{nv}\\left[2\\right]\\theta_{yabc}\\left[2\\right]\\right)t,\\left(M_{yabc}\\left[2\\right]+t_{ick}I_{nv}\\left[2\\right]\\theta_{xabc}\\left[2\\right]\\right)\\left(1-t\\right)+\\left(U_y-t_{ick}I_{nv}\\left[2\\right]\\theta_{xabc}\\left[2\\right]\\right)t\\right)'
-          });
+          }, {id:'bisectorA',color:'#000000'});
         }
 
         if(o.value==4) exprs.push(
-          {id:'circumCircle',latex:
-          'P\\left(R,\\operatorname{sign}\\left(y_A-U_y\\right)\\arccos\\left(\\frac{x_A-U_x}{R}\\right)+2\\pi tn_{animate},U_x,U_y\\right)'},
+          {id:'circumCircle',color:'#F15A22',style:((Desmos.Styles!==undefined)?Desmos.Styles.SOLID:'normal'),latex:
+          'P\\left(R,\\operatorname{sign}\\left(y_C-U_y\\right)\\arccos\\left(\\frac{x_C-U_x}{R}\\right)+2\\pi tn_{animate},U_x,U_y\\right)'},
           {id:'traceRadius',latex:
-          'P\\left(tR,\\operatorname{sign}\\left(y_A-U_y\\right)\\arccos\\left(\\frac{x_A-U_x}{R}\\right)+2\\pi n_{animate},U_x,U_y\\right)'});
-        else if(lt4&&(!lt2)) exprs.push({id:'circumCircle',latex:'1'},{id:'traceRadius',latex:'1'});
-        else if((lastStep<5)&&(lastStep>1)) exprs.push({id:'circumCircle',latex:'\\left(x-U_x\\right)^2+\\left(y-U_y\\right)^2=R^2'},{id:'traceRadius',latex:'1'});
+          'P\\left(tR,\\operatorname{sign}\\left(y_C-U_y\\right)\\arccos\\left(\\frac{x_C-U_x}{R}\\right)+2\\pi n_{animate},U_x,U_y\\right)'});
+        else {
+          exprs.push({id:'traceRadius',latex:'1'});
+          if(lt2) exprs.push({id:'circumCircle',color:'#000000',style:((Desmos.Styles!==undefined)?Desmos.Styles.DASHED:'dashed'),latex:'\\left(x-U_x\\right)^2+\\left(y-U_y\\right)^2=R^2'});
+          else if(lt4) exprs.push({id:'circumCircle',latex:'1'});
+          else if(!lt5) exprs.push({id:'circumCircle',color:'#F15A22',style:((Desmos.Styles!==undefined)?Desmos.Styles.SOLID:'normal'),latex:'\\left(x-U_x\\right)^2+\\left(y-U_y\\right)^2=R^2'})
+        }
 
         if(lt5&&(lastStep==5)) exprs.push({id:'rightAngleC',latex:'1'},{id:'bisectorC',latex:'1'});
         else if((lastStep<5)&&(!lt5)) exprs.push(
@@ -4370,7 +4374,7 @@ PearsonGL.External.rootJS = (function() {
 
         if(lt2) exprs.push( // Dashed cicle with 3 tangents and 3 congruent radii
           {id:'bisectors',latex:'1'},
-          {id:'inCircle',color:'#000000',style:'dashed',latex:
+          {id:'inCircle',color:'#000000',style:((Desmos.Styles!==undefined)?Desmos.Styles.DASHED:'dashed'),latex:
             '\\operatorname{distance}\\left(\\left(x,y\\right),U\\right)=R'
           },{id:'pointTangents',color:'#000000',hidden:false,latex:
             'P\\left(I_{nv}R,\\theta_{abc}+\\arccos 0,U_x,U_y\\right)'
@@ -4383,7 +4387,7 @@ PearsonGL.External.rootJS = (function() {
           });
         else if(!lt6) { // Only Tangent Point and radius 3, all bisectors, drawing circle
           exprs.push(
-          {id:'inCircle',color:'#F15A22',style:'normal',latex:
+          {id:'inCircle',color:'#F15A22',style:((Desmos.Styles!==undefined)?Desmos.Styles.SOLID:'normal'),latex:
             'P\\left(R,\\arccos\\left(\\theta_{xabc}\\left[3\\right]\\right)\\operatorname{sign}\\left(\\theta_{yabc}\\left[3\\right]\\right)+I_{nv}\\frac{\\pi}{2}+2\\pi tn_{animation},U_x,U_y\\right)'
           },{id:'pointTangents',color:'#F15A22',hidden:false,latex:
             'P\\left(I_{nv}R,\\theta_{abc}\\left[3\\right]+\\arccos 0,U_x,U_y\\right)'
@@ -4459,7 +4463,7 @@ PearsonGL.External.rootJS = (function() {
           {id:'circle',latex:'\\left(x-x_0\\right)^2+\\left(y-y_0\\right)^2=r_0^2'},
           {id:'center',latex:'\\left(x_0,y_0\\right)'},
           {id:'draggable',latex:'\\left(x_1,y_1\\right)'},
-          {id:'adjusted',latex:'\\left(x_{adjusted},y_{adjusted}\\right)',hidden:true,dragMode:"NONE"},
+          {id:'adjusted',latex:'\\left(x_{adjusted},y_{adjusted}\\right)',hidden:true,dragMode:Desmos.DragModes.NONE},
           {id:'x_0',latex:'x_0=0'},
           {id:'y_0',latex:'y_0=0'},
           {id:'r_0',latex:'r_0=1'},
