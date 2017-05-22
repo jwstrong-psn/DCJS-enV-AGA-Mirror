@@ -4215,8 +4215,8 @@ PearsonGL.External.rootJS = (function() {
         var cons = cs.A0596370;
         o.desmos.setExpression({
           id:'animationSlider',
-          latex:(cons.ANIM_VAR_NAME+'=0'),
-          sliderIsPlaying:(o.value==-1)
+          latex:(cons.ANIM_VAR_NAME+'=0')//,
+          // sliderIsPlaying:(o.value==-1)
         });
        },
       /* ←— changeStep ——————————————————————————————————————————————————————→ *\
@@ -4337,8 +4337,8 @@ PearsonGL.External.rootJS = (function() {
         var cons = cs.A0596373;
         o.desmos.setExpression({
           id:'animationSlider',
-          latex:(cons.ANIM_VAR_NAME+'=0'),
-          sliderIsPlaying:(o.value==-1)
+          latex:(cons.ANIM_VAR_NAME+'=0')//,
+          //sliderIsPlaying:(o.value==-1)
         });
        },
       /* ←— changeStep ——————————————————————————————————————————————————————→ *\
