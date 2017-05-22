@@ -41,6 +41,8 @@ PearsonGL.External.rootJS = (function() {
        ↑ Returns a new struct merging given options with defaults for those   ↑
        | options not provided.                                                |
        |                                                                      |
+       |          TODO TK STUB UPDATE WHEN MSWEB-7680 IS RESOLVED             |
+       |                                                                      |
        | @Arg1: standard helper function option struct                        |
        |                                                                      |
        | @Returns: standard helper function option struct                     |
@@ -52,8 +54,8 @@ PearsonGL.External.rootJS = (function() {
           desmos:desmos,
           name:((options['name'] === undefined) ? '' : options['name']),
           value:((options['value'] === undefined) ? NaN : options['value']),
-          uniqueId:options['uniqueId'] || ((desmos === undefined) ? 'undefinedId' : desmos['guid']),
-          log:options['log'] || function(){}
+          uniqueId:desmos['guid'], //options['uniqueId'] || ((desmos === undefined) ? 'undefinedId' : desmos['guid']),
+          log:options['log'] // || function(){} // 
         });
         if (window.widget === undefined && output.log === console.log) {
           window.widget = output.desmos;
