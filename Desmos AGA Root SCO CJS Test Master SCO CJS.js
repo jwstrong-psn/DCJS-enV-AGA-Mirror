@@ -236,7 +236,7 @@ PearsonGL.External.masterJS = (function() {
 
   //* functions for test purposes only
   ts.A0596370_changeStep = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0596370_changeStep({'value':val,'name':name,'desmos':desmos,'log':console.log});
+    return PearsonGL.External.rootJS.A0596370_changeStep((arguments.length>1)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
   }
 
   //* functions for test purposes only
