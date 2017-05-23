@@ -1,3 +1,15 @@
+/******************************************************************************
+* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! NOTICE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! *
+* !!!!!!!!!! This file is managed through the DCJS/envision-aga !!!!!!!!!!!!! *
+* !!!!!!!!!!  repository on BitBucket. Changes made directly in !!!!!!!!!!!!! *
+* !!!!!!!!!!  DCAT will be overwritten periodically when new    !!!!!!!!!!!!! *
+* !!!!!!!!!!  versions are pushed.                              !!!!!!!!!!!!! *
+* !!!!!!!!!! If you need access to the BitBucket repository,    !!!!!!!!!!!!! *
+* !!!!!!!!!!  please contact: joseph.strong@pearson.com         !!!!!!!!!!!!! *
+* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! *
+******************************************************************************/
+
+
 window.PearsonGL = window.PearsonGL || {};
 window.PearsonGL.External = window.PearsonGL.External || {};
 
@@ -323,6 +335,24 @@ PearsonGL.External.masterJS = (function() {
   ts.A0597724_dragging = function(val, name, desmos) {
     return PearsonGL.External.rootJS.A0597724_dragging({'value':val,'name':name,'desmos':desmos,'log':console.log});
   }
+
+  function gcf(arr) {
+    var arr = arr.value;
+    var i, y,
+        n = arr.length,
+        x = Math.abs(arr[0]);
+   
+    for (i = 1; i < n; i++) {
+      y = Math.abs(arr[i]);
+   
+      while (x && y) {
+        (x > y) ? x %= y : y %= x;
+      }
+      x += y;
+    }
+   
+     return new PearsonGL.Parameters.Parameter(x,"single","integer");
+   }
   
   Object.assign(exports,flattenFuncStruct(ts));
 
