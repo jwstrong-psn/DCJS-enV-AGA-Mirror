@@ -336,7 +336,7 @@ PearsonGL.External.masterJS = (function() {
     return PearsonGL.External.rootJS.A0597724_dragging({'value':val,'name':name,'desmos':desmos,'log':console.log});
   }
 
-  function gcf(arr) {
+  exports.gcf = function(arr) {
     var arr = arr.value;
     var i, y,
         n = arr.length,
