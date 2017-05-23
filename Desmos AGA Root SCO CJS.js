@@ -1,3 +1,15 @@
+/******************************************************************************
+* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! NOTICE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! *
+* !!!!!!!!!! This file is managed through the DCJS/envision-aga !!!!!!!!!!!!! *
+* !!!!!!!!!!  repository on BitBucket. Changes made directly in !!!!!!!!!!!!! *
+* !!!!!!!!!!  DCAT will be overwritten periodically when new    !!!!!!!!!!!!! *
+* !!!!!!!!!!  versions are pushed.                              !!!!!!!!!!!!! *
+* !!!!!!!!!! If you need access to the BitBucket repository,    !!!!!!!!!!!!! *
+* !!!!!!!!!!  please contact: joseph.strong@pearson.com         !!!!!!!!!!!!! *
+* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! *
+******************************************************************************/
+
+
 window.PearsonGL = window.PearsonGL || {};
 window.PearsonGL.External = window.PearsonGL.External || {};
 
