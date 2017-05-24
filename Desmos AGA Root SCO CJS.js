@@ -3975,6 +3975,188 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
+    /* ←— A0597503 FUNCTIONS ——————————————————————————————————————————————→ */
+      cs.A0597503 = {
+        HANDLE_COLOR:'#000000',
+        HIDDEN_COLOR:'#FFFFFF'
+       };
+     fs.A0597503 = {
+      /* ←— init ———————————————————————————————————————————————→ *\
+       | stuff
+       * ←—————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        let o = hs.parseOptions(options);
+        let vars = vs[o.uniqueId] = {};
+        let hxs = vars.helperExpressions = {};
+        let cons = cs.A0597503;
+
+        Object.assign(hxs,{
+          x_1:o.desmos.HelperExpression({latex:'x_1'}),
+          y_1:o.desmos.HelperExpression({latex:'y_1'}),
+          x_2:o.desmos.HelperExpression({latex:'x_2'}),
+          y_2:o.desmos.HelperExpression({latex:'y_2'}),
+          x_3:o.desmos.HelperExpression({latex:'x_3'}),
+          y_3:o.desmos.HelperExpression({latex:'y_3'}),
+          a:o.desmos.HelperExpression({latex:'a'}),
+          l:o.desmos.HelperExpression({latex:'l'}),
+          c:o.desmos.HelperExpression({latex:'c'}),
+          b:o.desmos.HelperExpression({latex:'b'}),
+          t:o.desmos.HelperExpression({latex:'t_{ick}'})
+        });
+
+        function interact(which) {
+          if (vars.handled || !(vars.mouseIsDown)) return;
+
+          // Stop listening for interaction
+          vars.handled = true;
+          for(helper in hxs) {
+            if (helper.length == 3) hxs[helper].unobserve('numericValue.interact');
+          }
+
+          // Hide the handle, and start changing 'b' if the handle is being dragged
+          if ((which=='x_3')||(which=='y_3')) {
+            vars.dragging = 'H';
+            o.desmos.setExpressions([
+              {id:'H',color:cons.HIDDEN_COLOR,showLabel:false},
+              {id:'b',latex:'b=\\max\\left(0,\\min\\left(1,d\\right)\\right)'},
+              {id:'B',hidden:false,showLabel:true}
+             ]);
+          } else o.desmos.setExpressions([
+            {id:'H',hidden:true,showLabel:false},
+            {id:'B',hidden:false,showLabel:true}
+           ]);
+         }
+
+        function updateLabels() {
+          let a = hxs.a.numericValue;
+          let b = hxs.c.numericValue;
+          let c = hxs.l.numericValue;
+
+          if(Math.abs(a+b-c)<Math.pow(10,-cs.precision.FLOAT_PRECISION)) o.desmos.setExpressions([
+            {id:'equation',label:hs.latexToText(''+a+'+'+b+'='+c)},
+            {id:'a',label:(''+a)},
+            {id:'c',label:(''+b)}
+           ]);
+         }
+
+        function checkHandle() {
+          var b = hxs.b.numericValue;
+          vars.x_3 = hs.number(hxs.x_1.numericValue*(1-b)+hxs.x_2.numericValue*b);
+          vars.y_3 = hs.number(hxs.y_1.numericValue*(1-b)+hxs.y_2.numericValue*b);
+
+          if((Math.abs(hxs.x_3.numericValue-vars.x_3)<Math.pow(10,-cs.precision.FLOAT_PRECISION)) &&
+             (Math.abs(hxs.y_3.numericValue-vars.y_3)<Math.pow(10,-cs.precision.FLOAT_PRECISION))) {
+            o.desmos.setExpressions([
+              {id:'H',hidden:false,showLabel:true},
+              {id:'B',hidden:true,showLabel:false}
+             ]);
+
+            hxs.x_3.unobserve('numericValue.checkHandle');
+            hxs.y_3.unobserve('numericValue.checkHandle');
+          } else adjustHandle();
+         }
+
+        function checkB() {
+          var b = hxs.b.numericValue;
+          var x_1 = hxs.x_1.numericValue;
+          var y_1 = hxs.y_1.numericValue;
+          var x_2 = hxs.x_2.numericValue;
+          var y_2 = hxs.y_2.numericValue;
+          var bShouldB = Math.max(0,Math.min(1,
+                          ((x_2-x_1)*(hxs.x_3.numericValue-x_1)+
+                           (y_2-y_1)*(hxs.y_3.numericValue-y_1))/
+                          ((x_2-x_1)*(x_2-x_1)+(y_2-y_1)*(y_2-y_1))
+                         ));
+          if(Math.abs(bShouldB-b)<Math.pow(10,-cs.precision.FLOAT_PRECISION)) {
+            hxs.b.unobserve('numericValue.checkB');
+            hxs.x_3.unobserve('numericValue.checkB');
+            hxs.y_3.unobserve('numericValue.checkB');
+
+            o.desmos.setExpression({id:'b',latex:('b='+hs.number(b))});
+
+            // correct the handles
+            hxs.x_3.observe('numericValue.checkHandle',checkHandle);
+            hxs.y_3.observe('numericValue.checkHandle',checkHandle);
+            checkHandle();
+          } else console.log('b = '+b+' should be '+bShouldB);
+         }
+
+        function dontOverlap() {
+          var dx = hxs.x_2.numericValue-hxs.x_1.numericValue;
+          var dy = hxs.y_2.numericValue-hxs.y_1.numericValue;
+          var d = Math.sqrt(dx*dx+dy*dy)
+          if(hxs.b.numericValue*d<hxs.t.numericValue) {
+            o.desmos.setExpression({id:'A',dragMode:Desmos.DragModes.NONE});
+            o.desmos.setExpression({id:'B',dragMode:Desmos.DragModes.AUTO});
+          } else {
+            o.desmos.setExpression({id:'A',dragMode:Desmos.DragModes.AUTO});
+            if((1-hxs.b.numericValue)*d<hxs.t.numericValue) {
+              o.desmos.setExpression({id:'C',dragMode:Desmos.DragModes.NONE});
+            } else {
+              o.desmos.setExpression({id:'C',dragMode:Desmos.DragModes.AUTO});
+            }
+          }
+        }
+
+        function adjustHandle() {
+          o.desmos.setExpressions([
+            {id:'x_3',latex:('x_3='+vars.x_3)},
+            {id:'y_3',latex:('y_3='+vars.y_3)}
+           ]);
+         }
+
+        function click() {
+          vars.handled = false;
+          vars.mouseIsDown = true;
+          document.removeEventListener('mousedown',click);
+          document.removeEventListener('touchstart',click);
+
+          for(let helper in hxs) {
+            if (helper.length == 3) hxs[helper].observe('numericValue.interact',()=>{interact(helper)});
+          }
+
+          document.addEventListener('mouseup',unclick);
+          document.addEventListener('touchend',unclick);
+         }
+
+        function unclick() {
+          vars.mouseIsDown = false;
+          vars.handled = true;
+          document.removeEventListener('mouseup',unclick);
+          document.removeEventListener('touchend',unclick);
+
+          if (vars.dragging == 'H') {
+            // Make sure b is up-to-date before moving the handle
+            o.desmos.setExpression({id:'H',hidden:true,color:cons.HANDLE_COLOR});
+            hxs.b.observe('numericValue.checkB',checkB);
+            hxs.x_3.observe('numericValue.checkB',checkB);
+            hxs.y_3.observe('numericValue.checkB',checkB);
+            checkB();
+            delete vars.dragging;
+          } else {
+            // Just correct the handle
+            hxs.x_3.observe('numericValue.checkHandle',checkHandle);
+            hxs.y_3.observe('numericValue.checkHandle',checkHandle);
+            checkHandle();
+          }
+
+          document.addEventListener('mousedown',click);
+          document.addEventListener('touchstart',click);
+         }
+
+        hxs.a.observe('numericValue.lengths',updateLabels);
+        hxs.c.observe('numericValue.lengths',updateLabels);
+        hxs.l.observe('numericValue.lengths',updateLabels);
+        hxs.b.observe('numericValue.lengths',updateLabels);
+        hxs.l.observe('numericValue.overlap',dontOverlap);
+        hxs.b.observe('numericValue.overlap',dontOverlap);
+        hxs.t.observe('numericValue.overlap',dontOverlap);
+
+        document.addEventListener('mousedown',click);
+        document.addEventListener('touchstart',click);
+
+       }
+     };
 
     /* ←— A0597768 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597768 = {
