@@ -292,6 +292,11 @@ PearsonGL.External.masterJS = (function() {
   }
 
   //* functions for test purposes only
+  ts.A0597503_init = function(val, name, desmos) {
+    return PearsonGL.External.rootJS.A0597503_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
+  }
+
+  //* functions for test purposes only
   ts.A0596385_updateAngles = function(val, name, desmos) {
     return PearsonGL.External.rootJS.A0596385_updateAngles({'value':val,'name':name,'desmos':desmos,'log':console.log});
   }
