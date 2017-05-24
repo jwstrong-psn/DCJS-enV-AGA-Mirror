@@ -445,7 +445,11 @@ PearsonGL.External.rootJS = (function() {
         INTERIOR:'INTERIOR',
         EXTERIOR:'EXTERIOR',
         PERIMETER:'PERIMETER',
-        expform:{ABXC:'abxc',AEBC:'aebc',EABC:'eabc',EAHK:'eahk'}
+        expform:{ABXC:'abxc',AEBC:'aebc',EABC:'eabc',EAHK:'eahk'},
+        lineType:{
+          SOLID:((Desmos.Styles!==undefined)?Desmos.Styles.SOLID:'normal'),
+          DASHED:((Desmos.Styles!==undefined)?Desmos.Styles.DASHED:'dashed')
+        }
        },
       precision:{ // # of decimal places to round to; inverse powers of 10
         COORDINATES:2,
@@ -1859,13 +1863,13 @@ PearsonGL.External.rootJS = (function() {
           exprs.push({
               id:'segment_'+hs.ALPHA[i]+'A',
               hidden:(vars.helperFunctions.showDiagonals.numericValue == 0),
-              style:((Desmos.Styles!==undefined)?Desmos.Styles.DASHED:'dashed'),
+              style:cs.enum.lineType.DASHED,
               color:cs.color.agaColors.red
           });
           exprs.push({
               id:'segment_'+hs.ALPHA[i]+hs.ALPHA[i+1],
               hidden:false,
-              style:((Desmos.Styles!==undefined)?Desmos.Styles.SOLID:'normal'),
+              style:cs.enum.lineType.SOLID,
               color:cs.color.agaColors.black
           });
         };
@@ -1874,7 +1878,7 @@ PearsonGL.External.rootJS = (function() {
         exprs.push({
           id:'segment_'+hs.ALPHA[n]+'A',
           hidden:false,
-          style:((Desmos.Styles!==undefined)?Desmos.Styles.SOLID:'normal'),
+          style:cs.enum.lineType.SOLID,
           color:cs.color.agaColors.black
         });
 
@@ -4483,15 +4487,15 @@ PearsonGL.External.rootJS = (function() {
         }
 
         if(o.value==4) exprs.push(
-          {id:'circumCircle',color:'#F15A22',style:((Desmos.Styles!==undefined)?Desmos.Styles.SOLID:'normal'),latex:
+          {id:'circumCircle',color:'#F15A22',style:cs.enum.lineType.SOLID,latex:
           'P\\left(R,\\operatorname{sign}\\left(y_C-U_y\\right)\\arccos\\left(\\frac{x_C-U_x}{R}\\right)+2\\pi tn_{animate},U_x,U_y\\right)'},
           {id:'traceRadius',latex:
           'P\\left(tR,\\operatorname{sign}\\left(y_C-U_y\\right)\\arccos\\left(\\frac{x_C-U_x}{R}\\right)+2\\pi n_{animate},U_x,U_y\\right)'});
         else {
           exprs.push({id:'traceRadius',latex:'1'});
-          if(lt2) exprs.push({id:'circumCircle',color:'#000000',style:((Desmos.Styles!==undefined)?Desmos.Styles.DASHED:'dashed'),latex:'\\left(x-U_x\\right)^2+\\left(y-U_y\\right)^2=R^2'});
+          if(lt2) exprs.push({id:'circumCircle',color:'#000000',style:cs.enum.lineType.DASHED,latex:'\\left(x-U_x\\right)^2+\\left(y-U_y\\right)^2=R^2'});
           else if(lt4) exprs.push({id:'circumCircle',latex:'1'});
-          else if(!lt5) exprs.push({id:'circumCircle',color:'#F15A22',style:((Desmos.Styles!==undefined)?Desmos.Styles.SOLID:'normal'),latex:'\\left(x-U_x\\right)^2+\\left(y-U_y\\right)^2=R^2'})
+          else if(!lt5) exprs.push({id:'circumCircle',color:'#F15A22',style:cs.enum.lineType.SOLID,latex:'\\left(x-U_x\\right)^2+\\left(y-U_y\\right)^2=R^2'})
         }
 
         if(lt5&&(lastStep==5)) exprs.push({id:'rightAngleC',latex:'1'},{id:'bisectorC',latex:'1'});
@@ -4570,7 +4574,7 @@ PearsonGL.External.rootJS = (function() {
 
         if(lt2) exprs.push( // Dashed cicle with 3 tangents and 3 congruent radii
           {id:'bisectors',latex:'1'},
-          {id:'inCircle',color:'#000000',style:((Desmos.Styles!==undefined)?Desmos.Styles.DASHED:'dashed'),latex:
+          {id:'inCircle',color:'#000000',style:cs.enum.lineType.DASHED,latex:
             '\\operatorname{distance}\\left(\\left(x,y\\right),U\\right)=R'
           },{id:'pointTangents',color:'#000000',hidden:false,latex:
             'P\\left(I_{nv}R,\\theta_{abc}+\\arccos 0,U_x,U_y\\right)'
@@ -4583,7 +4587,7 @@ PearsonGL.External.rootJS = (function() {
           });
         else if(!lt6) { // Only Tangent Point and radius 3, all bisectors, drawing circle
           exprs.push(
-          {id:'inCircle',color:'#F15A22',style:((Desmos.Styles!==undefined)?Desmos.Styles.SOLID:'normal'),latex:
+          {id:'inCircle',color:'#F15A22',style:cs.enum.lineType.SOLID,latex:
             'P\\left(R,\\arccos\\left(\\theta_{xabc}\\left[3\\right]\\right)\\operatorname{sign}\\left(\\theta_{yabc}\\left[3\\right]\\right)+I_{nv}\\frac{\\pi}{2}+2\\pi tn_{animation},U_x,U_y\\right)'
           },{id:'pointTangents',color:'#F15A22',hidden:false,latex:
             'P\\left(I_{nv}R,\\theta_{abc}\\left[3\\right]+\\arccos 0,U_x,U_y\\right)'
@@ -4637,6 +4641,68 @@ PearsonGL.External.rootJS = (function() {
               });
           }
         }
+
+        o.desmos.setExpressions(exprs);
+       }
+     };
+
+    /* ←— A0598832 FUNCTIONS ——————————————————————————————————————————————→ */
+      cs.A0598832 = {
+        regionLatex:'\\left|x\\right|>-1L_1\\left(x,y,s_N,t_N\\right)L_2\\left(x,y,s_N,t_N\\right)L_3\\left(x,y,s_N,t_N\\right)L_4\\left(x,y,s_N,t_N\\right)'
+       };
+     fs.A0598832 = {
+      /* ←— init ——————————————————————————————————————————————————————→ *\
+       | Preps the watchers
+       * ←—————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        let o = hs.parseOptions(options);
+        vs[o.uniqueId] = {
+          lastPointCount:0,
+          /*hxs:{
+            x_c:o.desmos.HelperExpression({latex:'\\operatorname{mean}\\left(x_1,u_1,x_2,u_2,x_3,u_3,x_4,u_4\\right)'}),
+            y_c:o.desmos.HelperExpression({latex:'\\operatorname{mean}\\left(y_1,v_1,y_2,v_2,y_3,v_3,y_4,v_4\\right)'})
+          }*/
+        };
+       },
+      /* ←— changeLineType ————————————————————————————————————————————————→ *\
+       | Toggle switch should use -n and n to toggle line type on line n
+       | positive for SOLID, otherwise, DASHED
+       * ←—————————————————————————————————————————————————————————————————→ */
+       changeLineType: function(options={}) {
+        let o = hs.parseOptions(options);
+        o.desmos.setExpression({
+          id:o.id,
+          style:((o.value>0)?cs.enum.lineType.SOLID:cs.enum.lineType.DASHED)
+        });
+       },
+      /* ←— changeStep ——————————————————————————————————————————————————————→ *\
+       | Switches to the next step.
+       * ←—————————————————————————————————————————————————————————————————→ */
+       regionsAddRemove: function(options={}) {
+        let o = hs.parseOptions(options);
+        let cons = cs.A0598832;
+        let vars = vs[o.uniqueId];
+        //let x_c = vars.hxs.x_c.numericValue;
+        //let y_c = vars.hxs.y_c.numericValue;
+        let exprs = [];
+
+        // Add
+        for(let i = vars.lastPointCount+1; i <= o.value; i++) {
+          exprs.push(
+            {id:('R_'+i),hidden:false},//,latex:cons.regionLatex.replace(/_N/g,hs.sub('',i))},
+            {id:('T_'+i),hidden:false}
+           );
+         }
+
+        // Remove
+        for(let i = o.value+1; i <= vars.lastPointCount; i++) {
+          exprs.push(
+            {id:('T_'+i),hidden:true},
+            {id:('R_'+i),hidden:true},//,latex:'1'}
+           );
+         }
+
+        vars.lastPointCount = o.value;
 
         o.desmos.setExpressions(exprs);
        }
