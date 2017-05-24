@@ -92,254 +92,111 @@ PearsonGL.External.masterJS = (function() {
     //desmos.setExpression({id: 'reflected', latex: 'y=-a(x-' + val + ')^2-k', color: '#00AA00'});
   }
 
-  //* functions for test purposes only
-  ts.shared.init.observeZoom = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.shared_init_observeZoom({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  /** FUNCTIONS TRANSLATE OLD API (value, name, desmos)
+      INTO NEW API ({value:…,name:…,desmos:…,uniqueId:…})
+      AND ADD LOGGING FUNCTIONALITY FOR TEST PURPOSES
+      DELETE ALL WHEN API IS UPDATED
+      **/
 
-  //* functions for test purposes only
-  ts.shared.init.shareState = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.shared_init_shareState({'value':val,'name':name,'desmos':desmos,'log':console.log, 'uniqueId':'shared'});
-  }
+  ts.shared.init.observeZoom = (val, name, desmos)=>PearsonGL.External.rootJS.shared_init_observeZoom({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.shared.label.labelEquation = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.shared_label_labelEquation({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.shared.init.shareState = (val, name, desmos)=>PearsonGL.External.rootJS.shared_init_shareState({'value':val,'name':name,'desmos':desmos,'log':console.log, 'uniqueId':'shared'});
 
-  //* functions for test purposes only
-  ts.shared.label.valueOnly = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.shared_label_valueOnly({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.shared.label.labelEquation = (val, name, desmos)=>PearsonGL.External.rootJS.shared_label_labelEquation({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.shared.label.labelAngle = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.shared_label_labelAngle({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.shared.label.valueOnly = (val, name, desmos)=>PearsonGL.External.rootJS.shared_label_valueOnly({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.shared.label.labelTriAngles = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.shared_label_labelTriAngles({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.shared.label.labelAngle = (val, name, desmos)=>PearsonGL.External.rootJS.shared_label_labelAngle({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597514_init = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597514_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.shared.label.labelTriAngles = (val, name, desmos)=>PearsonGL.External.rootJS.shared_label_labelTriAngles({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597514_updateLabels = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597514_updateLabels({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597514_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597514_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
- //* functions for test purposes only
-  ts.A0597534_init = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597534_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597514_updateLabels = (val, name, desmos)=>PearsonGL.External.rootJS.A0597514_updateLabels({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597534_updateLabels = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597534_updateLabels({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597534_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597534_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
- //* functions for test purposes only
-  ts.A0597552_init = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597552_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597534_updateLabels = (val, name, desmos)=>PearsonGL.External.rootJS.A0597534_updateLabels({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597552_updateLabels = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597552_updateLabels({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597552_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597552_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597534_init = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597534_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597552_updateLabels = (val, name, desmos)=>PearsonGL.External.rootJS.A0597552_updateLabels({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597534_updateLabels = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597534_updateLabels({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597534_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597534_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597544_init = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597544_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597534_updateLabels = (val, name, desmos)=>PearsonGL.External.rootJS.A0597534_updateLabels({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597544_updateLabels = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597544_updateLabels({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
-    //* functions for test purposes only
-  ts.A0597546_init = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597546_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597544_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597544_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597546_updateLabels = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597546_updateLabels({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597544_updateLabels = (val, name, desmos)=>PearsonGL.External.rootJS.A0597544_updateLabels({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597772_init = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597772_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597546_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597546_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597789_init = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597789_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597546_updateLabels = (val, name, desmos)=>PearsonGL.External.rootJS.A0597546_updateLabels({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only test
-  ts.A0597789_volumeCone = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597789_volumeCone({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597772_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597772_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597789_volumeStack = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597789_volumeStack({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597789_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597789_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597768_init = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597768_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597789_volumeCone = (val, name, desmos)=>PearsonGL.External.rootJS.A0597789_volumeCone({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597777_init = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597777_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597789_volumeStack = (val, name, desmos)=>PearsonGL.External.rootJS.A0597789_volumeStack({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0598652_init = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0598652_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597768_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597768_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0598652_updateLabels = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0598652_updateLabels({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597777_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597777_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597714_init = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597714_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0598652_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0598652_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597773_init = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597773_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0598652_updateLabels = (val, name, desmos)=>PearsonGL.External.rootJS.A0598652_updateLabels({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0596373_init = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0596373_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597714_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597714_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0596373_changeStep = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0596373_changeStep((arguments.length>1)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
-  }
+  ts.A0597773_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597773_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0596370_init = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0596370_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0596373_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0596373_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0596370_changeStep = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0596370_changeStep((arguments.length>1)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
-  }
+  ts.A0596373_changeStep = (val, name, desmos)=>PearsonGL.External.rootJS.A0596373_changeStep((arguments.length>1)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
-  //* functions for test purposes only
-  ts.A0597714_updateLabels = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597714_updateLabels({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0596370_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0596370_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597538_init = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597538_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0596370_changeStep = (val, name, desmos)=>PearsonGL.External.rootJS.A0596370_changeStep((arguments.length>1)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
-  //* functions for test purposes only
-  ts.A0597538_updateLabels = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597538_updateLabels({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597714_updateLabels = (val, name, desmos)=>PearsonGL.External.rootJS.A0597714_updateLabels({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597616_label = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597616_label({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597538_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597538_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597616_label_noCorrection = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597616_label_noCorrection({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597538_updateLabels = (val, name, desmos)=>PearsonGL.External.rootJS.A0597538_updateLabels({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597720_labelEquation = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597720_labelEquation({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597616_label = (val, name, desmos)=>PearsonGL.External.rootJS.A0597616_label({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597598_A_labelAngle = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597598_A_labelAngle({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597616_label_noCorrection = (val, name, desmos)=>PearsonGL.External.rootJS.A0597616_label_noCorrection({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0596385_init = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0596385_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597720_labelEquation = (val, name, desmos)=>PearsonGL.External.rootJS.A0597720_labelEquation({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597503_init = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597503_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597598_A_labelAngle = (val, name, desmos)=>PearsonGL.External.rootJS.A0597598_A_labelAngle({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0596385_updateAngles = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0596385_updateAngles({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0596385_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0596385_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0596392_init = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0596392_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597503_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597503_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597629_init = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597629_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0596385_updateAngles = (val, name, desmos)=>PearsonGL.External.rootJS.A0596385_updateAngles({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597630_init = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597630_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0596392_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0596392_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597631_equation = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597631_equation({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597629_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597629_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597634_init = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597634_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597630_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597630_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0596385_drawExtensions = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0596385_drawExtensions({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597631_equation = (val, name, desmos)=>PearsonGL.External.rootJS.A0597631_equation({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597724_init = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597724_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0597634_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597634_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
-  //* functions for test purposes only
-  ts.A0597724_dragging = function(val, name, desmos) {
-    return PearsonGL.External.rootJS.A0597724_dragging({'value':val,'name':name,'desmos':desmos,'log':console.log});
-  }
+  ts.A0596385_drawExtensions = (val, name, desmos)=>PearsonGL.External.rootJS.A0596385_drawExtensions({'value':val,'name':name,'desmos':desmos,'log':console.log});
+
+  ts.A0597724_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597724_init({'value':val,'name':name,'desmos':desmos,'log':console.log});
+
+  ts.A0597724_dragging = (val, name, desmos)=>PearsonGL.External.rootJS.A0597724_dragging({'value':val,'name':name,'desmos':desmos,'log':console.log});
 
   exports.gcf = function(arr) {
     var arr = arr.value;
