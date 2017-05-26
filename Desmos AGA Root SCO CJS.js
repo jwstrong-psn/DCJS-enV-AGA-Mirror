@@ -1259,6 +1259,32 @@ PearsonGL.External.rootJS = (function() {
         }
      };
 
+    /* ←— A0596584 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0596584 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variables
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        var o = hs.parseOptions(options);
+        vs[o.uniqueId] = {
+        };
+       },
+      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
+       | updates the labels of Watered Area based on values of r_1, r_2, r_3 
+       |       
+       | Hidden point must be authored with showLabel:true,
+       | and the ID 26
+       * ←———————————————————————————————————————————————————————————————————→ */
+       updateLabels: function(options={}) {
+        var o = hs.parseOptions(options);
+        switch (o.name) {
+          case 'w':
+            o.desmos.setExpression({id:'26',label:('Watered Area: '+o.value+' m')});
+            break;
+          };
+        }
+     };
+
     /* ←— A0598652 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0598652 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
