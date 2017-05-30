@@ -4447,28 +4447,27 @@ PearsonGL.External.rootJS = (function() {
           {id:"tickSideBRight",hidden:lt3},
           {id:"midpointB",hidden:lt3},
           // Step 4: show circumcenter
-          {id:"pointCircumcenter",hidden:(gt1&&lt4)},
-          // Step 5: show that c's bisector also passes through circumcenter
-          {id:"tickSideCLeft",hidden:lt5},
-          {id:"tickSideCRight",hidden:lt5},
-          {id:"midpointC",hidden:lt5}
+          {id:"pointCircumcenter",hidden:(gt1&&lt4),color:((lt5)?"#F15A22":"#000000")},
+          // Step 5: show circumcircle
+          /*/ Step 6: show that c's bisector also passes through circumcenter
+          {id:"tickSideCLeft",hidden:lt6},
+          {id:"tickSideCRight",hidden:lt6},
+          {id:"midpointC",hidden:lt6} //*/
         ];
 
         if(lt2) exprs.push({id:'rightAngleA',latex:'1'},{id:'bisectorA',latex:'1'});
-        else if((lastStep<2)||((lastStep==2)!=lt3)) {
-          if(lt3) exprs.push(
+        else if(lt3) exprs.push(
           {id:'rightAngleA',latex:
             '\\left(M_{xabc}\\left[1\\right]+n_{animate}I_{nv}\\left[1\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{yabc}\\left[1\\right]-\\left[1,t\\right]\\theta_{xabc}\\left[1\\right]\\right),M_{yabc}\\left[1\\right]-n_{animate}I_{nv}\\left[1\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{xabc}\\left[1\\right]+\\left[1,t\\right]\\theta_{yabc}\\left[1\\right]\\right)\\right)'
           }, {id:'bisectorA',color:'#F15A22',latex:
             '\\left(\\left(M_{xabc}\\left[1\\right]-t_{ick}I_{nv}\\left[1\\right]\\theta_{yabc}\\left[1\\right]\\right)\\left(1-tn_{animate}\\right)+\\left(U_x+t_{ick}I_{nv}\\left[1\\right]\\theta_{yabc}\\left[1\\right]\\right)tn_{animate},\\left(M_{yabc}\\left[1\\right]+t_{ick}I_{nv}\\left[1\\right]\\theta_{xabc}\\left[1\\right]\\right)\\left(1-tn_{animate}\\right)+\\left(U_y-t_{ick}I_{nv}\\left[1\\right]\\theta_{xabc}\\left[1\\right]\\right)tn_{animate}\\right)'
           });
-          else exprs.push(
+        else exprs.push(
           {id:'rightAngleA',latex:
             '\\left(M_{xabc}\\left[1\\right]+I_{nv}\\left[1\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{yabc}\\left[1\\right]-\\left[1,t\\right]\\theta_{xabc}\\left[1\\right]\\right),M_{yabc}\\left[1\\right]-I_{nv}\\left[1\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{xabc}\\left[1\\right]+\\left[1,t\\right]\\theta_{yabc}\\left[1\\right]\\right)\\right)'
-          }, {id:'bisectorA',latex:
+          }, {id:'bisectorA',color:'#000000',latex:
             '\\left(\\left(M_{xabc}\\left[1\\right]-t_{ick}I_{nv}\\left[1\\right]\\theta_{yabc}\\left[1\\right]\\right)\\left(1-t\\right)+\\left(U_x+t_{ick}I_{nv}\\left[1\\right]\\theta_{yabc}\\left[1\\right]\\right)t,\\left(M_{yabc}\\left[1\\right]+t_{ick}I_{nv}\\left[1\\right]\\theta_{xabc}\\left[1\\right]\\right)\\left(1-t\\right)+\\left(U_y-t_{ick}I_{nv}\\left[1\\right]\\theta_{xabc}\\left[1\\right]\\right)t\\right)'
           });
-        }
 
         if(lt3) {if(lastStep>2) exprs.push({id:'rightAngleB',latex:'1'},{id:'bisectorB',latex:'1'});}
         else if((lastStep<3)||((lastStep==3)!=lt4)) {
@@ -4477,16 +4476,16 @@ PearsonGL.External.rootJS = (function() {
             '\\left(M_{xabc}\\left[2\\right]+n_{animate}I_{nv}\\left[2\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{yabc}\\left[2\\right]-\\left[1,t\\right]\\theta_{xabc}\\left[2\\right]\\right),M_{yabc}\\left[2\\right]-n_{animate}I_{nv}\\left[2\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{xabc}\\left[2\\right]+\\left[1,t\\right]\\theta_{yabc}\\left[2\\right]\\right)\\right)'
           }, {id:'bisectorB',color:'#F15A22',latex:
             '\\left(\\left(M_{xabc}\\left[2\\right]-t_{ick}I_{nv}\\left[2\\right]\\theta_{yabc}\\left[2\\right]\\right)\\left(1-tn_{animate}\\right)+\\left(U_x+t_{ick}I_{nv}\\left[2\\right]\\theta_{yabc}\\left[2\\right]\\right)tn_{animate},\\left(M_{yabc}\\left[2\\right]+t_{ick}I_{nv}\\left[2\\right]\\theta_{xabc}\\left[2\\right]\\right)\\left(1-tn_{animate}\\right)+\\left(U_y-t_{ick}I_{nv}\\left[2\\right]\\theta_{xabc}\\left[2\\right]\\right)tn_{animate}\\right)'
-          }, {id:'bisectorA',color:'#F15A22'});
+          });
           else exprs.push(
           {id:'rightAngleB',latex:
             '\\left(M_{xabc}\\left[2\\right]+I_{nv}\\left[2\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{yabc}\\left[2\\right]-\\left[1,t\\right]\\theta_{xabc}\\left[2\\right]\\right),M_{yabc}\\left[2\\right]-I_{nv}\\left[2\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{xabc}\\left[2\\right]+\\left[1,t\\right]\\theta_{yabc}\\left[2\\right]\\right)\\right)'
           }, {id:'bisectorB',color:'#000000',latex:
             '\\left(\\left(M_{xabc}\\left[2\\right]-t_{ick}I_{nv}\\left[2\\right]\\theta_{yabc}\\left[2\\right]\\right)\\left(1-t\\right)+\\left(U_x+t_{ick}I_{nv}\\left[2\\right]\\theta_{yabc}\\left[2\\right]\\right)t,\\left(M_{yabc}\\left[2\\right]+t_{ick}I_{nv}\\left[2\\right]\\theta_{xabc}\\left[2\\right]\\right)\\left(1-t\\right)+\\left(U_y-t_{ick}I_{nv}\\left[2\\right]\\theta_{xabc}\\left[2\\right]\\right)t\\right)'
-          }, {id:'bisectorA',color:'#000000'});
+          });
         }
 
-        if(o.value==4) exprs.push(
+        if(o.value==5) exprs.push(
           {id:'circumCircle',color:'#F15A22',style:cs.enum.lineType.SOLID,latex:
           'P\\left(R,\\operatorname{sign}\\left(y_C-U_y\\right)\\arccos\\left(\\frac{x_C-U_x}{R}\\right)+2\\pi tn_{animate},U_x,U_y\\right)'},
           {id:'traceRadius',latex:
@@ -4498,13 +4497,13 @@ PearsonGL.External.rootJS = (function() {
           else if(!lt5) exprs.push({id:'circumCircle',color:'#F15A22',style:cs.enum.lineType.SOLID,latex:'\\left(x-U_x\\right)^2+\\left(y-U_y\\right)^2=R^2'})
         }
 
-        if(lt5&&(lastStep==5)) exprs.push({id:'rightAngleC',latex:'1'},{id:'bisectorC',latex:'1'});
+        /* if(lt5&&(lastStep==5)) exprs.push({id:'rightAngleC',latex:'1'},{id:'bisectorC',latex:'1'});
         else if((lastStep<5)&&(!lt5)) exprs.push(
           {id:'rightAngleC',latex:
             '\\left(M_{xabc}\\left[3\\right]+n_{animate}I_{nv}\\left[3\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{yabc}\\left[3\\right]-\\left[1,t\\right]\\theta_{xabc}\\left[3\\right]\\right),M_{yabc}\\left[3\\right]-n_{animate}I_{nv}\\left[3\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{xabc}\\left[3\\right]+\\left[1,t\\right]\\theta_{yabc}\\left[3\\right]\\right)\\right)'
           }, {id:'bisectorC',latex:
             '\\left(\\left(M_{xabc}\\left[3\\right]-t_{ick}I_{nv}\\left[3\\right]\\theta_{yabc}\\left[3\\right]\\right)\\left(1-tn_{animate}\\right)+\\left(U_x+t_{ick}I_{nv}\\left[3\\right]\\theta_{yabc}\\left[3\\right]\\right)tn_{animate},\\left(M_{yabc}\\left[3\\right]+t_{ick}I_{nv}\\left[3\\right]\\theta_{xabc}\\left[3\\right]\\right)\\left(1-tn_{animate}\\right)+\\left(U_y-t_{ick}I_{nv}\\left[3\\right]\\theta_{xabc}\\left[3\\right]\\right)tn_{animate}\\right)'
-          });
+          }); //*/
 
 
         o.desmos.setExpressions(exprs);
