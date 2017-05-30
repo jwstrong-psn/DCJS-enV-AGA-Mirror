@@ -4546,100 +4546,98 @@ PearsonGL.External.rootJS = (function() {
         var cons = cs.A0596373;
         var lastStep = vs[o.uniqueId].lastStep;
         vs[o.uniqueId].lastStep = o.value;
-
-        var gt1 = (o.value>1);
-        var lt2 = (!gt1);
-        var lt3 = (o.value<3);
-        var lt4 = (o.value<4);
-        var lt5 = (o.value<5);
-        var lt6 = (o.value<6);
           
         let exprs = [
           // Step 1: show radii congruent
-          {id:"radiiCongruence",hidden:gt1},
+          {id:"radiiCongruence",hidden:(o.value>1)},
           // Step 2: bisect a
-          {id:"pointIncenter",hidden:(gt1&&lt5),color:((lt6)?'#000000':'#F15A22')},
-          {id:"congruenceA1",hidden:lt2},
-          {id:"congruenceA2",hidden:lt2},
+          {id:"congruenceA1",hidden:(o.value==1)},
+          {id:"congruenceA2",hidden:(o.value==1)},
           // Step 3: bisect b
-          {id:"congruenceB1",hidden:lt3},
-          {id:"congruenceB2",hidden:lt3},
-          // Step 4: bisect c
-          {id:"congruenceC1",hidden:lt4},
-          {id:"congruenceC2",hidden:lt4},
+          {id:"congruenceB1",hidden:(o.value<=2)},
+          {id:"congruenceB2",hidden:(o.value<=2)},
+          // Step 4: show incenter
           // Step 5: draw a radius
           // Step 6: draw the circle
         ];
 
-        if(lt2) exprs.push( // Dashed cicle with 3 tangents and 3 congruent radii
-          {id:'bisectors',latex:'1'},
+        // incenter
+        if ((o.value>4)||(o.value==1)) exprs.push({id:'pointIncenter',hidden:false,color:'#000000'});
+        else if (o.value==4) exprs.push({id:'pointIncenter',hidden:false,color:'#F15A22'});
+        else exprs.push({id:'pointIncenter',hidden:true});
+
+        // incircle
+        if (o.value==1) exprs.push(
           {id:'inCircle',color:'#000000',style:cs.enum.lineType.DASHED,latex:
             '\\operatorname{distance}\\left(\\left(x,y\\right),U\\right)=R'
-          },{id:'pointTangents',color:'#000000',hidden:false,latex:
+          });
+        else if (o.value==6) exprs.push(
+          {id:'inCircle',color:'#F15A22',style:cs.enum.lineType.SOLID,latex:
+            'P\\left(R,\\arccos\\left(\\theta_{xabc}\\left[3\\right]\\right)\\operatorname{sign}\\left(\\theta_{yabc}\\left[3\\right]\\right)+I_{nv}\\frac{\\pi}{2}+2\\pi tn_{animation},U_x,U_y\\right)'
+          });
+        else exprs.push({id:'inCircle',latex:'1'});
+
+        // radii
+        if (o.value==1) exprs.push(
+          {id:'pointTangents',color:'#000000',hidden:false,latex:
             'P\\left(I_{nv}R,\\theta_{abc}+\\arccos 0,U_x,U_y\\right)'
-          },{id:'radii',latex:
+          },{id:'radii',style:cs.enum.lineType.SOLID,latex:
             'P\\left(I_{nv}Rt,\\theta_{abc}+\\arccos 0,U_x,U_y\\right)'
           },{id:'rightAngleSides',latex:
             '\\left(\\left\\{R>2t_{ick}\\right\\}U_x-I_{nv}\\left(R-tt_{ick}\\right)\\theta_{yabc}+t_{ick}\\theta_{xabc},U_y+I_{nv}\\left(R-tt_{ick}\\right)\\theta_{xabc}+t_{ick}\\theta_{yabc}\\right)'
           },{id:'rightAngleTops',latex:
             '\\left(\\left\\{R>2t_{ick}\\right\\}U_x-I_{nv}\\left(R-t_{ick}\\right)\\theta_{yabc}+tt_{ick}\\theta_{xabc},U_y+I_{nv}\\left(R-t_{ick}\\right)\\theta_{xabc}+tt_{ick}\\theta_{yabc}\\right)'
-          });
-        else if(!lt6) { // Only Tangent Point and radius 3, all bisectors, drawing circle
+          })
+        else if(o.value>=5) {
           exprs.push(
-          {id:'inCircle',color:'#F15A22',style:cs.enum.lineType.SOLID,latex:
-            'P\\left(R,\\arccos\\left(\\theta_{xabc}\\left[3\\right]\\right)\\operatorname{sign}\\left(\\theta_{yabc}\\left[3\\right]\\right)+I_{nv}\\frac{\\pi}{2}+2\\pi tn_{animation},U_x,U_y\\right)'
-          },{id:'pointTangents',color:'#F15A22',hidden:false,latex:
-            'P\\left(I_{nv}R,\\theta_{abc}\\left[3\\right]+\\arccos 0,U_x,U_y\\right)'
-          },{id:'radii',latex:
-            'P\\left(I_{nv}Rt,\\theta_{abc}\\left[3\\right]+\\arccos 0,U_x,U_y\\right)'
-          });
-          if(lastStep!=5) exprs.push( // static bisectors
-            {id:'bisectors',color:'#000000',latex:
-              '\\left(X_{CAB}\\left(1-t\\right)+tU_x,Y_{CAB}\\left(1-t\\right)+tU_y\\right)'
-            },{id:'rightAngleSides',latex:
+            {id:'rightAngleSides',latex:
               '\\left(\\left\\{R>2t_{ick}\\right\\}U_x-I_{nv}\\left(R-tt_{ick}\\right)\\theta_{yabc}\\left[3\\right]+t_{ick}\\theta_{xabc}\\left[3\\right],U_y+I_{nv}\\left(R-tt_{ick}\\right)\\theta_{xabc}\\left[3\\right]+t_{ick}\\theta_{yabc}\\left[3\\right]\\right)'
             },{id:'rightAngleTops',latex:
               '\\left(\\left\\{R>2t_{ick}\\right\\}U_x-I_{nv}\\left(R-t_{ick}\\right)\\theta_{yabc}\\left[3\\right]+tt_{ick}\\theta_{xabc}\\left[3\\right],U_y+I_{nv}\\left(R-t_{ick}\\right)\\theta_{xabc}\\left[3\\right]+tt_{ick}\\theta_{yabc}\\left[3\\right]\\right)'
             });
-        } else { // In the construction
-          if((lastStep==1)||(lastStep==6)) {
-            exprs.push({id:'inCircle',latex:'1'});
-            exprs.push({id:'pointTangents',hidden:true});
-          }
+          if (o.value==6) exprs.push(
+            {id:'pointTangents',color:'#F15A22',hidden:false,latex:
+              'P\\left(I_{nv}R,\\theta_{abc}\\left[3\\right]+\\arccos 0,U_x,U_y\\right)'
+            },{id:'radii',style:cs.enum.lineType.DASHED,latex:
+              'P\\left(I_{nv}Rt,\\theta_{abc}\\left[3\\right]+\\arccos 0,U_x,U_y\\right)'
+            });
+          else exprs.push(
+            {id:'pointTangents',hidden:true},
+            {id:'radii',style:cs.enum.lineType.DASHED,latex:
+              'P\\left(I_{nv}\\left(\\left(1-n_{animation}\\right)\\left(R-\\frac{14}{9}t_{ick}\\right)t+R\\left(1-t\\right)\\right),\\theta_{abc}\\left[3\\right]+\\arccos 0,U_x,U_y\\right)'
+            });
+        } else exprs.push(
+          {id:'pointTangents',hidden:true},
+          {id:'radii',latex:'1'},
+          {id:'rightAngleTops',latex:'1'},
+          {id:'rightAngleSides',latex:'1'});
 
-          if(lt5&&((lastStep>=5)||(lastStep==1))) exprs.push(
-            {id:'radii',latex:'1'},
-            {id:'rightAngleSides',latex:'1'},
-            {id:'rightAngleTops',latex:'1'}
-            );
-
-          if(lt3) exprs.push( // Bisector A animating
-            {id:'bisectors',color:'#F15A22',latex:
-              '\\left(x_A+\\left(2-n_{animation}\\right)t\\frac{U_x-x_A}{r_{CAB}\\left[2\\right]}t_{ick}+tn_{animation}\\left(U_x-x_A\\right),y_A+\\left(2-n_{animation}\\right)t\\frac{U_y-y_A}{r_{CAB}\\left[2\\right]}t_{ick}+tn_{animation}\\left(U_y-y_A\\right)\\right)'
+        // bisectors
+        if (o.value==1) exprs.push( // Dashed cicle with 3 tangents and 3 congruent radii
+          {id:'bisectorA',latex:'1'},
+          {id:'bisectorB',latex:'1'}
+          );
+        else if (o.value==2) exprs.push(
+          {id:'bisectorA',color:'#F15A22',latex:
+            '\\left(x_A+\\left(2-n_{animation}\\right)t\\frac{U_x-x_A}{r_{CAB}\\left[2\\right]}t_{ick}+tn_{animation}\\left(U_x-x_A\\right),y_A+\\left(2-n_{animation}\\right)t\\frac{U_y-y_A}{r_{CAB}\\left[2\\right]}t_{ick}+tn_{animation}\\left(U_y-y_A\\right)\\right)'
+          },{id:'bisectorB',latex:'1'});
+        else if (o.value<=4) {
+          exprs.push({id:'bisectorA',color:'#000000',latex:
+            '\\left(x_A+t\\frac{U_x-x_A}{r_{CAB}\\left[2\\right]}\\left(t_{ick}+r_{CAB}\\left[2\\right]\\right),y_A+t\\frac{U_y-y_A}{r_{CAB}\\left[2\\right]}\\left(t_{ick}+r_{CAB}\\left[2\\right]\\right)\\right)'});
+          if (o.value==3) exprs.push(
+            {id:'bisectorB',color:'#F15A22',latex:
+              '\\left(x_B+\\left(2-n_{animation}\\right)t\\frac{U_x-x_B}{r_{CAB}\\left[3\\right]}t_{ick}+tn_{animation}\\left(U_x-x_B\\right),y_B+\\left(2-n_{animation}\\right)t\\frac{U_y-y_B}{r_{CAB}\\left[3\\right]}t_{ick}+tn_{animation}\\left(U_y-y_B\\right)\\right)'
             });
-          else if(lt4) exprs.push( // Bisector B animating
-            {id:'bisectors',color:'#F15A22',latex:
-              '\\left(X_{CAB}+\\left(2-\\left[\\left\\{0>1\\right\\},1,n_{animation}\\right]\\right)t\\frac{U_x-X_{CAB}}{r_{CAB}}t_{ick}+\\left[1,1,n_{animation}\\right]t\\left(U_x-X_{CAB}\\right),Y_{CAB}+\\left(2-\\left[1,1,n_{animation}\\right]\\right)t\\frac{U_y-Y_{CAB}}{r_{CAB}}t_{ick}+\\left[1,1,n_{animation}\\right]t\\left(U_y-Y_{CAB}\\right)\\right)'
+          else exprs.push(
+            {id:'bisectorB',color:'#000000',latex:
+              '\\left(x_B+t\\frac{U_x-x_B}{r_{CAB}\\left[3\\right]}\\left(t_{ick}+r_{CAB}\\left[3\\right]\\right),y_B+t\\frac{U_y-y_B}{r_{CAB}\\left[3\\right]}\\left(t_{ick}+r_{CAB}\\left[3\\right]\\right)\\right)'
             });
-          else if(lt5) exprs.push( // Bisector C animating
-            {id:'bisectors',color:'#F15A22',latex:
-              '\\left(X_{CAB}+\\left(2-\\left[n_{animation},1,1\\right]\\right)t\\frac{U_x-X_{CAB}}{r_{CAB}}t_{ick}+\\left[n_{animation},1,1\\right]t\\left(U_x-X_{CAB}\\right),Y_{CAB}+\\left(2-\\left[n_{animation},1,1\\right]\\right)t\\frac{U_y-Y_{CAB}}{r_{CAB}}t_{ick}+\\left[n_{animation},1,1\\right]t\\left(U_y-Y_{CAB}\\right)\\right)'
-            });
-          else {
-            exprs.push( // draw the radius
-              {id:'radii',latex:
-                'P\\left(I_{nv}\\left(\\left(1-n_{animation}\\right)\\left(R-\\frac{14}{9}t_{ick}\\right)t+R\\left(1-t\\right)\\right),\\theta_{abc}\\left[3\\right]+\\arccos 0,U_x,U_y\\right)'
-              });
-            if(lastStep!=6) exprs.push( // Bisectors fixed
-              {id:'bisectors',color:'#000000',latex:
-                '\\left(X_{CAB}\\left(1-t\\right)+tU_x,Y_{CAB}\\left(1-t\\right)+tU_y\\right)'
-              },{id:'rightAngleSides',latex:
-                '\\left(\\left\\{R>2t_{ick}\\right\\}U_x-I_{nv}\\left(R-tt_{ick}\\right)\\theta_{yabc}\\left[3\\right]+t_{ick}\\theta_{xabc}\\left[3\\right],U_y+I_{nv}\\left(R-tt_{ick}\\right)\\theta_{xabc}\\left[3\\right]+t_{ick}\\theta_{yabc}\\left[3\\right]\\right)'
-              },{id:'rightAngleTops',latex:
-                '\\left(\\left\\{R>2t_{ick}\\right\\}U_x-I_{nv}\\left(R-t_{ick}\\right)\\theta_{yabc}\\left[3\\right]+tt_{ick}\\theta_{xabc}\\left[3\\right],U_y+I_{nv}\\left(R-t_{ick}\\right)\\theta_{xabc}\\left[3\\right]+tt_{ick}\\theta_{yabc}\\left[3\\right]\\right)'
-              });
-          }
-        }
+        } else exprs.push(
+          {id:'bisectorA',color:'#000000',latex:
+            '\\left(x_A\\left(1-t\\right)+tU_x,y_A\\left(1-t\\right)+tU_y\\right)'
+          },{id:'bisectorB',color:'#000000',latex:
+            '\\left(x_B\\left(1-t\\right)+tU_x,y_B\\left(1-t\\right)+tU_y\\right)'
+          });
 
         o.desmos.setExpressions(exprs);
        }
