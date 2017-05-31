@@ -170,6 +170,10 @@ PearsonGL.External.masterJS = (function() {
 
   ts.A0597538_updateLabels = (val, name, desmos)=>PearsonGL.External.rootJS.A0597538_updateLabels((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
+  ts.A0596584_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0596584_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
+
+  ts.A0596584_updateLabels = (val, name, desmos)=>PearsonGL.External.rootJS.A0596584_updateLabels((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
+
   ts.A0598832_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0598832_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
   ts.A0598832_changeLineType = (val, name, desmos)=>PearsonGL.External.rootJS.A0598832_changeLineType((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
