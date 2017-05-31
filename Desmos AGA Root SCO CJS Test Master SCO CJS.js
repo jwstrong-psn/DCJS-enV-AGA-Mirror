@@ -136,6 +136,8 @@ PearsonGL.External.masterJS = (function() {
 
   ts.A0597772_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597772_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
+  ts.A0597506_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597506_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
+
   ts.A0597789_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597789_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
   ts.A0597789_volumeCone = (val, name, desmos)=>PearsonGL.External.rootJS.A0597789_volumeCone((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
