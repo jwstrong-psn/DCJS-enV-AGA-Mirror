@@ -125,6 +125,16 @@ window.xs = { // Commonly useful Desmos expressions (in LaTeX string form)
    | #EXAMPLE: 
    * ←—————————————————————————————————————————————————————————————————→ */
    angleLVL:[{id:"angleLVL",latex:"\\theta_{LVL}\\left(x,\\theta ,y\\right)=\\arccos \\left(\\frac{\\operatorname{distance}\\left(x,\\theta \\right)^2+\\operatorname{distance}\\left(y,\\theta \\right)^2-\\operatorname{distance}\\left(x,y\\right)^2}{2\\operatorname{distance}\\left(x,\\theta \\right)\\operatorname{distance}\\left(y,\\theta \\right)}\\right)"}],
+  /* — angleTri ———————————————————————————————————————————————————————→ *\
+   | angleTri: measures an angle given by three lengths using the law of
+   |           cosines, with the length opposite the angle in the middle
+   |
+   | @Args: leg1, opposite, leg2
+   | @Returns: Unsigned angle, 0 <= theta <= pi (or 180)
+   |
+   | #EXAMPLE: 
+   * ←—————————————————————————————————————————————————————————————————→ */
+   angleTri:[{id:"angleTri",latex:"\\theta_{tri}\\left(x,\\theta,y\\right)=\\arccos\\left(\\frac{x^2+y^2-\\theta^2}{2xy}\\right)"}],
   /* — rXY ——————————————————————————————————————————————————————————→ *\
    | rXY: Extracts the magnitude from a vector in cartesian coordinates
    |
