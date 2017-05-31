@@ -4168,6 +4168,286 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
+    /* ←— A0597506 FUNCTIONS ——————————————————————————————————————————————→ */
+      cs.A0597506 = {
+        HANDLE_COLOR:'#000000',
+        HIDDEN_COLOR:'#FFFFFF',
+        latex:{
+          x_1:'x_1=\\frac{u_1R}{d_A}',
+          y_1:'y_1=\\frac{v_1R}{d_A}',
+          x_3:'x_3=\\frac{u_3R}{d_C}',
+          y_3:'y_3=\\frac{v_3R}{d_C}',
+          x_4:'x_4=\\frac{u_4\\left(R+\\left\\{R\\sin\\left(\\theta_{LVL}\\left(A,B,D_h\\right)\\right)<t_{ick}:t_{ick},R\\sin\\left(\\theta_{LVL}\\left(C,B,D_h\\right)\\right)<t_{ick}:t_{ick},0\\right\\}\\right)}{d_D}',
+          y_4:'y_4=\\frac{v_4\\left(R+\\left\\{R\\sin\\left(\\theta_{LVL}\\left(A,B,D_h\\right)\\right)<t_{ick}:t_{ick},R\\sin\\left(\\theta_{LVL}\\left(C,B,D_h\\right)\\right)<t_{ick}:t_{ick},0\\right\\}\\right)}{d_D}'
+        }
+       };
+     fs.A0597506 = {
+      /* ←— init ———————————————————————————————————————————————→ *\
+       | stuff
+       * ←—————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        let o = hs.parseOptions(options);
+        let cons = cs.A0597506;
+        let vars = vs[o.uniqueId] = {
+          correcting: false,
+          handled:false,
+          mouseIsDown:false,
+          draggingPoint:undefined,
+          constraints:[]
+        };
+        let hxs = vars.helperExpressions = {
+          u_1:o.desmos.HelperExpression({latex:'u_1'}),
+          v_1:o.desmos.HelperExpression({latex:'v_1'}),
+          u_3:o.desmos.HelperExpression({latex:'u_3'}),
+          v_3:o.desmos.HelperExpression({latex:'v_3'}),
+          u_4:o.desmos.HelperExpression({latex:'u_4'}),
+          v_4:o.desmos.HelperExpression({latex:'v_4'}),
+          x_1:o.desmos.HelperExpression({latex:'x_1'}),
+          y_1:o.desmos.HelperExpression({latex:'y_1'}),
+          x_3:o.desmos.HelperExpression({latex:'x_3'}),
+          y_3:o.desmos.HelperExpression({latex:'y_3'}),
+          x_4:o.desmos.HelperExpression({latex:'x_4'}),
+          y_4:o.desmos.HelperExpression({latex:'y_4'}),
+          m_ABD:o.desmos.HelperExpression({latex:'m_{ABD}'}),
+          m_DBC:o.desmos.HelperExpression({latex:'m_{DBC}'}),
+          m_ABC:o.desmos.HelperExpression({latex:'m_{ABC}'}),
+          tick:o.desmos.HelperExpression({latex:'t_{ick}'}),
+          R:o.desmos.HelperExpression({latex:'R'})
+        };
+
+        for (let helper in hxs) {
+          if (helper.match(/[xy]/)!==null) {
+            hxs[helper].observe('numericValue.init',()=>{
+              vars[helper]=hxs[helper].numericValue;
+              hxs[helper].unobserve('numericValue.init');
+            });
+            vars[helper] = helper.numericValue;
+            if (vars[helper]!==undefined) hxs[helper].unobserve('numericValue.init');
+          }
+        }
+
+        o.desmos.observe('graphpaperBounds',resizeGraph);
+        function resizeGraph() {
+          var R = Math.min(o.desmos.graphpaperBounds.mathCoordinates.height,o.desmos.graphpaperBounds.mathCoordinates.width)/3;
+          if (Math.abs(Math.log2(R)-Math.log2(hxs.R.numericValue))<cs.ts.ZOOM) return;
+          vars.handled = true;
+          o.desmos.setExpressions([
+            {id:'handleA',hidden:true,color:cons.HANDLE_COLOR},
+            {id:'handleC',hidden:true,color:cons.HANDLE_COLOR},
+            {id:'handleD',hidden:true,color:cons.HANDLE_COLOR},
+            {id:'R',latex:'R='+hs.number(R)}
+            ]);
+          setTimeout(()=>{
+            for (var helper in hxs) {
+              if(helper.match(/[xy]/)!==null) {
+                vars[helper]=hxs[helper].numericValue;
+              }
+            }
+            adjustHandles();
+          },cs.delay.SET_EXPRESSION);
+         }
+
+        function interact(which) {
+          if (vars.handled || !(vars.mouseIsDown)) return;
+
+          // Stop listening for interaction
+          vars.handled = true;
+          vars.draggingPoint = which[2];
+
+          for(var helper in hxs) {
+            if (helper.match(/[uv]/)!==null) hxs[helper].unobserve('numericValue.interact');
+          }
+
+          switch (which[2]) {
+            case '1':
+              o.desmos.setExpressions([
+                {id:'angleABD',latex:'m_{ABD}=\\operatorname{round}\\left(\\theta_{LVL}\\left(A,B,D\\right)\\right)'},
+                {id:'angleABC',latex:'m_{ABC}=m_{ABD}+m_{DBC}'},
+                {id:'angleDBC',latex:'m_{DBC}='+hs.number(hxs.m_DBC.numericValue)},
+                {id:'handleA',color:cons.HIDDEN_COLOR}
+              ]);
+              vars.constraints = [
+                hs.lineTwoPoints({x:hxs.x_3.numericValue,y:hxs.y_3.numericValue},{x:0,y:0}),
+                hs.lineTwoPoints({x:hxs.x_4.numericValue,y:hxs.y_4.numericValue},{x:0,y:0})
+                ];
+              break;
+            case '3':
+              o.desmos.setExpressions([
+                {id:'angleDBC',latex:'m_{DBC}=\\operatorname{round}\\left(\\theta_{LVL}\\left(C,B,D\\right)\\right)'},
+                {id:'angleABC',latex:'m_{ABC}=m_{ABD}+m_{DBC}'},
+                {id:'angleABD',latex:'m_{ABD}='+hs.number(hxs.m_ABD.numericValue)},
+                {id:'handleC',color:cons.HIDDEN_COLOR}
+              ]);
+              vars.constraints = [
+                hs.lineTwoPoints({x:0,y:0},{x:hxs.x_1.numericValue,y:hxs.y_1.numericValue}),
+                hs.lineTwoPoints({x:0,y:0},{x:hxs.x_4.numericValue,y:hxs.y_4.numericValue})
+                ];
+              break;
+            case '4':
+              o.desmos.setExpressions([
+                {id:'angleABD',latex:'m_{ABD}=\\operatorname{round}\\left(\\theta_{LVL}\\left(A,B,D\\right)\\right)'},
+                {id:'angleDBC',latex:'m_{DBC}=m_{ABC}-m_{ABD}'},
+                {id:'angleABC',latex:'m_{ABC}='+hs.number(hxs.m_ABC.numericValue)},
+                {id:'handleD',color:cons.HIDDEN_COLOR}
+              ]);
+              vars.constraints = [
+                hs.lineTwoPoints({x:0,y:0},{x:hxs.x_1.numericValue,y:hxs.y_1.numericValue}),
+                hs.lineTwoPoints({x:hxs.x_3.numericValue,y:hxs.y_3.numericValue},{x:0,y:0})
+                ];
+              break;
+            default:
+          }
+          hxs['u_'+which[2]].observe('numericValue.correction',correctIt);
+          hxs['v_'+which[2]].observe('numericValue.correction',correctIt);
+         }
+
+        function correctIt() {
+          var x = 'x_'+vars.draggingPoint;
+          var y = 'y_'+vars.draggingPoint;
+          var handle = {
+            x:hxs['u_'+vars.draggingPoint].numericValue,
+            y:hxs['v_'+vars.draggingPoint].numericValue
+          };
+
+          var corrected = hs.polygonConstrain(handle,vars.constraints);
+          var d = Math.sqrt(Math.pow(corrected.x,2)+Math.pow(corrected.y,2));
+
+          // Stick to the nearest edge if the handle is too close to the vertex
+          if (d < hxs.tick.numericValue) {
+            vars.correcting = true;
+            var stick;
+            switch (vars.draggingPoint) {
+              case '1':
+                if (hxs.m_ABC.numericValue>=179) stick = 3;
+                else stick = 4;
+              case '3':
+                if (hxs.m_ABC.numericValue>=179) stick = 1;
+                else stick = 4;
+              case '4':
+                if (hxs.m_ABD.numericValue>hxs.m_DBC.numericValue) stick = 3;
+                else stick = 1;
+              default:
+            }
+
+            corrected = {
+              x:hxs['x_'+stick].numericValue,
+              y:hxs['y_'+stick].numericValue
+            };
+            
+            o.desmos.setExpressions([
+              {id:x,latex:(x+'='+corrected.x)},
+              {id:y,latex:(y+'='+corrected.y)}
+              ]);
+          // If no correction necessary, revert to desmos for performance
+          } else if (corrected === handle) {
+            corrected = {
+              x:hxs[x].numericValue,
+              y:hxs[y].numericValue
+            };
+            if (vars.correcting) {
+              vars.correcting = false;
+              o.desmos.setExpressions([
+                {id:x,latex:cons.latex[x]},
+                {id:y,latex:cons.latex[y]}
+                ]);
+              corrected = {
+                x:hs.number(hxs.R.numericValue*corrected.x/d),
+                y:hs.number(hxs.R.numericValue*corrected.y/d)
+              }
+            } else corrected = {
+              x:hxs[x].numericValue,
+              y:hxs[y].numericValue
+            };
+          // Stick to the nearest leg
+          } else {
+            vars.correcting = true;
+            corrected = {
+              x:hs.number(hxs.R.numericValue*corrected.x/d),
+              y:hs.number(hxs.R.numericValue*corrected.y/d)
+            }
+            o.desmos.setExpressions([
+              {id:x,latex:(x+'='+corrected.x)},
+              {id:y,latex:(y+'='+corrected.y)}
+              ]);
+          }
+
+          vars[x]=corrected.x;
+          vars[y]=corrected.y;
+         }
+
+        function adjustHandles() {
+          vars.handled = true;
+          o.desmos.setExpressions([
+            {id:'u_1',latex:'u_1='+hs.number(vars.x_1)},
+            {id:'v_1',latex:'v_1='+hs.number(vars.y_1)},
+            {id:'u_3',latex:'u_3='+hs.number(vars.x_3)},
+            {id:'v_3',latex:'v_3='+hs.number(vars.y_3)},
+            {id:'u_4',latex:'u_4='+hs.number(vars.x_4)},
+            {id:'v_4',latex:'v_4='+hs.number(vars.y_4)}
+            ]);
+          setTimeout(()=>{
+            vars.handled = false;
+            o.desmos.setExpressions([
+            {id:'handleA',hidden:false,color:cons.HANDLE_COLOR},
+            {id:'handleC',hidden:false,color:cons.HANDLE_COLOR},
+            {id:'handleD',hidden:false,color:cons.HANDLE_COLOR}
+            ]);
+          },cs.delay.SET_EXPRESSION);
+         }
+
+        function click() {
+          vars.handled = false;
+          vars.mouseIsDown = true;
+          document.removeEventListener('mousedown',click);
+          document.removeEventListener('touchstart',click);
+
+          document.addEventListener('mouseup',unclick);
+          document.addEventListener('touchend',unclick);
+
+          for(let helper in hxs) {
+            if (helper.match(/[uv]/)!==null) hxs[helper].observe('numericValue.interact',()=>{interact(helper)});
+          }
+         }
+
+        function unclick() {
+          vars.mouseIsDown = false;
+          vars.handled = true;
+          document.removeEventListener('mouseup',unclick);
+          document.removeEventListener('touchend',unclick);
+
+          document.addEventListener('mousedown',click);
+          document.addEventListener('touchstart',click);
+
+          let exprs = [];
+
+          for(let helper in hxs) {
+            if (helper.match(/[uv]/)!==null) {
+              hxs[helper].unobserve('numericValue.interact');
+              hxs[helper].unobserve('numericValue.correction');
+            } else if (helper.match(/[xy]/)!==null) {
+              exprs.push({id:helper,latex:cons.latex[helper]});
+              if (helper[2]!=vars.draggingPoint) vars[helper] = hxs[helper].numericValue;
+            }
+          }
+
+          if (vars.draggingPoint!==undefined) {
+            o.desmos.setExpression({id:('handle'+hs.ALPHA[vars.draggingPoint]),hidden:true,color:cons.HANDLE_COLOR});
+            correctIt();
+          }
+          vars.draggingPoint = undefined;
+
+          adjustHandles();
+
+          o.desmos.setExpressions(exprs);
+
+         }
+
+        document.addEventListener('mousedown',click);
+        document.addEventListener('touchstart',click);
+
+       }//
+     };
+
     /* ←— A0597768 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597768 = {
       /* ←— init ———————————————————————————————————————————————→ *\
