@@ -4464,6 +4464,11 @@ PearsonGL.External.rootJS = (function() {
 
           adjustHandles();
 
+          exprs.push(
+            {id:'angleABD',latex:'m_{ABD}='+hxs.m_ABD.numericValue},
+            {id:'angleDBC',latex:'m_{DBC}='+hxs.m_DBC.numericValue},
+            {id:'angleABC',latex:'m_{ABC}='+hxs.m_ABC.numericValue}
+            );
           o.desmos.setExpressions(exprs);
 
          }
