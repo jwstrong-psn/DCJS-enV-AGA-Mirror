@@ -391,11 +391,17 @@ PearsonGL.External.rootJS = (function() {
       /* ←— number to letter (lowercase) —————————————————————————————————→ *\
        | Convert a number to its lowercase letter with `cs.alpha[n]`
        * ←————————————————————————————————————————————————————————————————→ */
-       alpha:'_abcdefghijklmnopqrstuvwxyz',
+       alpha:(function(x){
+        let func=function(x){return func[x];};
+        Object.assign(func,'_abcdefghijklmnopqrstuvwxyz');
+        return func;})(),
       /* ←— number to letter (uppercase) —————————————————————————————————→ *\
        | Convert a number to its uppercase letter with `cs.ALPHA[n]`
        * ←————————————————————————————————————————————————————————————————→ */
-       ALPHA:'_ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+       ALPHA:(function(x){
+        let func=function(x){return func[x];};
+        Object.assign(func,'_ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+        return func;})(),
       /* ←— subscript ————————————————————————————————————————————————————→ *\
        | Given a variable and an index, return the latex-subscripted variable
        |  e.g. x_11 becomes x_{11}
