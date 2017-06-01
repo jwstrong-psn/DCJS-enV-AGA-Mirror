@@ -1405,6 +1405,23 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
+    /* ←— A0597522 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0597522 = {
+      /* ←— labelDiags ————————————————————————————————————————————————————→ */
+       labelDiags: function(options={}) {
+        var o = hs.parseOptions(options);
+        function diags(n) {
+          if(n==3) return 0;
+          else if((n<1)||(n%1!=0)) return undefined;
+          else return diags(n-1)+n-2;
+        }
+        o.desmos.setExpressions([
+          {id:'n_sides',latex:'n_{sides}='+o.value},
+          {id:'diagLabel',label:''+diags(o.value)+' diagonals'}
+          ]);
+       }
+     };
+
     /* ←— A0597724 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597724 = {
       /* ←— init ——————————————————————————————————————————————————————→ *\
@@ -4287,7 +4304,7 @@ PearsonGL.External.rootJS = (function() {
           switch (which[2]) {
             case '1':
               o.desmos.setExpressions([
-                {id:'angleABD',latex:'m_{ABD}=\\operatorname{round}\\left(\\theta_{LVL}\\left(A,B,D\\right)\\right)'},
+                {id:'angleABD',latex:'m_{ABD}=\\min\\left(180-m_{DBC},\\operatorname{round}\\left(\\theta_{LVL}\\left(A,B,D\\right)\\right)\\right)'},
                 {id:'angleABC',latex:'m_{ABC}=m_{ABD}+m_{DBC}'},
                 {id:'angleDBC',latex:'m_{DBC}='+hs.number(hxs.m_DBC.numericValue)},
                 {id:'handleA',color:cons.HIDDEN_COLOR}
@@ -4299,7 +4316,7 @@ PearsonGL.External.rootJS = (function() {
               break;
             case '3':
               o.desmos.setExpressions([
-                {id:'angleDBC',latex:'m_{DBC}=\\operatorname{round}\\left(\\theta_{LVL}\\left(C,B,D\\right)\\right)'},
+                {id:'angleDBC',latex:'m_{DBC}=\\min\\left(180-m_{ABD},\\operatorname{round}\\left(\\theta_{LVL}\\left(C,B,D\\right)\\right)\\right)'},
                 {id:'angleABC',latex:'m_{ABC}=m_{ABD}+m_{DBC}'},
                 {id:'angleABD',latex:'m_{ABD}='+hs.number(hxs.m_ABD.numericValue)},
                 {id:'handleC',color:cons.HIDDEN_COLOR}
