@@ -774,9 +774,9 @@ PearsonGL.External.rootJS = (function() {
         // If all is gravy, update the labels to match.
         if (val == calculated) {
           vars[vertex] = val;
-          o.desmos.setExpression({id:'point'+A,label:('m∠'+A+' = '+vars[A]+'°')});
-          o.desmos.setExpression({id:'point'+B,label:('m∠'+B+' = '+vars[B]+'°')});
-          o.desmos.setExpression({id:'point'+C,label:('m∠'+C+' = '+vars[C]+'°')});
+          o.desmos.setExpression({id:'point'+A,label:('m∠'+A+' = '+vars[A]/*+'°'*/)});
+          o.desmos.setExpression({id:'point'+B,label:('m∠'+B+' = '+vars[B]/*+'°'*/)});
+          o.desmos.setExpression({id:'point'+C,label:('m∠'+C+' = '+vars[C]/*+'°'*/)});
           vars.upToDate = true;
         } else {
           // If this angle is closer to its (re-)calculated value than the last one was, correct this one and let the others keep their original values.
@@ -786,9 +786,9 @@ PearsonGL.External.rootJS = (function() {
             //       is always > 1, something has gone seriously wrong.
             // correct this one and update the 3 labels
             vars[vertex] = val = Math.round(calculated*Math.pow(10,prec))/Math.pow(10,prec);
-            o.desmos.setExpression({id:'point'+A,label:('m∠'+A+' = '+vars[A]+'°')});
-            o.desmos.setExpression({id:'point'+B,label:('m∠'+B+' = '+vars[B]+'°')});
-            o.desmos.setExpression({id:'point'+C,label:('m∠'+C+' = '+vars[C]+'°')});
+            o.desmos.setExpression({id:'point'+A,label:('m∠'+A+' = '+vars[A]/*+'°'*/)});
+            o.desmos.setExpression({id:'point'+B,label:('m∠'+B+' = '+vars[B]/*+'°'*/)});
+            o.desmos.setExpression({id:'point'+C,label:('m∠'+C+' = '+vars[C]/*+'°'*/)});
             vars.prevError = newErr;
             vars.upToDate = true;
           } else {
@@ -1309,7 +1309,7 @@ PearsonGL.External.rootJS = (function() {
        * ←———————————————————————————————————————————————————————————————————→ */
        labelAngle: function(options={}) {
         var o = hs.parseOptions(options);
-        o.desmos.setExpression({id:'angle_label',label:('a = '+hs.latexToText(o.value)+'°')});
+        o.desmos.setExpression({id:'angle_label',label:('a = '+hs.latexToText(o.value)/*+'°'*/)});
        }
      };
 
@@ -1385,7 +1385,7 @@ PearsonGL.External.rootJS = (function() {
       /* ←— labelEquation ————————————————————————————————————————————————————→ */
        labelEquation: function(options={}) {
         var o = hs.parseOptions(options);
-        o.desmos.setExpression({id:'equation',label:''+(180-o.value)+'° + '+o.value+'° = 180°'});
+        o.desmos.setExpression({id:'equation',label:''+(180-o.value)/*+'°'*/+' + '+o.value/*+'°'*/+' = 180'/*+'°'*/});
        }
      };
 
@@ -2437,7 +2437,7 @@ PearsonGL.External.rootJS = (function() {
          });
          exprs.push({
           id:'centroid',
-          label:'180°⋅('+n+' − 2) = '+(180*(n-2))+'°'
+          label:'180'/*+'°'*/+'⋅('+n+' − 2) = '+(180*(n-2))/*+'°'*/
          });
          exprs.push({
           id:'centroid-1',
@@ -2997,7 +2997,7 @@ PearsonGL.External.rootJS = (function() {
          });
          exprs.push({
           id:'centroid',
-          label:'180°⋅('+n+' − 2) = '+(180*(n-2))+'°'
+          label:'180'/*+'°'*/+'⋅('+n+' − 2) = '+(180*(n-2))/*+'°'*/
          });
          exprs.push({
           id:'centroid-1',
