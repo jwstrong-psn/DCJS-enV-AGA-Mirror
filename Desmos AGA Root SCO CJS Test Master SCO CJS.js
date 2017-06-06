@@ -144,6 +144,10 @@ PearsonGL.External.masterJS = (function() {
 
   ts.A0597789_volumeStack = (val, name, desmos)=>PearsonGL.External.rootJS.A0597789_volumeStack((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
+  ts.A0597563_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597563_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
+
+  ts.A0597560_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597560_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
+
   ts.A0597768_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597768_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
   ts.A0597777_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597777_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);

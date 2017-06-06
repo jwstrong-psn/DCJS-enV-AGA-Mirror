@@ -1475,6 +1475,82 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
+    /* ←— A0597560 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0597560 = {
+      /* ←— init ——————————————————————————————————————————————————————————→ *\
+       | Updates the equation (expression) with the new angles
+       * ←—————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        let o = hs.parseOptions(options);
+        let vars = vs[o.uniqueId] = {
+          A:o.desmos.HelperExpression({latex:'m_A'}),
+          B:o.desmos.HelperExpression({latex:'m_B'}),
+          C:o.desmos.HelperExpression({latex:'m_C'})
+        };
+
+        function updateEquation() {
+          o.desmos.setExpression({
+            id:'equation',
+            label:''+vars.A.numericValue+' + '
+                    +vars.B.numericValue+' + '
+                    +vars.C.numericValue+' = 180'
+          });
+        }
+
+        vars.A.observe('numericValue',updateEquation);
+        vars.B.observe('numericValue',updateEquation);
+        vars.C.observe('numericValue',updateEquation);
+
+        o.desmos.observe('graphpaperBounds',()=>{
+          o.desmos.setExpression({
+            id:'equation',
+            latex:'\\left(0,'+hs.number(o.desmos.graphpaperBounds.mathCoordinates.bottom+
+                                (36*o.desmos.graphpaperBounds.mathCoordinates.height/
+                                  o.desmos.graphpaperBounds.pixelCoordinates.height
+                                ))+'\\right)'
+          });
+        });
+      }
+     };
+
+    /* ←— A0597563 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0597563 = {
+      /* ←— init ——————————————————————————————————————————————————————————→ *\
+       | Updates the equation (expression) with the new angles
+       * ←—————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        let o = hs.parseOptions(options);
+        let vars = vs[o.uniqueId] = {
+          A:o.desmos.HelperExpression({latex:'m_A'}),
+          B:o.desmos.HelperExpression({latex:'m_B'}),
+          C:o.desmos.HelperExpression({latex:'m_C'})
+        };
+
+        function updateEquation() {
+          o.desmos.setExpression({
+            id:'equation',
+            label:''+vars.A.numericValue+' = '
+                    +vars.B.numericValue+' + '
+                    +vars.C.numericValue
+          });
+        }
+
+        vars.A.observe('numericValue',updateEquation);
+        vars.B.observe('numericValue',updateEquation);
+        vars.C.observe('numericValue',updateEquation);
+
+        o.desmos.observe('graphpaperBounds',()=>{
+          o.desmos.setExpression({
+            id:'equation',
+            latex:'\\left(0,'+hs.number(o.desmos.graphpaperBounds.mathCoordinates.bottom+
+                                (36*o.desmos.graphpaperBounds.mathCoordinates.height/
+                                  o.desmos.graphpaperBounds.pixelCoordinates.height
+                                ))+'\\right)'
+          });
+        });
+      }
+     };
+
     /* ←— A0596385 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0596385 = {
       /* ←— init ————————————————————————————————————————————————————————————→ */
