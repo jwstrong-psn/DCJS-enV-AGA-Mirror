@@ -1529,7 +1529,7 @@ PearsonGL.External.rootJS = (function() {
          ]);
        },
       /* ←— showHideEFGH ——————————————————————————————————————————————————→ *\
-       | Shows or hides QRST
+       | Shows or hides EFGH
        * ←—————————————————————————————————————————————————————————————————→ */
        showHideEFGH: function(options={}) {
         let o = hs.parseOptions(options);
