@@ -1513,6 +1513,36 @@ PearsonGL.External.rootJS = (function() {
       }
      };
 
+    /* ←— A0598528 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0598528 = {
+      /* ←— showHideQRST ——————————————————————————————————————————————————→ *\
+       | Shows or hides QRST
+       * ←—————————————————————————————————————————————————————————————————→ */
+       showHideQRST: function(options={}) {
+        let o = hs.parseOptions(options);
+        o.desmos.setExpressions([
+          {id:'EdgesQRST',type:'table',columns:[{},{hidden:o.value}]},
+          {id:'Q',hidden:o.value,showLabel:(!(o.value))},
+          {id:'R',hidden:o.value,showLabel:(!(o.value))},
+          {id:'S',hidden:o.value,showLabel:(!(o.value))},
+          {id:'T',hidden:o.value,showLabel:(!(o.value))}
+         ]);
+       },
+      /* ←— showHideEFGH ——————————————————————————————————————————————————→ *\
+       | Shows or hides QRST
+       * ←—————————————————————————————————————————————————————————————————→ */
+       showHideEFGH: function(options={}) {
+        let o = hs.parseOptions(options);
+        o.desmos.setExpressions([
+          {id:'EdgesEFGH',type:'table',columns:[{},{hidden:o.value}]},
+          {id:'E',hidden:o.value,showLabel:(!(o.value))},
+          {id:'F',hidden:o.value,showLabel:(!(o.value))},
+          {id:'G',hidden:o.value,showLabel:(!(o.value))},
+          {id:'H',hidden:o.value,showLabel:(!(o.value))}
+         ]);
+       }
+     };
+
     /* ←— A0597563 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597563 = {
       /* ←— init ——————————————————————————————————————————————————————————→ *\
