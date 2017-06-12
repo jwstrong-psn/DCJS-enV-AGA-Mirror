@@ -1290,13 +1290,13 @@ PearsonGL.External.rootJS = (function() {
        | updates the label of asymptote k.
        |       
        | Hidden point must be authored with showLabel:true,
-       | and the ID 104
+       | and the ID 125
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(options={}) {
         var o = hs.parseOptions(options);
         switch (o.name) {
-          case 'k':
-            o.desmos.setExpression({id:'104',label:('k = '+o.value)});
+          case 'K':
+            o.desmos.setExpression({id:'125',label:('k = '+o.value)});
             break;
           };
         }
