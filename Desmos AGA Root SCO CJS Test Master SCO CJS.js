@@ -236,6 +236,15 @@ PearsonGL.External.masterJS = (function() {
    
      return new PearsonGL.Parameters.Parameter(x,"single","integer");
    }
+
+  exports.numberWithCommas = function(x) {
+    var x = x.toString();
+    x= String(x);
+    var pattern = /(-?\d+)(\d{3})/;
+    while (pattern.test(x))
+        x = String(x).replace(pattern, "$1,$2");
+    return new PearsonGL.Parameters.Parameter(x,"single","string");
+   }
   
   Object.assign(exports,flattenFuncStruct(ts));
 
