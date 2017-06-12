@@ -1309,7 +1309,7 @@ PearsonGL.External.rootJS = (function() {
        * ←———————————————————————————————————————————————————————————————————→ */
        labelAngle: function(options={}) {
         var o = hs.parseOptions(options);
-        o.desmos.setExpression({id:'angle_label',label:('a = '+hs.latexToText(o.value)/*+'°'*/)});
+        o.desmos.setExpression({id:'angle_label',label:(hs.latexToText(o.value)+'°')});
        }
      };
 
