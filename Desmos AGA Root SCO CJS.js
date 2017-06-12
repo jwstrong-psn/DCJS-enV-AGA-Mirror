@@ -1052,6 +1052,7 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
+
     /* ←— A0597714 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597714 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
@@ -1270,6 +1271,32 @@ PearsonGL.External.rootJS = (function() {
         switch (o.name) {
           case 'w':
             o.desmos.setExpression({id:'26',label:('Watered Area: '+o.value+' m')});
+            break;
+          };
+        }
+     };
+
+ /* ←— A0596417 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A056417 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variables
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        var o = hs.parseOptions(options);
+        vs[o.uniqueId] = {
+        };
+       },
+      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
+       | updates the label of asymptote k.
+       |       
+       | Hidden point must be authored with showLabel:true,
+       | and the ID 104
+       * ←———————————————————————————————————————————————————————————————————→ */
+       updateLabels: function(options={}) {
+        var o = hs.parseOptions(options);
+        switch (o.name) {
+          case 'k':
+            o.desmos.setExpression({id:'104',label:('k = '+o.value)});
             break;
           };
         }
