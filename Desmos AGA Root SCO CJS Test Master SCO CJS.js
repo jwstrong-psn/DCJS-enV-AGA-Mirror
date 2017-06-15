@@ -205,6 +205,8 @@ PearsonGL.External.masterJS = (function() {
 
   ts.A0596392_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0596392_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
+  ts.A0596392_labelTriAngles = (val, name, desmos)=>PearsonGL.External.rootJS.A0596392_labelTriAngles((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
+
   ts.A0597629_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597629_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
   ts.A0597630_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597630_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
