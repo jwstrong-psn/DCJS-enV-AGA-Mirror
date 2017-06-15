@@ -195,7 +195,7 @@ PearsonGL.External.rootJS = (function() {
         expr = expr.replace(/\\left\(/g,'(');
         expr = expr.replace(/\\right/g,'');
         expr = expr.replace(/\\left/g,'');
-        expr = expr.replace(/([^  ])\-/g,'$1 − ');
+        expr = expr.replace(/([^   ])\-/g,'$1 − ');
         expr = expr.replace(/\-/g,'−');
         return expr;
        },
@@ -1503,6 +1503,99 @@ PearsonGL.External.rootJS = (function() {
           {id:'n_sides',latex:'n_{sides}='+o.value},
           {id:'diagLabel',label:''+diags(o.value)+' diagonals'}
           ]);
+       }
+     };
+
+    /* ←— A0597744 FUNCTIONS ——————————————————————————————————————————————→ */
+      /* ←— A0597744 Constants ——————————————————————————————————————————————→ */
+       cs.A0597744 = {PRECISION:10};
+     fs.A0597744 = {
+      /* ←— init ————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        let o = hs.parseOptions(options);
+        let vars = vs[o.uniqueId] = {};
+        let cons = cs.A0597744;
+
+        vars.h = o.desmos.HelperExpression({latex:'h'});
+        vars.k = o.desmos.HelperExpression({latex:'k'});
+        vars.p = o.desmos.HelperExpression({latex:'p'});
+
+        vars.h.observe('numericValue.dragging',dragging);
+        vars.k.observe('numericValue.dragging',dragging);
+        vars.p.observe('numericValue.dragging',dragging);
+
+        function dragging() {
+          vars.dragged=true;
+
+          vars.H=Math.round(cons.PRECISION*vars.h.numericValue)/cons.PRECISION;
+          vars.K=Math.round(cons.PRECISION*vars.k.numericValue)/cons.PRECISION;
+          vars.P=Math.round(cons.PRECISION*vars.p.numericValue)/cons.PRECISION;
+          var f = Math.round(cons.PRECISION*(vars.K+vars.P))/cons.PRECISION;
+          var d = Math.round(cons.PRECISION*(vars.K-vars.P))/cons.PRECISION;
+
+          o.desmos.setExpressions([
+            {id:'liveParabola',hidden:false},
+            {id:'focus',label:'focus '+hs.latexToText('('+vars.H+','+f+')')},
+            {id:'vertex',label:'vertex '+hs.latexToText('('+vars.H+','+vars.K+')')},
+            {id:'pMeasure',label:hs.latexToText('p='+vars.P)},
+            {id:'directrix',label:'directrix '+hs.latexToText('y='+d)},
+            {id:'equation',hidden:true,
+              latex:'y'+((vars.K==0)?'':((vars.K<0)?'+'+Math.abs(vars.K):'-'+vars.K))
+                      +'='+((vars.P<0)?'-':'')+'\\frac{1}{4\\left('+Math.abs(vars.P)+'\\right)}'
+                      +((vars.H==0)?'x':
+                        '\\left(x'
+                         +((vars.H<0)?'+'+Math.abs(vars.H):'-'+vars.H)
+                         +'\\right)')
+                      +'^2'}
+           ]);
+         }
+        
+        function click() {
+          document.removeEventListener('mousedown',click);
+          document.removeEventListener('touchstart',click);
+
+          o.desmos.setExpressions([
+            {id:'equation',hidden:true},
+            {id:'liveParabola',hidden:false}
+           ]);
+          /*
+          vars.h.observe('numericValue.dragging',dragging);
+          vars.k.observe('numericValue.dragging',dragging);
+          vars.p.observe('numericValue.dragging',dragging);
+          */
+          document.addEventListener('mouseup',unclick);
+          document.addEventListener('touchend',unclick);
+         }
+
+        function unclick() {
+          document.removeEventListener('mouseup',unclick);
+          document.removeEventListener('touchend',unclick);
+
+          /*
+          vars.h.unobserve('numericValue.dragging');
+          vars.k.unobserve('numericValue.dragging');
+          vars.p.unobserve('numericValue.dragging');
+
+          if(vars.dragged===true) {
+            vars.dragged=false;
+            o.desmos.setExpressions([
+              {id:'h',latex:'h='+vars.H},
+              {id:'k',latex:'k='+vars.K},
+              {id:'p',latex:'p='+vars.P}
+             ]);
+          }
+          */
+          setTimeout(()=>{o.desmos.setExpressions([
+            {id:'equation',hidden:false},
+            {id:'liveParabola',hidden:true}
+            ])},cs.delay.SET_EXPRESSION);
+
+          document.addEventListener('mousedown',click);
+          document.addEventListener('touchstart',click);
+         }
+
+        document.addEventListener('mousedown',click);
+        document.addEventListener('touchstart',click); //*/
        }
      };
 

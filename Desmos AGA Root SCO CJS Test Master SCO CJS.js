@@ -213,6 +213,8 @@ PearsonGL.External.masterJS = (function() {
 
   ts.A0597631_equation = (val, name, desmos)=>PearsonGL.External.rootJS.A0597631_equation((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
+  ts.A0597744_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597744_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
+
   ts.A0597634_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597634_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
   ts.A0596385_drawExtensions = (val, name, desmos)=>PearsonGL.External.rootJS.A0596385_drawExtensions((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
