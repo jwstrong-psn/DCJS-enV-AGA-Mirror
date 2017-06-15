@@ -1276,7 +1276,32 @@ PearsonGL.External.rootJS = (function() {
         }
      };
 
- /* ←— A0596417 FUNCTIONS ——————————————————————————————————————————————→ */
+ /* ←— A0598945 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0598945 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variables
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        var o = hs.parseOptions(options);
+        vs[o.uniqueId] = {
+        };
+       },
+      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
+       | updates the label of the function.
+       |       
+       | Hidden point must be authored with showLabel:true,
+       | and the ID 394
+       * ←———————————————————————————————————————————————————————————————————→ */
+       updateLabels: function(options={}) {
+        var o = hs.parseOptions(options);
+        switch (o.name) {
+          case 'a':
+            o.desmos.setExpression({id:'394',label:('y = '+o.value+'cos x')});
+            break;
+          };
+        }
+     };
+      /* ←— A0596417 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0596417 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
