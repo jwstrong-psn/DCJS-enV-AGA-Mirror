@@ -195,7 +195,7 @@ PearsonGL.External.rootJS = (function() {
         expr = expr.replace(/\\left\(/g,'(');
         expr = expr.replace(/\\right/g,'');
         expr = expr.replace(/\\left/g,'');
-        expr = expr.replace(/([^   ])\-/g,'$1 − ');
+        expr = expr.replace(/([^   (\[{])\-/g,'$1 − ');
         expr = expr.replace(/\-/g,'−');
         return expr;
        },
@@ -1544,10 +1544,15 @@ PearsonGL.External.rootJS = (function() {
         vars.h = o.desmos.HelperExpression({latex:'h'});
         vars.k = o.desmos.HelperExpression({latex:'k'});
         vars.p = o.desmos.HelperExpression({latex:'p'});
+        vars.a = o.desmos.HelperExpression({latex:'a'});
+        vars.t = o.desmos.HelperExpression({latex:'P\\left(a\\right)'});
 
         vars.h.observe('numericValue.dragging',dragging);
         vars.k.observe('numericValue.dragging',dragging);
         vars.p.observe('numericValue.dragging',dragging);
+        vars.a.observe('numericValue.dragging',dragging);
+        vars.t.observe('numericValue.dragging',dragging);
+        
 
         function dragging() {
           vars.dragged=true;
@@ -1555,8 +1560,12 @@ PearsonGL.External.rootJS = (function() {
           vars.H=Math.round(cons.PRECISION*vars.h.numericValue)/cons.PRECISION;
           vars.K=Math.round(cons.PRECISION*vars.k.numericValue)/cons.PRECISION;
           vars.P=Math.round(cons.PRECISION*vars.p.numericValue)/cons.PRECISION;
+          vars.A=Math.round(cons.PRECISION*vars.a.numericValue)/cons.PRECISION;
+          vars.T=Math.round(cons.PRECISION*vars.t.numericValue)/cons.PRECISION;
           var f = Math.round(cons.PRECISION*(vars.K+vars.P))/cons.PRECISION;
           var d = Math.round(cons.PRECISION*(vars.K-vars.P))/cons.PRECISION;
+          var tx = Math.round(cons.PRECISION*(vars.H+vars.A))/cons.PRECISION;
+          var ty = Math.round(cons.PRECISION*(vars.K+vars.T))/cons.PRECISION;
 
           o.desmos.setExpressions([
             {id:'liveParabola',hidden:false},
@@ -1571,7 +1580,8 @@ PearsonGL.External.rootJS = (function() {
                         '\\left(x'
                          +((vars.H<0)?'+'+Math.abs(vars.H):'-'+vars.H)
                          +'\\right)')
-                      +'^2'}
+                      +'^2'},
+            {id:'tracePoint',label:hs.latexToText('\\left('+tx+','+ty+'\\right)')}
            ]);
          }
         
