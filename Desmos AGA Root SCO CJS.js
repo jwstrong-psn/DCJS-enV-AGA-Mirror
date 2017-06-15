@@ -1404,6 +1404,79 @@ PearsonGL.External.rootJS = (function() {
        init: function(options={}) {
         var o = hs.parseOptions(options);
         vs[o.uniqueId] = {triAngleABC:{prevError:0,A:0,B:0,C:0}};
+       },
+      /* ←— labelTriAngles ——————————————————————————————————————————————————→ *\
+       | Updates the labels of the triangle's vertices with their respective
+       | angle measures. Defaults to triangle ABC.
+       | Execute when observing each angle's measure, with options.value that measure.
+       | prec is the number of decimal places to round to.
+       |   !REQUIRES Initializing vs[o.uniqueId] with: 
+       |             ('triAngle'+pointNames.A+pointNames.B+pointNames.C): {
+       |               prevError:0,
+       |               (pointNames.A):0,
+       |               (pointNames.B):0,
+       |               (pointNames.C):0
+       |             }
+       |   !REQUIRES Angle points to be labeled have ids 'point'+pointNames.A, etc.
+       |   !REQUIRES options.name end in pointNames.A, etc.
+       |   !REQUIRES options.value be the angle's value, in Radians.
+       * ←———————————————————————————————————————————————————————————————————→ */
+       labelTriAngles: function(options={},pointNames={A:'A',B:'B',C:'C'},prec=cs.precision.DEGREES) {
+        var o = hs.parseOptions(options);
+        var A = pointNames.A;
+        var B = pointNames.B;
+        var C = pointNames.C;
+        var vertex = o.name[o.name.length-1];
+        var val = Math.round(180*o.value/Math.PI*Math.pow(10,prec))/Math.pow(10,prec);
+        var vars = vs[o.uniqueId]['triAngle'+A+B+C];
+        var oldVal = vars[vertex];
+
+        if (vars.upToDate === undefined) o.log('Labeling angles of △'+A+B+C+' to '+prec+' decimal places.');
+
+        // Only update stuff if the one of the values has changed
+        if (vars.upToDate === true && val == oldVal) return;
+
+        // Calculate the value it should have to match the other two angles
+        var calculated;
+        switch (vertex) {
+          case A:
+            calculated = 180-(vars[B]+vars[C]);
+            break;
+          case B:
+            calculated = 180-(vars[A]+vars[C]);
+            break;
+          default:
+            calculated = 180-(vars[A]+vars[B]);
+        }
+
+        // If all is gravy, update the labels to match.
+        if (val == calculated) {
+          vars[vertex] = val;
+          o.desmos.setExpression({id:'label'+A,label:(/*'m∠'+A+' = '+*/vars[A]+'°')});
+          o.desmos.setExpression({id:'label'+B,label:(/*'m∠'+B+' = '+*/vars[B]+'°')});
+          o.desmos.setExpression({id:'label'+C,label:(/*'m∠'+C+' = '+*/vars[C]+'°')});
+          vars.upToDate = true;
+        } else {
+          // If this angle is closer to its (re-)calculated value than the last one was, correct this one and let the others keep their original values.
+          var newErr = Math.abs(180*o.value/Math.PI-calculated);
+          if (newErr < vars.prevError && newErr < 1) {
+            // Note: <1 makes rounding floor or ceiling only; if there is a spin where the error
+            //       is always > 1, something has gone seriously wrong.
+            // correct this one and update the 3 labels
+            vars[vertex] = val = Math.round(calculated*Math.pow(10,prec))/Math.pow(10,prec);
+            o.desmos.setExpression({id:'label'+A,label:(/*'m∠'+A+' = '+*/vars[A]+'°')});
+            o.desmos.setExpression({id:'label'+B,label:(/*'m∠'+B+' = '+*/vars[B]+'°')});
+            o.desmos.setExpression({id:'label'+C,label:(/*'m∠'+C+' = '+*/vars[C]+'°')});
+            vars.prevError = newErr;
+            vars.upToDate = true;
+          } else {
+            // If the other angles are closer, this one should keep its given value, and will be updated
+            // when the closer angles' measures are next polled.
+            vars[vertex] = val;
+            vars.prevError = newErr;
+            vars.upToDate = false;
+          }
+        }
        }
      };
 
