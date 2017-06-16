@@ -1355,7 +1355,7 @@ PearsonGL.External.rootJS = (function() {
             for (i = 1; i <= n; i++){
               var xVal = Math.floor(Math.random()*(xMax-xMin))+xMin;
               var yVal = Math.floor(Math.random()*(yMax-yMin))+yMin;
-              o.desmos.setExpression({id:3+i,latex:'\\left('+xVal+','+yVal+'\\right)',color:'#5d50b2'});
+              o.desmos.setExpression({id:500+i,latex:'\\left('+xVal+','+yVal+'\\right)',color:'#5d50b2'});
             }
         
             break;
