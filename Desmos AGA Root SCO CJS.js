@@ -1327,6 +1327,41 @@ PearsonGL.External.rootJS = (function() {
         }
      };
 
+ /* ←— A0596417_MO FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0596417_MO = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variables
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        var o = hs.parseOptions(options);
+        vs[o.uniqueId] = {
+        };
+       },
+      /* ←— generatePoints ————————————————————————————————————————————————————→ *\
+       | generatespoints when a variable "g" is changed.
+       |       
+       | H
+       | 
+       * ←———————————————————————————————————————————————————————————————————→ */
+       generatePoints: function(options={}) {
+        var o = hs.parseOptions(options);
+        switch (o.name) {
+          case 'g':
+            var n = 100;
+            var xMin = 1;
+            var xMax = 20;
+            var yMin = 1;
+            var yMax = 20;
+            for (i = 1; i <= n; i++){
+              var xVal = Math.floor(Math.random()*(xMax-xMin))+xMin;
+              var yVal = Math.floor(Math.random()*(yMax-yMin))+yMin;
+              o.desmos.setExpression({id:3+i,latex:'\\left('+xVal+','+yVal+'\\right)',color:'#5d50b2'});
+            }
+        
+            break;
+          };
+        }
+     };
     /* ←— A0598652 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0598652 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
