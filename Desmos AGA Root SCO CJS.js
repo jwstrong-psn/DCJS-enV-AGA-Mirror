@@ -1347,7 +1347,7 @@ PearsonGL.External.rootJS = (function() {
         var o = hs.parseOptions(options);
         switch (o.name) {
           case 'g':
-            var n = 1000;
+            var n = 500;
             var xMin = 1;
             var xMax = 40;
             var yMin = 1;
