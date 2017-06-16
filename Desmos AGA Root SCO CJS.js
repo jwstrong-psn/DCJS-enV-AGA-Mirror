@@ -1347,11 +1347,11 @@ PearsonGL.External.rootJS = (function() {
         var o = hs.parseOptions(options);
         switch (o.name) {
           case 'g':
-            var n = 100;
+            var n = 1000;
             var xMin = 1;
-            var xMax = 20;
+            var xMax = 40;
             var yMin = 1;
-            var yMax = 20;
+            var yMax = 40;
             for (i = 1; i <= n; i++){
               var xVal = Math.floor(Math.random()*(xMax-xMin))+xMin;
               var yVal = Math.floor(Math.random()*(yMax-yMin))+yMin;
