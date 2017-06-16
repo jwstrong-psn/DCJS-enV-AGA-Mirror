@@ -183,9 +183,14 @@ PearsonGL.External.masterJS = (function() {
   ts.A0596584_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0596584_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
   ts.A0596584_updateLabels = (val, name, desmos)=>PearsonGL.External.rootJS.A0596584_updateLabels((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
+    
     ts.A0596417_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0596417_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
   ts.A0596417_updateLabels = (val, name, desmos)=>PearsonGL.External.rootJS.A0596417_updateLabels((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
+
+      ts.A0596417_MO_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0596417_MO_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
+
+  ts.A0596417_MO_generatePoints = (val, name, desmos)=>PearsonGL.External.rootJS.A0596417_MO_generatePoints((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
   ts.A0598832_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0598832_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
