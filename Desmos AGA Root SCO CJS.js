@@ -1327,7 +1327,81 @@ PearsonGL.External.rootJS = (function() {
         }
      };
 
- /* ←— A0596417_MO FUNCTIONS ——————————————————————————————————————————————→ */
+ /* ←— A0596417_MO2 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0596417_MO2 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variables
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        var o = hs.parseOptions(options);
+        vs[o.uniqueId] = {
+        };
+       },
+      /* ←— random Sample ————————————————————————————————————————————————————→ *\
+       | populates a list with random points when a variable "r" is changed.
+       |       
+       | also random samples the list 100 time and generates a list of 100 means.
+       | 
+       * ←———————————————————————————————————————————————————————————————————→ */
+       randomSample: function(options={}) {
+        var o = hs.parseOptions(options);
+        switch (o.name) {
+          case 'R':
+            var myPop =[];
+            var sampleList =[];
+            var meansList =[];
+            var sampleSum = 0;
+            var trueMean = 0;
+            var sMean = 0;
+            var n = 100;
+
+          function arrayToList(arr) {
+            return `[${arr}]`;
+            }
+        // fill up population 100 random numbers from 1 to 100
+       
+        for (i = 0; i < n; i++){
+            myPop[i]=Math.floor(Math.random()*100)+1;
+        }
+
+      // create list of population in Desmos
+        
+        calc.setExpression({id: 'list1', latex: `P=${arrayToList(myPop)}`});
+
+      // Large loop to repeat n trials to create n sample means.//
+      // Use t as the "trial" variable.//
+
+        for(t = 0; t < n; t++){
+  
+      //take a random sample//
+  
+          for (i = 0; i < n; i++){
+              sampleList[i]=myPop[Math.floor(Math.random()*(n-1))+1]; 
+           }
+        // to compute the sample mean, first find the sum.
+      
+              sampleSum = 0;
+              for(i = 0; i < n; i++) {
+                sampleSum = sampleSum + sampleList[i];
+              }
+            sampleMean = sampleSum/n;
+            meansList[t]= sampleMean;
+        }
+  
+//create list of sample in Desmos.
+  
+        calc.setExpression({id: 'list2', latex: `S=${arrayToList(sampleList)}`});
+
+//create list of sample Means in Desmos.
+
+          calc.setExpression({id: 'list3', latex: `M=${arrayToList(meansList)}`});
+
+          break;
+          };
+        };
+     };
+
+     /* ←— A0596417_MO FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0596417_MO = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
