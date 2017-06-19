@@ -1366,7 +1366,7 @@ PearsonGL.External.rootJS = (function() {
 
       // create list of population in Desmos
         
-        calc.setExpression({id: 'list1', latex: `P=${arrayToList(myPop)}`});
+        o.desmos.setExpression({id: 'list11', latex: `P=${arrayToList(myPop)}`});
 
       // Large loop to repeat n trials to create n sample means.//
       // Use t as the "trial" variable.//
@@ -1390,15 +1390,16 @@ PearsonGL.External.rootJS = (function() {
   
 //create list of sample in Desmos.
   
-        calc.setExpression({id: 'list2', latex: `S=${arrayToList(sampleList)}`});
+        o.desmos.setExpression({id: 'list12', latex: `S=${arrayToList(sampleList)}`});
 
 //create list of sample Means in Desmos.
 
-          calc.setExpression({id: 'list3', latex: `M=${arrayToList(meansList)}`});
+          o.desmos.setExpression({id: 'list13', latex: `M=${arrayToList(meansList)}`});
 
           break;
-          };
-        };
+          }
+
+        }
      };
 
      /* ←— A0596417_MO FUNCTIONS ——————————————————————————————————————————————→ */
