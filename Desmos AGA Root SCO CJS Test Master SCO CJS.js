@@ -192,6 +192,10 @@ PearsonGL.External.masterJS = (function() {
 
   ts.A0596417_MO_generatePoints = (val, name, desmos)=>PearsonGL.External.rootJS.A0596417_MO_generatePoints((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
+  ts.A0596417_MO2_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0596417_MO2_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
+
+  ts.A0596417_MO2_randomSample = (val, name, desmos)=>PearsonGL.External.rootJS.A0596417_MO2_randomSample((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
+
   ts.A0598832_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0598832_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
   ts.A0598832_changeLineType = (val, name, desmos)=>PearsonGL.External.rootJS.A0598832_changeLineType((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
