@@ -1437,6 +1437,31 @@ PearsonGL.External.rootJS = (function() {
           };
         }
      };
+           /* ←— A0598789 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0598789 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variables
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        var o = hs.parseOptions(options);
+        vs[o.uniqueId] = {
+        };
+       },
+      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
+       | updates the label of absolute value function g(x) = a|x|.
+       |       
+       | Hidden point must be authored with showLabel:true,
+       | and the ID 467
+       * ←———————————————————————————————————————————————————————————————————→ */
+       updateLabels: function(options={}) {
+        var o = hs.parseOptions(options);
+        switch (o.name) {
+          case 'a':
+            o.desmos.setExpression({id:'467',label:('g(x) = '+ o.value +'|x|')});
+            break;
+          };
+        }
+     };
     /* ←— A0598652 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0598652 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
