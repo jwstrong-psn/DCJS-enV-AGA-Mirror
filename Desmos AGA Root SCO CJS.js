@@ -1008,7 +1008,6 @@ PearsonGL.External.rootJS = (function() {
        init: function(options={}) {
         var o = hs.parseOptions(options);
         vs[o.uniqueId] = {
-          k:-4
         };
        },
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
@@ -1028,8 +1027,7 @@ PearsonGL.External.rootJS = (function() {
           if (o.value > 0) {
               o.desmos.setExpression({id:'4',label:('g(x) = |x| +'+' '+ o.value)});
           }else if ( o.value < 0){
-            //var Negk = -1*(o.value);
-            o.desmos.setExpression({id:'4',label:('g(x) = |x| +'+' '+ (-1)*(o.value)});
+            o.desmos.setExpression({id:'4',label:('g(x) = |x| +'+' '+ ((-1)*(o.value))});
           }else {
             o.desmos.setExpression({id:'4',label:('g(x) = |x|')});
           }
