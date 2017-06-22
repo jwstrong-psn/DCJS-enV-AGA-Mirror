@@ -1000,7 +1000,43 @@ PearsonGL.External.rootJS = (function() {
          })(varName);
      };
 
-    /* ←— A0597514 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0598800 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0598800 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variable
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        var o = hs.parseOptions(options);
+        vs[o.uniqueId] = {
+          k:-4
+        };
+       },
+      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
+       | updates the labels of the function g(x) = |x| + k with the value of "k"
+
+       |
+       | 
+       |
+       | Points P, Q, and M must be authored with showLabel:true, and the IDs
+       |  P_point, Q_point, and M_point
+       * ←———————————————————————————————————————————————————————————————————→ */
+       updateAVfunction: function(options={}) {
+        var o = hs.parseOptions(options);
+        switch (o.name) {
+          case 'k':
+          if (k > 0) {
+              o.desmos.setExpression({id:'3',label:('g(x) = |x| +'+' '+ o.value)});
+          }else if ( k < 0){
+            var Negk = -1*k;
+            o.desmos.setExpression({id:'3',label:('g(x) = |x| -'+' '+ o.value)});
+          }else {
+            o.desmos.setExpression({id:'3',label:('g(x) = |x|')});
+          }
+            break;  
+        };
+       }
+     };
+     /* ←— A0597514 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597514 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
