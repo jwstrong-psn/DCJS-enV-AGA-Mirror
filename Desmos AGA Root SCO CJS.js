@@ -1000,7 +1000,37 @@ PearsonGL.External.rootJS = (function() {
          })(varName);
      };
 
-    /* ←— A0598800 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0598801 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0598801 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variable
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        var o = hs.parseOptions(options);
+        vs[o.uniqueId] = {
+        };
+       },
+      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
+       | updates the labels of the function g(x) = |x - h|  with the value of "h"
+       |
+      
+       * ←———————————————————————————————————————————————————————————————————→ */
+       updateAVfunction: function(options={}) {
+        var o = hs.parseOptions(options);
+      
+        switch (o.name) {
+          case 'h':
+          if (o.value > 0) {
+              o.desmos.setExpression({id:'9',label:('g(x) = |x –'+' '+ o.value+'|')});
+          }else if ( o.value < 0){
+            o.desmos.setExpression({id:'9',label:('g(x) = |x +'+' '+ ((-1)*o.value)+'|')});
+          }else {
+            o.desmos.setExpression({id:'9',label:('g(x) = |x|')});}
+            break;  
+        };
+       }
+     };
+     /* ←— A0598800 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0598800 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variable
