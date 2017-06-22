@@ -603,8 +603,10 @@ PearsonGL.External.rootJS = (function() {
        shareState: function(options={}) {
         let o = hs.parseOptions(options);
         let myGuid = o.desmos.guid;
-        if (vs.shared[o.uniqueId] === undefined) vs.shared[o.uniqueId] = {sharingInstances:{},queuedActions:{},recentLoad:{}};
         let vars = vs.shared[o.uniqueId];
+        if (vars.sharingInstances === undefined) vars.sharingInstances={};
+        if (vars.sharingInstances === undefined) vars.recentLoad={};
+        if (vars.sharingInstances === undefined) vars.queuedActions={};
 
         vars.sharingInstances[myGuid] = o.desmos;
         if (vars.sharedState === undefined) {
