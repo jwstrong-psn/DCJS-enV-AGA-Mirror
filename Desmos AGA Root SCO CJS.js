@@ -1024,7 +1024,7 @@ PearsonGL.External.rootJS = (function() {
           if (o.value > 0) {
               o.desmos.setExpression({id:'4',label:('g(x) = |x| +'+' '+ o.value)});
           }else if ( o.value < 0){
-            o.desmos.setExpression({id:'4',label:('g(x) = |x| -'+' '+ ((-1)*o.value))});
+            o.desmos.setExpression({id:'4',label:('g(x) = |x| –'+' '+ ((-1)*o.value))});
           }else {
             o.desmos.setExpression({id:'4',label:('g(x) = |x|')});}
             break;  
