@@ -1024,11 +1024,11 @@ PearsonGL.External.rootJS = (function() {
         var o = hs.parseOptions(options);
         switch (o.name) {
           case 'k':
-          if (k > 0) {
+          if (o.value > 0) {
               o.desmos.setExpression({id:'3',label:('g(x) = |x| +'+' '+ o.value)});
-          }else if ( k < 0){
-            var Negk = -1*k;
-            o.desmos.setExpression({id:'3',label:('g(x) = |x| -'+' '+ o.value)});
+          }else if ( o.value < 0){
+            var Negk = -1*(o.value);
+            o.desmos.setExpression({id:'3',label:('g(x) = |x| -'+' '+ negK)});
           }else {
             o.desmos.setExpression({id:'3',label:('g(x) = |x|')});
           }
