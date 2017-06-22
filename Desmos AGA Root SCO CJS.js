@@ -1012,9 +1012,6 @@ PearsonGL.External.rootJS = (function() {
        },
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
        | updates the labels of the function g(x) = |x| + k with the value of "k"
-
-       |
-       | 
        |
        | Points P, Q, and M must be authored with showLabel:true, and the IDs
        |  P_point, Q_point, and M_point
@@ -1034,7 +1031,6 @@ PearsonGL.External.rootJS = (function() {
         };
        }
      };
-   };
 
      /* ←— A0597514 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597514 = {
