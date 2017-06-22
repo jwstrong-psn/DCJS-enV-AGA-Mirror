@@ -1029,7 +1029,7 @@ PearsonGL.External.rootJS = (function() {
               o.desmos.setExpression({id:'3',label:('g(x) = |x| +'+' '+ o.value)});
           }else if ( o.value < 0){
              Negk = -1*(o.value);
-            o.desmos.setExpression({id:'3',label:('g(x) = |x| -'+' '+ negK)});
+            o.desmos.setExpression({id:'3',label:('g(x) = |x| -'+' '+ NegK)});
           }else {
             o.desmos.setExpression({id:'3',label:('g(x) = |x|')});
           }
