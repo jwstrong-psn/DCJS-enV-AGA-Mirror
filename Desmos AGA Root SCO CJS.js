@@ -1052,7 +1052,7 @@ PearsonGL.External.rootJS = (function() {
         switch (o.name) {
           case 'a':
           
-            o.desmos.setExpression({id:'9',label:('g(x) ='+' '+0,value +'|x|')})
+            o.desmos.setExpression({id:'12',label:('g(x) ='+' '+0,value +'|x|')})
             break;  
         };
        }
