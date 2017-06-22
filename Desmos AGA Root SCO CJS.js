@@ -1030,6 +1030,35 @@ PearsonGL.External.rootJS = (function() {
         };
        }
      };
+
+/* ←— A0598803 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0598803 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variable
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        var o = hs.parseOptions(options);
+        vs[o.uniqueId] = {
+        };
+       },
+      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
+       | updates the labels of the function g(x) = a|x|  with the value of "a"
+       |
+      
+       * ←———————————————————————————————————————————————————————————————————→ */
+       updateAVfunction: function(options={}) {
+        var o = hs.parseOptions(options);
+      
+        switch (o.name) {
+          case 'a':
+          
+            o.desmos.setExpression({id:'9',label:('g(x) ='+' '+0,value +'|x|')})
+            break;  
+        };
+       }
+     };
+
+
      /* ←— A0598800 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0598800 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
