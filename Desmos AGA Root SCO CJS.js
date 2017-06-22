@@ -87,6 +87,7 @@ PearsonGL.External.rootJS = (function() {
             document.body.removeChild(element);
           };
         };
+        if(vs[output.uniqueId]===undefined) vs[output.uniqueId] = {};
         return output;
        },
       /* ←— updateExpForm —————————————————————————————————————————————————————→ *\
@@ -998,6 +999,18 @@ PearsonGL.External.rootJS = (function() {
             if (o.log) o.log('Saving value of ' + o.name + ' as vs.' + o.uniqueId + '.' + name);
            };
          })(varName);
+     };
+    /* ←— SHARED EXPRESSION FUNCTIONS —————————————————————————————————————→ */
+     fs.shared.expression = {
+      /* ←— showHide —————————————————————————————————————————————————————→ *\
+       | Show or hide an expression. Pass the expression id and 0 or 1 as value
+       |    0 is hidden
+       |    1 is visible
+       * ←————————————————————————————————————————————————————————————————→ */
+       showHide: function(options={}) {
+        let o = hs.parseOptions(options);
+        o.desmos.setExpression({id:o.id,hidden:(!(o.value))});
+       }
      };
 
     /* ←— A0598801 FUNCTIONS ——————————————————————————————————————————————→ */

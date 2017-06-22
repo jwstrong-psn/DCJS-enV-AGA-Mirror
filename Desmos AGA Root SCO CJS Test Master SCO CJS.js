@@ -55,7 +55,8 @@ PearsonGL.External.masterJS = (function() {
     shared:{ // Shared Helpers have functions that can be called by any Widget.
       init:{ // Initialization Helpers are called only once, using HelperExpression({latex:"1"})
         observeZoom:''}, // Tracks zoom level in units/px as x_{pxScale} and y_{pxScale}
-      label:{} // Label functions are used for labeling points with certain values
+      label:{}, // Label functions are used for labeling points with certain values
+      expression:{} // Expression functions are used for manipulating the expression list
     },
     sliderVal:function(val,name,desmos){return PearsonGL.External.rootJS.shared_label_valueOnly((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);}
   };
@@ -109,6 +110,8 @@ PearsonGL.External.masterJS = (function() {
   ts.shared.label.labelAngle = (val, name, desmos)=>PearsonGL.External.rootJS.shared_label_labelAngle((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
   ts.shared.label.labelTriAngles = (val, name, desmos)=>PearsonGL.External.rootJS.shared_label_labelTriAngles((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
+
+  ts.shared.expression.showHide = (val, name, desmos)=>PearsonGL.External.rootJS.shared_expression_showHide((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
   ts.A0597514_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597514_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
