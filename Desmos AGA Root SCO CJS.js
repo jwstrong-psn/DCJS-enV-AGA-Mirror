@@ -1022,12 +1022,13 @@ PearsonGL.External.rootJS = (function() {
        * ←———————————————————————————————————————————————————————————————————→ */
        updateAVfunction: function(options={}) {
         var o = hs.parseOptions(options);
+        var NegK =-1;
         switch (o.name) {
           case 'k':
           if (o.value > 0) {
               o.desmos.setExpression({id:'3',label:('g(x) = |x| +'+' '+ o.value)});
           }else if ( o.value < 0){
-            var Negk = -1*(o.value);
+             Negk = -1*(o.value);
             o.desmos.setExpression({id:'3',label:('g(x) = |x| -'+' '+ negK)});
           }else {
             o.desmos.setExpression({id:'3',label:('g(x) = |x|')});
