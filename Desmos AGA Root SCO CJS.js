@@ -1052,7 +1052,7 @@ PearsonGL.External.rootJS = (function() {
         switch (o.name) {
           case 'a':
           
-            o.desmos.setExpression({id:'12',label:('g(x) ='+' '+0.value +'|x|')})
+            o.desmos.setExpression({id:'12',label:('g(x) ='+' '+o.value +'|x|')})
             break;  
         };
        }
@@ -1528,8 +1528,8 @@ PearsonGL.External.rootJS = (function() {
           };
         }
      };
-           /* ←— A0598789 FUNCTIONS ——————————————————————————————————————————————→ */
-     fs.A0598789 = {
+           /* ←— A0598789A FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0598789A = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
        * ←———————————————————————————————————————————————————————————————————→ */
@@ -1548,11 +1548,48 @@ PearsonGL.External.rootJS = (function() {
         var o = hs.parseOptions(options);
         switch (o.name) {
           case 'a':
+          if (o.value > 0){
             o.desmos.setExpression({id:'467',label:('g(x) = '+ o.value +'|x|')});
+          }
+          else {
+            o.desmos.setExpression({id:'467',label:('g(x) = 0')});
+          }
             break;
           };
         }
      };
+
+           /* ←— A0598789B FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0598789B = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variables
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        var o = hs.parseOptions(options);
+        vs[o.uniqueId] = {
+        };
+       },
+      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
+       | updates the label of absolute value function h(x) = a|x|.
+       |       
+       | Hidden point must be authored with showLabel:true,
+       | and the ID 467
+       * ←———————————————————————————————————————————————————————————————————→ */
+       updateLabels: function(options={}) {
+        var o = hs.parseOptions(options);
+        switch (o.name) {
+          case 'a':
+          if(o.value < 0){
+            o.desmos.setExpression({id:'467',label:('h(x) = '+ o.value +'|x|')});
+            }
+            else{
+            o.desmos.setExpression({id:'467',label:('h(x) = 0')});
+            }
+            break;  
+          };
+        }
+     };
+
     /* ←— A0598652 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0598652 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
