@@ -87,6 +87,7 @@ PearsonGL.External.rootJS = (function() {
             document.body.removeChild(element);
           };
         };
+        if(vs[output.uniqueId]===undefined) vs[output.uniqueId] = {};
         return output;
        },
       /* ←— updateExpForm —————————————————————————————————————————————————————→ *\
@@ -182,7 +183,7 @@ PearsonGL.External.rootJS = (function() {
        * ←—————————————————————————————————————————————————————————————————————→ */
        latexToText: function(expr){
         expr = ''+expr;
-        expr = expr.replace(/([+=])/g,' $1 ');
+        expr = expr.replace(/([+=÷×])/g,' $1 ');
         expr = expr.replace(/,/g,', ');
         expr = expr.replace(/\^2/g,'²');
         expr = expr.replace(/\^3/g,'³');
@@ -602,8 +603,10 @@ PearsonGL.External.rootJS = (function() {
        shareState: function(options={}) {
         let o = hs.parseOptions(options);
         let myGuid = o.desmos.guid;
-        if (vs.shared[o.uniqueId] === undefined) vs.shared[o.uniqueId] = {sharingInstances:{},queuedActions:{},recentLoad:{}};
         let vars = vs.shared[o.uniqueId];
+        if (vars.sharingInstances === undefined) vars.sharingInstances={};
+        if (vars.sharingInstances === undefined) vars.recentLoad={};
+        if (vars.sharingInstances === undefined) vars.queuedActions={};
 
         vars.sharingInstances[myGuid] = o.desmos;
         if (vars.sharedState === undefined) {
@@ -998,6 +1001,18 @@ PearsonGL.External.rootJS = (function() {
             if (o.log) o.log('Saving value of ' + o.name + ' as vs.' + o.uniqueId + '.' + name);
            };
          })(varName);
+     };
+    /* ←— SHARED EXPRESSION FUNCTIONS —————————————————————————————————————→ */
+     fs.shared.expression = {
+      /* ←— showHide —————————————————————————————————————————————————————→ *\
+       | Show or hide an expression. Pass the expression id and 0 or 1 as value
+       |    0 is hidden
+       |    1 is visible
+       * ←————————————————————————————————————————————————————————————————→ */
+       showHide: function(options={}) {
+        let o = hs.parseOptions(options);
+        o.desmos.setExpression({id:o.id,hidden:(!(o.value))});
+       }
      };
 
     /* ←— A0598801 FUNCTIONS ——————————————————————————————————————————————→ */
@@ -1963,6 +1978,7 @@ PearsonGL.External.rootJS = (function() {
        equation: function(options={}) {
         var o = hs.parseOptions(options);
         o.desmos.setExpression({id:'equation',latex:'\\frac{180\\left('+o.value+'-2\\right)}{'+o.value+'}'});
+        o.desmos.setExpression({id:'centroid',label:hs.latexToText('180⋅\\left('+o.value+'-2\\right)÷'+o.value+'='+(Math.round(18000*(o.value-2)/o.value)/100))});
        }
      };
 
@@ -2142,7 +2158,7 @@ PearsonGL.External.rootJS = (function() {
     /* ←— A0597629 FUNCTIONS ——————————————————————————————————————————————→ */
       cs.A0597629 = {
         MAX_VERTICES:14,
-        RADIUS:10,
+        RADIUS:5,
         INITIAL_COORDINATES_PRECISION:6,
         DRAG_BUFFER:0.25,
         DRAG_BUFFER_REBOUND:0.1, // How much to bounce back when going past the buffer
@@ -2580,7 +2596,7 @@ PearsonGL.External.rootJS = (function() {
     /* ←— A0597630 FUNCTIONS ——————————————————————————————————————————————→ */
       cs.A0597630 = {
         MAX_VERTICES:14,
-        RADIUS:4,
+        RADIUS:5,
         INITIAL_COORDINATES_PRECISION:6,
         ANGLE_PRECISION:2,
         DRAG_BUFFER:0.25,
@@ -2686,8 +2702,15 @@ PearsonGL.External.rootJS = (function() {
         var expr = '';
         for (var j = 1;j <= n;j++) expr+=((vars[vars.polygonName+'_angles'][hs.ALPHA[j]]/Math.pow(10,cons.ANGLE_PRECISION))+'+');
         expr = expr.slice(0,expr.length-1);
-        o.desmos.setExpression({id:'sum',latex:expr});
-        o.desmos.setExpression({id:'product',latex:'180\\left('+n+'-2\\right)'});
+        o.desmos.setExpressions([{id:'sum',latex:expr},
+          {
+            id:'centroid-1',
+            label:'180'/*+'°'*/+'⋅('+n+' − 2) = '+(180*(n-2))/*+'°'*/
+          },
+          {
+            id:'centroid',
+            label:hs.latexToText(expr+'='+(180*(n-2)))
+          },{id:'product',latex:'180\\left('+n+'-2\\right)'}]);
 
         hfs.n.observe('numericValue.switchingPolygon',function(){
           fs.A0597630.switchPolygon({
@@ -2942,8 +2965,15 @@ PearsonGL.External.rootJS = (function() {
         var expr = '';
         for (var j = 1;j <= n;j++) expr+=((vars[vars.polygonName+'_angles'][hs.ALPHA[j]]/Math.pow(10,cons.ANGLE_PRECISION))+'+');
         expr = expr.slice(0,expr.length-1);
-        o.desmos.setExpression({id:'sum',latex:expr});
-        o.desmos.setExpression({id:'product',latex:'180\\left('+n+'-2\\right)'});
+        o.desmos.setExpressions([{id:'sum',latex:expr},
+          {
+            id:'centroid-1',
+            label:'180'/*+'°'*/+'⋅('+n+' − 2) = '+(180*(n-2))/*+'°'*/
+          },
+          {
+            id:'centroid',
+            label:hs.latexToText(expr+'='+(180*(n-2)))
+          },{id:'product',latex:'180\\left('+n+'-2\\right)'}]);
 
         if (constrained == newPoint) {
           fs.A0597630.clearPlaceholder(o);
@@ -3032,14 +3062,14 @@ PearsonGL.External.rootJS = (function() {
           id:'y_centroid',
           latex:x_centroid.replace(/x/g,'y')
          });
-         exprs.push({
-          id:'centroid',
-          label:'180'/*+'°'*/+'⋅('+n+' − 2) = '+(180*(n-2))/*+'°'*/
-         });
-         exprs.push({
-          id:'centroid-1',
-          label:' ' // Placeholder (TK)
-         });
+         // exprs.push({
+         //  id:'centroid',
+         //  label:'180'/*+'°'*/+'⋅('+n+' − 2) = '+(180*(n-2))/*+'°'*/
+         // });
+         // exprs.push({
+         //  id:'centroid-1',
+         //  label:' ' // Placeholder (TK)
+         // });
 
         // o.log('Changed figures:',exprs);
 
@@ -3057,8 +3087,18 @@ PearsonGL.External.rootJS = (function() {
         var expr = '';
         for (var j = 1;j <= n;j++) expr+=((vars[vars.polygonName+'_angles'][hs.ALPHA[j]]/Math.pow(10,cons.ANGLE_PRECISION))+'+');
         expr = expr.slice(0,expr.length-1);
-        o.desmos.setExpression({id:'sum',latex:expr});
-        o.desmos.setExpression({id:'product',latex:'180\\left('+n+'-2\\right)'});
+        o.desmos.setExpressions([
+          {id:'sum',latex:expr},
+          {
+            id:'centroid',
+            label:hs.latexToText(expr+'='+(180*(n-2)))
+          },
+          {id:'product',latex:'180\\left('+n+'-2\\right)'},
+          {
+            id:'centroid-1',
+            label:'180'/*+'°'*/+'⋅('+n+' − 2) = '+(180*(n-2))/*+'°'*/
+          }
+          ]);
 
         exprs = [];
 
@@ -3203,6 +3243,7 @@ PearsonGL.External.rootJS = (function() {
         for (var j = 1;j <= n;j++) expr+=((Math.round(180*Math.pow(10,cons.ANGLE_PRECISION)-vars[vars.polygonName+'_angles'][hs.ALPHA[j]])/Math.pow(10,cons.ANGLE_PRECISION))+'+');
         expr = expr.slice(0,expr.length-1);
         o.desmos.setExpression({id:'sum',latex:expr});
+        o.desmos.setExpression({id:'centroid',label:hs.latexToText(expr+'=360')});
 
         hfs.n.observe('numericValue.switchingPolygon',function(){
           fs.A0597634.switchPolygon({
@@ -3492,6 +3533,7 @@ PearsonGL.External.rootJS = (function() {
         for (var j = 1;j <= n;j++) expr+=((Math.round(180*Math.pow(10,cons.ANGLE_PRECISION)-vars[vars.polygonName+'_angles'][hs.ALPHA[j]])/Math.pow(10,cons.ANGLE_PRECISION))+'+');
         expr = expr.slice(0,expr.length-1);
         o.desmos.setExpression({id:'sum',latex:expr});
+        o.desmos.setExpression({id:'centroid',label:hs.latexToText(expr+'=360')});
 
         if (constrained == newPoint) {
           fs.A0597634.clearPlaceholder(o);
@@ -3592,14 +3634,14 @@ PearsonGL.External.rootJS = (function() {
           id:'y_centroid',
           latex:x_centroid.replace(/x/g,'y')
          });
-         exprs.push({
-          id:'centroid',
-          label:'180'/*+'°'*/+'⋅('+n+' − 2) = '+(180*(n-2))/*+'°'*/
-         });
-         exprs.push({
-          id:'centroid-1',
-          label:' ' // Placeholder (TK)
-         });
+         // exprs.push({
+         //  id:'centroid',
+         //  label:'180'/*+'°'*/+'⋅('+n+' − 2) = '+(180*(n-2))/*+'°'*/
+         // });
+         // exprs.push({
+         //  id:'centroid-1',
+         //  label:' ' // Placeholder (TK)
+         // });
 
         // o.log('Changed figures:',exprs);
 
@@ -3618,6 +3660,7 @@ PearsonGL.External.rootJS = (function() {
         for (var j = 1;j <= n;j++) expr+=((Math.round(180*Math.pow(10,cons.ANGLE_PRECISION)-vars[vars.polygonName+'_angles'][hs.ALPHA[j]])/Math.pow(10,cons.ANGLE_PRECISION))+'+');
         expr = expr.slice(0,expr.length-1);
         o.desmos.setExpression({id:'sum',latex:expr});
+        o.desmos.setExpression({id:'centroid',label:hs.latexToText(expr+'=360')});
 
         exprs = [];
 
