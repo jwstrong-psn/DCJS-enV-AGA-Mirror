@@ -1251,6 +1251,111 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
+
+/* ←— A0598802 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0598802 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variables
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        var o = hs.parseOptions(options);
+        vs[o.uniqueId] = {
+          // try changing 'h' with it's id (4) instead same with "k" (3).
+          h:4,
+          k:-2
+        };
+
+       },
+      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
+       | updates the label of function based  the values of h and k 
+       | 
+       * ←———————————————————————————————————————————————————————————————————→ */
+       updateAVfunction: function(options={}) {
+        var o = hs.parseOptions(options);
+        var k = vs[o.uniqueId].k;
+        var h = vs[o.uniqueId].h;
+    
+        switch (o.name) {
+          case 'h':
+            vs[o.uniqueId].h = h = o.value;
+              if(k > 0){ 
+                if (h > 0){
+                  o.desmos.setExpression({id:7,label:'g(x) = |x – '+' '+ h + '| +'+ ' '+ k });
+                }
+                else if ( h < 0){
+                  o.desmos.setExpression({id:7,label:'g(x) = |x + '+' '+ (-1)*h + '| +'+ ' '+ k });
+                }
+                else{
+                   o.desmos.setExpression({id:7,label:'g(x) = |x| +'+ ' '+ k });
+                }
+              }
+              else if (k < 0){
+
+                if (h > 0){
+                  o.desmos.setExpression({id:7,label:'g(x) = |x – '+' '+ h + '| –'+ ' '+ (-1)*k });
+                }
+                else if ( h < 0){
+                  o.desmos.setExpression({id:7,label:'g(x) = |x + '+' '+ (-1)*h + '| –'+ ' '+(-1)*k });
+                }
+                else{
+                   o.desmos.setExpression({id:7,label:'g(x) = |x| –'+ ' '+(-1)*k });
+                }
+              }
+              else{
+                if (h > 0){
+                  o.desmos.setExpression({id:7,label:'g(x) = |x – '+' '+ h + '|'});
+                }
+                else if ( h < 0){
+                  o.desmos.setExpression({id:7,label:'g(x) = |x + '+' '+ (-1)*h + '|'});
+                }
+                else{
+                   o.desmos.setExpression({id:7,label:'g(x) = |x| '});
+                }
+              }
+            break;
+          case 'k':
+            vs[o.uniqueId].k = k = o.value;
+
+              if(h > 0){
+                if (k > 0){
+                  o.desmos.setExpression({id:7,label:'g(x) = |x – '+' '+ h + '| +'+ ' '+ k });
+                }
+                else if ( k < 0){
+                  o.desmos.setExpression({id:7,label:'g(x) = |x – '+' '+ h + '| –'+ ' '+ (-1)*k });
+                }
+                else{
+                   o.desmos.setExpression({id:7,label:'g(x) = |x – '+' '+ h +'|'});
+                }
+              }
+              else if (h < 0) {
+
+                if (k > 0){
+                  o.desmos.setExpression({id:7,label:'g(x) = |x + '+' '+ (-1)*h + '| +'+ ' '+ k });
+                }
+                else if ( k < 0){
+                  o.desmos.setExpression({id:7,label:'g(x) = |x + '+' '+ (-1)*h + '| –'+ ' '+ (-1)*k });
+                }
+                else{
+                   o.desmos.setExpression({id:7,label:'g(x) = |x + '+' '+ (-1)*h +'|'});
+                }
+              }
+              else {
+                if (k > 0){
+                  o.desmos.setExpression({id:7,label:'g(x) = |x|'+ ' '+'+'+' ' + k });
+                }
+                else if ( k < 0){
+                  o.desmos.setExpression({id:7,label:'g(x) = |x|'+ ' '+ '–' +' '+(-1)*k });
+                }
+                else{
+                   o.desmos.setExpression({id:7,label:'g(x) = |x|'});
+                }
+              }         
+            break;      
+          };
+         } 
+     };
+
+
     /* ←— A0597534 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597534 = {
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\

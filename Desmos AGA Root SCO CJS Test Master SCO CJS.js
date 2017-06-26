@@ -199,6 +199,10 @@ PearsonGL.External.masterJS = (function() {
 
   ts.A0598801_updateAVfunction = (val, name, desmos)=>PearsonGL.External.rootJS.A0598801_updateAVfunction((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
+   ts.A0598802_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0598802_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
+
+  ts.A0598802_updateAVfunction = (val, name, desmos)=>PearsonGL.External.rootJS.A0598802_updateAVfunction((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
+
 ts.A0598803_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0598803_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
   ts.A0598803_updateAVfunction = (val, name, desmos)=>PearsonGL.External.rootJS.A0598803_updateAVfunction((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
