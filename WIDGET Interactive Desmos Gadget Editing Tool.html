@@ -318,7 +318,7 @@
       });
 
       $("#download").click(function(){
-        window.download(window.calculator.getState());
+        window.download(window.calculator.getState({stripDefaults: false}));
       });
 
       $(".addHelper").click(function(event){
@@ -918,7 +918,7 @@
 
         this.saveCurrent = function(updateLibrary=true) {
           type = toolType;
-          state = window.calculator.getState();
+          state = window.calculator.getState({stripDefaults: false});
           width = desWidth;
           height = desHeight;
           helpers = [];
@@ -1326,12 +1326,12 @@
 
         window.calculator = null;
         if(window.Geo) {
-          geoPrevState = window.Geo.getState();
+          geoPrevState = window.Geo.getState({stripDefaults: false});
           window.Geo.detach();
           delete window.Geo;
         }
         if(window.Calc) {
-          calcPrevState = window.Calc.getState();
+          calcPrevState = window.Calc.getState({stripDefaults: false});
           delete window.Calc;
         }
         if($elt) $elt.remove();
@@ -1387,7 +1387,7 @@
           if (calcPrevState) window.calculator.setState(calcPrevState);
           else window.calculator.updateSettings(defaultGraphSettings);
           if (calcDefaultState) window.calculator.setDefaultState(calcDefaultState);
-          else window.calculator.setDefaultState(window.calculator.getState());
+          else window.calculator.setDefaultState(window.calculator.getState({stripDefaults: false}));
         } else if (type == 'geometry') {
           window.calculator = window.Geo = Desmos.Geometry($elt[0], window.currentGeoConstructors);
           window.calculator.setState(geoPrevState);
@@ -1518,7 +1518,7 @@
         window.setTimeout(function(){if(screen != window.calculator.screenshot({width:previewWidth,height:previewHeight})) autoSave();},LOADING_TIME_ALLOTMENT);
       };
       window.copyState = function() {
-        var currState = window.calculator.getState();
+        var currState = window.calculator.getState({stripDefaults: false});
         try {copy(JSON.stringify(currState));} catch(e) {};
         return currState;
       };
