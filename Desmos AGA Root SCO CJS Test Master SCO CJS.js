@@ -230,6 +230,10 @@ ts.A0598803_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0598803_init(
 
   ts.A0598832_regionsAddRemove = (val, name, desmos)=>PearsonGL.External.rootJS.A0598832_regionsAddRemove((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
+   ts.A0599213_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0599213_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
+
+  ts.A0599213_changeLineType = (val, name, desmos)=>PearsonGL.External.rootJS.A0599213_changeLineType((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
+
   ts.A0597616_label = (val, name, desmos)=>PearsonGL.External.rootJS.A0597616_label((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
   ts.A0597616_label_noCorrection = (val, name, desmos)=>PearsonGL.External.rootJS.A0597616_label_noCorrection((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
