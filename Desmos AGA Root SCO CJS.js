@@ -5706,7 +5706,70 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
-    /* ←— A0598832 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0599213 FUNCTIONS ——————————————————————————————————————————————→ */
+      cs.A0599213 = {
+        regionLatex:'\\left|x\\right|>-1L_1\\left(x,y,s_N,t_N\\right)L_2\\left(x,y,s_N,t_N\\right)L_3\\left(x,y,s_N,t_N\\right)L_4\\left(x,y,s_N,t_N\\right)'
+       };
+     fs.A0599213 = {
+      /* ←— init ——————————————————————————————————————————————————————→ *\
+       | Preps the watchers
+       * ←—————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        let o = hs.parseOptions(options);
+        vs[o.uniqueId] = {
+          lastPointCount:0,
+          /*hxs:{
+            x_c:o.desmos.HelperExpression({latex:'\\operatorname{mean}\\left(x_1,u_1,x_2,u_2,x_3,u_3,x_4,u_4\\right)'}),
+            y_c:o.desmos.HelperExpression({latex:'\\operatorname{mean}\\left(y_1,v_1,y_2,v_2,y_3,v_3,y_4,v_4\\right)'})
+          }*/
+        };
+       },
+      /* ←— changeLineType ————————————————————————————————————————————————→ *\
+       | Toggle switch should use -n and n to toggle line type on line n
+       | positive for SOLID, otherwise, DASHED
+       * ←—————————————————————————————————————————————————————————————————→ */
+       changeLineType: function(options={}) {
+        let o = hs.parseOptions(options);
+        o.desmos.setExpression({
+          id:o.id,
+          style:((o.value>0)?cs.enum.lineType.SOLID:cs.enum.lineType.DASHED)
+        });
+       },
+      /* ←— changeStep ——————————————————————————————————————————————————————→ *\
+       | Switches to the next step.
+       * ←—————————————————————————————————————————————————————————————————→ */
+       regionsAddRemove: function(options={}) {
+        let o = hs.parseOptions(options);
+        let cons = cs.A0599213;
+        let vars = vs[o.uniqueId];
+        //let x_c = vars.hxs.x_c.numericValue;
+        //let y_c = vars.hxs.y_c.numericValue;
+        let exprs = [];
+
+        // Add
+        for(let i = vars.lastPointCount+1; i <= o.value; i++) {
+          exprs.push(
+            {id:('R_'+i),hidden:false},//,latex:cons.regionLatex.replace(/_N/g,hs.sub('',i))},
+            {id:('T_'+i),hidden:false}
+           );
+         }
+
+        // Remove
+        for(let i = o.value+1; i <= vars.lastPointCount; i++) {
+          exprs.push(
+            {id:('T_'+i),hidden:true},
+            {id:('R_'+i),hidden:true},//,latex:'1'}
+           );
+         }
+
+        vars.lastPointCount = o.value;
+
+        o.desmos.setExpressions(exprs);
+       }
+     };
+
+
+     /* ←— A0598832 FUNCTIONS ——————————————————————————————————————————————→ */
       cs.A0598832 = {
         regionLatex:'\\left|x\\right|>-1L_1\\left(x,y,s_N,t_N\\right)L_2\\left(x,y,s_N,t_N\\right)L_3\\left(x,y,s_N,t_N\\right)L_4\\left(x,y,s_N,t_N\\right)'
        };
