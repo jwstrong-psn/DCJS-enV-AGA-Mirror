@@ -1355,6 +1355,102 @@ PearsonGL.External.rootJS = (function() {
          } 
      };
 
+/* ←— A0597205 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0597205 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variables
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        var o = hs.parseOptions(options);
+        vs[o.uniqueId] = {
+          // try changing 'h' with it's id (4) instead same with "k" (3).
+          a:1,
+          b:1,
+          c:1
+        };
+
+       },
+      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
+       | updates the label of function based  the values of a and b 
+       | 
+       * ←———————————————————————————————————————————————————————————————————→ */
+       updateLabels: function(options={}) {
+        var o = hs.parseOptions(options);
+        var a = vs[o.uniqueId].a;
+        var b = vs[o.uniqueId].b;
+        var c = vs[o.uniqueId].c;
+    
+        switch (o.name) {
+          case 'a':
+              vs[o.uniqueId].a = a = o.value;
+                // check the sign of b. //
+                if (b >= 0){
+                   var bShow = b; 
+                   var bOp = '+';        
+                    }
+                else {
+                    var bShow = (-1)*b;
+                    var bOp = '–';
+                    }
+                    // check the sign of c.//
+                if (c >= 0){
+                   var cShow = c; 
+                   var cOp = '+';        
+                    }
+                else {
+                    var cShow = (-1)*c;
+                    var cOp = '–';
+                    } 
+              o.desmos.setExpression({id:390,label:'f(x) = '+ a +'x²'+ ' '+  bOp +' '+ bShow + 'x '+''+ cOp + ' '+ cShow});     
+          break;
+          case 'b':
+            vs[o.uniqueId].b = b = o.value;
+             // check the sign of b. //
+                if (b >= 0){
+                   var bShow = b; 
+                   var bOp = '+';        
+                    }
+                else {
+                    var bShow = (-1)*b;
+                    var bOp = '–';
+                    }
+                    // check the sign of c.//
+                if (c >= 0){
+                   var cShow = c; 
+                   var cOp = '+';        
+                    }
+                else {
+                    var cShow = (-1)*c;
+                    var cOp = '–';
+                    } 
+            o.desmos.setExpression({id:390,label:'f(x) = '+ a +'x²'+ ' '+  bOp +' '+ bShow + 'x '+''+ cOp + ' '+ cShow}); 
+          break;  
+          case 'c':
+           vs[o.uniqueId].c = c = o.value;
+              // check the sign of b. //
+                if (b >= 0){
+                   var bShow = b; 
+                   var bOp = '+';        
+                    }
+                else {
+                    var bShow = (-1)*b;
+                    var bOp = '–';
+                    }
+                    // check the sign of c.//
+                if (c >= 0){
+                   var cShow = c; 
+                   var cOp = '+';        
+                    }
+                else {
+                    var cShow = (-1)*c;
+                    var cOp = '–';
+                    } 
+              o.desmos.setExpression({id:390,label:'f(x) = '+ a +'x²'+ ' '+  bOp +' '+ bShow + 'x '+''+ cOp + ' '+ cShow}); 
+          break;     
+          };
+         } 
+     };
+
 
     /* ←— A0597534 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597534 = {
