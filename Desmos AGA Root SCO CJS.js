@@ -1452,6 +1452,45 @@ PearsonGL.External.rootJS = (function() {
      };
 
 
+    /* ←— A0596342 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0596342 = {
+      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
+       | updates the label of f(x) based on value of a
+       |
+       | Hidden point must be authored with showLabel:true,
+       | and the ID 17
+       * ←———————————————————————————————————————————————————————————————————→ */
+       updateLabels: function(options={}) {
+        var o = hs.parseOptions(options);
+        switch (o.name) {
+          case 'a':
+            o.desmos.setExpression({id:'17',label:('f(x) = '+o.value+'x²')});
+            break;
+          };
+        }
+     };
+
+
+    /* ←— A0596342_2 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0596342_2 = {
+      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
+       | updates the label of f(x) based on value of a
+       |
+       | Hidden point must be authored with showLabel:true,
+       | and the ID 17
+       * ←———————————————————————————————————————————————————————————————————→ */
+       updateLabels: function(options={}) {
+        var o = hs.parseOptions(options);
+        switch (o.name) {
+          case 'a':
+            o.desmos.setExpression({id:'21',label:('y = '+o.value+'x²')});
+            o.desmos.setExpression({id:'20',label:('f(x) = −'+o.value+'x²')});
+            break;
+          };
+        }
+     };
+
+
     /* ←— A0597534 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597534 = {
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
