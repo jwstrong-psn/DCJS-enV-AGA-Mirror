@@ -1159,38 +1159,6 @@ PearsonGL.External.rootJS = (function() {
      };
 
 
-    /* ←— A0597714 FUNCTIONS ——————————————————————————————————————————————→ */
-     fs.A0597714 = {
-      /* ←— init ————————————————————————————————————————————————————————————→ *\
-       | Initializes the variables
-       * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        var o = hs.parseOptions(options);
-        vs[o.uniqueId] = {          
-        };
-       },
-      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
-       | updates the labels of GH and DF
-       |
-       | Hidden points J and K must be authored with showLabel:true,
-       | and the IDs J and K
-       * ←———————————————————————————————————————————————————————————————————→ */
-       updateLabels: function(options={}) {
-        var o = hs.parseOptions(options);
-        switch (o.name) {
-          case 'D_1':
-            vs[o.uniqueId].D_1 = D_1 = o.value;
-            o.desmos.setExpression({id:'J',label:(o.value)});
-            break;
-          case 'D_2':
-            log:console.log(o.value);
-            vs[o.uniqueId].D_2 = D_2 = o.value;
-            o.desmos.setExpression({id:'K',label:(o.value)});
-            break;
-          };
-        }
-     };
-
     /* ←— A0597552 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597552 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
@@ -2021,6 +1989,32 @@ PearsonGL.External.rootJS = (function() {
           }
         }
        }
+     };
+
+    /* ←— A0596347 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0596347 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variables
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        var o = hs.parseOptions(options);
+        vs[o.uniqueId] = {
+        };
+       },
+      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
+       | updates the blue equation label 
+       |       
+       | Hidden point must be authored with showLabel:true,
+       | and the ID 782
+       * ←———————————————————————————————————————————————————————————————————→ */
+       updateLabels: function(options={}) {
+        var o = hs.parseOptions(options);
+        switch (o.name) {
+          case 'c':
+            o.desmos.setExpression({id:'782',label:'y = –2x² + 4x + '+o.value});
+            break;
+          };
+        }
      };
 
     /* ←— A0597720 FUNCTIONS ——————————————————————————————————————————————→ */
