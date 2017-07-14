@@ -1543,6 +1543,113 @@ PearsonGL.External.rootJS = (function() {
         }
      };
 
+/* ←— A0597220 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0597220 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variables
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        var o = hs.parseOptions(options);
+        vs[o.uniqueId] = {
+        };
+       },
+      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
+       | update function could be used later
+       |
+       | H
+       * ←———————————————————————————————————————————————————————————————————→ */
+       simulation: function(options={}) {
+        var o = hs.parseOptions(options);
+
+        var p = vs[o.uniqueId].p;
+       
+        switch (o.name) {
+          case 'p':
+
+              vs[o.uniqueId].p = p = o.value;
+           
+            break;
+          case 'N_{ewSample}':
+
+          var n;
+          var sample;
+          var numberofSamples = 1000;
+          var sim;
+          var numberofSims = 1000;
+          var pSim;
+         // var p = .55; 
+          var pCount;
+          var simProportions =[];
+          var simMax;
+          var simMin;
+          var histMax;
+          var histMin;
+          var histBandWidth;
+          var histLeft =[];
+          var histRight = [];
+          var histFreq = [];
+
+//outer loop
+          for(sim = 0; sim < numberofSims ; sim++){
+  
+              // inner loop
+            pCount = 0;
+            for (sample = 0; sample < numberofSamples; sample++){
+              n = Math.floor(Math.random()*101);
+              if (n <= p * 100){
+              pCount++;
+              }
+            } // end of inner loop.
+          pSim = Math.round(100 *(pCount/numberofSamples))/100;
+          simProportions[sim] = pSim;
+          }
+          
+
+//functions for min and max of sim array.
+            function getMaxofArray(numArray){
+              return Math.max.apply(null, simProportions);
+            }
+            function getMinofArray(numArray){
+              return Math.min.apply(null, simProportions);
+}
+// compute parameters for histogram from data.
+          simMax = getMaxofArray(simProportions);
+          simMin = getMinofArray(simProportions);
+          histMin = Math.floor(10 * simMin)/10;
+          histMax = Math.ceil(10 * simMax)/10;
+          histBandWidth = Math.round(10*(histMax-histMin))/100;
+//
+
+// build the histogram intervals in the arrays.
+          for (i = 0; i < 10; i++){
+            histLeft[i] = Math.round(100*(histMin + (i * histBandWidth)))/100;
+            histRight[i] = Math.round(100*(histMin + ((i + 1) * histBandWidth)))/100;
+          }
+//clear the frequency table.
+          for (i = 0; i < 10; i++){
+            histFreq [i]= 0;
+              }
+// gather the frequencies.
+
+          for (i = 0; i < 10; i++){
+            //out loop for each interval.
+            for (j = 0; j < numberofSims; j++){
+              if (simProportions[j]>= histLeft [i] && simProportions[j] < histRight[i]){
+                histFreq [i]++;
+              }
+            }
+          }
+o.desmos.setExpression({id: 'list1', latex: 'L = ['+ (histLeft) +']'});
+o.desmos.setExpression({id: 'list2', latex: 'R = ['+ (histRight) +']'});
+o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
+
+            break;
+          };
+        }
+     };
+
+
+
     /* ←— A0597538 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597538 = {
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
