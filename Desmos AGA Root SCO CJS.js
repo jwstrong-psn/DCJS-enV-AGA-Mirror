@@ -1615,8 +1615,22 @@ PearsonGL.External.rootJS = (function() {
 // compute parameters for histogram from data.
           simMax = getMaxofArray(simProportions);
           simMin = getMinofArray(simProportions);
-          histMin = Math.floor(10 * simMin)/10;
-          histMax = Math.ceil(10 * simMax)/10;
+          //old code when rounded to the nearest tenth. trying different approach for tighter ///histogram.
+        //  histMin = Math.floor(10 * simMin)/10;
+      //    histMax = Math.ceil(10 * simMax)/10;
+          if(Math.floor(simMin*100) % 2 === 0){
+              histMin = Math.floor(simMin*100)/100;
+              }
+          else{
+              histMin = (Math.floor(simMin*100)-1)/100;         
+              }
+          if(Math.ceil(simMax*100) % 2 === 0){
+              histMax = (Math.ceil(simMax*100))/100;
+              }
+          else{
+              histMax = (Math.ceil(simMax*100)+1)/100;         
+              }
+
           histBandWidth = Math.round(10*(histMax-histMin))/100;
 //
 
