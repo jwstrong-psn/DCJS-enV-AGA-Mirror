@@ -1711,7 +1711,7 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
         }
      };
 
- /* ←— A0598945 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0598945 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0598945 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
@@ -1736,7 +1736,8 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
           };
         }
      };
-      /* ←— A0596417 FUNCTIONS ——————————————————————————————————————————————→ */
+
+    /* ←— A0596417 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0596417 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
@@ -1762,7 +1763,7 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
         }
      };
 
- /* ←— A0596417_MO2 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0596417_MO2 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0596417_MO2 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
@@ -1799,16 +1800,16 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
             myPop[i]=Math.floor(Math.random()*100)+1;
         }
 
-      // create list of population in Desmos
+       // create list of population in Desmos
         
         o.desmos.setExpression({id: 'list11', latex: `P=${arrayToList(myPop)}`});
 
-      // Large loop to repeat n trials to create n sample means.//
-      // Use t as the "trial" variable.//
+       // Large loop to repeat n trials to create n sample means.//
+       // Use t as the "trial" variable.//
 
         for(t = 0; t < n; t++){
   
-      //take a random sample//
+       //take a random sample//
   
           for (i = 0; i < n; i++){
               sampleList[i]=myPop[Math.floor(Math.random()*(n-1))+1]; 
@@ -1823,11 +1824,11 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
             meansList[t]= sampleMean;
         }
   
-//create list of sample in Desmos.
+       //create list of sample in Desmos.
   
         o.desmos.setExpression({id: 'list12', latex: `S=${arrayToList(sampleList)}`});
 
-//create list of sample Means in Desmos.
+       //create list of sample Means in Desmos.
 
           o.desmos.setExpression({id: 'list13', latex: `M=${arrayToList(meansList)}`});
 
@@ -1837,7 +1838,7 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
         }
      };
 
-     /* ←— A0596417_MO FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0596417_MO FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0596417_MO = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
@@ -1872,7 +1873,8 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
           };
         }
      };
-           /* ←— A0598789A FUNCTIONS ——————————————————————————————————————————————→ */
+
+    /* ←— A0598789A FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0598789A = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
@@ -2441,6 +2443,45 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
           });
         });
       }
+     };
+
+    /* ←— A0598839 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0598839 = {
+      /* ←— init ——————————————————————————————————————————————————————————→ *\
+       | sets the
+       * ←—————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        let o = hs.parseOptions(options);
+        let vars = vs[o.uniqueId] = {
+          orange:1,
+          blue:1
+        };
+       },
+       orange: function(options={}) {
+        let o = hs.parseOptions(options);
+        vs[o.uniqueId].orange = o.value;
+        fs['A0598839'].setPlanes(options);
+       },
+       blue: function(options={}) {
+        let o = hs.parseOptions(options);
+        vs[o.uniqueId].blue = o.value;
+        fs['A0598839'].setPlanes(options);
+       },
+       setPlanes: function(options={}) {
+        let o = hs.parseOptions(options);
+        let orange = vs[o.uniqueId].orange;
+        let blue = vs[o.uniqueId].blue;
+
+        o.desmos.setExpressions([
+          {id:'orange_boundary',hidden:(!orange)},
+          {id:'blue_boundary',hidden:(!blue)},
+          {id:'intersection_line',hidden:(!orange || !blue)},
+          {id:'blue_intersection',hidden:(!orange || !blue)},
+          {id:'orange_intersection',hidden:(!orange || !blue)},
+          {id:'blue_plane',latex:('\\left|x\\right|+\\left|y\\right|>-1\\left\\{b_{lue}\\left(x,y\\right)=1\\right\\}'+(orange?'\\left\\{o_{range}\\left(x,y\\right)=-1:1,x_ia_{bove}D_{pl}\\left(\\left[x,y,1\\right],i_{ob}\\right)\\ge0:1\\right\\}':'')),hidden:(!blue)},
+          {id:'orange_plane',latex:('\\left|x\\right|+\\left|y\\right|>-1\\left\\{o_{range}\\left(x,y\\right)=1\\right\\}'+(blue?'\\left\\{b_{lue}\\left(x,y\\right)=-1:1,x_ia_{bove}D_{pl}\\left(\\left[x,y,1\\right],i_{ob}\\right)\\le0:1\\right\\}':'')),hidden:(!orange)}
+         ]);
+       }
      };
 
     /* ←— A0596385 FUNCTIONS ——————————————————————————————————————————————→ */
