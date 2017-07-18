@@ -1661,7 +1661,147 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
           };
         }
      };
+/* ←— A0597225 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0597225 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variables
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        var o = hs.parseOptions(options);
+        vs[o.uniqueId] = {
+          globalDiffArray:[],
+          histFreq:[]
+        };
+       },
+      /* ←— Resample ————————————————————————————————————————————————————→ *\
+       |
+       * ←———————————————————————————————————————————————————————————————————→ */
+       resample: function(options={}) {
+        var o = hs.parseOptions(options);
+        let vars = vs[o.uniqueId];
+    
+         var oGroup = [184, 186, 183, 182, 170, 182, 178, 170, 187, 185, 188, 183, 202, 188, 193, 182, 179, 190, 189, 164, 177, 173, 183, 172, 154, 177, 168, 180, 167, 170, 178, 180, 168, 178, 197, 188, 167, 174, 177, 173];
+        var assignGroup =[];
+        var assignSum;
+        var exGroup1 = [];
+        var exGroup2 = [];
 
+        var globalDiffArray=vars.globalDiffArray;
+  //  var globalDiffArray=[0];
+        var meanDiff;
+        var numberofResamples;
+        var histMin = -10;
+        var histMax = 10;
+        var histBandWidth = 2;
+        /// won't need to pass these once we're done if we build them into desmos.
+        var histLeft =[-10,-8,-6,-4,-2,0,2,4,6,8];
+        var histRight =[-8,-6,-4,-2,0,2,4,6,8,10];
+        var histFreq = vars.histFreq;
+        var arrayMean;
+        var arraySum;
+/* -----------------------------
+    first detect the switches for resampling.
+-------------------------------------------------*/
+       
+        switch (o.name) {          
+          case 'r_{sample1}':
+            numberofResamples = 1;
+            break;
+          case 'r_{sample10}':  
+            numberofResamples = 10;
+            break;
+          case 'r_{sample100}':  
+            numberofResamples = 100;
+            break;
+          case 'r_{sample1000}':  
+            numberofResamples = 1000;
+            break;
+        };
+/* -----------------------------------------------------
+   put the main program here
+-------------------------------------------------*/
+
+            function getArrayMean (arr){
+              arraySum = 0;
+              arrayMean = 0;
+              for (i = 0; i < arr.length; i++){
+               arraySum = arraySum + arr[i];  
+              }
+              arrayMean = arraySum/arr.length;
+              return arrayMean;
+            }
+
+            function resampleGroups(){
+                // zero the assignGroup array.
+
+                  for (i = 0; i < oGroup.length; i++){
+                   assignGroup[i]=0;
+                  }
+                  /* find the assignSum, randomly assign 1's and 2' with a mean of 
+                  1.5 so half go to 1 group and half go to group 2 */              
+                  assignSum = 0;
+                  while (assignSum != ((1.5)*(oGroup.length))){
+                    for (i = 0; i < oGroup.length; i++){
+                     // assign group as 1 or 2.
+                       assignGroup[i] = Math.round(Math.random()) + 1;
+                     }
+                    assignSum = 0;
+                     // compute the current assign sum do we have a even re-assignment?
+                    for (i = 0; i < oGroup.length; i++){
+                       assignSum = assignSum + assignGroup[i];
+                     }    
+                   }
+                   // clear the ex groups
+                   exGroup1 = [];
+                   exGroup2 = [];
+                   /* place the data into the new resampled groups. if assignGroup is 1 place in group 1, else place in group 2. */    
+
+                   for (i = 0; i < oGroup.length; i++){
+                     
+                      if(assignGroup[i]== 1){
+                        exGroup1.push(oGroup[i]);
+                      }
+                      else {
+                       exGroup2.push(oGroup[i]);
+                      }
+                    }
+                }   
+/* -------------------------------------------------------------
+ The main loop 
+---------------------------------------------------------------*/
+
+        for (j = 0; j < numberofResamples; j++){
+            resampleGroups();
+            meanDiff = Math.round(100*(getArrayMean(exGroup1)-getArrayMean(exGroup2)))/100;
+            globalDiffArray.push(meanDiff);
+        }
+/* ----------------------------------------------------------
+  Compute the global mean which has to get passed back to desmos to get displayed as vertical line.
+-----------------------------------------------*/
+    globalMean = Math.round(100*getArrayMean(globalDiffArray))/100;   
+/*-------------------------------------------------------
+
+ Build the histogram. for each interval j 1 to 10.. 
+ check the global diff array ..first clear the frequency table.
+------------------------------------------------------------------*/
+      for (j =0; j < 10 ; j++){
+        histFreq[j] = 0;
+       }
+
+    for (j = 0; j < 10 ; j++){
+      for(k = 0 ; k < globalDiffArray.length ; k ++){
+        if(globalDiffArray[k] >= histLeft[j] && globalDiffArray[k] < histRight[j] ){
+          histFreq[j]++;
+        } 
+      }
+    }
+    vars.globalDiffArray = globalDiffArray;
+    vars.histFreq = histFreq;
+ //passs freq list and global mean back to desmos
+o.desmos.setExpression({id: '427', latex: 'F = ['+ (vars.histFreq)+ ']'}); 
+o.desmos.setExpression({id: '500', latex: 'm = '+ globalMean}); 
+        }
+     };
 
 
     /* ←— A0597538 FUNCTIONS ——————————————————————————————————————————————→ */
