@@ -1693,7 +1693,6 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
         var histMin = -10;
         var histMax = 10;
         var histBandWidth = 2;
-        /// won't need to pass these once we're done if we build them into desmos.
         var histLeft =[-10,-8,-6,-4,-2,0,2,4,6,8];
         var histRight =[-8,-6,-4,-2,0,2,4,6,8,10];
         var histFreq = vars.histFreq;
