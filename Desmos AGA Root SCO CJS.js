@@ -1673,6 +1673,27 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
           histFreq:[]
         };
        },
+       /*---------------------------------------------------------------
+            Additional function to reset histogram.
+       ------------------------------------------------*/
+       histReset: function(options={}) {
+        var o = hs.parseOptions(options);
+        let vars = vs[o.uniqueId];
+        var globalDiffArray=vars.globalDiffArray;
+        var histFreq = vars.histFreq;
+        switch (o.name) {
+          case 'h_{istReset}':
+            globalDiffArray = [];
+            histFreq =[0,0,0,0,0,0,0,0,0,0];
+           
+              //passs zero-ed freq list and global mean back to desmos
+            o.desmos.setExpression({id: '427', latex: 'F = ['+ (histFreq)+ ']'}); 
+              //o.desmos.setExpression({id: '500', latex: 'm = '+ globalMean});
+              vars.globalDiffArray = globalDiffArray;  
+              vars.histFreq = histFreq; 
+          break;
+          };
+       },
       /* ←— Resample ————————————————————————————————————————————————————→ *\
        |
        * ←———————————————————————————————————————————————————————————————————→ */
@@ -1776,8 +1797,9 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
         }
 /* ----------------------------------------------------------
   Compute the global mean which has to get passed back to desmos to get displayed as vertical line.
+  -- on hold for now - per Rich's comments.
 -----------------------------------------------*/
-    globalMean = Math.round(100*getArrayMean(globalDiffArray))/100;   
+ //   globalMean = Math.round(100*getArrayMean(globalDiffArray))/100;   
 /*-------------------------------------------------------
 
  Build the histogram. for each interval j 1 to 10.. 
@@ -1796,9 +1818,9 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
     }
     vars.globalDiffArray = globalDiffArray;
     vars.histFreq = histFreq;
- //passs freq list and global mean back to desmos
+ //passs freq list --(and global mean )---- back to desmos
 o.desmos.setExpression({id: '427', latex: 'F = ['+ (vars.histFreq)+ ']'}); 
-o.desmos.setExpression({id: '500', latex: 'm = '+ globalMean}); 
+// o.desmos.setExpression({id: '500', latex: 'm = '+ globalMean}); 
         }
      };
 
