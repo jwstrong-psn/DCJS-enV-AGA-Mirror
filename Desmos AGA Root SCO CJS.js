@@ -196,7 +196,7 @@ PearsonGL.External.rootJS = (function() {
         expr = expr.replace(/\\left\(/g,'(');
         expr = expr.replace(/\\right/g,'');
         expr = expr.replace(/\\left/g,'');
-        expr = expr.replace(/([^   (\[{])\-/g,'$1 − ');
+        expr = expr.replace(/([^   (\[\{])\-/g,'$1 − ');
         expr = expr.replace(/\-/g,'−');
         return expr;
        },
@@ -3296,15 +3296,15 @@ o.desmos.setExpression({id: '500', latex: 'm = '+ globalMean});
         // Attach the angle label to the placeholder
         o.desmos.setExpression({
           id:'m_'+hs.ALPHA[i],
-          latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',0)).replace(/Z/g,hs.sub('',i%n+1)).replace(/W/g,'P').replace(/Q/g,hs.ALPHA[(i+n-2)%n+1]).replace(/S/g,hs.ALPHA[i%n+1]).replace(/P_{label/g,hs.ALPHA[i]+'_{label')
+          latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',0)).replace(/Z/g,hs.sub('',i%n+1)).replace(/W/g,'P').replace(/Q/g,hs.ALPHA[(i+n-2)%n+1]).replace(/S/g,hs.ALPHA[i%n+1]).replace(/P_\{label/g,hs.ALPHA[i]+'_{label')
         });
         o.desmos.setExpression({
           id:'m_'+hs.ALPHA[(i+n-2)%n+1],
-          latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',((i+n-2)%n+1))).replace(/Z/g,hs.sub('',0)).replace(/W/g,hs.ALPHA[(i+n-2)%n+1]).replace(/Q/g,'P').replace(/S/g,hs.ALPHA[(i+n-3)%n+1]).replace(/P_{label/g,hs.ALPHA[(i+n-2)%n+1]+'_{label')
+          latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',((i+n-2)%n+1))).replace(/Z/g,hs.sub('',0)).replace(/W/g,hs.ALPHA[(i+n-2)%n+1]).replace(/Q/g,'P').replace(/S/g,hs.ALPHA[(i+n-3)%n+1]).replace(/P_\{label/g,hs.ALPHA[(i+n-2)%n+1]+'_{label')
         });
         o.desmos.setExpression({
           id:'m_'+hs.ALPHA[i%n+1],
-          latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',i%n+1)).replace(/Z/g,hs.sub('',(i+1)%n+1)).replace(/W/g,hs.ALPHA[i%n+1]).replace(/Q/g,hs.ALPHA[(i+1)%n+1]).replace(/S/g,'P').replace(/P_{label/g,hs.ALPHA[i%n+1]+'_{label')
+          latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',i%n+1)).replace(/Z/g,hs.sub('',(i+1)%n+1)).replace(/W/g,hs.ALPHA[i%n+1]).replace(/Q/g,hs.ALPHA[(i+1)%n+1]).replace(/S/g,'P').replace(/P_\{label/g,hs.ALPHA[i%n+1]+'_{label')
         });
 
         // Attach the vertex to its edges and diagonals
@@ -3377,11 +3377,11 @@ o.desmos.setExpression({id: '500', latex: 'm = '+ globalMean});
         });
         o.desmos.setExpression({
           id:'m_'+hs.ALPHA[(i+n-2)%n+1],
-          latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',((i+n-2)%n+1))).replace(/Z/g,hs.sub('',i)).replace(/W/g,hs.ALPHA[(i+n-2)%n+1]).replace(/Q/g,hs.ALPHA[i]).replace(/S/g,hs.ALPHA[(i+n-3)%n+1]).replace(/P_{label/g,hs.ALPHA[(i+n-2)%n+1]+'_{label')
+          latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',((i+n-2)%n+1))).replace(/Z/g,hs.sub('',i)).replace(/W/g,hs.ALPHA[(i+n-2)%n+1]).replace(/Q/g,hs.ALPHA[i]).replace(/S/g,hs.ALPHA[(i+n-3)%n+1]).replace(/P_\{label/g,hs.ALPHA[(i+n-2)%n+1]+'_{label')
         });
         o.desmos.setExpression({
           id:'m_'+hs.ALPHA[i%n+1],
-          latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',i%n+1)).replace(/Z/g,hs.sub('',(i+1)%n+1)).replace(/W/g,hs.ALPHA[i%n+1]).replace(/Q/g,hs.ALPHA[(i+1)%n+1]).replace(/S/g,hs.ALPHA[i]).replace(/P_{label/g,hs.ALPHA[i%n+1]+'_{label')
+          latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',i%n+1)).replace(/Z/g,hs.sub('',(i+1)%n+1)).replace(/W/g,hs.ALPHA[i%n+1]).replace(/Q/g,hs.ALPHA[(i+1)%n+1]).replace(/S/g,hs.ALPHA[i]).replace(/P_\{label/g,hs.ALPHA[i%n+1]+'_{label')
         });
 
         hfs.correctionBuffer = window.setTimeout(function(){vars.belayCorrection = false;},cs.delay.SET_EXPRESSION);
@@ -3829,15 +3829,15 @@ o.desmos.setExpression({id: '500', latex: 'm = '+ globalMean});
         // Attach the angle label to the placeholder
         o.desmos.setExpression({
           id:'m_'+hs.ALPHA[i],
-          latex:cs.A0597634.LABEL_TEMPLATE.replace(/U/g,hs.sub('',0)).replace(/Z/g,hs.sub('',i%n+1)).replace(/W/g,'P').replace(/Q/g,hs.ALPHA[(i+n-2)%n+1]).replace(/S/g,hs.ALPHA[i%n+1]).replace(/P_{label/g,hs.ALPHA[i]+'_{label')
+          latex:cs.A0597634.LABEL_TEMPLATE.replace(/U/g,hs.sub('',0)).replace(/Z/g,hs.sub('',i%n+1)).replace(/W/g,'P').replace(/Q/g,hs.ALPHA[(i+n-2)%n+1]).replace(/S/g,hs.ALPHA[i%n+1]).replace(/P_\{label/g,hs.ALPHA[i]+'_{label')
         });
         o.desmos.setExpression({
           id:'m_'+hs.ALPHA[(i+n-2)%n+1],
-          latex:cs.A0597634.LABEL_TEMPLATE.replace(/U/g,hs.sub('',((i+n-2)%n+1))).replace(/Z/g,hs.sub('',0)).replace(/W/g,hs.ALPHA[(i+n-2)%n+1]).replace(/Q/g,'P').replace(/S/g,hs.ALPHA[(i+n-3)%n+1]).replace(/P_{label/g,hs.ALPHA[(i+n-2)%n+1]+'_{label')
+          latex:cs.A0597634.LABEL_TEMPLATE.replace(/U/g,hs.sub('',((i+n-2)%n+1))).replace(/Z/g,hs.sub('',0)).replace(/W/g,hs.ALPHA[(i+n-2)%n+1]).replace(/Q/g,'P').replace(/S/g,hs.ALPHA[(i+n-3)%n+1]).replace(/P_\{label/g,hs.ALPHA[(i+n-2)%n+1]+'_{label')
         });
         o.desmos.setExpression({
           id:'m_'+hs.ALPHA[i%n+1],
-          latex:cs.A0597634.LABEL_TEMPLATE.replace(/U/g,hs.sub('',i%n+1)).replace(/Z/g,hs.sub('',(i+1)%n+1)).replace(/W/g,hs.ALPHA[i%n+1]).replace(/Q/g,hs.ALPHA[(i+1)%n+1]).replace(/S/g,'P').replace(/P_{label/g,hs.ALPHA[i%n+1]+'_{label')
+          latex:cs.A0597634.LABEL_TEMPLATE.replace(/U/g,hs.sub('',i%n+1)).replace(/Z/g,hs.sub('',(i+1)%n+1)).replace(/W/g,hs.ALPHA[i%n+1]).replace(/Q/g,hs.ALPHA[(i+1)%n+1]).replace(/S/g,'P').replace(/P_\{label/g,hs.ALPHA[i%n+1]+'_{label')
         });
 
         // Attach the vertex to its edges and diagonals
@@ -3927,11 +3927,11 @@ o.desmos.setExpression({id: '500', latex: 'm = '+ globalMean});
         });
         o.desmos.setExpression({
           id:'m_'+hs.ALPHA[(i+n-2)%n+1],
-          latex:cs.A0597634.LABEL_TEMPLATE.replace(/U/g,hs.sub('',((i+n-2)%n+1))).replace(/Z/g,hs.sub('',i)).replace(/W/g,hs.ALPHA[(i+n-2)%n+1]).replace(/Q/g,hs.ALPHA[i]).replace(/S/g,hs.ALPHA[(i+n-3)%n+1]).replace(/P_{label/g,hs.ALPHA[(i+n-2)%n+1]+'_{label')
+          latex:cs.A0597634.LABEL_TEMPLATE.replace(/U/g,hs.sub('',((i+n-2)%n+1))).replace(/Z/g,hs.sub('',i)).replace(/W/g,hs.ALPHA[(i+n-2)%n+1]).replace(/Q/g,hs.ALPHA[i]).replace(/S/g,hs.ALPHA[(i+n-3)%n+1]).replace(/P_\{label/g,hs.ALPHA[(i+n-2)%n+1]+'_{label')
         });
         o.desmos.setExpression({
           id:'m_'+hs.ALPHA[i%n+1],
-          latex:cs.A0597634.LABEL_TEMPLATE.replace(/U/g,hs.sub('',i%n+1)).replace(/Z/g,hs.sub('',(i+1)%n+1)).replace(/W/g,hs.ALPHA[i%n+1]).replace(/Q/g,hs.ALPHA[(i+1)%n+1]).replace(/S/g,hs.ALPHA[i]).replace(/P_{label/g,hs.ALPHA[i%n+1]+'_{label')
+          latex:cs.A0597634.LABEL_TEMPLATE.replace(/U/g,hs.sub('',i%n+1)).replace(/Z/g,hs.sub('',(i+1)%n+1)).replace(/W/g,hs.ALPHA[i%n+1]).replace(/Q/g,hs.ALPHA[(i+1)%n+1]).replace(/S/g,hs.ALPHA[i]).replace(/P_\{label/g,hs.ALPHA[i%n+1]+'_{label')
         });
 
         hfs.correctionBuffer = window.setTimeout(function(){vars.belayCorrection = false;},cs.delay.SET_EXPRESSION);
