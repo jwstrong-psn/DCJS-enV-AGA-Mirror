@@ -101,7 +101,7 @@ PearsonGL.External.rootJS = (function() {
        |  options: optional parameters object:
        |    signed: if true, prefixes positive results with '+'
        |    x: LaTeX string for the input of the function; entire input will be
-       |       surrounded by parens if it contains any of /[0-9.+-]/
+       |       surrounded by parens if it contains any of /[0-9.+\-]/
        |
        | @Returns: LaTeX string
        ↓ @Returns: false if form is not one of the given
@@ -174,7 +174,7 @@ PearsonGL.External.rootJS = (function() {
        ↓ 
        * ←—————————————————————————————————————————————————————————————————————→ */
        groupFactor: function(expr){
-        if (/[0-9.+-]/g.test((''+expr))) return '\\left\('+expr+'\\right\)';
+        if (/[0-9.+\-]/g.test((''+expr))) return '\\left\('+expr+'\\right\)';
         else return expr;
        },
       /* ←— latexToText ———————————————————————————————————————————————————————→ *\
