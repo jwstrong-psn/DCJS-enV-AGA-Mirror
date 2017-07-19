@@ -1818,9 +1818,115 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
     }
     vars.globalDiffArray = globalDiffArray;
     vars.histFreq = histFreq;
- //passs freq list --(and global mean )---- back to desmos
-o.desmos.setExpression({id: '427', latex: 'F = ['+ (vars.histFreq)+ ']'}); 
-// o.desmos.setExpression({id: '500', latex: 'm = '+ globalMean}); 
+      //passs freq list --(and global mean )---- back to desmos
+    o.desmos.setExpression({id: '427', latex: 'F = ['+ (vars.histFreq)+ ']'}); 
+
+        }
+     };
+
+/* ←— A0597227 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0597227 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variables
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        var o = hs.parseOptions(options);
+        vs[o.uniqueId] = {
+          meanNetPerGame:[],
+          n:1,
+          p:0.5,
+          A:0,
+          C:0
+        };
+       },
+      /* ←———————————————————————————————————————————————————→ *\
+       | update function could be used later
+       |
+       * ←———————————————————————————————————————————————————————————————————→ */
+       simulation: function(options={}) {
+        var o = hs.parseOptions(options);
+         
+            let vars = vs[o.uniqueId];  
+            var meanNetPerGame = vars.meanNetPerGame;
+
+        var win = false;
+        var net = 0;
+        var totalNet = 0;
+        var currentMeanNet = 0;
+        //var meanNetPerGame=[];
+        var xMeanNet =[];
+
+        var n = vs[o.uniqueId].n;
+        var p = vs[o.uniqueId].p;
+        var A = vs[o.uniqueId].A;
+        var C = vs[o.uniqueId].C;
+
+        switch (o.name) {
+          case 'n':
+              vs[o.uniqueId].n = n = o.value;             
+            break;
+          case 'p':
+              vs[o.uniqueId].p = p = o.value;             
+            break;
+          case 'A':
+              vs[o.uniqueId].A = A = o.value;             
+            break;
+          case 'C':
+              vs[o.uniqueId].C = C = o.value;              
+            break;
+          // this one runs the program.
+          case 'R_{unSimulation}':
+
+            meanNetPerGame=[];
+            xMeanNet =[];
+
+            for(i = 1 ; i <= n; i++){
+              // play the game, did you win?
+              r = Math.round(100*Math.random())/100;
+              // send r to Desmos for check.
+              o.desmos.setExpression({id: '610', latex: 'r_{and} ='+ r});
+               if(r <= p){
+                 win = true;                
+                  }
+               else{
+                 win = false;
+                  }
+              // compute winning/losses.      
+              if(win === true){
+                net = (-1) * C + A;
+                }
+              else{
+                net = (-1) * C;
+                }  
+                o.desmos.setExpression({id: '611', latex: 'n_{et} =' + net});         
+              // record the results. Compute the mean.  
+
+              totalNet = totalNet + net;
+              currentMeanNet = Math.round(100*(totalNet/i))/100; 
+              meanNetPerGame.push(currentMeanNet);
+
+              // send these to Desmos as a test.- it's working.
+              o.desmos.setExpression({id: '612', latex: 'c_{urrentttal} =' + totalNet}); 
+              o.desmos.setExpression({id: '613', latex: 'c_{urrentMn} =' + currentMeanNet});
+            }
+          /*-------------------------------------------------
+          Generate a string for a xvalues  from 1 to n. for the 
+          in the table to be sent to  Desmos.
+         ------------------------------------------------------- */
+              for (i = 0 ; i < meanNetPerGame.length; i++){
+                xMeanNet[i]=i+1;
+                 }
+                 console.log('xMeanNet = '+xMeanNet);console.log('meanNetPerGame = ' +meanNetPerGame);
+         // 
+            o.desmos.setExpression({id: '601', type: 'table', 
+              columns:[
+              {latex:'x',values: xMeanNet},
+              {latex:'y',values: meanNetPerGame,color:'#36C1CD', columnMode: 
+              Desmos.ColumnModes.LINES}
+              ]
+            });
+          break;
+          }
         }
      };
 
