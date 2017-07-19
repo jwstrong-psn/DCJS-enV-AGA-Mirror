@@ -20,7 +20,7 @@ PearsonGL.External.rootJS = (function() {
   /* ←—PRIVATE VARIABLES———————————————————————————————————————————————————→ *\
        | Variable cache; access with vs[uniqueId].myVariable
        * ←—————————————————————————————————————————————————————————————————→ */
-    var vs = {shared:{}}
+    var vs = {shared:{}};
   /* ←—PRIVATE HELPER FUNCTIONS————————————————————————————————————————————→ *\
        | Subroutines; access with hs.functionName(args)
        * ←—————————————————————————————————————————————————————————————————→ */
@@ -174,7 +174,7 @@ PearsonGL.External.rootJS = (function() {
        ↓ 
        * ←—————————————————————————————————————————————————————————————————————→ */
        groupFactor: function(expr){
-        if (/[0-9.+\-]/g.test((''+expr))) return '\\left\('+expr+'\\right\)';
+        if (/[0-9.+\-]/g.test((''+expr))) return '\\left('+expr+'\\right)';
         else return expr;
        },
       /* ←— latexToText ———————————————————————————————————————————————————————→ *\
@@ -187,8 +187,8 @@ PearsonGL.External.rootJS = (function() {
         expr = expr.replace(/,/g,', ');
         expr = expr.replace(/\^2/g,'²');
         expr = expr.replace(/\^3/g,'³');
-        expr = expr.replace(/\\theta ?/g,'θ');
-        expr = expr.replace(/\\pi ?/g,'π');
+        expr = expr.replace(/\\theta\s?/g,'θ');
+        expr = expr.replace(/\\pi\s?/g,'π');
         expr = expr.replace(/_0/g,'₀');
         expr = expr.replace(/_1/g,'₁');
         expr = expr.replace(/_2/g,'₂');
@@ -196,7 +196,7 @@ PearsonGL.External.rootJS = (function() {
         expr = expr.replace(/\\left\(/g,'(');
         expr = expr.replace(/\\right/g,'');
         expr = expr.replace(/\\left/g,'');
-        expr = expr.replace(/([^   (\[\{])\-/g,'$1 − ');
+        expr = expr.replace(/([^   (\[{])\-/g,'$1 − ');
         expr = expr.replace(/\-/g,'−');
         return expr;
        },
@@ -994,7 +994,7 @@ PearsonGL.External.rootJS = (function() {
           return function(options={}) {
             var o = hs.parseOptions(options);
             if (vs[o.uniqueId] === undefined) vs[o.uniqueId] = {};
-            var name = o.name.match(/(?:[a-zA-Z]|\\(?:alpha|beta|theta|phi|pi|tau) )_(?:{([a-zA-Z0-9]+)}|([a-zA-Z0-9]))/) || [];
+            var name = o.name.match(/(?:[a-zA-Z]|\\(?:alpha|beta|theta|phi|pi|tau)\s)_(?:\{([a-zA-Z0-9]+)\}|([a-zA-Z0-9]))/) || [];
             name = l+'_'+((name[1] === undefined) ? ((name[2] === undefined) ? '' : name[2]) : name[1]);
             if (name.length == 2) name = name[0];
             vs[o.uniqueId][name] = o.value;
