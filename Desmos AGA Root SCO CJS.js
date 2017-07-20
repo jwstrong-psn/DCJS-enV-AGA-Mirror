@@ -857,8 +857,8 @@ PearsonGL.External.rootJS = (function() {
               if(!(thisError<thatError)) {
                 // If the errors are the same, then prioritise the smaller relative error
                 if (thisError == thatError) {
-                  if (measure(name) == measure(sorted[i])) {if (2*Math.random()>1) {i++;}}
-                  else if ((measure(name) < measure(sorted[i])) == (thisError > 0)) {i++;}
+                  if (measure(name) == measure(sorted[i])) {if (2*Math.random()>1) {i+=1;}}
+                  else if ((measure(name) < measure(sorted[i])) == (thisError > 0)) {i+=1;}
                 }
                 sorted.splice(i,0,name);
                 break;
@@ -890,8 +890,8 @@ PearsonGL.External.rootJS = (function() {
           {
             adjusting = sorted.pop();
             o.log('Apparent sum of '+apparentSum+' too low; increasing value of angle '+adjusting+' by 1.');
-            p[adjusting]++;
-            apparentSum++;
+            p[adjusting]+=1;
+            apparentSum+=1;
           }
           if (sorted.length < 1) {o.log('Something went wrong trying to fix the angle lengths. Wound up with angle sum of '+apparentSum+' out of '+desiredSum+'. With angle measures:',p);}
           else {
@@ -963,11 +963,11 @@ PearsonGL.External.rootJS = (function() {
 
           o.log('Angle sum '+apparentSum+'° too small for expected sum of '+expectedSum+'°; increasing '+vals[pos]+' from '+vals[pos]+'.');
 
-          if (pos == 0) {prevVal++;}
-          else if (pos == 1) {val++;}
-          else {nextVal++;}
+          if (pos == 0) {prevVal+=1;}
+          else if (pos == 1) {val+=1;}
+          else {nextVal+=1;}
 
-          apparentSum++;
+          apparentSum+=1;
         }
 
         p[prev] = prevVal;
@@ -1613,7 +1613,7 @@ PearsonGL.External.rootJS = (function() {
             for (sample = 0; sample < numberofSamples; sample+=1){
               n = Math.floor(Math.random()*101);
               if (n <= p * 100){
-              pCount++;
+              pCount+=1;
               }
             } // end of inner loop.
           pSim = Math.round(100 *(pCount/numberofSamples))/100;
@@ -1665,7 +1665,7 @@ PearsonGL.External.rootJS = (function() {
             //out loop for each interval.
             for (j = 0; j < numberofSims; j+=1){
               if (simProportions[j]>= histLeft [i] && simProportions[j] < histRight[i]){
-                histFreq [i]++;
+                histFreq [i]+=1;
               }
             }
           }
@@ -1689,9 +1689,9 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
           histFreq:[]
         };
        },
-       /*---------------------------------------------------------------
+       /*———————————————————————————————————————————————————————————————
             Additional function to reset histogram.
-       ------------------------------------------------*/
+       ————————————————————————————————————————————————*/
        histReset: function(options={}) {
         var o = hs.parseOptions(options);
         let vars = vs[o.uniqueId];
@@ -1822,15 +1822,15 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
        }
 
     for (j = 0; j < 10 ; j+=1){
-      for(k = 0 ; k < globalDiffArray.length ; k ++){
+      for(k = 0 ; k < globalDiffArray.length ; k +=1){
         if(globalDiffArray[k] >= histLeft[j] && globalDiffArray[k] < histRight[j] ){
-          histFreq[j]++;
+          histFreq[j]+=1;
         } 
       }
     }
     vars.globalDiffArray = globalDiffArray;
     vars.histFreq = histFreq;
-      //passs freq list --(and global mean )---- back to desmos
+      //passs freq list ——(and global mean )———- back to desmos
     o.desmos.setExpression({id: '427', latex: 'F = ['+ (vars.histFreq)+ ']'}); 
 
         }
@@ -1891,7 +1891,7 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
             meanNetPerGame=[];
             xMeanNet =[];
 
-            for(i = 1 ; i <= n; i++){
+            for(i = 1 ; i <= n; i+=1){
               // play the game, did you win?
               r = Math.round(100*Math.random())/100;
                if(r <= p){
@@ -1914,11 +1914,11 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
             }
             //send the last point to Desmos.
              o.desmos.setExpression({id: '600', latex: '(' + n + ','+ ' '+ meanNetPerGame[n-1] +')', color: '#0092C8', showLabel:'true'});
-          /*-------------------------------------------------
+          /*————————————————————————————————————————————————-
           Generate a string for a xvalues  from 1 to n. for the 
           in the table to be sent to  Desmos.- this index was the problem before!
-         ------------------------------------------------------- */
-              for (i = 0 ; i < meanNetPerGame.length; i++){
+         ——————————————————————————————————————————————————————- */
+              for (i = 0 ; i < meanNetPerGame.length; i+=1){
                 xMeanNet[i]=i+1;
                  }
             // send the table to desmos. 
@@ -1929,9 +1929,9 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
               Desmos.ColumnModes.LINES}
               ]
             });
-           /*------------------------------------------------
+           /*————————————————————————————————————————————————
                code  to rescale the graph.
-           ---------------------------------------------------*/ 
+           ———————————————————————————————————————————————————*/ 
               leftBound = (-1)* n;
               rightBound = (n)*1.3;
               if (A > C){
@@ -5302,7 +5302,7 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
                 (i < Math.abs(baseP)-1) && 
                 (i < Math.abs(baseQ)-1) &&
                 (i < cons.MAX_ERROR));
-              i++
+              i+=1;
           ) {
 
             if (tangent) {
