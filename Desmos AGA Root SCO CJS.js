@@ -1831,30 +1831,29 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
        * ←———————————————————————————————————————————————————————————————————→ */
        init: function(options={}) {
         var o = hs.parseOptions(options);
-        vs[o.uniqueId] = {
-          meanNetPerGame:[],
+        vs[o.uniqueId] = {                
           n:1,
           p:0.5,
           A:0,
           C:0
         };
        },
-      /* ←———————————————————————————————————————————————————→ *\
-       | update function could be used later
-       |
-       * ←———————————————————————————————————————————————————————————————————→ */
+      //←———————————————————————————————————————————————————————————————————
        simulation: function(options={}) {
         var o = hs.parseOptions(options);
-         
-            let vars = vs[o.uniqueId];  
-            var meanNetPerGame = vars.meanNetPerGame;
-
+      
         var win = false;
         var net = 0;
         var totalNet = 0;
-        var currentMeanNet = 0;
-        //var meanNetPerGame=[];
+        var currentMeanNet = 0;   
+        var meanNetPerGame=[];
         var xMeanNet =[];
+
+        //vars for rescaling graph.
+        var leftBound;
+        var rightBound;
+        var topBound;
+        var bottomBound;
 
         var n = vs[o.uniqueId].n;
         var p = vs[o.uniqueId].p;
@@ -1883,8 +1882,6 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
             for(i = 1 ; i <= n; i++){
               // play the game, did you win?
               r = Math.round(100*Math.random())/100;
-              // send r to Desmos for check.
-              o.desmos.setExpression({id: '610', latex: 'r_{and} ='+ r});
                if(r <= p){
                  win = true;                
                   }
@@ -1897,39 +1894,56 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
                 }
               else{
                 net = (-1) * C;
-                }  
-                o.desmos.setExpression({id: '611', latex: 'n_{et} =' + net});         
+                }                       
               // record the results. Compute the mean.  
-
               totalNet = totalNet + net;
               currentMeanNet = Math.round(100*(totalNet/i))/100; 
               meanNetPerGame.push(currentMeanNet);
-
-              // send these to Desmos as a test.- it's working.
-              o.desmos.setExpression({id: '612', latex: 'c_{urrentttal} =' + totalNet}); 
-              o.desmos.setExpression({id: '613', latex: 'c_{urrentMn} =' + currentMeanNet});
             }
+            //send the last point to Desmos.
+             o.desmos.setExpression({id: '600', latex: '(' + n + ','+ ' '+ meanNetPerGame[n-1] +')', color: '#0092C8', showLabel:'true'});
           /*-------------------------------------------------
           Generate a string for a xvalues  from 1 to n. for the 
-          in the table to be sent to  Desmos.
+          in the table to be sent to  Desmos.- this index was the problem before!
          ------------------------------------------------------- */
               for (i = 0 ; i < meanNetPerGame.length; i++){
                 xMeanNet[i]=i+1;
                  }
-                 console.log('xMeanNet = '+xMeanNet);console.log('meanNetPerGame = ' +meanNetPerGame);
-         // 
+            // send the table to desmos. 
             o.desmos.setExpression({id: '601', type: 'table', 
               columns:[
               {latex:'x',values: xMeanNet},
-              {latex:'y',values: meanNetPerGame,color:'#36C1CD', columnMode: 
+              {latex:'y',values: meanNetPerGame,color:'#0092C8', columnMode: 
               Desmos.ColumnModes.LINES}
               ]
             });
+           /*------------------------------------------------
+               code  to rescale the graph.
+           ---------------------------------------------------*/ 
+              leftBound = (-1)* n;
+              rightBound = (n)*1.3;
+              if (A > C){
+                  bottomBound = (-1)* C * 1.3;
+                  topBound = Math.abs(A-C)* 1.3;
+                }
+              else if (A < C){
+                  bottomBound = (-1)* C * 1.3;
+                  topBound = Math.abs(A-C)* 1.3;
+              }
+              else{
+                  bottomBound = (-1)* C * 1.3;
+                  topBound = C * 1.3;
+              }  
+              o.desmos.setMathBounds({
+                left:leftBound,
+                right: rightBound,
+                bottom: bottomBound,
+                top: topBound
+              });
           break;
           }
         }
      };
-
 
     /* ←— A0597538 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597538 = {
