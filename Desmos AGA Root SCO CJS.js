@@ -1929,11 +1929,17 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
               else if (A < C){
                   bottomBound = (-1)* C * 1.3;
                   topBound = Math.abs(A-C)* 1.3;
-              }
+                }
               else{
-                  bottomBound = (-1)* C * 1.3;
-                  topBound = C * 1.3;
-              }  
+                  if (C === 0){
+                    bottomBound = -5;
+                    topBound = 5;
+                    }
+                  else{
+                    bottomBound = (-1)* C * 1.3;
+                    topBound = C * 1.3;
+                    }  
+                }  
               o.desmos.setMathBounds({
                 left:leftBound,
                 right: rightBound,
