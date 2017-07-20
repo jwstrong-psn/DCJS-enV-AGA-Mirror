@@ -1987,39 +1987,23 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
           y_6off:0,
           y_7off:0,
           y_8off:0,
-          y_9off:0
+          y_9off:0,
+
+          dpfx1y1:o.desmos.HelperExpression({latex:'d_{pf}\\left(x_1,y_1\\right)'}),
+          dpdx1y1:o.desmos.HelperExpression({latex:'d_{pd}\\left(x_1,y_1\\right)'})
         };
-       },
-      //←———————————————————————————————————————————————————————————————————
-       updateLabels: function(options={}) {
-        var o = hs.parseOptions(options);
-      
 
-        var n = vs[o.uniqueId].n;
-        var p = vs[o.uniqueId].p;
-        var A = vs[o.uniqueId].A;
-        var C = vs[o.uniqueId].C;
-
-        switch (o.name) {
-          case 'n':
-              vs[o.uniqueId].n = n = o.value;             
-            break;
-          case 'p':
-              vs[o.uniqueId].p = p = o.value;             
-            break;
-          case 'A':
-              vs[o.uniqueId].A = A = o.value;             
-            break;
-          case 'C':
-              vs[o.uniqueId].C = C = o.value;              
-            break;
-          // this one runs the program.
-          case 'R_{unSimulation}':
-          break;
+        vs[o.uniqueId].dpfx1y1.observe('numericValue',
+          function(){
+            o.desmos.setExpression({label:vs[o.uniqueId].dpfx1y1.numericValue,id:'513'});
+          });
+        vs[o.uniqueId].dpdx1y1.observe('numericValue',
+          function(){
+            o.desmos.setExpression({label:vs[o.uniqueId].dpdx1y1.numericValue,id:'514'});
           }
-        }
+        );
+       }   
      };
-
 
 
     /* ←— A0597538 FUNCTIONS ——————————————————————————————————————————————→ */
