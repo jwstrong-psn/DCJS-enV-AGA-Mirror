@@ -5302,7 +5302,7 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
                 (i < Math.abs(baseP)-1) && 
                 (i < Math.abs(baseQ)-1) &&
                 (i < cons.MAX_ERROR));
-              i+=1;
+              i+=1
           ) {
 
             if (tangent) {
