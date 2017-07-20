@@ -1951,6 +1951,65 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
         }
      };
 
+/* ←— A0597217 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0597217 = {
+       /* Initializes the variables
+       ←———————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        var o = hs.parseOptions(options);
+        vs[o.uniqueId] = {                
+          x_1off:0,
+          x_2off:0,
+          x_3off:0,
+          x_4off:0,
+          x_5off:0,
+          x_6off:0,
+          x_7off:0,
+          x_8off:0,
+          x_9off:0,
+          y_1off:0,
+          y_2off:0,
+          y_3off:0,
+          y_4off:0,
+          y_5off:0,
+          y_6off:0,
+          y_7off:0,
+          y_8off:0,
+          y_9off:0
+        };
+       },
+      //←———————————————————————————————————————————————————————————————————
+       updateLabels: function(options={}) {
+        var o = hs.parseOptions(options);
+      
+
+        var n = vs[o.uniqueId].n;
+        var p = vs[o.uniqueId].p;
+        var A = vs[o.uniqueId].A;
+        var C = vs[o.uniqueId].C;
+
+        switch (o.name) {
+          case 'n':
+              vs[o.uniqueId].n = n = o.value;             
+            break;
+          case 'p':
+              vs[o.uniqueId].p = p = o.value;             
+            break;
+          case 'A':
+              vs[o.uniqueId].A = A = o.value;             
+            break;
+          case 'C':
+              vs[o.uniqueId].C = C = o.value;              
+            break;
+          // this one runs the program.
+          case 'R_{unSimulation}':
+          break;
+          }
+        }
+     };
+
+
+
     /* ←— A0597538 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597538 = {
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
