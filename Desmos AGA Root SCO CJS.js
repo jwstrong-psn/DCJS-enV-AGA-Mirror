@@ -2002,39 +2002,120 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
           y_6off:0,
           y_7off:0,
           y_8off:0,
-          y_9off:0
+          y_9off:0,
+
+          dpfx1y1:o.desmos.HelperExpression({latex:'d_{pf}\\left(x_1,y_1\\right)'}),
+          dpdx1y1:o.desmos.HelperExpression({latex:'d_{pd}\\left(x_1,y_1\\right)'}),
+          dpfx2y2:o.desmos.HelperExpression({latex:'d_{pf}\\left(x_2,y_2\\right)'}),
+          dpdx2y2:o.desmos.HelperExpression({latex:'d_{pd}\\left(x_2,y_2\\right)'}),
+
+          dpfx3y3:o.desmos.HelperExpression({latex:'d_{pf}\\left(x_3,y_3\\right)'}),
+          dpdx3y3:o.desmos.HelperExpression({latex:'d_{pd}\\left(x_3,y_3\\right)'}),
+          
+          dpfx4y4:o.desmos.HelperExpression({latex:'d_{pf}\\left(x_4,y_4\\right)'}),
+          dpdx4y4:o.desmos.HelperExpression({latex:'d_{pd}\\left(x_4,y_4\\right)'}),
+
+          dpfx5y5:o.desmos.HelperExpression({latex:'d_{pf}\\left(x_5,y_5\\right)'}),
+          dpdx5y5:o.desmos.HelperExpression({latex:'d_{pd}\\left(x_5,y_5\\right)'}),
+
+          dpfx6y6:o.desmos.HelperExpression({latex:'d_{pf}\\left(x_6,y_6\\right)'}),
+          dpdx6y6:o.desmos.HelperExpression({latex:'d_{pd}\\left(x_6,y_6\\right)'}),
+
+          dpfx7y7:o.desmos.HelperExpression({latex:'d_{pf}\\left(x_7,y_7\\right)'}),
+          dpdx7y7:o.desmos.HelperExpression({latex:'d_{pd}\\left(x_7,y_7\\right)'}),
+
+         dpfx8y8:o.desmos.HelperExpression({latex:'d_{pf}\\left(x_8,y_8\\right)'}),
+          dpdx8y8:o.desmos.HelperExpression({latex:'d_{pd}\\left(x_8,y_8\\right)'}),
+
+          dpfx9y9:o.desmos.HelperExpression({latex:'d_{pf}\\left(x_9,y_9\\right)'}),
+          dpdx9y9:o.desmos.HelperExpression({latex:'d_{pd}\\left(x_9,y_9\\right)'})
         };
-       },
-      //←———————————————————————————————————————————————————————————————————
-       updateLabels: function(options={}) {
-        var o = hs.parseOptions(options);
-      
 
-        var n = vs[o.uniqueId].n;
-        var p = vs[o.uniqueId].p;
-        var A = vs[o.uniqueId].A;
-        var C = vs[o.uniqueId].C;
+        // for each point- two functions.
+        vs[o.uniqueId].dpfx1y1.observe('numericValue',
+          function(){
+            o.desmos.setExpression({label:vs[o.uniqueId].dpfx1y1.numericValue,id:'513'});
+          });
+        vs[o.uniqueId].dpdx1y1.observe('numericValue',
+          function(){
+            o.desmos.setExpression({label:vs[o.uniqueId].dpdx1y1.numericValue,id:'514'});
+          });
+        //
+        vs[o.uniqueId].dpfx2y2.observe('numericValue',
+          function(){
+            o.desmos.setExpression({label:vs[o.uniqueId].dpfx2y2.numericValue,id:'515'});
+          });
+        vs[o.uniqueId].dpdx2y2.observe('numericValue',
+          function(){
+            o.desmos.setExpression({label:vs[o.uniqueId].dpdx2y2.numericValue,id:'516'});
+          });
+        //
+        vs[o.uniqueId].dpfx3y3.observe('numericValue',
+          function(){
+            o.desmos.setExpression({label:vs[o.uniqueId].dpfx3y3.numericValue,id:'517'});
+          });
+        vs[o.uniqueId].dpdx3y3.observe('numericValue',
+          function(){
+            o.desmos.setExpression({label:vs[o.uniqueId].dpdx3y3.numericValue,id:'518'});
+          });
+        // - for p4
+        vs[o.uniqueId].dpfx4y4.observe('numericValue',
+          function(){
+            o.desmos.setExpression({label:vs[o.uniqueId].dpfx4y4.numericValue,id:'519'});
+          });
+        vs[o.uniqueId].dpdx4y4.observe('numericValue',
+          function(){
+            o.desmos.setExpression({label:vs[o.uniqueId].dpdx4y4.numericValue,id:'520'});
+          });
+        // for p5
+        vs[o.uniqueId].dpfx5y5.observe('numericValue',
+          function(){
+            o.desmos.setExpression({label:vs[o.uniqueId].dpfx5y5.numericValue,id:'521'});
+          });
+        vs[o.uniqueId].dpdx5y5.observe('numericValue',
+          function(){
+            o.desmos.setExpression({label:vs[o.uniqueId].dpdx5y5.numericValue,id:'522'});
+          });
+        // for p6.
+          vs[o.uniqueId].dpfx6y6.observe('numericValue',
+          function(){
+            o.desmos.setExpression({label:vs[o.uniqueId].dpfx6y6.numericValue,id:'523'});
+          });
+        vs[o.uniqueId].dpdx6y6.observe('numericValue',
+          function(){
+            o.desmos.setExpression({label:vs[o.uniqueId].dpdx6y6.numericValue,id:'524'});
+          });
+        // for p7.
+          vs[o.uniqueId].dpfx7y7.observe('numericValue',
+          function(){
+            o.desmos.setExpression({label:vs[o.uniqueId].dpfx7y7.numericValue,id:'525'});
+          });
+        vs[o.uniqueId].dpdx7y7.observe('numericValue',
+          function(){
+            o.desmos.setExpression({label:vs[o.uniqueId].dpdx7y7.numericValue,id:'526'});
+          });
+        //for p8.
+         vs[o.uniqueId].dpfx8y8.observe('numericValue',
+          function(){
+            o.desmos.setExpression({label:vs[o.uniqueId].dpfx8y8.numericValue,id:'527'});
+          });
+        vs[o.uniqueId].dpdx8y8.observe('numericValue',
+          function(){
+            o.desmos.setExpression({label:vs[o.uniqueId].dpdx8y8.numericValue,id:'528'});
+          });
+        // for p9.
+         vs[o.uniqueId].dpfx9y9.observe('numericValue',
+          function(){
+            o.desmos.setExpression({label:vs[o.uniqueId].dpfx9y9.numericValue,id:'529'});
+          });
+        vs[o.uniqueId].dpdx9y9.observe('numericValue',
+          function(){
+            o.desmos.setExpression({label:vs[o.uniqueId].dpdx9y9.numericValue,id:'530'});
+          });
 
-        switch (o.name) {
-          case 'n':
-              vs[o.uniqueId].n = n = o.value;             
-            break;
-          case 'p':
-              vs[o.uniqueId].p = p = o.value;             
-            break;
-          case 'A':
-              vs[o.uniqueId].A = A = o.value;             
-            break;
-          case 'C':
-              vs[o.uniqueId].C = C = o.value;              
-            break;
-          // this one runs the program.
-          case 'R_{unSimulation}':
-          break;
-          }
-        }
+
+       }   
      };
-
 
 
     /* ←— A0597538 FUNCTIONS ——————————————————————————————————————————————→ */
