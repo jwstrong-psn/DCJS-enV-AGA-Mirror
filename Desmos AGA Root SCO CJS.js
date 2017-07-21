@@ -2592,7 +2592,7 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(options={}) {
         let o = hs.parseOptions(options);
-        o.desmos.setExpression({id:'782',label:'y = –2x² + 4x + '+o.value});
+        o.desmos.setExpression({id:'782',label:'y = −2x² + 4x'+(o.value<0?' − '+(-o.value):(o.value>0?' + '+o.value:''))});
        }
      };
 
