@@ -2584,14 +2584,6 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
 
     /* ←— A0596347 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0596347 = {
-      /* ←— init ————————————————————————————————————————————————————————————→ *\
-       | Initializes the variables
-       * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
-        vs[o.uniqueId] = {
-        };
-       },
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
        | updates the blue equation label 
        |       
@@ -2600,12 +2592,8 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(options={}) {
         let o = hs.parseOptions(options);
-        switch (o.name) {
-          case 'c':
-            o.desmos.setExpression({id:'782',label:'y = –2x² + 4x + '+o.value});
-            break;
-          }
-        }
+        o.desmos.setExpression({id:'782',label:'y = –2x² + 4x + '+o.value});
+       }
      };
 
     /* ←— A0597720 FUNCTIONS ——————————————————————————————————————————————→ */
