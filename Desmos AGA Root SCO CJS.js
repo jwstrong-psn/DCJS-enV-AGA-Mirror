@@ -1992,25 +1992,7 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
        ←———————————————————————————————————————————————————————————————————→ */
        init: function(options={}) {
         let o = hs.parseOptions(options);
-        vs[o.uniqueId] = {                
-          x_1off:0,
-          x_2off:0,
-          x_3off:0,
-          x_4off:0,
-          x_5off:0,
-          x_6off:0,
-          x_7off:0,
-          x_8off:0,
-          x_9off:0,
-          y_1off:0,
-          y_2off:0,
-          y_3off:0,
-          y_4off:0,
-          y_5off:0,
-          y_6off:0,
-          y_7off:0,
-          y_8off:0,
-          y_9off:0,
+        vs[o.uniqueId] = {                  
 
           dpfx1y1:o.desmos.HelperExpression({latex:'d_{pf}\\left(x_1,y_1\\right)'}),
           dpdx1y1:o.desmos.HelperExpression({latex:'d_{pd}\\left(x_1,y_1\\right)'}),
@@ -2120,9 +2102,46 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
           function(){
             o.desmos.setExpression({label:vs[o.uniqueId].dpdx9y9.numericValue,id:'530'});
           });
+       },
+       /* if widget is unlocked, to change focus or directrix reset the 
+        the parabola points.*/
 
+       reset: function(options={}) {
+        let o = hs.parseOptions(options);
 
-       }   
+          console.log("new lock value is"+ ' '+ o.value);
+
+          if(vs[o.uniqueId].last_l_ock == 1 && o.value == 0){
+            // x1, y1 
+            o.desmos.setExpression({id: '507', latex: 'x_{1off} = 0', sliderBounds:{min: '-100', max: '100'}});
+            o.desmos.setExpression({id: '508', latex: 'y_{1off} = 0', sliderBounds:{min:'-100', max: '100'}});
+            // x2, y2
+            o.desmos.setExpression({id: '374', latex: 'x_{2off} = 0', sliderBounds:{min: '-100', max: '100'}});
+            o.desmos.setExpression({id: '373', latex: 'y_{2off} = 0', sliderBounds:{min:'-100', max: '100'}});
+             // x3, y3
+            o.desmos.setExpression({id: '379', latex: 'x_{3off} = 0', sliderBounds:{min: '-100', max: '100'}});
+            o.desmos.setExpression({id: '378', latex: 'y_{3off} = 0', sliderBounds:{min:'-100', max: '100'}});
+            // x4, y4
+            o.desmos.setExpression({id: '381', latex: 'x_{4off} = 0', sliderBounds:{min: '-100', max: '100'}});
+            o.desmos.setExpression({id: '380', latex: 'y_{4off} = 0', sliderBounds:{min:'-100', max: '100'}});
+            // x5, y5
+            o.desmos.setExpression({id: '383', latex: 'x_{5off} = 0', sliderBounds:{min: '-100', max: '100'}});
+            o.desmos.setExpression({id: '382', latex: 'y_{5off} = 0', sliderBounds:{min:'-100', max: '100'}});
+             // x6, y6
+              o.desmos.setExpression({id: '385', latex: 'x_{6off} = 0', sliderBounds:{min: '-100', max: '100'}});
+            o.desmos.setExpression({id: '384', latex: 'y_{6off} = 0', sliderBounds:{min:'-100', max: '100'}});
+            // x7, y7
+            o.desmos.setExpression({id: '387', latex: 'x_{7off} = 0', sliderBounds:{min: '-100', max: '100'}});
+            o.desmos.setExpression({id: '386', latex: 'y_{7off} = 0', sliderBounds:{min:'-100', max: '100'}});
+            // x8, y8
+            o.desmos.setExpression({id: '389', latex: 'x_{8off} = 0', sliderBounds:{min: '-100', max: '100'}});
+            o.desmos.setExpression({id: '388', latex: 'y_{8off} = 0', sliderBounds:{min:'-100', max: '100'}});
+            // x9, y9
+            o.desmos.setExpression({id: '391', latex: 'x_{9off} = 0', sliderBounds:{min: '-100', max: '100'}});
+            o.desmos.setExpression({id: '390', latex: 'y_{9off} = 0', sliderBounds:{min:'-100', max: '100'}});            
+            }         
+            vs[o.uniqueId].last_l_ock = o.value;
+        }
      };
 
 
