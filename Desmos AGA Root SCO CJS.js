@@ -1070,7 +1070,7 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
-/* ←— A0598803 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0598803 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0598803 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variable
@@ -1246,7 +1246,7 @@ PearsonGL.External.rootJS = (function() {
      };
 
 
-/* ←— A0598802 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0598802 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0598802 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
@@ -1350,7 +1350,7 @@ PearsonGL.External.rootJS = (function() {
          } 
      };
 
-/* ←— A0597206 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0597206 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597206 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
@@ -1578,7 +1578,7 @@ PearsonGL.External.rootJS = (function() {
         }
      };
 
-/* ←— A0597220 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0597220 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597220 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
@@ -1597,108 +1597,107 @@ PearsonGL.External.rootJS = (function() {
         let o = hs.parseOptions(options);
 
         let p = vs[o.uniqueId].p;
-       
+
         switch (o.name) {
           case 'p':
 
-              vs[o.uniqueId].p = o.value;
-              p = o.value;
-           
-            return;
+          vs[o.uniqueId].p = o.value;
+          p = o.value;
+
+          return;
           case 'N_{ewSample}':
-            break;
+          break;
           default:
-            return;
-          }
+          return;
+        }
 
-          let n;
-          let sample;
-          let numberofSamples = 1000;
-          let sim;
-          let numberofSims = 1000;
-          let pSim;
-         // let p = .55; 
-          let pCount;
-          let simProportions =[];
-          let simMax;
-          let simMin;
-          let histMax;
-          let histMin;
-          let histBandWidth;
-          let histLeft =[];
-          let histRight = [];
-          let histFreq = [];
+        let n;
+        let sample;
+        let numberofSamples = 1000;
+        let sim;
+        let numberofSims = 1000;
+        let pSim;
+        // let p = .55; 
+        let pCount;
+        let simProportions =[];
+        let simMax;
+        let simMin;
+        let histMax;
+        let histMin;
+        let histBandWidth;
+        let histLeft =[];
+        let histRight = [];
+        let histFreq = [];
 
-//outer loop
-          for(sim = 0; sim < numberofSims ; sim+=1){
-  
-              // inner loop
+        //outer loop
+        for(sim = 0; sim < numberofSims ; sim+=1){
+
+            // inner loop
             pCount = 0;
             for (sample = 0; sample < numberofSamples; sample+=1){
               n = Math.floor(Math.random()*101);
               if (n <= p * 100){
-              pCount+=1;
+                pCount+=1;
               }
-            } // end of inner loop.
+          } // end of inner loop.
           pSim = Math.round(100 *(pCount/numberofSamples))/100;
           simProportions[sim] = pSim;
-          }
-          
-
-//functions for min and max of sim array.
-            function getMaxofArray(numArray){
-              return Math.max.apply(null, simProportions);
-            }
-            function getMinofArray(numArray){
-              return Math.min.apply(null, simProportions);
-}
-// compute parameters for histogram from data.
-          simMax = getMaxofArray(simProportions);
-          simMin = getMinofArray(simProportions);
-          //old code when rounded to the nearest tenth. trying different approach for tighter ///histogram.
-        //  histMin = Math.floor(10 * simMin)/10;
-      //    histMax = Math.ceil(10 * simMax)/10;
-          if(Math.floor(simMin*100) % 2 === 0){
-              histMin = Math.floor(simMin*100)/100;
-              }
-          else{
-              histMin = (Math.floor(simMin*100)-1)/100;         
-              }
-          if(Math.ceil(simMax*100) % 2 === 0){
-              histMax = (Math.ceil(simMax*100))/100;
-              }
-          else{
-              histMax = (Math.ceil(simMax*100)+1)/100;         
-              }
-
-          histBandWidth = Math.round(10*(histMax-histMin))/100;
-//
-
-// build the histogram intervals in the arrays.
-          for (i = 0; i < 10; i+=1){
-            histLeft[i] = Math.round(100*(histMin + (i * histBandWidth)))/100;
-            histRight[i] = Math.round(100*(histMin + ((i + 1) * histBandWidth)))/100;
-          }
-//clear the frequency table.
-          for (i = 0; i < 10; i+=1){
-            histFreq [i]= 0;
-              }
-// gather the frequencies.
-
-          for (i = 0; i < 10; i+=1){
-            //out loop for each interval.
-            for (j = 0; j < numberofSims; j+=1){
-              if (simProportions[j]>= histLeft [i] && simProportions[j] < histRight[i]){
-                histFreq [i]+=1;
-              }
-            }
-          }
-o.desmos.setExpression({id: 'list1', latex: 'L = ['+ (histLeft) +']'});
-o.desmos.setExpression({id: 'list2', latex: 'R = ['+ (histRight) +']'});
-o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
+         }
+        //functions for min and max of sim array.
+        function getMaxofArray(numArray){
+          return Math.max.apply(null, simProportions);
         }
+        function getMinofArray(numArray){
+          return Math.min.apply(null, simProportions);
+        }
+        // compute parameters for histogram from data.
+        simMax = getMaxofArray(simProportions);
+        simMin = getMinofArray(simProportions);
+        //old code when rounded to the nearest tenth. trying different approach for tighter ///histogram.
+        //  histMin = Math.floor(10 * simMin)/10;
+        //    histMax = Math.ceil(10 * simMax)/10;
+        if(Math.floor(simMin*100) % 2 === 0){
+          histMin = Math.floor(simMin*100)/100;
+        }
+        else{
+          histMin = (Math.floor(simMin*100)-1)/100;         
+        }
+        if(Math.ceil(simMax*100) % 2 === 0){
+          histMax = (Math.ceil(simMax*100))/100;
+        }
+        else{
+          histMax = (Math.ceil(simMax*100)+1)/100;         
+        }
+
+        histBandWidth = Math.round(10*(histMax-histMin))/100;
+
+
+        // build the histogram intervals in the arrays.
+        for (i = 0; i < 10; i+=1){
+          histLeft[i] = Math.round(100*(histMin + (i * histBandWidth)))/100;
+          histRight[i] = Math.round(100*(histMin + ((i + 1) * histBandWidth)))/100;
+        }
+        //clear the frequency table.
+        for (i = 0; i < 10; i+=1){
+          histFreq [i]= 0;
+        }
+        // gather the frequencies.
+
+        for (i = 0; i < 10; i+=1){
+          //out loop for each interval.
+          for (j = 0; j < numberofSims; j+=1){
+            if (simProportions[j]>= histLeft [i] && simProportions[j] < histRight[i]){
+              histFreq [i]+=1;
+            }
+          }
+        }
+        o.desmos.setExpression({id: 'list1', latex: 'L = ['+ (histLeft) +']'});
+        o.desmos.setExpression({id: 'list2', latex: 'R = ['+ (histRight) +']'});
+        o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
+      }
      };
-/* ←— A0597225 FUNCTIONS ——————————————————————————————————————————————→ */
+
+    /* ←— A0597225 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597225 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
@@ -1710,9 +1709,9 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
           histFreq:[]
         };
        },
-       /*———————————————————————————————————————————————————————————————
-            Additional function to reset histogram.
-       ————————————————————————————————————————————————*/
+      /*———————————————————————————————————————————————————————————————
+       |    Additional function to reset histogram.
+       *————————————————————————————————————————————————*/
        histReset: function(options={}) {
         let o = hs.parseOptions(options);
         let vars = vs[o.uniqueId];
@@ -1738,14 +1737,14 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
         let o = hs.parseOptions(options);
         let vars = vs[o.uniqueId];
     
-         let oGroup = [184, 186, 183, 182, 170, 182, 178, 170, 187, 185, 188, 183, 202, 188, 193, 182, 179, 190, 189, 164, 177, 173, 183, 172, 154, 177, 168, 180, 167, 170, 178, 180, 168, 178, 197, 188, 167, 174, 177, 173];
+        let oGroup = [184, 186, 183, 182, 170, 182, 178, 170, 187, 185, 188, 183, 202, 188, 193, 182, 179, 190, 189, 164, 177, 173, 183, 172, 154, 177, 168, 180, 167, 170, 178, 180, 168, 178, 197, 188, 167, 174, 177, 173];
         let assignGroup =[];
         let assignSum;
         let exGroup1 = [];
         let exGroup2 = [];
 
         let globalDiffArray=vars.globalDiffArray;
-  //  let globalDiffArray=[0];
+        //  let globalDiffArray=[0];
         let meanDiff;
         let numberofResamples;
         let histMin = -10;
@@ -1756,9 +1755,9 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
         let histFreq = vars.histFreq;
         let arrayMean;
         let arraySum;
-/* —————————————————————————————
-    first detect the switches for resampling.
-—————————————————————————————————————————————————*/
+        /* —————————————————————————————
+            first detect the switches for resampling.
+        —————————————————————————————————————————————————*/
        
         switch (o.name) {          
           case 'r_{sample1}':
@@ -1774,90 +1773,90 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
             numberofResamples = 1000;
             break;
         }
-/* —————————————————————————————————————————————————————
-   put the main program here
-—————————————————————————————————————————————————*/
+        /* —————————————————————————————————————————————————————
+         put the main program here
+         —————————————————————————————————————————————————*/
 
-            function getArrayMean (arr){
-              arraySum = 0;
-              arrayMean = 0;
-              for (i = 0; i < arr.length; i+=1){
-               arraySum = arraySum + arr[i];  
-              }
-              arrayMean = arraySum/arr.length;
-              return arrayMean;
-            }
+        function getArrayMean (arr){
+          arraySum = 0;
+          arrayMean = 0;
+          for (i = 0; i < arr.length; i+=1){
+           arraySum = arraySum + arr[i];  
+          }
+          arrayMean = arraySum/arr.length;
+          return arrayMean;
+        }
 
-            function resampleGroups(){
-                // zero the assignGroup array.
+        function resampleGroups(){
+          // zero the assignGroup array.
 
-                  for (i = 0; i < oGroup.length; i+=1){
-                   assignGroup[i]=0;
-                  }
-                  /* find the assignSum, randomly assign 1's and 2' with a mean of 
-                  1.5 so half go to 1 group and half go to group 2 */              
-                  assignSum = 0;
-                  while (assignSum !== ((1.5)*(oGroup.length))){
-                    for (i = 0; i < oGroup.length; i+=1){
-                     // assign group as 1 or 2.
-                       assignGroup[i] = Math.round(Math.random()) + 1;
-                     }
-                    assignSum = 0;
-                     // compute the current assign sum do we have a even re-assignment?
-                    for (i = 0; i < oGroup.length; i+=1){
-                       assignSum = assignSum + assignGroup[i];
-                     }    
-                   }
-                   // clear the ex groups
-                   exGroup1 = [];
-                   exGroup2 = [];
-                   /* place the data into the new resampled groups. if assignGroup is 1 place in group 1, else place in group 2. */    
+          for (i = 0; i < oGroup.length; i+=1){
+           assignGroup[i]=0;
+          }
+          /* find the assignSum, randomly assign 1's and 2' with a mean of 
+          1.5 so half go to 1 group and half go to group 2 */              
+          assignSum = 0;
+          while (assignSum !== ((1.5)*(oGroup.length))){
+            for (i = 0; i < oGroup.length; i+=1){
+              // assign group as 1 or 2.
+              assignGroup[i] = Math.round(Math.random()) + 1;
+             }
+            assignSum = 0;
+             // compute the current assign sum do we have a even re-assignment?
+            for (i = 0; i < oGroup.length; i+=1){
+              assignSum = assignSum + assignGroup[i];
+             }    
+           }
+          // clear the ex groups
+          exGroup1 = [];
+          exGroup2 = [];
+          /* place the data into the new resampled groups. if assignGroup is 1 place in group 1, else place in group 2. */    
 
-                   for (i = 0; i < oGroup.length; i+=1){
-                     
-                      if(assignGroup[i] === 1){
-                        exGroup1.push(oGroup[i]);
-                      }
-                      else {
-                       exGroup2.push(oGroup[i]);
-                      }
-                    }
-                }   
-/* —————————————————————————————————————————————————————————————
- The main loop 
-———————————————————————————————————————————————————————————————*/
+          for (i = 0; i < oGroup.length; i+=1){
+            
+             if(assignGroup[i] === 1){
+               exGroup1.push(oGroup[i]);
+             }
+             else {
+              exGroup2.push(oGroup[i]);
+             }
+           }
+          }   
+        /* —————————————————————————————————————————————————————————————
+         The main loop 
+        ———————————————————————————————————————————————————————————————*/
 
         for (j = 0; j < numberofResamples; j+=1){
             resampleGroups();
             meanDiff = Math.round(100*(getArrayMean(exGroup1)-getArrayMean(exGroup2)))/100;
             globalDiffArray.push(meanDiff);
         }
-/* ——————————————————————————————————————————————————————————
-  Compute the global mean which has to get passed back to desmos to get displayed as vertical line.
+        /* ——————————————————————————————————————————————————————————
+          Compute the global mean which has to get passed back to desmos to get displayed as vertical line.
 
- Build the histogram. for each interval j 1 to 10.. 
- check the global diff array ..first clear the frequency table.
-——————————————————————————————————————————————————————————————————*/
-      for (j =0; j < 10 ; j+=1){
-        histFreq[j] = 0;
-       }
+         Build the histogram. for each interval j 1 to 10.. 
+         check the global diff array ..first clear the frequency table.
+        ——————————————————————————————————————————————————————————————————*/
+        for (j =0; j < 10 ; j+=1){
+          histFreq[j] = 0;
+         }
 
-    for (j = 0; j < 10 ; j+=1){
-      for(k = 0 ; k < globalDiffArray.length ; k +=1){
-        if(globalDiffArray[k] >= histLeft[j] && globalDiffArray[k] < histRight[j] ){
-          histFreq[j]+=1;
-        } 
-      }
-    }
-    vars.globalDiffArray = globalDiffArray;
-    vars.histFreq = histFreq;
-      //passs freq list ——(and global mean )———- back to desmos
-    o.desmos.setExpression({id: '427', latex: 'F = ['+ (vars.histFreq)+ ']'}); 
-
+        for (j = 0; j < 10 ; j+=1){
+          for(k = 0 ; k < globalDiffArray.length ; k +=1){
+            if(globalDiffArray[k] >= histLeft[j] && globalDiffArray[k] < histRight[j] ){
+              histFreq[j]+=1;
+            } 
+          }
         }
+        vars.globalDiffArray = globalDiffArray;
+        vars.histFreq = histFreq;
+          //passs freq list ——(and global mean )———- back to desmos
+        o.desmos.setExpression({id: '427', latex: 'F = ['+ (vars.histFreq)+ ']'}); 
+
+       }
      };
 
-/* ←— A0597227 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0597227 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597227 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
@@ -1986,7 +1985,7 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
         }
      };
 
-/* ←— A0597217 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0597217 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597217 = {
        /* Initializes the variables
        ←———————————————————————————————————————————————————————————————————→ */
