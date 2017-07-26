@@ -394,7 +394,7 @@ PearsonGL.External.rootJS = (function() {
         return {x:x/z,y:y/z};
        },
       /* ←— number to letter (lowercase) —————————————————————————————————→ *\
-       | Convert a number to its lowercase letter with `cs.alpha[n]`
+       | Convert a number to its lowercase letter with cs.alpha[n]`
        * ←————————————————————————————————————————————————————————————————→ */
        alpha:(function(x){
         let func=function(x){return func[x];};
@@ -2143,7 +2143,6 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
             vs[o.uniqueId].last_l_ock = o.value;
         }
      };
-
 
     /* ←— A0597538 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597538 = {
