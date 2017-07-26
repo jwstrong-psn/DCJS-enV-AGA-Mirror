@@ -2193,7 +2193,7 @@ o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
         let o = hs.parseOptions(options);
         switch (o.name) {
           case 'a':
-            o.desmos.setExpression({id:'394',label:('y = '+o.value+'cos x')});
+            o.desmos.setExpression({id:'394',label:('y = '+o.value+' cos x')});
             break;
           }
         }
