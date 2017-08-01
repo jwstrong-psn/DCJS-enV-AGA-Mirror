@@ -977,8 +977,11 @@
           // NEW CLOUDINARY STUFF
           if (cloudinaryUpload && position !== -1) {
 
+            $gui.css("background","silver");
+
             cloudinaryUpload.one('fileuploaddone',function(e,data){
               $('#'+id+'_img').attr("src",data.result.secure_url);
+              $gui.css("background","white");
               if (updateLibrary) updateStorage();
             });
 
