@@ -7,8 +7,12 @@
   <link href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css" rel="stylesheet" type="text/css" />
   <script src="https://code.jquery.com/jquery-3.1.0.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src='./cloudinary/jquery.ui.widget.js' type='text/javascript'></script>
+  <script src='./cloudinary/jquery.iframe-transport.js' type='text/javascript'></script>
+  <script src='./cloudinary/jquery.fileupload.js' type='text/javascript'></script>
+  <script src='./cloudinary/jquery.cloudinary.js' type='text/javascript'></script>
   <!--script src="https://www.desmos.com/api/v0.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script-->
-  <script src="./desmos/calculator.2017-05-11.js"></script>
+  <script src="./desmos/calculator.2017-06-19.js"></script>
   <!--script src="https://www.desmos.com/api/v0.9/geometry.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script-->
   <script src="./desmos/geometry.2017-06-19.js"></script>
   <script src="./Desmos AGA Root SCO CJS.js"></script>
@@ -128,7 +132,7 @@
     </tr>
     <tr>
       <td colspan="3">
-        <div id="helperExpressions">
+        <div id="helperExpressions" style="min-height:150px;">
           <table>
           <thead>
             <tr><th>Expression</th><th>Function Name</th><th>Value</th></tr>
@@ -143,12 +147,44 @@
             </tr>
           </tbody>
           </table>
+          <div id="bottomPadding" style="height:50px"></div>
         </div>
       </td>
     </tr>
   </table>
   <script>
     $(function() {
+      // CLOUDINARY INTEGRATION STUFF
+      var cloudinaryUpload = false;
+
+      if($.cloudinary) {
+        $.cloudinary.config({ cloud_name: 'jwstrong-psn', api_key: '323322785131496'});
+
+        $(function() {
+          if($.fn.cloudinary_fileupload !== undefined) {
+            $("input.cloudinary-fileupload[type=file]").cloudinary_fileupload();
+          }
+        });
+        cloudinaryUpload = $.cloudinary.unsigned_upload_tag('eyycjxcx');
+      }
+
+
+      // unsigned upload tag = eyycjxcx
+      // cloud_name = jwstrong-psn
+
+      /*
+        var steve = $.cloudinary.unsigned_upload_tag('eyycjxcx');
+        steve.fileupload('option','formData').file = calculator.screenshot()
+        steve.bind('fileuploaddone',function(e,g){console.log(g.result.url);})
+        steve.fileupload('add', { files: [ data ] })
+        });
+      */
+
+      // idea from https://github.com/cloudinary/cloudinary_js/issues/78
+
+      // END CLOUDINARY INTEGRATION STUFF
+
+
       var onbuttoncolor = "green";
       var ontextcolor = "white";
       var offbuttoncolor = "red";
@@ -915,6 +951,7 @@
         var width;
         var height;
         var $gui;
+        var thumbnail;
 
         this.saveCurrent = function(updateLibrary=true) {
           type = toolType;
@@ -933,9 +970,28 @@
 
           if ($gui === undefined) buildGui();
 
-          $('#'+id+'_img').attr("src",window.calculator.screenshot({width:2*previewWidth,height:2*previewHeight}));
+          thumbnail = window.calculator.screenshot({width:2*previewWidth,height:2*previewHeight});
 
-          if (updateLibrary) updateStorage();
+          $('#'+id+'_img').attr("src",thumbnail);
+
+          // NEW CLOUDINARY STUFF
+          if (cloudinaryUpload && position !== -1) {
+
+            $gui.css("background","silver");
+
+            cloudinaryUpload.one('fileuploaddone',function(e,data){
+              $('#'+id+'_img').attr("src",data.result.secure_url);
+              $gui.css("background","white");
+              if (updateLibrary) updateStorage();
+            });
+
+            cloudinaryUpload.fileupload('option','formData').file = thumbnail;
+            cloudinaryUpload.fileupload('add', { files: [ thumbnail ] });
+
+          } else
+          // END NEW CLOUDINARY STUFF
+
+            if (updateLibrary) updateStorage();
         }
 
         if (pack && (pack['state'])) {
@@ -1115,7 +1171,8 @@
             helpers:helpers,
             width:width,
             height:height,
-            preview: $('#'+id+'_img').attr("src")
+            preview:thumbnail,
+            previewCloud:(($('#'+id+'_img').attr("src")===thumbnail)?undefined:$('#'+id+'_img').attr("src"))
           };
         }
 
@@ -1127,8 +1184,12 @@
           width = pack.width;
           height = pack.height;
           helpers = Object.assign([],pack.helpers);
+          thumbnail = pack.preview;
           buildGui();
-          $('#'+id+'_img').attr("src",pack.preview);
+          if(pack.previewCloud) {
+            $('#'+id+'_img').attr("src",pack.previewCloud);
+            $('#'+id+'_img').attr("onerror",'this.src="'+pack.preview+'"');
+          } else $('#'+id+'_img').attr("src",pack.preview);
         }
 
         function destroy() {
@@ -1393,7 +1454,7 @@
           window.calculator.setState(geoPrevState);
           if (window.currentGeoConstructors.ruler) window.Geo.showRuler();
           if (window.currentGeoConstructors.protractor) window.Geo.showProtractor();
-          // window.calculator.setDefaultState(geoDefaultState);
+          window.calculator.setDefaultState(geoDefaultState);
         };
 
         // Register autosave
