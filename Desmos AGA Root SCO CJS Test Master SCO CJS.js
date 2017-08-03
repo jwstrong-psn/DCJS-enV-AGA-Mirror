@@ -256,6 +256,8 @@ ts.A0598803_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0598803_init(
 
    ts.A0597080_updateLabels = (val, name, desmos)=>PearsonGL.External.rootJS.A0597080_updateLabels((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
+      ts.A0597083_updateLabels = (val, name, desmos)=>PearsonGL.External.rootJS.A0597083_updateLabels((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
+
      ts.A0598789B_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0598789B_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
   ts.A0598789B_updateLabels = (val, name, desmos)=>PearsonGL.External.rootJS.A0598789B_updateLabels((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);

@@ -2357,8 +2357,7 @@ PearsonGL.External.rootJS = (function() {
      };
 
 /* ←— A0597080 FUNCTIONS */
-fs.A0597080 = {
-      
+fs.A0597080 = {   
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
        | updates the label of quadratic  function g(x) = x2 + k
        |       
@@ -2378,6 +2377,28 @@ fs.A0597080 = {
             }    
         }
      };
+
+
+/* ←— A0597083 FUNCTIONS */
+fs.A0597083 = {   
+      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
+       | updates the label of quadratic  function j(x) = k√(x)
+       |       
+       | Hidden point must be authored with showLabel:true, (decided to show "0 in front of the square root when  k = 1)")
+       | and the ID 357
+       * ←———————————————————————————————————————————————————————————————————→ */
+       updateLabels: function(options={}) {
+        let o = hs.parseOptions(options);                
+          
+          if (o.value == 1){
+            o.desmos.setExpression({id:'357',label:('j(x) = √(x)')});
+            }
+          else{
+            o.desmos.setExpression({id:'357',label:('j(x) = '+ o.value +'√(x)')});
+            }    
+        }
+     };
+
 
     /* ←— A0598789A FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0598789A = {
