@@ -2360,14 +2360,7 @@ fs.A0597083 = {
 
     /* ←— A0598789A FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0598789A = {
-      /* ←— init ————————————————————————————————————————————————————————————→ *\
-       | Initializes the variables
-       * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
-        vs[o.uniqueId] = {
-        };
-       },
+      
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
        | updates the label of absolute value function g(x) = a|x|.
        |       
@@ -2376,29 +2369,19 @@ fs.A0597083 = {
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(options={}) {
         let o = hs.parseOptions(options);
-        switch (o.name) {
-          case 'a':
+        
           if (o.value > 0){
             o.desmos.setExpression({id:'467',label:('g(x) = '+ o.value +'|x|')});
           }
           else {
             o.desmos.setExpression({id:'467',label:('g(x) = 0')});
           }
-            break;
-          }
         }
      };
 
            /* ←— A0598789B FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0598789B = {
-      /* ←— init ————————————————————————————————————————————————————————————→ *\
-       | Initializes the variables
-       * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
-        vs[o.uniqueId] = {
-        };
-       },
+      
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
        | updates the label of absolute value function h(x) = a|x|.
        |       
@@ -2407,16 +2390,13 @@ fs.A0597083 = {
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(options={}) {
         let o = hs.parseOptions(options);
-        switch (o.name) {
-          case 'a':
+        
           if(o.value < 0){
             o.desmos.setExpression({id:'467',label:('h(x) = '+ o.value +'|x|')});
             }
             else{
             o.desmos.setExpression({id:'467',label:('h(x) = 0')});
             }
-            break;  
-          }
         }
      };
 

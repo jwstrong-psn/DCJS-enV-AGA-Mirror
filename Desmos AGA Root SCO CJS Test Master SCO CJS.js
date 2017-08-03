@@ -243,15 +243,11 @@ ts.A0597225_histReset = (val, name, desmos)=>PearsonGL.External.rootJS.A0597225_
 
   ts.A0598803_updateAVfunction = (val, name, desmos)=>PearsonGL.External.rootJS.A0598803_updateAVfunction((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
-   ts.A0598789A_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0598789A_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
-
   ts.A0598789A_updateLabels = (val, name, desmos)=>PearsonGL.External.rootJS.A0598789A_updateLabels((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
    ts.A0597080_updateLabels = (val, name, desmos)=>PearsonGL.External.rootJS.A0597080_updateLabels((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
       ts.A0597083_updateLabels = (val, name, desmos)=>PearsonGL.External.rootJS.A0597083_updateLabels((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
-
-     ts.A0598789B_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0598789B_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
   ts.A0598789B_updateLabels = (val, name, desmos)=>PearsonGL.External.rootJS.A0598789B_updateLabels((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':console.log}:val);
 
