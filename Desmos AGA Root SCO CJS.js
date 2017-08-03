@@ -2356,6 +2356,29 @@ PearsonGL.External.rootJS = (function() {
         }
      };
 
+/* ←— A0597080 FUNCTIONS */
+fs.A0597080 = {
+      
+      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
+       | updates the label of quadratic  function g(x) = x2 + k
+       |       
+       | Hidden point must be authored with showLabel:true,
+       | and the ID 344
+       * ←———————————————————————————————————————————————————————————————————→ */
+       updateLabels: function(options={}) {
+        let o = hs.parseOptions(options);                
+          if (o.value > 0){
+            o.desmos.setExpression({id:'344',label:('g(x) = x² +'+' '+ o.value)});
+            }
+          else if (o.value < 0){
+            o.desmos.setExpression({id:'344',label:('g(x) = x² –'+' '+(-1)*o.value)});
+            }
+          else{
+            o.desmos.setExpression({id:'344',label:('g(x) = x²')});
+            }    
+        }
+     };
+
     /* ←— A0598789A FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0598789A = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
