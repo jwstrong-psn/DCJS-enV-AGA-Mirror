@@ -1041,91 +1041,49 @@ PearsonGL.External.rootJS = (function() {
 
     /* ←— A0598801 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0598801 = {
-      /* ←— init ————————————————————————————————————————————————————————————→ *\
-       | Initializes the variable
-       * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
-        vs[o.uniqueId] = {
-        };
-       },
+      
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
        | updates the labels of the function g(x) = |x - h|  with the value of "h"
        |
-      
        * ←———————————————————————————————————————————————————————————————————→ */
        updateAVfunction: function(options={}) {
         let o = hs.parseOptions(options);
       
-        switch (o.name) {
-          case 'h':
           if (o.value > 0) {
               o.desmos.setExpression({id:'9',label:('g(x) = |x –'+' '+ o.value+'|')});
           } else if (o.value < 0) {
             o.desmos.setExpression({id:'9',label:('g(x) = |x +'+' '+ ((-1)*o.value)+'|')});
           }else {
-            o.desmos.setExpression({id:'9',label:('g(x) = |x|')});}
-            break;  
-        }
-       }
+            o.desmos.setExpression({id:'9',label:('g(x) = |x|')});}       
+        }      
      };
 
     /* ←— A0598803 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0598803 = {
-      /* ←— init ————————————————————————————————————————————————————————————→ *\
-       | Initializes the variable
-       * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
-        vs[o.uniqueId] = {
-        };
-       },
-      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
-       | updates the labels of the function g(x) = a|x|  with the value of "a"
-       |
-       * ←———————————————————————————————————————————————————————————————————→ */
+      
        updateAVfunction: function(options={}) {
         let o = hs.parseOptions(options);
-      
-        switch (o.name) {
-          case 'a':
-            o.desmos.setExpression({id:'12',label:('g(x) ='+' '+o.value +'|x|')});
-            break;  
+          
+          o.desmos.setExpression({id:'12',label:('g(x) ='+' '+o.value +'|x|')});
         }
-       }
      };
-
 
      /* ←— A0598800 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0598800 = {
-      /* ←— init ————————————————————————————————————————————————————————————→ *\
-       | Initializes the variable
-       * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
-        vs[o.uniqueId] = {
-        };
-       },
-      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
-       | updates the labels of the function g(x) = |x| + k with the value of "k"
-       |
-       | Points P, Q, and M must be authored with showLabel:true, and the IDs
-       |  P_point, Q_point, and M_point
-       * ←———————————————————————————————————————————————————————————————————→ */
+      
        updateAVfunction: function(options={}) {
         let o = hs.parseOptions(options);
       
-        switch (o.name) {
-          case 'k':
           if (o.value > 0) {
               o.desmos.setExpression({id:'4',label:('g(x) = |x| +'+' '+ o.value)});
-          } else if (o.value < 0) {
+          } 
+          else if (o.value < 0) {
             o.desmos.setExpression({id:'4',label:('g(x) = |x| –'+' '+ ((-1)*o.value))});
-          } else {
-            o.desmos.setExpression({id:'4',label:('g(x) = |x|')});}
-            break;  
+          } 
+          else {
+            o.desmos.setExpression({id:'4',label:('g(x) = |x|')});
+          }          
         }
-       }
      };
 
      /* ←— A0597514 FUNCTIONS ——————————————————————————————————————————————→ */
