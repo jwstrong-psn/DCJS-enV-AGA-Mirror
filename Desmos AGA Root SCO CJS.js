@@ -2170,7 +2170,6 @@ PearsonGL.External.rootJS = (function() {
         switch (o.name) {
           case 'k':
             o.desmos.setExpression({id:'636',label:(o.value)});
-            o.desmos.setExpression({id:'639',label:('y = '+o.value+'x')});
             break;
           }
         }
