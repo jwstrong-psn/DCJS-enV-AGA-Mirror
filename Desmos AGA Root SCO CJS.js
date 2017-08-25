@@ -202,6 +202,99 @@ PearsonGL.External.rootJS = (function() {
         expr = expr.replace(/\-/g,'−');
         return expr;
        },
+      /* ←— quadraticForm —————————————————————————————————————————————————————→ *\
+       ↑ Produce a simplified ('--'→'+' etc) quadratic expression given parameters
+       |  params: a, b, c, h, k, r1, r2, x
+       |  optional x changes independent variable
+       |  if b or c are given, outputs ax^2+bx+c
+       |  if h or k are given, outputs a\\left(x-h\\right)^2+k
+       |  if r1 or r2 are given, outputs a\\left(x-r1\\right)\\left(x-r2\\right)
+       |  if none or some combination, gets confused and outputs ''
+       |  assumes a=1 if not given
+       |  assumes b=0, c=0, h=0, k=0 if not given
+       |  if r1 or r2 are not given, assumes linear factor
+       ↓ 
+       * ←—————————————————————————————————————————————————————————————————————→ */
+       quadraticForm: function(params){
+        let output = ''+((Math.abs(params.a)>0)?((params.a===1)?'':((params.a===-1)?'-':params.a)):'');
+        let pmask = eval('0b'+
+                            1*(params.a!==undefined)+
+                            1*(params.b!==undefined)+
+                            1*(params.c!==undefined)+
+                            1*(params.h!==undefined)+
+                            1*(params.k!==undefined)+
+                            1*(params.r1!==undefined)+
+                            1*(params.r2!==undefined)+
+                            1*(params.x!==undefined));
+
+        switch (true) {
+          case ((pmask&0b01100000)&&(!(pmask&0b00011110))): //b,c
+            if(params.a===0) {
+              if(((params.b===undefined)||(params.b===0))&&((params.c===undefined)||(params.c===0))) return '0';
+            } else {
+              output+=((params.x===undefined)?'x':params.x);
+              output+='^2';
+              if((params.b>0)||(((params.b===undefined)||(params.b===0))&&(params.c>0))) output+='+';
+            }
+            if((params.b===undefined)||(params.b===0));
+            else {
+              if(params.b===1);
+              else if(params.b===-1) output+='-'
+              else output+=params.b;
+              output+=((params.x===undefined)?'x':params.x);
+              if(params.c>0) output+='+';
+            }
+            if((params.c===undefined)||(params.c===0));
+            else output+= params.c;
+            break;
+          case ((pmask&0b00011000)&&(!(pmask&0b01100110))): //h,k
+            if(params.a===0) {
+              if((params.k===undefined)||(params.k===0)) return '0';
+            } else {
+              if(Math.abs(params.h)>0) output+='\\left(';
+              output+=((params.x===undefined)?'x':params.x);
+              if(params.h<0) output+='+';
+              if(Math.abs(params.h)>0) {
+                output+=(-params.h);
+                output+='\\right)';
+              }
+              output+='^2';
+              if(params.k>0) output+='+';
+            }
+            if(Math.abs(params.k)>0) output+=params.k;
+            break;
+          case ((pmask&0b00000110)&&(!(pmask&0b01111000))): //r1,r2
+            if(params.a===0) return '0';
+            if(params.r1===undefined);
+            else {
+              if(params.r1===0) output+=((params.x===undefined)?'x':params.x);
+              else {
+                output+='\\left(';
+                output+=((params.x===undefined)?'x':params.x);
+                if(params.r1<0) output+='+';
+                output+=(-params.r1);
+                output+='\\right)';
+              }
+            }
+            if(params.r2===undefined);
+            else {
+              if(params.r2===0) {
+                if(params.r1===0) output+='^2';
+                else output+=((params.x===undefined)?'x':params.x);
+              } else {
+                output+='\\left(';
+                output+=((params.x===undefined)?'x':params.x);
+                if(params.r2<0) output+='+';
+                output+=(-params.r1);
+                output+='\\right)';
+              }
+            }
+            break;
+          default:
+            output='';
+        }
+        return output;
+       },
       /* ←— labelPoint ———————→———————————————————————————————————————————→ *\
        | Label a point according to its coordinates and name
        | e.g., "P(3,2)"
@@ -732,7 +825,7 @@ PearsonGL.External.rootJS = (function() {
        * ←————————————————————————————————————————————————————————————————→ */
        labelEquation: function(options={},prec=cs.precision.EVAL) {
         let o = hs.parseOptions(options);
-        let expr = hs.latexToText(o.name) + ' = ' + Math.round(o.value*Math.pow(10,prec))/Math.pow(10,prec);
+        let expr = hs.latexToText(o.name+'='+Math.round(o.value*Math.pow(10,prec))/Math.pow(10,prec));
         o.log('Setting point label ' + expr);
         o.desmos.setExpression({id:o.name,label:expr});
        },
@@ -1316,12 +1409,10 @@ PearsonGL.External.rootJS = (function() {
        init: function(options={}) {
         let o = hs.parseOptions(options);
         vs[o.uniqueId] = {
-          // try changing 'h' with it's id (4) instead same with "k" (3).
           a:1,
-          b:1,
-          c:1
+          b:0,
+          c:0
         };
-
        },
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
        | updates the label of function based  the values of a and b 
@@ -1329,87 +1420,17 @@ PearsonGL.External.rootJS = (function() {
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(options={}) {
         let o = hs.parseOptions(options);
-        let a = vs[o.uniqueId].a;
-        let b = vs[o.uniqueId].b;
-        let c = vs[o.uniqueId].c;
+        let vars = vs[o.uniqueId];
+        vars[o.name] = o.value;
 
-        let bShow;
-        let bOp;
-        let cShow;
-        let cOp;
-    
-        switch (o.name) {
-          case 'a':
-              vs[o.uniqueId].a = o.value;
-              a = o.value;
-                // check the sign of b. //
-                if (b >= 0){
-                   bShow = b; 
-                   bOp = '+';        
-                    }
-                else {
-                    bShow = (-1)*b;
-                    bOp = '–';
-                    }
-                    // check the sign of c.//
-                if (c >= 0){
-                   cShow = c; 
-                   cOp = '+';        
-                    }
-                else {
-                    cShow = (-1)*c;
-                    cOp = '–';
-                    } 
-              o.desmos.setExpression({id:390,label:'f(x) = '+ a +'x²'+ ' '+  bOp +' '+ bShow + 'x '+''+ cOp + ' '+ cShow});     
-          break;
-          case 'b':
-            vs[o.uniqueId].b = o.value;
-            b = o.value;
-             // check the sign of b. //
-                if (b >= 0){
-                   bShow = b; 
-                   bOp = '+';        
-                    }
-                else {
-                    bShow = (-1)*b;
-                    bOp = '–';
-                    }
-                    // check the sign of c.//
-                if (c >= 0){
-                   cShow = c; 
-                   cOp = '+';        
-                    }
-                else {
-                    cShow = (-1)*c;
-                    cOp = '–';
-                    } 
-            o.desmos.setExpression({id:390,label:'f(x) = '+ a +'x²'+ ' '+  bOp +' '+ bShow + 'x '+''+ cOp + ' '+ cShow}); 
-          break;  
-          case 'c':
-           vs[o.uniqueId].c = o.value;
-           c = o.value;
-              // check the sign of b. //
-                if (b >= 0){
-                   bShow = b; 
-                   bOp = '+';        
-                    }
-                else {
-                    bShow = (-1)*b;
-                    bOp = '–';
-                    }
-                    // check the sign of c.//
-                if (c >= 0){
-                   cShow = c; 
-                   cOp = '+';        
-                    }
-                else {
-                    cShow = (-1)*c;
-                    cOp = '–';
-                    } 
-              o.desmos.setExpression({id:390,label:'f(x) = '+ a +'x²'+ ' '+  bOp +' '+ bShow + 'x '+''+ cOp + ' '+ cShow}); 
-          break;     
-          }
-         } 
+        o.desmos.setExpression({id:390,label:hs.latexToText('f(x)='+
+                                                              hs.quadraticForm({
+                                                                a:vars.a,
+                                                                b:vars.b,
+                                                                c:vars.c
+                                                              })
+                                                            )});
+       } 
      };
 
 
