@@ -185,17 +185,19 @@ PearsonGL.External.rootJS = (function() {
        * ←—————————————————————————————————————————————————————————————————————→ */
        latexToText: function(expr){
         expr = ''+expr;
-        expr = expr.replace(/([+=÷×])/g,' $1 ');
+        expr = expr.replace(/\\cdot\s?/g,'\u22c5');
+        expr = expr.replace(/._{([a-zA-Z])Var}/g,'$1');
+        expr = expr.replace(/([+=÷×\u22c5])/g,' $1 ');
         expr = expr.replace(/,/g,',\u202f');
         expr = expr.replace(/\^2/g,'²');
         expr = expr.replace(/\^3/g,'³');
+        expr = expr.replace(/\\sqrt{([^{}]*?)}/g,'√($1)');
         expr = expr.replace(/\\theta\s?/g,'θ');
         expr = expr.replace(/\\pi\s?/g,'π');
         expr = expr.replace(/_0/g,'₀');
         expr = expr.replace(/_1/g,'₁');
         expr = expr.replace(/_2/g,'₂');
-        expr = expr.replace(/\\right\)/g,')');
-        expr = expr.replace(/\\left\(/g,'(');
+        expr = expr.replace(/\\(?:right|left)\\*([()[\]|{}])/g,'$1');
         expr = expr.replace(/\\right/g,'');
         expr = expr.replace(/\\left/g,'');
         expr = expr.replace(/([^\s \u202f(\[{])\-/g,'$1 − ');
