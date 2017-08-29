@@ -1433,6 +1433,40 @@ PearsonGL.External.rootJS = (function() {
        } 
      };
 
+    /* ←— A0597207 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0597207 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variables
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function(options={}) {
+        let o = hs.parseOptions(options);
+        vs[o.uniqueId] = {
+          x:3,
+          y:2
+        };
+       },
+      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
+       | updates the label of function based  the values of a and b 
+       | 
+       * ←———————————————————————————————————————————————————————————————————→ */
+       updateTriangle: function(options={}) {
+        let o = hs.parseOptions(options);
+        let vars = vs[o.uniqueId];
+        vars[o.name[0]] = o.value;
+
+        let x = vars.x;
+        let y = vars.y;
+
+        o.desmos.setExpressions([
+          {id:'1',latex:'x_0='+x},
+          {id:'373',latex:'y_0='+y},
+          {id:'a',label:hs.latexToText(''+x+'^2-'+y+'^2='+(x*x-y*y))},
+          {id:'b',label:hs.latexToText('2\\cdot '+x+'\\cdot '+y+'='+(2*x*y))},
+          {id:'c',label:hs.latexToText(''+x+'^2+'+y+'^2='+(x*x+y*y))}
+          ]);
+       }
+     };
+
 
     /* ←— A0596342 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0596342 = {
