@@ -92,6 +92,44 @@ PearsonGL.External.rootJS = (function() {
         if(vs[output.uniqueId]===undefined) {vs[output.uniqueId] = {};}
         return output;
        },
+      /* ←— eval ——————————————————————————————————————————————————————————→ *\
+       ↑ Evaluate a LaTeX expression in a given calculator.
+       |
+       | @args: (form, a, b, c, signed)
+       |  form: one of cs.enum.expform:
+       |    ABXC: a*b^x+c
+       |    AEBC: a*e^{bx}+c
+       |    EABC: e^{ax+b}+c
+       |  options: optional parameters object:
+       |    signed: if true, prefixes positive results with '+'
+       |    x: LaTeX string for the input of the function; entire input will be
+       |       surrounded by parens if it contains any of /[0-9.+\-]/
+       |
+       | @Returns: LaTeX string
+       ↓ @Returns: false if form is not one of the given
+       * ←—————————————————————————————————————————————————————————————————————→ */
+       eval: function(expression,options,callback){
+        // Basic prep/init
+        let o = hs.parseOptions(options);
+        let vars = vs[o.uniqueId];
+        if(vars.hxs===undefined) vars.hxs={};
+
+        // Access Helper Expression
+        if(vars.hxs[expression]===undefined)
+          vars.hxs[expression] = o.desmos.HelperExpression({latex:expression});
+        let helper = vars.hxs[expression];
+
+        // Toss the callback into a thread
+        if(helper.numericValue!==undefined)
+          setTimeout(function(){callback(helper.numericValue);},0);
+        else {
+          let thiscall = Date.now();
+          helper.observe('numericValue.'+thiscall,function(){
+            helper.unobserve('numericValue.'+thiscall);
+            callback(helper.numericValue);
+          });
+        }
+       },
       /* ←— updateExpForm —————————————————————————————————————————————————————→ *\
        ↑ Create a LaTeX expression for an exponential function, given parameters
        |
