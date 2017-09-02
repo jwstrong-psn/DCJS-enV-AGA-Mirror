@@ -1633,14 +1633,6 @@ PearsonGL.External.rootJS = (function() {
 
     /* ←— A0597220 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597220 = {
-      /* ←— init ————————————————————————————————————————————————————————————→ *\
-       | Initializes the variables
-       * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
-        vs[o.uniqueId] = {
-        };
-       },
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
        | update function could be used later
        |
@@ -1649,104 +1641,71 @@ PearsonGL.External.rootJS = (function() {
        simulation: function(options={}) {
         let o = hs.parseOptions(options);
 
-        let p = vs[o.uniqueId].p;
-
-        switch (o.name) {
-          case 'p':
-
+        if(o.name == 'p') {
           vs[o.uniqueId].p = o.value;
-          p = o.value;
-
+          o.desmos.setExpression({id:'405',latex:'N_{ewSample}=0'});
           return;
-          case 'N_{ewSample}':
-          break;
-          default:
+        } else if(o.value===0) {
+          o.desmos.setExpressions([
+            {id:'sides',color:cs.color.agaColors.grey},
+            {id:'bars',color:cs.color.agaColors.grey}
+            ]);
           return;
         }
 
-        let n;
-        let sample;
-        let numberofSamples = 1000;
-        let sim;
-        let numberofSims = 1000;
-        let pSim;
-        // let p = .55; 
-        let pCount;
-        let simProportions =[];
-        let simMax;
-        let simMin;
-        let histMax;
-        let histMin;
-        let histBandWidth;
-        let histLeft =[];
-        let histRight = [];
-        let histFreq = [];
+        let p = vs[o.uniqueId].p || 0,
+          histBarID = {},
+          histLeft =[],
+          histFreq = [],
+          histHeight=[],
+          numberofSamples = 1000,
+          numberofSims = 1000,
+          sample, sim, pSim, pCount, histMax, histMin, bar;
 
-        //outer loop
+        // REVISED STUFF
+
+        // Run simulations
         for(sim = 0; sim < numberofSims ; sim+=1){
 
-            // inner loop
-            pCount = 0;
-            for (sample = 0; sample < numberofSamples; sample+=1){
-              n = Math.floor(Math.random()*101);
-              if (n <= p * 100){
-                pCount+=1;
-              }
-          } // end of inner loop.
-          pSim = Math.round(100 *(pCount/numberofSamples))/100;
-          simProportions[sim] = pSim;
-         }
-        //functions for min and max of sim array.
-        function getMaxofArray(numArray){
-          return Math.max.apply(null, simProportions);
-        }
-        function getMinofArray(numArray){
-          return Math.min.apply(null, simProportions);
-        }
-        // compute parameters for histogram from data.
-        simMax = getMaxofArray(simProportions);
-        simMin = getMinofArray(simProportions);
-        //old code when rounded to the nearest tenth. trying different approach for tighter ///histogram.
-        //  histMin = Math.floor(10 * simMin)/10;
-        //    histMax = Math.ceil(10 * simMax)/10;
-        if(Math.floor(simMin*100) % 2 === 0){
-          histMin = Math.floor(simMin*100)/100;
-        }
-        else{
-          histMin = (Math.floor(simMin*100)-1)/100;         
-        }
-        if(Math.ceil(simMax*100) % 2 === 0){
-          histMax = (Math.ceil(simMax*100))/100;
-        }
-        else{
-          histMax = (Math.ceil(simMax*100)+1)/100;         
+          // Count # of "successes"
+           pCount = 0;
+           for (sample = 0; sample < numberofSamples; sample+=1){
+            if (Math.random() <= p) pCount+=1;
+           }
+
+          // Log sample proportion in appropriate bin (bin n: n<p<=n+1)
+          pSim = Math.ceil(100*(pCount/numberofSamples))-1;
+
+          if(pSim<0) pSim=0; // p=0 included in bin 0
+
+          if(histBarID[pSim]===undefined) histBarID[pSim]=1;
+          else histBarID[pSim]+=1;
         }
 
-        histBandWidth = Math.round(10*(histMax-histMin))/100;
+        histMin = Math.min.apply(null,Object.keys(histBarID));
+        histMax = Math.max.apply(null,Object.keys(histBarID));
 
+        for(bar = histMin; bar <= histMax; bar+=1) {
 
-        // build the histogram intervals in the arrays.
-        for (i = 0; i < 10; i+=1){
-          histLeft[i] = Math.round(100*(histMin + (i * histBandWidth)))/100;
-          histRight[i] = Math.round(100*(histMin + ((i + 1) * histBandWidth)))/100;
-        }
-        //clear the frequency table.
-        for (i = 0; i < 10; i+=1){
-          histFreq [i]= 0;
-        }
-        // gather the frequencies.
+          histLeft.push(bar/100);
 
-        for (i = 0; i < 10; i+=1){
-          //out loop for each interval.
-          for (j = 0; j < numberofSims; j+=1){
-            if (simProportions[j]>= histLeft [i] && simProportions[j] < histRight[i]){
-              histFreq [i]+=1;
-            }
-          }
+          if(histBarID[bar]===undefined) histFreq.push(0);
+          else histFreq.push(histBarID[bar]);
+
+          if(bar===histMin) histHeight.push(histFreq[0]);
+          else histHeight.push(Math.max(histFreq[histFreq.length-2],histFreq[histFreq.length-1]));
         }
-        o.desmos.setExpression({id: 'list1', latex: 'L = ['+ (histLeft) +']'});
-        o.desmos.setExpression({id: 'list2', latex: 'R = ['+ (histRight) +']'});
-        o.desmos.setExpression({id: 'list3', latex: 'F = ['+ (histFreq)+ ']'});
+
+        histLeft.push((histMax+0.01)/100);
+        histHeight.push(histBarID[histMax]);
+
+        o.desmos.setExpressions([
+          {id: 'list1', latex: 'L = ['+ (histLeft) +']'},
+          {id: 'list2', latex: 'H = ['+ (histHeight) +']'},
+          {id: 'list3', latex: 'F = ['+ (histFreq)+ ']'},
+          {id:'sides',color:cs.color.agaColors.red,hidden:false},
+          {id:'bars',color:cs.color.agaColors.red,hidden:false}
+          ]);
       }
      };
 
