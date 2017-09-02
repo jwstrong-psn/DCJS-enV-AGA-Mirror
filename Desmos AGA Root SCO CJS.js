@@ -1485,9 +1485,9 @@ PearsonGL.External.rootJS = (function() {
           y:2
         };
        },
-      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
-       | updates the label of function based  the values of a and b 
-       | 
+      /* ←— updateTriangle ———————————————————————————————————————————————————→ *\
+       | updates the labels of function based  the values of x and y
+      | 
        * ←———————————————————————————————————————————————————————————————————→ */
        updateTriangle: function(options={}) {
         let o = hs.parseOptions(options);
@@ -1696,7 +1696,7 @@ PearsonGL.External.rootJS = (function() {
           else histHeight.push(Math.max(histFreq[histFreq.length-2],histFreq[histFreq.length-1]));
         }
 
-        histLeft.push((histMax+0.01)/100);
+        histLeft.push((histMax+1)/100);
         histHeight.push(histBarID[histMax]);
 
         o.desmos.setExpressions([
