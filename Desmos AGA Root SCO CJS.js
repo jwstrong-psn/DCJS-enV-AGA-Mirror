@@ -2003,155 +2003,69 @@ PearsonGL.External.rootJS = (function() {
        ←———————————————————————————————————————————————————————————————————→ */
        init: function(options={}) {
         let o = hs.parseOptions(options);
-        vs[o.uniqueId] = {                  
+        let n = 9;
+        let i;
 
-          dpfx1y1:o.desmos.HelperExpression({latex:'d_{pf}\\left(x_1,y_1\\right)'}),
-          dpdx1y1:o.desmos.HelperExpression({latex:'d_{pd}\\left(x_1,y_1\\right)'}),
-          dpfx2y2:o.desmos.HelperExpression({latex:'d_{pf}\\left(x_2,y_2\\right)'}),
-          dpdx2y2:o.desmos.HelperExpression({latex:'d_{pd}\\left(x_2,y_2\\right)'}),
-
-          dpfx3y3:o.desmos.HelperExpression({latex:'d_{pf}\\left(x_3,y_3\\right)'}),
-          dpdx3y3:o.desmos.HelperExpression({latex:'d_{pd}\\left(x_3,y_3\\right)'}),
-          
-          dpfx4y4:o.desmos.HelperExpression({latex:'d_{pf}\\left(x_4,y_4\\right)'}),
-          dpdx4y4:o.desmos.HelperExpression({latex:'d_{pd}\\left(x_4,y_4\\right)'}),
-
-          dpfx5y5:o.desmos.HelperExpression({latex:'d_{pf}\\left(x_5,y_5\\right)'}),
-          dpdx5y5:o.desmos.HelperExpression({latex:'d_{pd}\\left(x_5,y_5\\right)'}),
-
-          dpfx6y6:o.desmos.HelperExpression({latex:'d_{pf}\\left(x_6,y_6\\right)'}),
-          dpdx6y6:o.desmos.HelperExpression({latex:'d_{pd}\\left(x_6,y_6\\right)'}),
-
-          dpfx7y7:o.desmos.HelperExpression({latex:'d_{pf}\\left(x_7,y_7\\right)'}),
-          dpdx7y7:o.desmos.HelperExpression({latex:'d_{pd}\\left(x_7,y_7\\right)'}),
-
-         dpfx8y8:o.desmos.HelperExpression({latex:'d_{pf}\\left(x_8,y_8\\right)'}),
-          dpdx8y8:o.desmos.HelperExpression({latex:'d_{pd}\\left(x_8,y_8\\right)'}),
-
-          dpfx9y9:o.desmos.HelperExpression({latex:'d_{pf}\\left(x_9,y_9\\right)'}),
-          dpdx9y9:o.desmos.HelperExpression({latex:'d_{pd}\\left(x_9,y_9\\right)'})
+        vs[o.uniqueId] = {
+          n:n,
+          ids: {
+            x1off:507,
+            y1off:508,
+            x2off:374,
+            y2off:373,
+            x3off:379,
+            y3off:378,
+            x4off:381,
+            y4off:380,
+            x5off:383,
+            y5off:382,
+            x6off:385,
+            y6off:384,
+            x7off:387,
+            y7off:386,
+            x8off:389,
+            y8off:388,
+            x9off:391,
+            y9off:390
+          }
         };
 
-        // for each point- two functions.
-        vs[o.uniqueId].dpfx1y1.observe('numericValue',
-          function(){
-            o.desmos.setExpression({label:vs[o.uniqueId].dpfx1y1.numericValue,id:'513'});
-          });
-        vs[o.uniqueId].dpdx1y1.observe('numericValue',
-          function(){
-            o.desmos.setExpression({label:vs[o.uniqueId].dpdx1y1.numericValue,id:'514'});
-          });
-        //
-        vs[o.uniqueId].dpfx2y2.observe('numericValue',
-          function(){
-            o.desmos.setExpression({label:vs[o.uniqueId].dpfx2y2.numericValue,id:'515'});
-          });
-        vs[o.uniqueId].dpdx2y2.observe('numericValue',
-          function(){
-            o.desmos.setExpression({label:vs[o.uniqueId].dpdx2y2.numericValue,id:'516'});
-          });
-        //
-        vs[o.uniqueId].dpfx3y3.observe('numericValue',
-          function(){
-            o.desmos.setExpression({label:vs[o.uniqueId].dpfx3y3.numericValue,id:'517'});
-          });
-        vs[o.uniqueId].dpdx3y3.observe('numericValue',
-          function(){
-            o.desmos.setExpression({label:vs[o.uniqueId].dpdx3y3.numericValue,id:'518'});
-          });
-        // - for p4
-        vs[o.uniqueId].dpfx4y4.observe('numericValue',
-          function(){
-            o.desmos.setExpression({label:vs[o.uniqueId].dpfx4y4.numericValue,id:'519'});
-          });
-        vs[o.uniqueId].dpdx4y4.observe('numericValue',
-          function(){
-            o.desmos.setExpression({label:vs[o.uniqueId].dpdx4y4.numericValue,id:'520'});
-          });
-        // for p5
-        vs[o.uniqueId].dpfx5y5.observe('numericValue',
-          function(){
-            o.desmos.setExpression({label:vs[o.uniqueId].dpfx5y5.numericValue,id:'521'});
-          });
-        vs[o.uniqueId].dpdx5y5.observe('numericValue',
-          function(){
-            o.desmos.setExpression({label:vs[o.uniqueId].dpdx5y5.numericValue,id:'522'});
-          });
-        // for p6.
-          vs[o.uniqueId].dpfx6y6.observe('numericValue',
-          function(){
-            o.desmos.setExpression({label:vs[o.uniqueId].dpfx6y6.numericValue,id:'523'});
-          });
-        vs[o.uniqueId].dpdx6y6.observe('numericValue',
-          function(){
-            o.desmos.setExpression({label:vs[o.uniqueId].dpdx6y6.numericValue,id:'524'});
-          });
-        // for p7.
-          vs[o.uniqueId].dpfx7y7.observe('numericValue',
-          function(){
-            o.desmos.setExpression({label:vs[o.uniqueId].dpfx7y7.numericValue,id:'525'});
-          });
-        vs[o.uniqueId].dpdx7y7.observe('numericValue',
-          function(){
-            o.desmos.setExpression({label:vs[o.uniqueId].dpdx7y7.numericValue,id:'526'});
-          });
-        //for p8.
-         vs[o.uniqueId].dpfx8y8.observe('numericValue',
-          function(){
-            o.desmos.setExpression({label:vs[o.uniqueId].dpfx8y8.numericValue,id:'527'});
-          });
-        vs[o.uniqueId].dpdx8y8.observe('numericValue',
-          function(){
-            o.desmos.setExpression({label:vs[o.uniqueId].dpdx8y8.numericValue,id:'528'});
-          });
-        // for p9.
-         vs[o.uniqueId].dpfx9y9.observe('numericValue',
-          function(){
-            o.desmos.setExpression({label:vs[o.uniqueId].dpfx9y9.numericValue,id:'529'});
-          });
-        vs[o.uniqueId].dpdx9y9.observe('numericValue',
-          function(){
-            o.desmos.setExpression({label:vs[o.uniqueId].dpdx9y9.numericValue,id:'530'});
-          });
+        // Initialize labeling
+        for(i=1;i<=n;i+=1) {
+          vs[o.uniqueId]['dpfx'+i+'y'+i]=o.desmos.HelperExpression({latex:'d_{pf}\\left(x_'+i+',y_'+i+'\\right)'});
+          vs[o.uniqueId]['dpdx'+i+'y'+i]=o.desmos.HelperExpression({latex:'d_{pd}\\left(x_'+i+',y_'+i+'\\right)'});
+
+          vs[o.uniqueId]['dpfx'+i+'y'+i].observe('numericValue',(function(x){
+            return function(){
+              o.desmos.setExpression({label:vs[o.uniqueId]['dpfx'+x+'y'+x].numericValue,id:(511+2*x)});
+              };
+            })(i));
+          vs[o.uniqueId]['dpdx'+i+'y'+i].observe('numericValue',(function(x){
+            return function(){
+              o.desmos.setExpression({label:vs[o.uniqueId]['dpdx'+x+'y'+x].numericValue,id:(512+2*x)});
+              };
+            })(i));
+        }
        },
        /* if widget is unlocked, to change focus or directrix reset the 
         the parabola points.*/
 
        reset: function(options={}) {
         let o = hs.parseOptions(options);
+        let n = vs[o.uniqueId].n;
+        let ids = vs[o.uniqueId].ids;
+        let i;
 
           console.log("new lock value is"+ ' '+ o.value);
 
           if(vs[o.uniqueId].last_l_ock == 1 && o.value == 0){
-            // x1, y1 
-            o.desmos.setExpression({id: '507', latex: 'x_{1off} = 0', sliderBounds:{min: '-100', max: '100'}});
-            o.desmos.setExpression({id: '508', latex: 'y_{1off} = 0', sliderBounds:{min:'-100', max: '100'}});
-            // x2, y2
-            o.desmos.setExpression({id: '374', latex: 'x_{2off} = 0', sliderBounds:{min: '-100', max: '100'}});
-            o.desmos.setExpression({id: '373', latex: 'y_{2off} = 0', sliderBounds:{min:'-100', max: '100'}});
-             // x3, y3
-            o.desmos.setExpression({id: '379', latex: 'x_{3off} = 0', sliderBounds:{min: '-100', max: '100'}});
-            o.desmos.setExpression({id: '378', latex: 'y_{3off} = 0', sliderBounds:{min:'-100', max: '100'}});
-            // x4, y4
-            o.desmos.setExpression({id: '381', latex: 'x_{4off} = 0', sliderBounds:{min: '-100', max: '100'}});
-            o.desmos.setExpression({id: '380', latex: 'y_{4off} = 0', sliderBounds:{min:'-100', max: '100'}});
-            // x5, y5
-            o.desmos.setExpression({id: '383', latex: 'x_{5off} = 0', sliderBounds:{min: '-100', max: '100'}});
-            o.desmos.setExpression({id: '382', latex: 'y_{5off} = 0', sliderBounds:{min:'-100', max: '100'}});
-             // x6, y6
-              o.desmos.setExpression({id: '385', latex: 'x_{6off} = 0', sliderBounds:{min: '-100', max: '100'}});
-            o.desmos.setExpression({id: '384', latex: 'y_{6off} = 0', sliderBounds:{min:'-100', max: '100'}});
-            // x7, y7
-            o.desmos.setExpression({id: '387', latex: 'x_{7off} = 0', sliderBounds:{min: '-100', max: '100'}});
-            o.desmos.setExpression({id: '386', latex: 'y_{7off} = 0', sliderBounds:{min:'-100', max: '100'}});
-            // x8, y8
-            o.desmos.setExpression({id: '389', latex: 'x_{8off} = 0', sliderBounds:{min: '-100', max: '100'}});
-            o.desmos.setExpression({id: '388', latex: 'y_{8off} = 0', sliderBounds:{min:'-100', max: '100'}});
-            // x9, y9
-            o.desmos.setExpression({id: '391', latex: 'x_{9off} = 0', sliderBounds:{min: '-100', max: '100'}});
-            o.desmos.setExpression({id: '390', latex: 'y_{9off} = 0', sliderBounds:{min:'-100', max: '100'}});            
-            }         
-            vs[o.uniqueId].last_l_ock = o.value;
+
+            for(i=1;i<=n;i+=1) {
+              o.desmos.setExpression({id:ids['x'+i+'off'],latex:('x_{'+i+'off}=0')});
+              o.desmos.setExpression({id:ids['y'+i+'off'],latex:('y_{'+i+'off}=0')});
+            }
+          }
+          vs[o.uniqueId].last_l_ock = o.value;
         }
      };
 
