@@ -1729,18 +1729,17 @@ PearsonGL.External.rootJS = (function() {
         let vars = vs[o.uniqueId];
         let globalDiffArray=vars.globalDiffArray;
         let histFreq = vars.histFreq;
-        switch (o.name) {
-          case 'h_{istReset}':
-            globalDiffArray = [];
-            histFreq =[0,0,0,0,0,0,0,0,0,0];
-           
-              //passs zero-ed freq list and global mean back to desmos
-            o.desmos.setExpression({id: '427', latex: 'F = ['+ (histFreq)+ ']'}); 
-              //o.desmos.setExpression({id: '500', latex: 'm = '+ globalMean});
-              vars.globalDiffArray = globalDiffArray;  
-              vars.histFreq = histFreq; 
-          break;
-          }
+        if(o.value===0) return;
+        globalDiffArray = [];
+        histFreq =[0,0,0,0,0,0,0,0,0,0];
+     
+        //passs zero-ed freq list and global mean back to desmos
+        o.desmos.setExpression({id: '427', latex: 'F = ['+ (histFreq)+ ']'}); 
+        //o.desmos.setExpression({id: '500', latex: 'm = '+ globalMean});
+        vars.globalDiffArray = globalDiffArray;  
+        vars.histFreq = histFreq;
+
+        o.desmos.setExpression({id:524,latex:'h_{istReset}=0'});
        },
       /* ←— Resample ————————————————————————————————————————————————————→ *\
        |
@@ -1748,6 +1747,8 @@ PearsonGL.External.rootJS = (function() {
        resample: function(options={}) {
         let o = hs.parseOptions(options);
         let vars = vs[o.uniqueId];
+
+        if(o.value===0) return;
     
         let oGroup = [184, 186, 183, 182, 170, 182, 178, 170, 187, 185, 188, 183, 202, 188, 193, 182, 179, 190, 189, 164, 177, 173, 183, 172, 154, 177, 168, 180, 167, 170, 178, 180, 168, 178, 197, 188, 167, 174, 177, 173];
         let assignGroup =[];
@@ -1774,15 +1775,19 @@ PearsonGL.External.rootJS = (function() {
         switch (o.name) {          
           case 'r_{sample1}':
             numberofResamples = 1;
+            o.desmos.setExpression({id:1,latex:'r_{sample1}=0'});
             break;
           case 'r_{sample10}':  
             numberofResamples = 10;
+            o.desmos.setExpression({id:422,latex:'r_{sample10}=0'});
             break;
           case 'r_{sample100}':  
             numberofResamples = 100;
+            o.desmos.setExpression({id:423,latex:'r_{sample100}=0'});
             break;
           case 'r_{sample1000}':  
             numberofResamples = 1000;
+            o.desmos.setExpression({id:424,latex:'r_{sample1000}=0'});
             break;
         }
         /* —————————————————————————————————————————————————————
