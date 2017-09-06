@@ -1919,6 +1919,8 @@ PearsonGL.External.rootJS = (function() {
             return;
           // this one runs the program.
           case 'R_{unSimulation}':
+            if(o.value===0) return;
+            else o.desmos.setExpression({id:5,latex:'R_{unSimulation}=0'});
             break;
           default:
             return;
