@@ -1936,8 +1936,8 @@ PearsonGL.External.rootJS = (function() {
 
             for(i = 1 ; i <= n; i+=1){
               // play the game, did you win?
-              r = Math.round(100*Math.random())/100;
-               if(r <= p){
+              // r = Math.round(100*Math.random())/100;
+               if(Math.random() <= p){
                  win = true;                
                   }
                else{
