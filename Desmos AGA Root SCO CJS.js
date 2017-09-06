@@ -2063,7 +2063,7 @@ PearsonGL.External.rootJS = (function() {
         let ids = vs[o.uniqueId].ids;
         let i;
 
-          console.log("new lock value is"+ ' '+ o.value);
+          o.log("new lock value is"+ ' '+ o.value);
 
           if(vs[o.uniqueId].last_l_ock == 1 && o.value == 0){
 
@@ -5692,7 +5692,7 @@ fs.A0597083 = {
             hxs.x_3.observe('numericValue.checkHandle',checkHandle);
             hxs.y_3.observe('numericValue.checkHandle',checkHandle);
             checkHandle();
-          } else {console.log('b = '+b+' should be '+bShouldB);}
+          } else {o.log('b = '+b+' should be '+bShouldB);}
          }
 
         function dontOverlap() {
