@@ -1643,15 +1643,25 @@ PearsonGL.External.rootJS = (function() {
 
         if(o.name == 'p') {
           vs[o.uniqueId].p = o.value;
-          o.desmos.setExpression({id:'405',latex:'N_{ewSample}=0'});
+
+          o.desmos.setExpressions([
+            // {id:'405',latex:'N_{ewSample}=0'}, // Alternate functionality: leave the old graph, but mark it as old
+            {id:'sides',color:cs.color.agaColors.red,hidden:true},
+            {id:'bars',color:cs.color.agaColors.red,hidden:true}
+          ]);
+
           return;
         } else if(o.value===0) {
+          /* // Alternate functionality: turn bar grey when toggling off.
           o.desmos.setExpressions([
             {id:'sides',color:cs.color.agaColors.grey},
             {id:'bars',color:cs.color.agaColors.grey}
             ]);
+          */
           return;
         }
+        
+        o.desmos.setExpression({id:'405',latex:'N_{ewSample}=0'}); // Comment out if using alternate functionality
 
         let p = vs[o.uniqueId].p || 0,
           histBarID = {},
