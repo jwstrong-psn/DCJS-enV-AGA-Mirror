@@ -1894,7 +1894,8 @@ PearsonGL.External.rootJS = (function() {
           n:1,
           p:0.5,
           A:0,
-          C:0
+          C:0,
+          on:true
         };
        },
       //←———————————————————————————————————————————————————————————————————
@@ -1914,27 +1915,21 @@ PearsonGL.External.rootJS = (function() {
         let topBound;
         let bottomBound;
 
-        switch (o.name) {
-          case 'n':
-              vs[o.uniqueId].n = o.value;
-            return;
-          case 'p':
-              vs[o.uniqueId].p = o.value;
-            return;
-          case 'A':
-              vs[o.uniqueId].A = o.value;
-            return;
-          case 'C':
-              vs[o.uniqueId].C = o.value;
-            return;
-          // this one runs the program.
-          case 'R_{unSimulation}':
+        if (o.name === 'R_{unSimulation}') {
             if(o.value===0) return;
             else o.desmos.setExpression({id:5,latex:'R_{unSimulation}=0'});
-            break;
-          default:
-            return;
+            vs[o.uniqueId].on = true;
+        } else {
+          vs[o.uniqueId][o.name] = o.value;
+          if (vs[o.uniqueId].on) {
+            vs[o.uniqueId].on = false;
+            o.desmos.setExpressions([
+              {id:'600',hidden:true,showLabel:false},
+              {id:'601',type:'table',columns:[{},{hidden:true}]}
+            ]);
           }
+          return;
+        }
 
             let n = vs[o.uniqueId].n;
             let p = vs[o.uniqueId].p;
@@ -1966,7 +1961,7 @@ PearsonGL.External.rootJS = (function() {
               meanNetPerGame.push(currentMeanNet);
             }
             //send the last point to Desmos.
-             o.desmos.setExpression({id: '600', latex: '(' + n + ','+ ' '+ meanNetPerGame[n-1] +')', color: '#0092C8', showLabel:'true'});
+             o.desmos.setExpression({id: '600', latex: '(' + n + ','+ ' '+ meanNetPerGame[n-1] +')', color: '#0092C8', showLabel:'true', hidden:false});
             /*————————————————————————————————————————————————-
             Generate a string for a xvalues  from 1 to n. for the 
             in the table to be sent to  Desmos.- this index was the problem before!
@@ -1979,7 +1974,7 @@ PearsonGL.External.rootJS = (function() {
               columns:[
               {latex:'x',values: xMeanNet},
               {latex:'y',values: meanNetPerGame,color:'#0092C8', columnMode: 
-              Desmos.ColumnModes.LINES}
+              Desmos.ColumnModes.LINES, hidden:false}
               ]
             });
            /*————————————————————————————————————————————————
