@@ -1344,7 +1344,7 @@
         if (typeof(Storage) !== undefined) {
           var package = [];
           for (graph in savedGraphs) package.push(savedGraphs[graph].package());
-          localStorage.AGAsavedGraphs = JSON.stringify(package);
+          localStorage.setItem("AGAsavedGraphs",JSON.stringify(package));
         } else {
           console.log('No local storage available.');
         }
@@ -1368,8 +1368,8 @@
         if (typeof(Storage) === undefined) return;
         // console.log('Checking for new versions…')
         // if (latestVersion < localStorage.AGAcurrentVersion); // STUB
-        localStorage.AGAautoSave = JSON.stringify(workingState.package());
-        localStorage.AGAcurrentVersion = Date.now();
+        localStorage.setItem("AGAautoSave",JSON.stringify(workingState.package()));
+        localStorage.setItem("AGAcurrentVersion",Date.now());
       }
 
       // Note: never set toolType before refreshing the calculator;
@@ -1602,29 +1602,29 @@
       if (typeof(Storage) !== undefined) {
         // Transfer old storage to namespaced storage
         if (localStorage.savedGraphs !== undefined) {
-          let currentVersion = localStorage.currentVersion,
-              autoSave = localStorage.autoSave,
-              savedGraphs = localStorage.savedGraphs;
+          let currentVersion = localStorage.getItem("currentVersion"),
+              autoSave = localStorage.getItem("autoSave"),
+              savedGraphs = localStorage.getItem("savedGraphs");
 
-          delete localStorage.autoSave;
-          delete localStorage.savedGraphs;
-          delete localStorage.currentVersion;
+          localStorage.removeItem("autoSave");
+          localStorage.removeItem("savedGraphs");
+          localStorage.removeItem("currentVersion");
 
-          localStorage.AGAautoSave = autoSave;
-          localStorage.AGAcurrentVersion = currentVersion;
-          localStorage.AGAsavedGraphs = savedGraphs;
+          localStorage.setItem("AGAautoSave") = autoSave;
+          localStorage.setItem("AGAcurrentVersion") = currentVersion;
+          localStorage.setItem("AGAsavedGraphs") = savedGraphs;
         }
         // End Transfer
         
-        if (localStorage.AGAcurrentVersion !== undefined) latestVersion = localStorage.AGAcurrentVersion;
-        if (localStorage.AGAautoSave !== undefined) {
-          workingState = new savedGraph($.parseJSON(localStorage.AGAautoSave),'workingState');
+        if (localStorage.getItem("AGAcurrentVersion")) latestVersion = localStorage.getItem("AGAcurrentVersion");
+        if (localStorage.getItem("AGAautoSave")) {
+          workingState = new savedGraph($.parseJSON(localStorage.getItem("AGAautoSave")),'workingState');
         } else {
           workingState = new savedGraph(null,'workingState');
           refreshCalculator();
         }
-        if (localStorage.AGAsavedGraphs !== undefined) {
-          var unpacked = $.parseJSON(localStorage.AGAsavedGraphs);
+        if (localStorage.getItem("AGAsavedGraphs")) {
+          var unpacked = $.parseJSON(localStorage.getItem("AGAsavedGraphs"));
           for (graph in unpacked) savedGraphs.push(new savedGraph(unpacked[graph]));
         }
       } else {
