@@ -1601,7 +1601,7 @@
 
       if (typeof(Storage) !== undefined) {
         // Transfer old storage to namespaced storage
-        if (localStorage.savedGraphs !== undefined) {
+        if (localStorage.getItem("savedGraphs")) {
           let currentVersion = localStorage.getItem("currentVersion"),
               autoSave = localStorage.getItem("autoSave"),
               savedGraphs = localStorage.getItem("savedGraphs");
