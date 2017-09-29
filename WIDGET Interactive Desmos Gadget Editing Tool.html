@@ -981,6 +981,7 @@
 
             cloudinaryUpload.one('fileuploaddone',function(e,data){
               $('#'+id+'_img').attr("src",data.result.secure_url);
+              thumbnail = data.result.secure_url;
               $gui.css("background","white");
               if (updateLibrary) updateStorage();
             });
@@ -1184,12 +1185,10 @@
           width = pack.width;
           height = pack.height;
           helpers = Object.assign([],pack.helpers);
-          thumbnail = pack.preview;
+          thumbnail = pack.previewCloud ? pack.previewCloud : pack.preview;
           buildGui();
-          if(pack.previewCloud) {
-            $('#'+id+'_img').attr("src",pack.previewCloud);
-            $('#'+id+'_img').attr("onerror",'this.src="'+pack.preview+'"');
-          } else $('#'+id+'_img').attr("src",pack.preview);
+
+          $('#'+id+'_img').attr("src",thumbnail);
         }
 
         function destroy() {
@@ -1345,7 +1344,7 @@
         if (typeof(Storage) !== undefined) {
           var package = [];
           for (graph in savedGraphs) package.push(savedGraphs[graph].package());
-          localStorage.savedGraphs = JSON.stringify(package);
+          localStorage.AGAsavedGraphs = JSON.stringify(package);
         } else {
           console.log('No local storage available.');
         }
@@ -1368,9 +1367,9 @@
         autoSaveQueued = false;
         if (typeof(Storage) === undefined) return;
         // console.log('Checking for new versions…')
-        // if (latestVersion < localStorage.currentVersion); // STUB
-        localStorage.autoSave = JSON.stringify(workingState.package());
-        localStorage.currentVersion = Date.now();
+        // if (latestVersion < localStorage.AGAcurrentVersion); // STUB
+        localStorage.AGAautoSave = JSON.stringify(workingState.package());
+        localStorage.AGAcurrentVersion = Date.now();
       }
 
       // Note: never set toolType before refreshing the calculator;
@@ -1601,15 +1600,31 @@
       var latestVersion = Date.now();
 
       if (typeof(Storage) !== undefined) {
-        if (localStorage.currentVersion !== undefined) latestVersion = localStorage.currentVersion;
-        if (localStorage.autoSave !== undefined) {
-          workingState = new savedGraph($.parseJSON(localStorage.autoSave),'workingState');
+        // Transfer old storage to namespaced storage
+        if (localStorage.savedGraphs !== undefined) {
+          let currentVersion = localStorage.currentVersion,
+              autoSave = localStorage.autoSave,
+              savedGraphs = localStorage.savedGraphs;
+
+          delete localStorage.autoSave;
+          delete localStorage.savedGraphs;
+          delete localStorage.currentVersion;
+
+          localStorage.AGAautoSave = autoSave;
+          localStorage.AGAcurrentVersion = currentVersion;
+          localStorage.AGAsavedGraphs = savedGraphs;
+        }
+        // End Transfer
+        
+        if (localStorage.AGAcurrentVersion !== undefined) latestVersion = localStorage.AGAcurrentVersion;
+        if (localStorage.AGAautoSave !== undefined) {
+          workingState = new savedGraph($.parseJSON(localStorage.AGAautoSave),'workingState');
         } else {
           workingState = new savedGraph(null,'workingState');
           refreshCalculator();
         }
-        if (localStorage.savedGraphs !== undefined) {
-          var unpacked = $.parseJSON(localStorage.savedGraphs);
+        if (localStorage.AGAsavedGraphs !== undefined) {
+          var unpacked = $.parseJSON(localStorage.AGAsavedGraphs);
           for (graph in unpacked) savedGraphs.push(new savedGraph(unpacked[graph]));
         }
       } else {
