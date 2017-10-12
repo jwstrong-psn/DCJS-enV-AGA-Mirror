@@ -94,21 +94,8 @@ PearsonGL.External.rootJS = (function() {
        },
       /* ←— eval ——————————————————————————————————————————————————————————→ *\
        ↑ Evaluate a LaTeX expression in a given calculator.
-       |
-       | @args: (form, a, b, c, signed)
-       |  form: one of cs.enum.expform:
-       |    ABXC: a*b^x+c
-       |    AEBC: a*e^{bx}+c
-       |    EABC: e^{ax+b}+c
-       |  options: optional parameters object:
-       |    signed: if true, prefixes positive results with '+'
-       |    x: LaTeX string for the input of the function; entire input will be
-       |       surrounded by parens if it contains any of /[0-9.+\-]/
-       |
-       | @Returns: LaTeX string
-       ↓ @Returns: false if form is not one of the given
        * ←—————————————————————————————————————————————————————————————————————→ */
-       eval: function(expression,options,callback){
+       eval: function(expression,options,callback = function(){}){
         // Basic prep/init
         let o = hs.parseOptions(options);
         let vars = vs[o.uniqueId];
@@ -129,6 +116,7 @@ PearsonGL.External.rootJS = (function() {
             callback(helper.numericValue);
           });
         }
+        return helper.numericValue;
        },
       /* ←— updateExpForm —————————————————————————————————————————————————————→ *\
        ↑ Create a LaTeX expression for an exponential function, given parameters
@@ -6205,8 +6193,8 @@ fs.A0597083 = {
           hxs.R_C.observe('numericValue.dragging',function(){if(vars.dragging){isolateHandle('x_0');}});
 
           for (i = 1; i <= 3; i+=1) {
-            hxs['u_'+i].observe('numericValue.checkReplace',function(){checkReplace(i);});
-            hxs['v_'+i].observe('numericValue.checkReplace',function(){checkReplace(i);});
+            hxs['u_'+i].observe('numericValue.checkReplace',function(k){return function(){checkReplace(k);};}(i));
+            hxs['v_'+i].observe('numericValue.checkReplace',function(k){return function(){checkReplace(k);};}(i));
             checkReplace(i);
           }
 
@@ -6706,6 +6694,634 @@ fs.A0597083 = {
 
         o.desmos.setExpressions(exprs);
        }
+     };
+
+    /* ←— usabilityTestNumberLine FUNCTIONS ————————————————————————————————→ */
+     fs.usabilityTestNumberLine = {
+      /* ←— init —————————————————————————————————————————————————————————→ *\
+       | stuff
+       * ←—————————————————————————————————————————————————————————————————→ */
+       init: (function(){
+        // Helper Functions
+          o = {log:console.log}; //function(){}}; // change log to console.log to debug
+
+          // Methods: next(), last(), all(), reset(start)
+          var PrimeGenerator = (function() {
+
+            //  Composites is an object so as to allow indexing by number,
+            //  and is not an array, because length would be misleading
+            let composites = {
+              toArray: function() {
+                let compositeList = [];
+                for (key in composites) {
+                  if (composites[key] === true) compositeList.push(key);
+                }
+                return compositeList;
+              },
+              toString: function() {
+                return composites.toArray().toString();
+              },
+              length: function() {
+                return Object.keys(composites).length-3;
+              }
+            };
+            let primes = [2];
+            let lastMax = 2;
+            let hardMax = 3; // product of all known primes; add 1 for hard max. Credit Euclid.
+
+            let lastChecked = 2;
+
+            function sieve(min,max) {
+              o.log('Sieving from '+min+' to '+max+' with primes '+primes+' over composites '+composites);
+              for(let i = 0; i < primes.length; i += 1) {
+
+                let prime = primes[i];
+                
+                for(let composite = (1+Math.floor(min/prime))*prime; composite <= max; composite += prime) {
+                  composites[composite] = true;
+                }
+              }
+            }
+
+            function advance() {
+              while (lastChecked <= hardMax) {
+                // keep checking the sieve until you find one
+                while(lastChecked < lastMax) {
+                  lastChecked += 1;
+                  if (!(composites[lastChecked])) {
+                    
+                    primes.push(lastChecked);
+
+                    if(lastChecked > 2) hardMax = (hardMax - 1) * lastChecked + 1;
+
+                    for (let j = lastChecked*2; j < lastMax; j += lastChecked) {
+                      composites[j] = true;
+                    }
+
+                    return(lastChecked);
+                  }
+                }
+                // increase max by another reasonable interval, e.g. the largest known prime
+                let max = lastMax + primes[primes.length-1];
+                sieve(lastMax,max);
+                lastMax = max;
+              }
+
+              throw new Error("For some reason can't find the next prime number after "+primes[primes.length-1]+", despite looking all the way up to "+max+" = 2×3×5×…×"+primes[primes.length-1]);
+            }
+
+            let generator = function(n = 1){
+              //  generates prime numbers greater than or equal to n
+              if (this === window) return;
+
+              let firstPrimeIndex = 0;
+
+              let nextPrimeIndex = 0;
+
+              this.all = function(){
+                let out = [];
+                for (let i = firstPrimeIndex; i < nextPrimeIndex; i += 1) {
+                  out.push(primes[i]);
+                }
+                return out;
+              };
+
+              this.last = function(){
+                if (nextPrimeIndex === firstPrimeIndex) throw new Error("Generator has not been run yet.");
+                return primes[nextPrimeIndex-1];
+              };
+
+              this.reset = function(start = primes[firstPrimeIndex]){
+                nextPrimeIndex = 0;
+                while (this.next() < start);
+                nextPrimeIndex = nextPrimeIndex - 1;
+                firstPrimeIndex = nextPrimeIndex;
+              };
+
+              this.next = function(){
+                let nextPrime = primes[nextPrimeIndex];
+                while(primes.length <= nextPrimeIndex) {
+                  nextPrime = advance();
+                }
+                nextPrimeIndex += 1;
+                return nextPrime;
+              };
+
+              this.reset(n);
+
+              return this;
+            }
+
+            return generator;
+          })();
+
+          function expr(latex,options) {
+            if(hs && hs.eval && typeof hs.eval === "function") {
+              return hs.eval(latex,options);
+            }
+            return NaN;
+          }
+
+          function getPrimes(max) {
+            //  returns a list of prime numbers less than or equal to max
+
+            // uses a PrimeGenerator if possible
+            if (PrimeGenerator) {
+              let generator = new PrimeGenerator();
+              while(generator.next()<max);
+
+              let primes = generator.all();
+
+              if (primes[primes.length-1] > max) {
+                primes.pop();
+              }
+
+              return primes;
+            }
+
+            let composites = {};
+            let primes = [];
+
+            for (let k = 2; k < max; k += 1) {
+
+              if (!(composites[k])) {
+                
+                primes.push(k);
+
+                for (let j = k*2; j < max; j += k) {
+                  composites[j] = true;
+                }
+              }
+            }
+
+            return primes;
+          }
+
+          function divisors(n) {
+            //  returns an array of all whole number divisors of number n, in ascending order
+            //  includes 1 and n, even if n is not a whole number
+            let noDivide = {};
+            let divisors = [1];
+            let dividends = [n];
+            let maxDivisor = n;
+
+            for (let k = 2; k < maxDivisor; k += 1) {
+
+              if (!(noDivide[k])) {
+                
+                if (n%k) {
+
+                  for (let j = k; j < maxDivisor; j += k) {
+                    noDivide[j] = true;
+                  }
+
+                } else {
+
+                  divisors.push(k);
+                  maxDivisor = n/k;
+                  if (maxDivisor != k) dividends.push(maxDivisor);
+
+                }
+              }
+            }
+
+            while(dividends.length>0) divisors.push(dividends.pop());
+
+            return divisors;
+          }
+
+          function factor(n,factors) {
+            //  returns an array of multiplicities of each number in the factorization of n
+            //  if optional argument factors is given, uses only those factors
+            //  otherwise, uses a list of prime factors up to the greatest prime divisor
+            //  Note: if given factor list is not relatively prime to itself and n, the total product
+            //  will be greater than n
+            // 
+            //  Returned array will have the additional property "factorList", a copy of factors
+
+            let limit = Date.now()+1000;
+
+            factors = factors || getPrimes(n);
+
+            let mults = [];
+            let factorList = [];
+
+            for (let i = 0; i < factors.length; i += 1) {
+              mults[i] = 0;
+              factorList[i] = factors[i];
+              let factor = factors[i];
+              let k = n;
+              while (k > 1 && k%factor === 0) {
+
+                mults[i] += 1;
+                k /= factor;
+
+                if (Date.now()>limit) {
+                  o.log('Hit limit at k = '+k+'; i = '+i);
+                  return mults;
+                }
+              }
+              if (Date.now()>limit) {
+                o.log('Hit limit at k = '+k+'; i = '+i);
+                return mults;
+              }
+            }
+
+            mults.factorList = factorList;
+
+            return mults;
+          }
+
+          function intervalPreferences(n, min=1, max) {
+            //  returns array of integers from minIntervals to maxIntervals or n, whichever is lower
+            //  
+            //  sorted as, from lowest to highest at each level:
+            //    1. divisors of n
+            //    2. divisors of 2^k*n
+            //    3. divisors of 10n
+            //    4*. divisors of n*(each prime divisor of n, in order)
+            //    5*. divisors of n*(each prime divisor of n, in order, squared)
+            //    6*. divisors of n*(each composite of two prime divisors of n, in order)
+            //    7*. all other integers less than n
+            //
+            //  the array will have additional properties:
+            //    div_m: for each m = kn considered above, an array of values
+            //    order: array of values of m, in order they were considered
+            max = max || n;
+            let intervals = [];
+            let covered = [];
+
+            function addIntervals(target) {
+              for(let i = 0; i < target.length; i += 1) {
+                let interval = target[i];
+                if(!(covered[interval])) {
+                  covered[interval] = true;
+                  // Last line of defense
+                  if(interval >= min && interval <= max) {
+                    intervals.push(target[i]);
+                  }
+                }
+              }
+            }
+
+            let coveredDivisorsOf = [];
+            intervals.order = [];
+
+            function addDivisorsOf(m) {
+              if(coveredDivisorsOf[m]) return;
+              coveredDivisorsOf[m] = true;
+              intervals.order.push(m);
+              let divs = divisors(m);
+              // First line of defense
+              intervals['div_'+m] = divs.filter((k)=>{return (k >= min && k <= max);});
+              addIntervals(intervals['div_'+m]);
+            }
+
+            // 1. divisors of n
+            addDivisorsOf(n);
+            // 2. divisors of 2^k*n
+            for(let k = 2; k < n; k *= 2) {
+              addDivisorsOf(k*n);
+            }
+            // 3. divisors of 10n
+            addDivisorsOf(10*n)
+
+            // 4. prime divisors of n
+            let factorization = factor(n);
+            let primes = [];
+            for (let i = 0; i < factorization.length; i += 1) {
+              if(factorization[i] > 0) {
+                primes.push(factorization.factorList[i]);
+                addDivisorsOf(factorization.factorList[i]*n);
+              }
+            }
+
+            // 5. prime divisors of n, squared
+            let squarePrimes = primes.map((n)=>{return n*n;});
+            for (let i = 0; i < squarePrimes.length; i += 1) {
+              addDivisorsOf(squarePrimes[i]*n);
+            }
+
+            // 6. Composites of 2 prime divisors
+            let composites = [];
+            for(let i = 0; i < primes.length; i += 1) {
+              for(let j = i+1; j < primes.length; j += 1) {
+                composites.push(primes[i]*primes[j]);
+              }
+            }
+            composites.sort();
+            for (let i = 0; i < composites.length; i += 1) {
+              addDivisorsOf(composites[i]*n);
+            }
+
+            // 7. other numbers less than n
+            let theRest = []
+            for (let i = Math.ceil(min); i <= Math.floor(max); i += 1) {
+              theRest.push(i);
+            }
+            addIntervals(theRest);
+
+            return intervals;
+          }
+
+          function alignPreferences(list1,list2,distance = function(l1,l2,a,b){return a+b;}) {
+            let preferences = [];
+
+            // start with taxicab distance, preferring list2 ([1,0] comes before [0,1])
+            for(let i = 0; i <= list1.length+list2.length; i += 1) {
+              for(let j = Math.min(i,list1.length), k = i - j; j >= 0 && k < list2.length; j -= 1, k += 1) {
+                if(list1[j] === list2[k]) preferences.push({1:j,2:k});
+              }
+            }
+
+            preferences.sort(function(a,b){
+              let d1 = distance(list1,list2,a[1],a[2]);
+              let d2 = distance(list1,list2,b[1],b[2]);
+
+              // slight preference for the smaller value, if two preferences are equal
+              if (d1 === d2) {
+                let p = list1[a[1]];
+                let q = list1[b[1]];
+
+                if(typeof p === "number" && !isNaN(p) &&
+                  typeof q === "number" && !isNaN(q)) {
+                  return (p - q);
+                }
+              }
+
+              return (d1 - d2);
+            });
+
+            for (let i = 0; i < preferences.length; i += 1) {
+              let coords = preferences[i];
+              if (list1[coords[1]] !== list2[coords[2]]) o.log("NOOOOOOO");
+              preferences[i] = list1[coords[1]];
+            }
+
+            return preferences;
+          }
+
+          function divideWholeForPart(whole,part,wholePreferences) {
+
+            if(wholePreferences === undefined) wholePreferences = intervalPreferences(whole);
+
+            let preferences = Array.from(wholePreferences);
+
+            let evenDivisors = [];
+            let catalog = {};
+            for(let i = 0; i < wholePreferences.length; i += 1) {
+              catalog[i] = true;
+              if(whole%wholePreferences[i] === 0) evenDivisors.push(wholePreferences[i]);
+            }
+            for(let i = 0; i < evenDivisors.length; i += 1) {
+              for(let j = i; j < evenDivisors.length; j += 1) {
+                let newPref = evenDivisors[i]*evenDivisors[j];
+                if(!(catalog[newPref])) {
+                  catalog[newPref] = true;
+                  preferences.push(newPref);
+                }
+              }
+            }
+
+            let scaledParts = preferences.map((i)=>{return part*i});
+
+            let simpleErrors = scaledParts.map((p)=>{return p%whole}).map((E)=>{return Math.min(E,whole-E)});
+
+            let intervalRelativeError = simpleErrors.map((r)=>{return r/whole});
+
+            let wholeRelativeError = [];
+            for(let i = 0; i < intervalRelativeError.length; i += 1) {
+              wholeRelativeError[i] = intervalRelativeError[i]/preferences[i];
+            }
+
+            let indices = [];
+            for(let i = 0; i < preferences.length; i += 1) {
+              indices.push(i);
+            }
+
+            indices.sort((a,b)=>{
+              if(simpleErrors[a]===0 && simpleErrors[b] === 0) {
+                o.log('both '+preferences[a]+' and '+preferences[b]+' divide');
+                return (a - b);
+              } else if (simpleErrors[a] === 0) {
+                o.log(preferences[a]+' divides');
+                return -1;
+              } else if (simpleErrors[b] === 0) {
+                o.log(preferences[b]+' divides');
+                return 1;
+              } else if (intervalRelativeError[a] <= 0.1 && intervalRelativeError[b] <= 0.1) {
+                o.log('close contenders '+preferences[a]+','+preferences[b]);
+                return (a - b);
+              } else if ((a < wholePreferences.length) == (b < wholePreferences.length)) {
+                let preferA = (wholeRelativeError[a] - wholeRelativeError[b]);
+                if(preferA < 0) o.log(preferences[a]+' is better than '+preferences[b]);
+                else o.log(preferences[b]+' is better than '+preferences[a]);
+                return preferA;
+              } else if (a < wholePreferences.length) {
+                o.log(preferences[b]+' was fabricated; '+preferences[a]+' was not.')
+                return -1;
+              } else if (b < wholePreferences.length) {
+                o.log(preferences[a]+' was fabricated; '+preferences[b]+' was not.')
+                return 1;
+              }
+              o.log('something\'s wrong');
+              return 0;
+            });
+
+            preferences = indices.map((i)=>{return preferences[i];});
+
+            return preferences;
+          }
+
+          function chooseIntervals(W,p,min=1,max=100) {
+
+            let preferencesW = intervalPreferences(W,min,max);
+            let preferences100 = intervalPreferences(100,min,max);
+            let preferences = alignPreferences(intervalPreferences(W,1,max),intervalPreferences(100,1,max),
+              function(w,c,iw,ic) {
+                return iw*10+ic*Math.sqrt(W);
+              });
+
+            o.log('W',preferencesW,'100',preferences100,'joint',preferences);
+
+            // Choose only divisors of both.
+            let intervalChoice = 1;
+            for(let i = 0; i < preferences.length; i += 1) {
+              let intervals = preferences[i];
+              // Any larger even divisor is also good
+              if (intervals > intervalChoice &&
+                W % intervals === 0 &&
+                100 % intervals === 0 &&
+                // Prefer intervals that also divide the part to larger ones that don't
+                (p % intervalChoice !== 0 || p % intervals === 0)) {
+                intervalChoice = intervals;
+              }
+            }
+
+            // If we can't get an even group, relax our standards
+            if(intervalChoice === 1) {
+              for(let i = 0; i < preferences.length; i += 1) {
+                intervalChoice = preferences[i];
+                if(intervalChoice >= min) break;
+              }
+            }
+
+            let intervalsW, intervals100;
+
+            subdivide();
+
+            function subdivide() {
+              // Subdivide further if you can
+              intervalsW = intervalChoice;
+              for(let i = 0; i < preferencesW.length; i += 1) {
+                let intervals = preferencesW[i];
+                if(!intervalsW || // There may not be a common denominator of the appropriate width.
+                  intervals > intervalsW &&
+                  intervals%intervalChoice === 0 &&
+                  // Only subdivide to factors of W
+                  W % intervals === 0) {
+                  intervalsW = intervals;
+                }
+              }
+
+              // Subdivide further if you can
+              intervals100 = intervalChoice;
+              for(let i = 0; i < preferences100.length; i += 1) {
+                let intervals = preferences100[i];
+                if(intervals > intervals100 &&
+                  intervals%intervalChoice === 0 &&
+                  // Only subdivide to factors of 100.
+                  100 % intervals === 0) {
+                  intervals100 = intervals;
+                }
+              }
+            }
+
+            let out = {
+              majorIntervals: intervalChoice,
+              minorIntervals100: intervals100,
+              minorIntervalsW: intervalsW
+            };
+            out['minorIntervals'+W] = intervalsW;
+
+            return out;
+          }
+
+          var maxMajorIntervals = 20;
+
+        return function(options={}) {
+          let o = hs.parseOptions(options);
+          let vars = vs[o.uniqueId];
+          let hxs = vars.helpers = {
+            W:o.desmos.HelperExpression({latex:'W'}),
+            p:o.desmos.HelperExpression({latex:'p'}),
+            scale:o.desmos.HelperExpression({latex:'t_{ickx}'})
+          };
+
+          hxs.W.observe('numericValue',updateIntervals);
+          hxs.scale.observe('numericValue',updateIntervals);
+          hxs.p.observe('numericValue',updateLabels);
+
+          function updateLabels() {
+            let p = hxs.p.numericValue;
+            let W = hxs.W.numericValue;
+
+            o.desmos.setExpressions([
+              {
+                id:'p_labelW',
+                label:''+(Math.round(100*p)/100)
+              },
+              {
+                id:'p_label100',
+                label:''+(Math.round(100*100*p/W)/100)+'%'
+              }
+            ])
+          }
+
+          function updateIntervals() {
+            let W = hxs.W.numericValue;
+            let p = hxs.p.numericValue;
+            let tick = hxs.scale.numericValue;
+            let spacing = tick;
+            let width = 100;
+            let maxIntervals = Math.max(2,Math.floor(width/spacing));
+            let minIntervals = Math.max(2,Math.floor(width/(5*spacing)));
+
+            let choices = chooseIntervals(W,p,minIntervals,maxIntervals);
+            o.log(choices);
+            o.desmos.setExpressions([
+              {
+                id:'majorIntervals',
+                latex:'I='+choices.majorIntervals
+              },
+              {
+                id:'minorIntervalsW',
+                latex:'I_W='+choices.minorIntervalsW
+              },
+              {
+                id:'minorIntervals100',
+                latex:'I_{100}='+choices.minorIntervals100
+              },
+              {
+                id:'pSlider',
+                latex:'p='+Math.round(Math.round(p*choices.minorIntervalsW/W)*W/choices.minorIntervalsW),
+                sliderBounds:{min:'0',max:''+W,step:''+(W/choices.minorIntervalsW)}
+              }
+            ]);
+            if(choices.majorIntervals > maxMajorIntervals) {
+              for (let i = maxMajorIntervals+1; i <= choices.majorIntervals; i += 1) {
+                o.desmos.setExpressions([
+                  {
+                    id:'label100_'+i,
+                    latex:'\\left(\\frac{100\\cdot'+i+'}{I},-t_{icky}\\right)',
+                    label:''+(Math.round(100*i*100/choices.majorIntervals)/100)+'%',
+                    showLabel:false,
+                    hidden:true,
+                    secret:true,
+                    color:cs.color.agaColors.black
+                  },
+                  {
+                    id:'labelW_'+i,
+                    latex:'\\left(\\frac{100\\cdot'+i+'}{I},5-t_{icky}\\right)',
+                    label:''+(Math.round(100*i*W/choices.majorIntervals)/100),
+                    showLabel:false,
+                    hidden:true,
+                    secret:true,
+                    color:cs.color.agaColors.black
+                  }
+                ]);
+              }
+              maxMajorIntervals = choices.majorIntervals;
+            }
+            for (let i = 0; i <= choices.majorIntervals; i += 1) {
+              o.desmos.setExpressions([
+                {
+                  id:'label100_'+i,
+                  label:''+(Math.round(100*i*100/choices.majorIntervals)/100)+'%',
+                  showLabel:true
+                },
+                {
+                  id:'labelW_'+i,
+                  label:''+(Math.round(100*i*W/choices.majorIntervals)/100),
+                  showLabel:true
+                }
+              ]);
+            }
+            for (let i = choices.majorIntervals+1; i <= maxMajorIntervals; i += 1) {
+              o.desmos.setExpressions([
+                {
+                  id:'label100_'+i,
+                  showLabel:false
+                },
+                {
+                  id:'labelW_'+i,
+                  showLabel:false
+                }
+              ]);
+            }
+          }
+        };
+      })()
      };
 
     /* ←— TESTING_TESTING_123 FUNCTIONS ——————————————————————————————————————————————→ */
