@@ -7207,7 +7207,7 @@ fs.A0597083 = {
             return out;
           }
 
-          var maxMajorIntervals = 20;
+          var maxMajorIntervals = 29;
 
         return function(options={}) {
           let o = hs.parseOptions(options);
@@ -7215,20 +7215,20 @@ fs.A0597083 = {
           let hxs = vars.helpers = {
             W:o.desmos.HelperExpression({latex:'W'}),
             p:o.desmos.HelperExpression({latex:'p'}),
-            scale:o.desmos.HelperExpression({latex:'t_{ickx}'})
+            scalex:o.desmos.HelperExpression({latex:'t_{ickx}'})
           };
 
           hxs.W.observe('numericValue',updateIntervals);
-          hxs.scale.observe('numericValue',updateIntervals);
-          hxs.p.observe('numericValue',updateLabels);
+          hxs.scalex.observe('numericValue',updateIntervals);
+          hxs.p.observe('numericValue',updateBar);
 
-          function updateLabels() {
+          function updateBar() {
             let p = hxs.p.numericValue;
             let W = hxs.W.numericValue;
 
             o.desmos.setExpressions([
               {
-                id:'p_labelW',
+                id:'p_labelP',
                 label:''+(Math.round(100*p)/100)
               },
               {
@@ -7241,7 +7241,7 @@ fs.A0597083 = {
           function updateIntervals() {
             let W = hxs.W.numericValue;
             let p = hxs.p.numericValue;
-            let tick = hxs.scale.numericValue;
+            let tick = hxs.scalex.numericValue;
             let spacing = tick;
             let width = 100;
             let maxIntervals = Math.max(2,Math.floor(width/spacing));
@@ -7266,6 +7266,10 @@ fs.A0597083 = {
               {
                 id:'minorIntervals100',
                 latex:'I_{100}='+choices.minorIntervals100
+              },
+              {
+                id:'p_labelW',
+                label:''+(Math.round(100*W)/100)
               }// ,pSlider // apparently this removes the snapping interval
             ]);
             if(choices.majorIntervals > maxMajorIntervals) {
@@ -7281,9 +7285,27 @@ fs.A0597083 = {
                     color:cs.color.agaColors.black
                   },
                   {
-                    id:'labelW_'+i,
+                    id:'labelP_'+i,
                     latex:'\\left(\\frac{100\\cdot'+i+'}{I},5-t_{icky}\\right)',
                     label:''+(Math.round(100*i*W/choices.majorIntervals)/100),
+                    showLabel:false,
+                    hidden:true,
+                    secret:true,
+                    color:cs.color.agaColors.black
+                  },
+                  {
+                    id:'labelFrac_'+i,
+                    latex:'\\left(\\frac{100\\cdot'+i+'}{I},5-1.4\\cdot t_{icky}\\right)',
+                    label:''+(Math.round(100*W)/100),
+                    showLabel:false,
+                    hidden:true,
+                    secret:true,
+                    color:cs.color.agaColors.black
+                  },
+                  {
+                    id:'labelW_'+i,
+                    latex:'\\left(\\frac{100\\cdot'+i+'}{I},5-2\\cdott_{icky}\\right)',
+                    label:''+(Math.round(100*W)/100),
                     showLabel:false,
                     hidden:true,
                     secret:true,
@@ -7297,13 +7319,22 @@ fs.A0597083 = {
               o.desmos.setExpressions([
                 {
                   id:'label100_'+i,
-                  label:''+(Math.round(100*i*100/choices.majorIntervals)/100)+'%',
+                  label:''+(Math.round(100*i*100/choices.majorIntervals)/100),
                   showLabel:true
                 },
                 {
-                  id:'labelW_'+i,
+                  id:'labelP_'+i,
                   label:''+(Math.round(100*i*W/choices.majorIntervals)/100),
                   showLabel:true
+                },
+                {
+                  id:'labelFrac_'+i,
+                  showLabel:false
+                },
+                {
+                  id:'labelW_'+i,
+                  label:''+(Math.round(100*W)/100),
+                  showLabel:false
                 }
               ]);
             }
@@ -7314,11 +7345,20 @@ fs.A0597083 = {
                   showLabel:false
                 },
                 {
+                  id:'labelP_'+i,
+                  showLabel:false
+                },
+                {
+                  id:'labelFrac_'+i,
+                  showLabel:false
+                },
+                {
                   id:'labelW_'+i,
                   showLabel:false
                 }
               ]);
             }
+            updateBar();
           }
         };
       })()
