@@ -311,6 +311,8 @@ ts.A0597225_histReset = (val, name, desmos)=>PearsonGL.External.rootJS.A0597225_
 
   ts.A0597207_init = (val, name, desmos)=>PearsonGL.External.rootJS.A0597207_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':log}:val);
 
+  ts.usabilityTestNumberLine_init = (val, name, desmos)=>PearsonGL.External.rootJS.usabilityTestNumberLine_init((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':log}:val);
+
   ts.A0597207_updateTriangle = (val, name, desmos)=>PearsonGL.External.rootJS.A0597207_updateTriangle((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':log}:val);
 
   exports.gcf = function(arr) {
