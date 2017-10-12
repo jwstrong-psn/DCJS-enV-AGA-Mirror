@@ -7249,6 +7249,11 @@ fs.A0597083 = {
 
             let choices = chooseIntervals(W,p,minIntervals,maxIntervals);
             o.log(choices);
+            let pSlider = {
+              id:'pSlider',
+              sliderBounds:{min:0,max:W}//,step:1} // apparently the step breaks everything
+            };
+            console.log('pSlider:',pSlider);
             o.desmos.setExpressions([
               {
                 id:'majorIntervals',
@@ -7261,12 +7266,7 @@ fs.A0597083 = {
               {
                 id:'minorIntervals100',
                 latex:'I_{100}='+choices.minorIntervals100
-              },
-              {
-                id:'pSlider',
-                latex:'p='+Math.round(Math.round(p*choices.minorIntervalsW/W)*W/choices.minorIntervalsW),
-                sliderBounds:{min:'0',max:''+W,step:''+(W/choices.minorIntervalsW)}
-              }
+              }// ,pSlider // apparently this removes the snapping interval
             ]);
             if(choices.majorIntervals > maxMajorIntervals) {
               for (let i = maxMajorIntervals+1; i <= choices.majorIntervals; i += 1) {
