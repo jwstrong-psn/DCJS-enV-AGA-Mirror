@@ -7151,9 +7151,9 @@ fs.A0597083 = {
 
           function chooseIntervals(W,p,min=1,maxMajor=20,maxMinor=100) {
 
-            let majorIntervalsW;
+            let majorIntervalsW = 1;
             let minorIntervalsW;
-            let majorIntervals100;
+            let majorIntervals100 = 2;
             let minorIntervals100;
 
             // Prefer divisors of both.
@@ -7181,103 +7181,53 @@ fs.A0597083 = {
               }
             }
 
-            // If a common subdivision is found, use that and subdivide further.
-            if(majorIntervalsW !== undefined) {
-              
-              // Subdivide W row further if you can
-              let betterMajorW = majorIntervalsW;
-              for(let i = 0; i < preferencesW.length; i += 1) {
-                let interval = preferencesW[i];
-                if(interval > betterMajorW &&
-                  interval <= maxMajor &&
-                  interval % majorIntervalsW === 0 &&
-                  W % interval === 0) {
-                  betterMajorW = interval;
-                }
-              }
-              majorIntervalsW = betterMajorW;
-
-              minorIntervalsW = majorIntervalsW;
-              for(let i = 0; i < preferencesW.length; i += 1) {
-                let interval = preferencesW[i];
-                if(interval > majorIntervalsW &&
-                  interval % majorIntervalsW === 0 &&
-                  W % interval === 0) {
-                  minorIntervalsW = interval;
-                }
-              }
-
-              // Subdivide 100 row further if you can
-              let betterMajor100 = majorIntervals100;
-              for(let i = 0; i < preferencesW.length; i += 1) {
-                let interval = preferences100[i];
-                if(interval > betterMajor100 &&
-                  interval <= maxMajor &&
-                  interval % majorIntervals100 === 0 &&
-                  100 % interval === 0) {
-                  betterMajor100 = interval;
-                }
-              }
-              majorIntervals100 = betterMajor100;
-
-              minorIntervals100 = majorIntervals100;
-              for(let i = 0; i < preferences100.length; i += 1) {
-                let interval = preferences100[i];
-                if(interval > minorIntervals100 &&
-                  100 % interval === 0 && // Only subdivide % evenly?
-                  interval % majorIntervals100 === 0 &&
-                  interval % 2 === 0) {
-                  minorIntervals100 = interval;
-                } else o.log('interval '+interval+' too something')
-              }
-
-            // If no common subdivision was found, choose minor intervals first separately
-            } else {
-
-              // Pick any interval for W that evenly divides
-              minorIntervalsW = 1;
-              for(let i = 0; i < preferencesW.length; i += 1) {
-                let interval = preferencesW[i];
-                if(interval > minorIntervalsW &&
-                  W % interval === 0) {
-                  minorIntervalsW = interval;
-                }
-              }
-
-              majorIntervalsW = 1;
-              for(let i = 0; i < preferencesW.length; i += 1) {
-                let interval = preferencesW[i];
-                if(interval > majorIntervalsW &&
-                  interval <= maxMajor &&
-                  minorIntervalsW % interval === 0 &&
-                  W % interval === 0) {
-                  majorIntervalsW = interval;
-                }
-              }
-
-              // % row should be divided by 2, at least
-              minorIntervals100 = 2;
-              for(let i = 0; i < preferences100.length; i += 1) {
-                let interval = preferences100[i];
-                if(interval > minorIntervals100 &&
-                  interval % 2 === 0 &&
-                  100 % interval === 0) {
-                  minorIntervals100 = interval;
-                }
-              }
-
-              majorIntervals100 = 1;
-              for(let i = 0; i < preferences100.length; i += 1) {
-                let interval = preferences100[i];
-                if(interval > majorIntervals100 &&
-                  interval <= maxMajor &&
-                  minorIntervals100 % interval === 0 &&
-                  interval % 2 === 0 &&
-                  100 % interval === 0) {
-                  majorIntervals100 = interval;
-                }
+            // Subdivide based on chosen Major Interval (if any)
+            minorIntervalsW = 1;
+            for(let i = 0; i < preferencesW.length; i += 1) {
+              let interval = preferencesW[i];
+              if(interval > minorIntervalsW &&
+                interval % majorIntervalsW === 0 &&
+                W % interval === 0) {
+                minorIntervalsW = interval;
               }
             }
+
+            minorIntervals100 = 2;
+            for(let i = 0; i < preferences100.length; i += 1) {
+              let interval = preferences100[i];
+              if(interval > minorIntervals100 &&
+                interval % majorIntervals100 === 0 &&
+                100 % interval === 0) {
+                minorIntervals100 = interval;
+              }
+            }
+
+            // Increase Major Interval resolution, aligning with subdivisions
+            let betterMajor = majorIntervalsW;
+            for(let i = 0; i < preferencesW.length; i += 1) {
+              let interval = preferencesW[i];
+              if(interval > betterMajor &&
+                interval <= maxMajor &&
+                interval % majorIntervalsW === 0 &&
+                minorIntervalsW % interval === 0 &&
+                W % interval === 0) {
+                betterMajor = interval;
+              }
+            }
+            majorIntervalsW = betterMajor;
+
+            betterMajor = majorIntervals100;
+            for(let i = 0; i < preferences100.length; i += 1) {
+              let interval = preferences100[i];
+              if(interval > betterMajor &&
+                interval <= maxMajor &&
+                interval % majorIntervals100 === 0 &&
+                minorIntervals100 % interval === 0 &&
+                100 % interval === 0) {
+                betterMajor = interval;
+              }
+            }
+            majorIntervals100 = betterMajor;
 
             o.log('W Major:',majorIntervalsW,'100 Major:',majorIntervals100);
 
@@ -7331,7 +7281,7 @@ fs.A0597083 = {
             let spacing = 2*tick/3;
             let width = 100;
             let maxMinorIntervals = Math.max(2,Math.floor(width/spacing));
-            let maxMajorIntervals = Math.max(2,Math.floor(width/(3*spacing)));
+            let maxMajorIntervals = Math.max(2,Math.floor(width/(4*spacing)));
             let minIntervals = Math.max(2,Math.floor(width/(7*spacing)));
 
             let choices = chooseIntervals(W,p,minIntervals,maxMajorIntervals,maxMinorIntervals);
@@ -7434,15 +7384,15 @@ fs.A0597083 = {
                     id:'labelP_'+i,
                     label:''+(Math.round(100*i*W/choices.majorIntervalsW)/100),
                     showLabel:true
-                  },
-                  {
-                    id:'labelFrac_'+i,
-                    showLabel:false
-                  },
-                  {
-                    id:'labelW_'+i,
-                    label:''+(Math.round(100*W)/100),
-                    showLabel:false
+                  // },
+                  // {
+                  //   id:'labelFrac_'+i,
+                  //   showLabel:false
+                  // },
+                  // {
+                  //   id:'labelW_'+i,
+                  //   label:''+(Math.round(100*W)/100),
+                  //   showLabel:false
                   }
                 );
               } else {
@@ -7450,14 +7400,14 @@ fs.A0597083 = {
                   {
                     id:'labelP_'+i,
                     showLabel:false
-                  },
-                  {
-                    id:'labelFrac_'+i,
-                    showLabel:false
-                  },
-                  {
-                    id:'labelW_'+i,
-                    showLabel:false
+                  // },
+                  // {
+                  //   id:'labelFrac_'+i,
+                  //   showLabel:false
+                  // },
+                  // {
+                  //   id:'labelW_'+i,
+                  //   showLabel:false
                   }
                 );
               }
