@@ -6779,11 +6779,7 @@ fs.A0597083 = {
               let nextPrimeIndex = 0;
 
               this.all = function(){
-                let out = [];
-                for (let i = firstPrimeIndex; i < nextPrimeIndex; i += 1) {
-                  out.push(primes[i]);
-                }
-                return out;
+                return primes.filter(function(e,i,a){return (i >= firstPrimeIndex && i < nextPrimeIndex);});
               };
 
               this.last = function(){
@@ -6812,6 +6808,16 @@ fs.A0597083 = {
               return this;
             }
 
+            generator.getPrimes = function(max,min=2){
+              max = max || lastMax;
+
+              while(max > lastMax) {
+                advance();
+              }
+
+              return primes.slice(function(e,i,a){return (e >= min && e <= max);})
+            }
+
             return generator;
           })();
 
@@ -6822,21 +6828,12 @@ fs.A0597083 = {
             return NaN;
           }
 
-          function getPrimes(max) {
+          function getPrimes(max,min=2) {
             //  returns a list of prime numbers less than or equal to max
 
             // uses a PrimeGenerator if possible
             if (PrimeGenerator) {
-              let generator = new PrimeGenerator();
-              while(generator.next()<max);
-
-              let primes = generator.all();
-
-              if (primes[primes.length-1] > max) {
-                primes.pop();
-              }
-
-              return primes;
+              return PrimeGenerator.getPrimes(max,min);
             }
 
             let composites = {};
@@ -6857,188 +6854,233 @@ fs.A0597083 = {
             return primes;
           }
 
-          function divisors(n) {
-            //  returns an array of all whole number divisors of number n, in ascending order
-            //  includes 1 and n, even if n is not a whole number
-            let noDivide = {};
-            let divisors = [1];
-            let dividends = [n];
-            let maxDivisor = n;
+          var divisors = (function() {
+            let catalog = {};
 
-            for (let k = 2; k < maxDivisor; k += 1) {
+            return function(n) {
 
-              if (!(noDivide[k])) {
-                
-                if (n%k) {
+              if(!(catalog[n])) {
 
-                  for (let j = k; j < maxDivisor; j += k) {
-                    noDivide[j] = true;
-                  }
+                //  returns an array of all whole number divisors of number n, in ascending order
+                //  includes 1 and n, even if n is not a whole number
+                let noDivide = {};
+                let divisors = [1];
+                let dividends = [n];
+                let maxDivisor = n;
 
-                } else {
+                for (let k = 2; k < maxDivisor; k += 1) {
 
-                  divisors.push(k);
-                  maxDivisor = n/k;
-                  if (maxDivisor != k) dividends.push(maxDivisor);
+                  if (!(noDivide[k])) {
+                    
+                    if (n%k) {
 
-                }
-              }
-            }
+                      for (let j = k; j < maxDivisor; j += k) {
+                        noDivide[j] = true;
+                      }
 
-            while(dividends.length>0) divisors.push(dividends.pop());
+                    } else {
 
-            return divisors;
-          }
+                      divisors.push(k);
+                      maxDivisor = n/k;
+                      if (maxDivisor != k) dividends.push(maxDivisor);
 
-          function factor(n,factors) {
-            //  returns an array of multiplicities of each number in the factorization of n
-            //  if optional argument factors is given, uses only those factors
-            //  otherwise, uses a list of prime factors up to the greatest prime divisor
-            //  Note: if given factor list is not relatively prime to itself and n, the total product
-            //  will be greater than n
-            // 
-            //  Returned array will have the additional property "factorList", a copy of factors
-
-            let limit = Date.now()+1000;
-
-            factors = factors || getPrimes(n);
-
-            let mults = [];
-            let factorList = [];
-
-            for (let i = 0; i < factors.length; i += 1) {
-              mults[i] = 0;
-              factorList[i] = factors[i];
-              let factor = factors[i];
-              let k = n;
-              while (k > 1 && k%factor === 0) {
-
-                mults[i] += 1;
-                k /= factor;
-
-                if (Date.now()>limit) {
-                  o.log('Hit limit at k = '+k+'; i = '+i);
-                  return mults;
-                }
-              }
-              if (Date.now()>limit) {
-                o.log('Hit limit at k = '+k+'; i = '+i);
-                return mults;
-              }
-            }
-
-            mults.factorList = factorList;
-
-            return mults;
-          }
-
-          function intervalPreferences(n, min=1, max, excludeRelativePrimes = false) {
-            //  returns array of integers from minIntervals to maxIntervals or n, whichever is lower
-            //  
-            //  sorted as, from lowest to highest at each level:
-            //    1. divisors of n
-            //    2. divisors of 2^k*n (unless excludeRelativePrimes is set)
-            //    3. divisors of 10n (unless excludeRelativePrimes is set)
-            //    4*. divisors of n*(each prime divisor of n, in order)
-            //    5*. divisors of n*(each prime divisor of n, in order, squared)
-            //    6*. divisors of n^2
-            //    7*. all other integers less than n (unless excludeRelativePrimes is set)
-            //
-            //  the array will have additional properties:
-            //    div_m: for each m = kn considered above, an array of values
-            //    order: array of values of m, in order they were considered
-            max = max || n;
-            let intervals = [];
-            let covered = [];
-
-            function addIntervals(target) {
-              for(let i = 0; i < target.length; i += 1) {
-                let interval = target[i];
-                if(!(covered[interval])) {
-                  covered[interval] = true;
-                  // Last line of defense
-                  if(interval >= min && interval <= max) {
-                    intervals.push(target[i]);
+                    }
                   }
                 }
+
+                while(dividends.length>0) divisors.push(dividends.pop());
+
+                catalog[n] = divisors;
               }
+
+              return catalog[n].slice();
             }
+          })();
 
-            let coveredDivisorsOf = [];
-            intervals.order = [];
+          var factor = (function(){
+            let catalog = {};
 
-            function addDivisorsOf(m) {
-              if(coveredDivisorsOf[m]) return;
-              coveredDivisorsOf[m] = true;
-              intervals.order.push(m);
-              let divs = divisors(m);
-              // First line of defense
-              intervals['div_'+m] = divs.filter((k)=>{return (k >= min && k <= max);});
-              addIntervals(intervals['div_'+m]);
-            }
+            return function(n,factors) {
+              //  returns an array of multiplicities of each number in the factorization of n
+              //  if optional argument factors is given, uses only those factors
+              //  otherwise, uses a list of prime factors up to the greatest prime divisor
+              //  Note: if given factor list is not relatively prime to itself and n, the total product
+              //  will be greater than n
+              // 
+              //  Returned array will have the additional property "factorList", a copy of factors
 
-            // 1. divisors of n
-            addDivisorsOf(n);
-            // 2. divisors of 2^k*n
-            if(!excludeRelativePrimes || n % 2 === 0) {
-              let m = n;
-              let k = 2;
-              while(m % 2 === 0) {
-                m /= 2;
-                k *= 2;
+              catalog[n] = catalog[n] || {};
+
+              if(!(catalog[n][factors])) {
+
+                let mults = [];
+                let factorList = factors || getPrimes(n);
+
+                for (let i = 0; i < factorList.length; i += 1) {
+                  mults[i] = 0;
+                  let factor = factorList[i];
+                  let k = n;
+                  while (k > 1 && k%factor === 0) {
+                    mults[i] += 1;
+                    k /= factor;
+                  }
+                }
+
+                catalog[n][factors] = {
+                  factors: factorList,
+                  multiplicities: mults
+                };
+
               }
-              while(k < max) {
-                addDivisorsOf(k*m);
-                k *= 2;
+
+              let out = catalog[n][factors].multiplicities.slice();
+              out.factorList = catalog[n][factors].factors.slice();
+
+              return out;
+            };
+          })();
+
+          var intervalPreferences = (function(){
+            let catalog = {};
+
+            return function(n, min=1, max, excludeRelativePrimes = false) {
+              //  returns array of integers from minIntervals to maxIntervals or n, whichever is lower
+              //  
+              //  sorted as, from lowest to highest at each level:
+              //    1. divisors of n
+              //    2. divisors of 2^k*n (unless excluded as a relative prime)
+              //    3. divisors of 10n (unless excluded as a relative prime)
+              //    4*. divisors of n*(each prime divisor of n, in order)
+              //    5*. divisors of n*(each prime divisor of n, in order, squared)
+              //    6*. divisors of n^2
+              //    7*. all other integers less than n (unless excludeRelativePrimes is set)
+              //
+              //  the array will have additional properties:
+              //    order: array of values of m = k*n considered above, in order they were considered
+
+              max = max || n;
+
+              if(!(catalog[n])) {
+
+                catalog[n] = {
+                  inclusive:{},
+                  exclusive:{}
+                }
+
+                let orderInclusive = [];
+                let orderExclusive = [];
+
+                // 1. divisors of n
+                orderInclusive.push(n);
+                orderExclusive.push(n);
+
+                // 2. divisors of 2^k*n
+                let m = n;
+                let k = 2;
+                while(m % 2 === 0) {
+                  m /= 2;
+                  k *= 2;
+                }
+                while(k < n) {
+                  orderInclusive.push(k*m);
+                  if(n % 2 === 0) {
+                    orderExclusive.push(k*m);
+                  }
+                  k *= 2;
+                }
+
+                // 3. divisors of 10n
+                orderInclusive.push(10*n);
+                if(n % 10 === 0) {
+                  orderExclusive.push(10*n);
+                }
+
+                // 4. prime divisors of n
+                let primes = factor(n).map(function(e,i,a){
+                  if(e === 0) {
+                    return 0;
+                  } else {
+                    return a.factorList[i];
+                  }
+                }).filter(function(e,i,a) {
+                  return (e >= 2);
+                });
+                primes.forEach(function(e,i,a) {
+                  orderInclusive.push(e*n);
+                  orderExclusive.push(e*n);
+                });
+
+                // 5. prime divisors of n, squared
+                primes.forEach(function(e,i,a) {
+                  orderInclusive.push(e*e*n);
+                  orderExclusive.push(e*e*n);
+                });
+
+                // 6. divisors n^2
+                orderInclusive.push(n*n);
+                orderExclusive.push(n*n);
+
+                catalog[n].inclusive.order = orderInclusive.filter(function(e,i,a) {
+                  return (a.indexOf(e) === i);
+                });
+
+                catalog[n].exclusive.order = orderExclusive.filter(function(e,i,a) {
+                  return (a.indexOf(e) === i);
+                });
+
+                let listInclusive = [];
+                let coveredInclusive = [];
+
+                orderInclusive.forEach(function(e,i,a) {
+                  let divs = divisors(e);
+                  divs.forEach(function(e,i,a) {
+                    if(!(coveredInclusive[e])) {
+                      coveredInclusive[e] = true;
+                      listInclusive.push(e);
+                    }
+                  });
+                });
+                catalog[n].inclusive.list = listInclusive;
+
+                let listExclusive = [];
+                let coveredExclusive = [];
+
+                orderExclusive.forEach(function(e,i,a) {
+                  let divs = divisors(e);
+                  divs.forEach(function(e,i,a) {
+                    if(!(coveredExclusive[e])) {
+                      coveredExclusive[e] = true;
+                      listExclusive.push(e);
+                    }
+                  });
+                });
+                catalog[n].exclusive.list = listExclusive;
               }
-            }
-            // 3. divisors of 10n
-            if(!excludeRelativePrimes || n % 10 === 0) {
-              addDivisorsOf(10*n)
-            }
 
-            // 4. prime divisors of n
-            let factorization = factor(n);
-            let primes = [];
-            for (let i = 0; i < factorization.length; i += 1) {
-              if(factorization[i] > 0) {
-                primes.push(factorization.factorList[i]);
-                addDivisorsOf(factorization.factorList[i]*n);
+              let answer;
+
+              if (excludeRelativePrimes) {
+                answer = catalog[n].exclusive;
+              } else {
+                answer = catalog[n].inclusive;
               }
-            }
 
-            // 5. prime divisors of n, squared
-            let squarePrimes = primes.map((n)=>{return n*n;});
-            for (let i = 0; i < squarePrimes.length; i += 1) {
-              addDivisorsOf(squarePrimes[i]*n);
-            }
+              let out = answer.list.filter(function(e,i,a){
+                return (min <= e && e <= max);
+              });
+              out.order = answer.order.slice();
 
-            // 6. divisors n^2
-            addDivisorsOf(n*n);
-
-            // OLD 6. divisors of n*composites
-            // let composites = [];
-            // for(let i = 0; i < primes.length; i += 1) {
-            //   for(let j = i+1; j < primes.length; j += 1) {
-            //     composites.push(primes[i]*primes[j]);
-            //   }
-            // }
-            // composites.sort();
-            // for (let i = 0; i < composites.length; i += 1) {
-            //   addDivisorsOf(composites[i]*n);
-            // }
-
-            // 7. other numbers less than n
-            if(!excludeRelativePrimes) {
-              let theRest = []
-              for (let i = Math.ceil(min); i <= Math.floor(max); i += 1) {
-                theRest.push(i);
+              if(!excludeRelativePrimes) {
+                for(let i = min; i <= max; i += 1) {
+                  if(out.indexOf(i) === -1) {
+                    out.push(i);
+                  }
+                }
               }
-              addIntervals(theRest);
-            }
 
-            return intervals;
-          }
+              return out;
+            };
+          })();
 
           function alignPreferences(list1,list2,distance = function(l1,l2,a,b){return a+b;}) {
             let preferences = [];
