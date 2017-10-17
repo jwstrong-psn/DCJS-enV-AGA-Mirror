@@ -6932,17 +6932,17 @@ fs.A0597083 = {
             return mults;
           }
 
-          function intervalPreferences(n, min=1, max) {
+          function intervalPreferences(n, min=1, max, excludeRelativePrimes = false) {
             //  returns array of integers from minIntervals to maxIntervals or n, whichever is lower
             //  
             //  sorted as, from lowest to highest at each level:
             //    1. divisors of n
-            //    2. divisors of 2^k*n
-            //    3. divisors of 10n
+            //    2. divisors of 2^k*n (unless excludeRelativePrimes is set)
+            //    3. divisors of 10n (unless excludeRelativePrimes is set)
             //    4*. divisors of n*(each prime divisor of n, in order)
             //    5*. divisors of n*(each prime divisor of n, in order, squared)
-            //    6*. divisors of n*(each composite of two prime divisors of n, in order)
-            //    7*. all other integers less than n
+            //    6*. divisors of n^2
+            //    7*. all other integers less than n (unless excludeRelativePrimes is set)
             //
             //  the array will have additional properties:
             //    div_m: for each m = kn considered above, an array of values
@@ -6980,11 +6980,22 @@ fs.A0597083 = {
             // 1. divisors of n
             addDivisorsOf(n);
             // 2. divisors of 2^k*n
-            for(let k = 2; k < n; k *= 2) {
-              addDivisorsOf(k*n);
+            if(!excludeRelativePrimes || n % 2 === 0) {
+              let m = n;
+              let k = 2;
+              while(m % 2 === 0) {
+                m /= 2;
+                k *= 2;
+              }
+              while(k < max) {
+                addDivisorsOf(k*m);
+                k *= 2;
+              }
             }
             // 3. divisors of 10n
-            addDivisorsOf(10*n)
+            if(!excludeRelativePrimes || n % 10 === 0) {
+              addDivisorsOf(10*n)
+            }
 
             // 4. prime divisors of n
             let factorization = factor(n);
@@ -7002,24 +7013,29 @@ fs.A0597083 = {
               addDivisorsOf(squarePrimes[i]*n);
             }
 
-            // 6. Composites of 2 prime divisors
-            let composites = [];
-            for(let i = 0; i < primes.length; i += 1) {
-              for(let j = i+1; j < primes.length; j += 1) {
-                composites.push(primes[i]*primes[j]);
-              }
-            }
-            composites.sort();
-            for (let i = 0; i < composites.length; i += 1) {
-              addDivisorsOf(composites[i]*n);
-            }
+            // 6. divisors n^2
+            addDivisorsOf(n*n);
+
+            // OLD 6. divisors of n*composites
+            // let composites = [];
+            // for(let i = 0; i < primes.length; i += 1) {
+            //   for(let j = i+1; j < primes.length; j += 1) {
+            //     composites.push(primes[i]*primes[j]);
+            //   }
+            // }
+            // composites.sort();
+            // for (let i = 0; i < composites.length; i += 1) {
+            //   addDivisorsOf(composites[i]*n);
+            // }
 
             // 7. other numbers less than n
-            let theRest = []
-            for (let i = Math.ceil(min); i <= Math.floor(max); i += 1) {
-              theRest.push(i);
+            if(!excludeRelativePrimes) {
+              let theRest = []
+              for (let i = Math.ceil(min); i <= Math.floor(max); i += 1) {
+                theRest.push(i);
+              }
+              addIntervals(theRest);
             }
-            addIntervals(theRest);
 
             return intervals;
           }
@@ -7133,81 +7149,150 @@ fs.A0597083 = {
             return preferences;
           }
 
-          function chooseIntervals(W,p,min=1,max=100) {
+          function chooseIntervals(W,p,min=1,maxMajor=20,maxMinor=100) {
 
-            let preferencesW = intervalPreferences(W,min,max);
-            let preferences100 = intervalPreferences(100,min,max);
-            let preferences = alignPreferences(intervalPreferences(W,1,max),intervalPreferences(100,1,max),
+            let majorIntervalsW;
+            let minorIntervalsW;
+            let majorIntervals100;
+            let minorIntervals100;
+
+            // Prefer divisors of both.
+            let preferencesW = intervalPreferences(W,1,maxMinor,true);
+            let preferences100 = intervalPreferences(100,2,maxMinor,true);
+            let preferences = alignPreferences(preferencesW,preferences100,
               function(w,c,iw,ic) {
                 return iw*10+ic*Math.sqrt(W);
               });
 
             o.log('W',preferencesW,'100',preferences100,'joint',preferences);
 
-            // Choose only divisors of both.
-            let intervalChoice = 1;
-            for(let i = 0; i < preferences.length; i += 1) {
-              let intervals = preferences[i];
-              // Any larger even divisor is also good
-              if (intervals > intervalChoice &&
-                W % intervals === 0 &&
-                100 % intervals === 0 &&
-                // Prefer intervals that also divide the part to larger ones that don't
-                (p % intervalChoice !== 0 || p % intervals === 0)) {
-                intervalChoice = intervals;
-              }
-            }
-
-            // If we can't get an even group, relax our standards
-            if(intervalChoice === 1) {
+            if(preferences.length > 0) {
               for(let i = 0; i < preferences.length; i += 1) {
-                intervalChoice = preferences[i];
-                if(intervalChoice >= min) break;
+                let interval = preferences[i];
+                if((i === 0 ||
+                  interval > majorIntervalsW) &&
+                  interval <= maxMajor &&
+                  interval % 2 === 0 && // Always show 50%
+                  100 % interval === 0 &&
+                  W % interval === 0) {
+                  majorIntervalsW = interval;
+                  majorIntervals100 = interval;
+                }
               }
             }
 
-            let intervalsW, intervals100;
-
-            subdivide();
-
-            function subdivide() {
-              // Subdivide further if you can
-              intervalsW = intervalChoice;
+            // If a common subdivision is found, use that and subdivide further.
+            if(majorIntervalsW !== undefined) {
+              
+              // Subdivide W row further if you can
+              let betterMajorW = majorIntervalsW;
               for(let i = 0; i < preferencesW.length; i += 1) {
-                let intervals = preferencesW[i];
-                if(!intervalsW || // There may not be a common denominator of the appropriate width.
-                  intervals > intervalsW &&
-                  intervals%intervalChoice === 0 &&
-                  // Only subdivide to factors of W
-                  W % intervals === 0) {
-                  intervalsW = intervals;
+                let interval = preferencesW[i];
+                if(interval > betterMajorW &&
+                  interval <= maxMajor &&
+                  interval % majorIntervalsW === 0 &&
+                  W % interval === 0) {
+                  betterMajorW = interval;
+                }
+              }
+              majorIntervalsW = betterMajorW;
+
+              minorIntervalsW = majorIntervalsW;
+              for(let i = 0; i < preferencesW.length; i += 1) {
+                let interval = preferencesW[i];
+                if(interval > majorIntervalsW &&
+                  interval % majorIntervalsW === 0 &&
+                  W % interval === 0) {
+                  minorIntervalsW = interval;
                 }
               }
 
-              // Subdivide further if you can
-              intervals100 = intervalChoice;
+              // Subdivide 100 row further if you can
+              let betterMajor100 = majorIntervals100;
+              for(let i = 0; i < preferencesW.length; i += 1) {
+                let interval = preferences100[i];
+                if(interval > betterMajor100 &&
+                  interval <= maxMajor &&
+                  interval % majorIntervals100 === 0 &&
+                  100 % interval === 0) {
+                  betterMajor100 = interval;
+                }
+              }
+              majorIntervals100 = betterMajor100;
+
+              minorIntervals100 = majorIntervals100;
               for(let i = 0; i < preferences100.length; i += 1) {
-                let intervals = preferences100[i];
-                if(intervals > intervals100 &&
-                  intervals%intervalChoice === 0 &&
-                  // Only subdivide to factors of 100.
-                  100 % intervals === 0) {
-                  intervals100 = intervals;
+                let interval = preferences100[i];
+                if(interval > minorIntervals100 &&
+                  100 % interval === 0 && // Only subdivide % evenly?
+                  interval % majorIntervals100 === 0 &&
+                  interval % 2 === 0) {
+                  minorIntervals100 = interval;
+                } else o.log('interval '+interval+' too something')
+              }
+
+            // If no common subdivision was found, choose minor intervals first separately
+            } else {
+
+              // Pick any interval for W that evenly divides
+              minorIntervalsW = 1;
+              for(let i = 0; i < preferencesW.length; i += 1) {
+                let interval = preferencesW[i];
+                if(interval > minorIntervalsW &&
+                  W % interval === 0) {
+                  minorIntervalsW = interval;
+                }
+              }
+
+              majorIntervalsW = 1;
+              for(let i = 0; i < preferencesW.length; i += 1) {
+                let interval = preferencesW[i];
+                if(interval > majorIntervalsW &&
+                  interval <= maxMajor &&
+                  minorIntervalsW % interval === 0 &&
+                  W % interval === 0) {
+                  majorIntervalsW = interval;
+                }
+              }
+
+              // % row should be divided by 2, at least
+              minorIntervals100 = 2;
+              for(let i = 0; i < preferences100.length; i += 1) {
+                let interval = preferences100[i];
+                if(interval > minorIntervals100 &&
+                  interval % 2 === 0 &&
+                  100 % interval === 0) {
+                  minorIntervals100 = interval;
+                }
+              }
+
+              majorIntervals100 = 1;
+              for(let i = 0; i < preferences100.length; i += 1) {
+                let interval = preferences100[i];
+                if(interval > majorIntervals100 &&
+                  interval <= maxMajor &&
+                  minorIntervals100 % interval === 0 &&
+                  interval % 2 === 0 &&
+                  100 % interval === 0) {
+                  majorIntervals100 = interval;
                 }
               }
             }
+
+            o.log('W Major:',majorIntervalsW,'100 Major:',majorIntervals100);
+
 
             let out = {
-              majorIntervals: intervalChoice,
-              minorIntervals100: intervals100,
-              minorIntervalsW: intervalsW
+              majorIntervalsW: majorIntervalsW,
+              minorIntervalsW: minorIntervalsW,
+              majorIntervals100: majorIntervals100,
+              minorIntervals100: minorIntervals100
             };
-            out['minorIntervals'+W] = intervalsW;
 
             return out;
           }
 
-          var maxMajorIntervals = 29;
+          var mostMajorIntervals = 29;
 
         return function(options={}) {
           let o = hs.parseOptions(options);
@@ -7240,14 +7325,16 @@ fs.A0597083 = {
 
           function updateIntervals() {
             let W = hxs.W.numericValue;
+            if(W <= 0) return;
             let p = hxs.p.numericValue;
             let tick = hxs.scalex.numericValue;
-            let spacing = tick;
+            let spacing = 2*tick/3;
             let width = 100;
-            let maxIntervals = Math.max(2,Math.floor(width/spacing));
-            let minIntervals = Math.max(2,Math.floor(width/(5*spacing)));
+            let maxMinorIntervals = Math.max(2,Math.floor(width/spacing));
+            let maxMajorIntervals = Math.max(2,Math.floor(width/(3*spacing)));
+            let minIntervals = Math.max(2,Math.floor(width/(7*spacing)));
 
-            let choices = chooseIntervals(W,p,minIntervals,maxIntervals);
+            let choices = chooseIntervals(W,p,minIntervals,maxMajorIntervals,maxMinorIntervals);
             o.log(choices);
             let pSlider = {
               id:'pSlider',
@@ -7256,8 +7343,12 @@ fs.A0597083 = {
             console.log('pSlider:',pSlider);
             o.desmos.setExpressions([
               {
-                id:'majorIntervals',
-                latex:'I='+choices.majorIntervals
+                id:'majorIntervalsW',
+                latex:'I_w='+choices.majorIntervalsW
+              },
+              {
+                id:'majorIntervals100',
+                latex:'I='+choices.majorIntervals100
               },
               {
                 id:'minorIntervalsW',
@@ -7272,13 +7363,15 @@ fs.A0597083 = {
                 label:''+(Math.round(100*W)/100)
               }// ,pSlider // apparently this removes the snapping interval
             ]);
-            if(choices.majorIntervals > maxMajorIntervals) {
-              for (let i = maxMajorIntervals+1; i <= choices.majorIntervals; i += 1) {
-                o.desmos.setExpressions([
+            let newMostMajors = Math.max(choices.majorIntervals100,choices.majorIntervalsW);
+            if(newMostMajors > mostMajorIntervals) {
+              let exprs = [];
+              for (let i = mostMajorIntervals+1; i <= newMostMajors; i += 1) {
+                exprs.push(
                   {
                     id:'label100_'+i,
-                    latex:'\\left(\\frac{100\\cdot'+i+'}{I},-t_{icky}\\right)',
-                    label:''+(Math.round(100*i*100/choices.majorIntervals)/100)+'%',
+                    latex:'\\left(\\frac{100\\cdot'+i+'}{I},h_{100}-t_{icky}\\right)',
+                    label:''+(Math.round(100*i*100/choices.majorIntervals100)/100)+'%',
                     showLabel:false,
                     hidden:true,
                     secret:true,
@@ -7286,8 +7379,8 @@ fs.A0597083 = {
                   },
                   {
                     id:'labelP_'+i,
-                    latex:'\\left(\\frac{100\\cdot'+i+'}{I},5-t_{icky}\\right)',
-                    label:''+(Math.round(100*i*W/choices.majorIntervals)/100),
+                    latex:'\\left(\\frac{100\\cdot'+i+'}{I_w},h_W-t_{icky}\\right)',
+                    label:''+(Math.round(100*i*W/choices.majorIntervalsW)/100),
                     showLabel:false,
                     hidden:true,
                     secret:true,
@@ -7295,7 +7388,7 @@ fs.A0597083 = {
                   },
                   {
                     id:'labelFrac_'+i,
-                    latex:'\\left(\\frac{100\\cdot'+i+'}{I},5-1.4\\cdot t_{icky}\\right)',
+                    latex:'\\left(\\frac{100\\cdot'+i+'}{I_w},h_W-1.4\\cdot t_{icky}\\right)',
                     label:''+(Math.round(100*W)/100),
                     showLabel:false,
                     hidden:true,
@@ -7304,60 +7397,72 @@ fs.A0597083 = {
                   },
                   {
                     id:'labelW_'+i,
-                    latex:'\\left(\\frac{100\\cdot'+i+'}{I},5-2\\cdott_{icky}\\right)',
+                    latex:'\\left(\\frac{100\\cdot'+i+'}{I_w},h_W-2\\cdot t_{icky}\\right)',
                     label:''+(Math.round(100*W)/100),
                     showLabel:false,
                     hidden:true,
                     secret:true,
                     color:cs.color.agaColors.black
                   }
-                ]);
+                );
               }
-              maxMajorIntervals = choices.majorIntervals;
+              o.desmos.setExpressions(exprs);
+              mostMajorIntervals = newMostMajors;
             }
-            for (let i = 0; i <= choices.majorIntervals; i += 1) {
-              o.desmos.setExpressions([
-                {
-                  id:'label100_'+i,
-                  label:''+(Math.round(100*i*100/choices.majorIntervals)/100),
-                  showLabel:true
-                },
-                {
-                  id:'labelP_'+i,
-                  label:''+(Math.round(100*i*W/choices.majorIntervals)/100),
-                  showLabel:true
-                },
-                {
-                  id:'labelFrac_'+i,
-                  showLabel:false
-                },
-                {
-                  id:'labelW_'+i,
-                  label:''+(Math.round(100*W)/100),
-                  showLabel:false
-                }
-              ]);
+            let exprs = [];
+            for (let i = 0; i <= mostMajorIntervals; i += 1) {
+              if(i <= choices.majorIntervals100) {
+                exprs.push(
+                  {
+                    id:'label100_'+i,
+                    label:''+(Math.round(100*i*100/choices.majorIntervals100)/100),
+                    showLabel:true
+                  }
+                );
+              } else {
+                exprs.push(
+                  {
+                    id:'label100_'+i,
+                    showLabel:false
+                  }
+                );
+              }
+
+              if(i <= choices.majorIntervalsW) {
+                exprs.push(
+                  {
+                    id:'labelP_'+i,
+                    label:''+(Math.round(100*i*W/choices.majorIntervalsW)/100),
+                    showLabel:true
+                  },
+                  {
+                    id:'labelFrac_'+i,
+                    showLabel:false
+                  },
+                  {
+                    id:'labelW_'+i,
+                    label:''+(Math.round(100*W)/100),
+                    showLabel:false
+                  }
+                );
+              } else {
+                exprs.push(
+                  {
+                    id:'labelP_'+i,
+                    showLabel:false
+                  },
+                  {
+                    id:'labelFrac_'+i,
+                    showLabel:false
+                  },
+                  {
+                    id:'labelW_'+i,
+                    showLabel:false
+                  }
+                );
+              }
             }
-            for (let i = choices.majorIntervals+1; i <= maxMajorIntervals; i += 1) {
-              o.desmos.setExpressions([
-                {
-                  id:'label100_'+i,
-                  showLabel:false
-                },
-                {
-                  id:'labelP_'+i,
-                  showLabel:false
-                },
-                {
-                  id:'labelFrac_'+i,
-                  showLabel:false
-                },
-                {
-                  id:'labelW_'+i,
-                  showLabel:false
-                }
-              ]);
-            }
+            o.desmos.setExpressions(exprs);
             updateBar();
           }
         };
