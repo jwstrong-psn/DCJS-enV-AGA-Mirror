@@ -1502,13 +1502,13 @@ PearsonGL.External.rootJS = (function() {
        | updates the label of angle B based on value of m<ABC
        |
        | Hidden point must be authored with showLabel:true,
-       | and the ID 220
+       | and the ID 268
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(options={}) {
         let o = hs.parseOptions(options);
         switch (o.name) {
           case 'm':
-            o.desmos.setExpression({id:'220',label:(+o.value+'º')});
+            o.desmos.setExpression({id:'268',label:(+o.value+'º')});
             break;
           }
         }
