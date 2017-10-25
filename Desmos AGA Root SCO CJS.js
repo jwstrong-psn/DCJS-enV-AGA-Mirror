@@ -1508,7 +1508,7 @@ PearsonGL.External.rootJS = (function() {
         let o = hs.parseOptions(options);
         switch (o.name) {
           case 'm':
-            o.desmos.setExpression({id:'268',label:(+o.value+'º')});
+            o.desmos.setExpression({id:'268',label:(+o.value+'°')});
             break;
           }
         }
