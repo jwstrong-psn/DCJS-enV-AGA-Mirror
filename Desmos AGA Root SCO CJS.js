@@ -1496,6 +1496,25 @@ PearsonGL.External.rootJS = (function() {
      };
 
 
+    /* ←— A0596539 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0596539 = {
+      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
+       | updates the label of angle B based on value of m<ABC
+       |
+       | Hidden point must be authored with showLabel:true,
+       | and the ID 220
+       * ←———————————————————————————————————————————————————————————————————→ */
+       updateLabels: function(options={}) {
+        let o = hs.parseOptions(options);
+        switch (o.name) {
+          case 'm':
+            o.desmos.setExpression({id:'220',label:(+o.value+'º')});
+            break;
+          }
+        }
+     };
+
+
     /* ←— A0596342 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0596342 = {
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
