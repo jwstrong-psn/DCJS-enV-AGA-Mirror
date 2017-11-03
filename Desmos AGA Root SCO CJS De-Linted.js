@@ -180,39 +180,6 @@ PearsonGL.External.rootJS = (function() {
         }
         return options;
        },
-      /* ←— eval ——————————————————————————————————————————————————————————→ *\
-       ↑ Evaluate a LaTeX expression in a given calculator.
-       * ←—————————————————————————————————————————————————————————————————————→ */
-       eval: function(expression,options,callback){
-        if(callback === undefined) {
-          callback = function(){};
-        }
-        // Basic prep/init
-        var o = hs.parseOptions(options);
-        var vars = vs[o.uniqueId];
-        if(vars.hxs===undefined) {
-          vars.hxs={};
-        }
-
-        // Access Helper Expression
-        if(vars.hxs[expression]===undefined) {
-          vars.hxs[expression] = o.desmos.HelperExpression({latex:expression});
-        }
-        var helper = vars.hxs[expression];
-
-        // Toss the callback into a thread
-        if(helper.numericValue!==undefined) {
-          setTimeout(function(){callback(helper.numericValue);},0);
-        }
-        else {
-          var thiscall = Date.now();
-          helper.observe('numericValue.'+thiscall,function(){
-            helper.unobserve('numericValue.'+thiscall);
-            callback(helper.numericValue);
-          });
-        }
-        return helper.numericValue;
-       },
       /* ←— latexToText ———————————————————————————————————————————————————————→ *\
        ↑ Convert a latex string to a plaintext string, e.g. for labels
        ↓
@@ -584,28 +551,6 @@ PearsonGL.External.rootJS = (function() {
         });
        }
      };
-    /* ←— SHARED LATEX FUNCTIONS ——————————————————————————————————————————→ */
-     fs.shared.latex = {
-      /* ←— reportValue ———————————————————————————————————————————————————→ *\
-       | Sets an expression equal to its evaluation.
-       | Use for reporting evaluations in line, instead of "=[val]" below.
-       |
-       | EXPRESSIONS MUST FIRST BE MANUALLY AUTHORED USING API:
-       |  calculator.setExpression({
-       |    id:'[expressionLaTeX]',
-       |    latex:'[expressionLaTeX]=[initialValue]'
-       |  });
-       | 
-       | For testing, use option {log:console.log}, which will log whenever
-       |  the expression's value changes.
-       * ←————————————————————————————————————————————————————————————————→ */
-       reportValue: function(){
-        var o = hs.parseOptions.apply(this,arguments);
-        var expr = '' + o.name + '=' + o.value;
-        if (o.log) {o.log('Setting expression \'' + o.name + '\' to \'' + expr + '\'.');}
-        o.desmos.setExpression({id:o.name,latex:expr});
-       }
-     };
     /* ←— SHARED LABEL FUNCTIONS ——————————————————————————————————————————→ */
      fs.shared.label = {
       /* ←— valueOnly —————————————————————————————————————————————————————→ *\
@@ -956,49 +901,6 @@ PearsonGL.External.rootJS = (function() {
 
        }
      };
-    /* ←— VALUE STORAGE FUNCTIONS —————————————————————————————————————————→ */
-     fs.value = {
-      /* ←— * —————————————————————————————————————————————————————————————→ *\
-       | Store the value of * for use as a parameter in setting expressions.
-       |
-       | Variable will be stored in vs.[uniqueId].values['*_#'], where # is
-       | any value in the subscript of the variable.
-       |
-       | The subscript # will be used when setting expressions using the
-       | shared function. If the subscript begins with a letter, that will
-       | be the function's name; otherwise it will default to y. If the
-       | subscript ends with a letter, that will be the argument of the
-       | function, otherwise it will default to x. Anything in-between will
-       | be the subscript of the function name.
-       |  e.g., Using the function on the variable t_2 will save it for y₂=…
-       |  e.g., q_{f83} → f₈₃=…
-       |  e.g., m_A → A=…
-       |  e.g., \theta _{r2theta} → r₂(θ)=…
-       |  e.g., L_{finitial} = r_{initia}(l)=…
-       | 
-       | For testing, use option {log:console.log}, which will log whenever
-       |  the expression's value changes.
-       * ←————————————————————————————————————————————————————————————————→ */
-       };
-       (function(){
-          var i;
-          var vars = 'QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm';
-          var varName;
-          function valStore(l) {
-            return function(){
-              var o = hs.parseOptions.apply(this,arguments);
-              var name = o.name.match(/(?:[a-zA-Z]|\\(?:alpha|beta|theta|phi|pi|tau)\s)_(?:\{([a-zA-Z0-9]+)\}|([a-zA-Z0-9]))/) || [];
-              name = l+'_'+((name[1] === undefined) ? ((name[2] === undefined) ? '' : name[2]) : name[1]);
-              if (name.length === 2) {name = name[0];}
-              vs[o.uniqueId][name] = o.value;
-              if (o.log) {o.log('Saving value of ' + o.name + ' as vs.' + o.uniqueId + '.' + name);}
-             };
-          }
-          for (i=0;i<52;i+=1) {
-            varName = vars[i];
-            fs.value[varName] = valStore(varName);
-           }
-         }());
     /* ←— SHARED EXPRESSION FUNCTIONS —————————————————————————————————————→ */
      fs.shared.expression = {
       /* ←— showHide —————————————————————————————————————————————————————→ *\
@@ -1011,4 +913,8 @@ PearsonGL.External.rootJS = (function() {
         o.desmos.setExpression({id:o.id,hidden:(!(o.value))});
        }
      };
+
+  Object.assign(exports,hs.flattenFuncStruct(fs));
+
+  return exports;
  }());
