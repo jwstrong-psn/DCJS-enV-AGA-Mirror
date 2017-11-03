@@ -55,7 +55,7 @@ PearsonGL.External.masterJS = (function() {
   
   var ts = { // test functions only
     shared:{ // Shared Helpers have functions that can be called by any Widget.
-      init:{} // Initialization Helpers are called only once, using HelperExpression({latex:"1"})
+      init:{}, // Initialization Helpers are called only once, using HelperExpression({latex:"1"})
       label:{}, // Label functions are used for labeling points with certain values
       expression:{} // Expression functions are used for manipulating the expression list
     },
