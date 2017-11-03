@@ -17,14 +17,16 @@ window.PearsonGL.External = window.PearsonGL.External || {};
  | Module: rootJS
 * ——————————————————————————————————————————————————————————————————————*/
 PearsonGL.External.rootJS = (function() {
+  "use strict";
+
   /* ←—PRIVATE VARIABLES———————————————————————————————————————————————————→ *\
        | Variable cache; access with vs[uniqueId].myVariable
        * ←—————————————————————————————————————————————————————————————————→ */
-    let vs = {shared:{}};
+    var vs = {shared:{}};
   /* ←—PRIVATE HELPER FUNCTIONS————————————————————————————————————————————→ *\
        | Subroutines; access with hs.functionName(args)
        * ←—————————————————————————————————————————————————————————————————→ */
-    let hs = {
+    var hs = {
       /* ←— flattenFuncStruct —————————————————————————————————————————————→ *\
        ↑ Turn a nested function structure into a single layer; each function's   ↑
        |  name prefixed by its parent objects, connected by underscores.         |
@@ -62,25 +64,40 @@ PearsonGL.External.rootJS = (function() {
        | @Returns: standard helper function option struct                     |
        ↓ @Returns: default options if input is empty                          ↓
        * ←—————————————————————————————————————————————————————————————————→ */
-       parseOptions: function(options={}) {
-        let desmos = options.desmos || window.calculator || window.Calc;
-        let output = Object.assign({},options,{
-          desmos:desmos,
-          name:((options.name === undefined) ? '' : options.name),
-          value:((options.value === undefined) ? NaN : options.value),
-          uniqueId:desmos.guid, //options.uniqueId || ((desmos === undefined) ? 'undefinedId' : desmos.guid),
-          log:options.log // || function(){} // 
-        });
-        if (window.widget === undefined && output.log === console.log) {
-          window.widget = output.desmos;
+       parseOptions: function(arg,name,desmos) {
+        var options = {
+          'value': arg,
+          'name': name,
+          'desmos': desmos,
+          'log':console.log // change to function(){} for production
+        };
+
+        if(typeof arg === 'object') {
+          Object.assign(options,arg);
+          desmos = options.desmos;
+        }
+
+        if (desmos === undefined) {
+          desmos = options.desmos = window.calculator || window.Calc;
+        }
+
+        if (options.uniqueId === undefined) {
+          options.uniqueId = desmos.guid;
+        }
+
+        if(vs[options.uniqueId]===undefined) {
+          vs[options.uniqueId] = {};
+        }
+        if (window.widget === undefined && options.log === console.log) {
+          window.widget = desmos;
           window.reportDesmosError = function() {
             let element = document.createElement('a');
             element.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify({
-                id: output.uniqueId,
-                state: output.desmos.getState(),
-                variables: vs[output.uniqueId],
-                helpers: hs[output.uniqueId],
-                screenshot: output.desmos.screenshot()
+                id: options.uniqueId,
+                state: desmos.getState(),
+                variables: vs[options.uniqueId],
+                helpers: hs[options.uniqueId],
+                screenshot: desmos.screenshot()
               },null,"\t")));
             element.setAttribute('download', 'Widget Error Report '+((new Date()).toISOString())+'.json');
             element.style.display = 'none';
@@ -89,121 +106,7 @@ PearsonGL.External.rootJS = (function() {
             document.body.removeChild(element);
           };
         }
-        if(vs[output.uniqueId]===undefined) {vs[output.uniqueId] = {};}
-        return output;
-       },
-      /* ←— eval ——————————————————————————————————————————————————————————→ *\
-       ↑ Evaluate a LaTeX expression in a given calculator.
-       * ←—————————————————————————————————————————————————————————————————————→ */
-       eval: function(expression,options,callback = function(){}){
-        // Basic prep/init
-        let o = hs.parseOptions(options);
-        let vars = vs[o.uniqueId];
-        if(vars.hxs===undefined) vars.hxs={};
-
-        // Access Helper Expression
-        if(vars.hxs[expression]===undefined)
-          vars.hxs[expression] = o.desmos.HelperExpression({latex:expression});
-        let helper = vars.hxs[expression];
-
-        // Toss the callback into a thread
-        if(helper.numericValue!==undefined)
-          setTimeout(function(){callback(helper.numericValue);},0);
-        else {
-          let thiscall = Date.now();
-          helper.observe('numericValue.'+thiscall,function(){
-            helper.unobserve('numericValue.'+thiscall);
-            callback(helper.numericValue);
-          });
-        }
-        return helper.numericValue;
-       },
-      /* ←— updateExpForm —————————————————————————————————————————————————————→ *\
-       ↑ Create a LaTeX expression for an exponential function, given parameters
-       |
-       | @args: (form, a, b, c, signed)
-       |  form: one of cs.enum.expform:
-       |    ABXC: a*b^x+c
-       |    AEBC: a*e^{bx}+c
-       |    EABC: e^{ax+b}+c
-       |  options: optional parameters object:
-       |    signed: if true, prefixes positive results with '+'
-       |    x: LaTeX string for the input of the function; entire input will be
-       |       surrounded by parens if it contains any of /[0-9.+\-]/
-       |
-       | @Returns: LaTeX string
-       ↓ @Returns: false if form is not one of the given
-       * ←—————————————————————————————————————————————————————————————————————→ */
-       updateExpForm: function(form,a,b,c,options={}){
-        let o = Object.assign({signed:false,x:'x'},options);
-        let expr = '';
-        switch (form) {
-          case cs.enum.expform.ABXC:
-            if (o.signed && ((a > 0) && (b !== 0) || (a*b === 0) && (c >= 0))) {expr += '+';}
-            if (a*b !== 0) {
-              expr += (''+a+'\\left\\('+b+'\\right\\)^{'+o.x+'}');
-              if (c > 0) {expr +='+';}
-            }
-            expr += c;
-            break;
-          case cs.enum.expform.AEBC:
-            if (o.signed && ((a > 0) || (a === 0) && (c >= 0))) {expr += '+';}
-            if (a !== 0) {
-              if (a === -1) {expr += '-';}
-              else if (a !== 1) {expr += a;}
-              if (b !== 0) {
-                expr += 'e^{';
-                if (b === -1) {expr += ('-'+hs.groupFactor(o.x));}
-                else if (b === 1) {expr += o.x;}
-                else {expr += (b+''+hs.groupFactor(o.x));}
-                expr += '}';
-              } 
-              else {expr += 'e^0';}
-              if (c > 0) {expr += '+';}
-            }
-            expr += c;
-            break;
-          case cs.enum.expform.EABC:
-            if (o.signed) {expr += '+';}
-            expr += 'e^{';
-            if (a !== 0) {
-              if (a === -1) {expr += ('-'+hs.groupFactor(o.x));}
-              else if (a === 1) {expr += o.x;}
-              else {expr += (a+''+hs.groupFactor(o.x));}
-              if (b > 0) {expr += '+';}
-            }
-            if ((a === 0) || (b !== 0)) {expr += b;}
-            expr += '}';
-            if (c > 0) {expr += '+';}
-            if (c !== 0) {expr += c;}
-            break;
-          case cs.enum.expform.EAHK:
-            if (o.signed) {expr += '+';}
-            expr += 'e^{';
-            if (a !== 0) {
-              if (a === 1) {expr += o.x+((b<0)?'+':'')+((b === 0)?'':-b);}
-              else {
-                if (a === -1) {expr += ('-');}
-                else {expr += a;}
-                expr += hs.groupFactor(''+o.x+((b<0)?'+':'')+((b === 0)?'':-b));
-              }
-            }
-            else {expr += 0;}
-            expr += '}';
-            if (c > 0) {expr += '+';}
-            if (c !== 0) {expr += c;}
-            break;
-          default: return false;
-        }
-        return expr;
-       },
-      /* ←— groupFactor ———————————————————————————————————————————————————————→ *\
-       ↑ Surround an expression with parens if it includes a number or + or -
-       ↓ 
-       * ←—————————————————————————————————————————————————————————————————————→ */
-       groupFactor: function(expr){
-        if (/[0-9.+\-]/g.test(''+expr)) {return '\\left('+expr+'\\right)';}
-        else {return expr;}
+        return options;
        },
       /* ←— latexToText ———————————————————————————————————————————————————————→ *\
        ↑ Convert a latex string to a plaintext string, e.g. for labels
@@ -229,125 +132,6 @@ PearsonGL.External.rootJS = (function() {
         expr = expr.replace(/([^\s \u202f(\[{])\-/g,'$1 − ');
         expr = expr.replace(/\-/g,'−');
         return expr;
-       },
-      /* ←— quadraticForm —————————————————————————————————————————————————————→ *\
-       ↑ Produce a simplified ('--'→'+' etc) quadratic expression given parameters
-       |  params: a, b, c, h, k, r1, r2, x
-       |  optional x changes independent variable
-       |  if b or c are given, outputs ax^2+bx+c
-       |  if h or k are given, outputs a\\left(x-h\\right)^2+k
-       |  if r1 or r2 are given, outputs a\\left(x-r1\\right)\\left(x-r2\\right)
-       |  if none or some combination, gets confused and outputs ''
-       |  assumes a=1 if not given
-       |  assumes b=0, c=0, h=0, k=0 if not given
-       |  if r1 or r2 are not given, assumes linear factor
-       ↓ 
-       * ←—————————————————————————————————————————————————————————————————————→ */
-       quadraticForm: function(params){
-        let output = ''+((Math.abs(params.a)>0)?((params.a===1)?'':((params.a===-1)?'-':params.a)):'');
-        let pmask = eval('0b'+
-                            1*(params.a!==undefined)+
-                            1*(params.b!==undefined)+
-                            1*(params.c!==undefined)+
-                            1*(params.h!==undefined)+
-                            1*(params.k!==undefined)+
-                            1*(params.r1!==undefined)+
-                            1*(params.r2!==undefined)+
-                            1*(params.x!==undefined));
-
-        switch (true) {
-          case ((pmask&0b01100000)&&(!(pmask&0b00011110))): //b,c
-            if(params.a===0) {
-              if(((params.b===undefined)||(params.b===0))&&((params.c===undefined)||(params.c===0))) return '0';
-            } else {
-              output+=((params.x===undefined)?'x':params.x);
-              output+='^2';
-              if((params.b>0)||(((params.b===undefined)||(params.b===0))&&(params.c>0))) output+='+';
-            }
-            if((params.b===undefined)||(params.b===0));
-            else {
-              if(params.b===1);
-              else if(params.b===-1) output+='-'
-              else output+=params.b;
-              output+=((params.x===undefined)?'x':params.x);
-              if(params.c>0) output+='+';
-            }
-            if((params.c===undefined)||(params.c===0));
-            else output+= params.c;
-            break;
-          case ((pmask&0b00011000)&&(!(pmask&0b01100110))): //h,k
-            if(params.a===0) {
-              if((params.k===undefined)||(params.k===0)) return '0';
-            } else {
-              if(Math.abs(params.h)>0) output+='\\left(';
-              output+=((params.x===undefined)?'x':params.x);
-              if(params.h<0) output+='+';
-              if(Math.abs(params.h)>0) {
-                output+=(-params.h);
-                output+='\\right)';
-              }
-              output+='^2';
-              if(params.k>0) output+='+';
-            }
-            if(Math.abs(params.k)>0) output+=params.k;
-            break;
-          case ((pmask&0b00000110)&&(!(pmask&0b01111000))): //r1,r2
-            if(params.a===0) return '0';
-            if(params.r1===undefined);
-            else {
-              if(params.r1===0) output+=((params.x===undefined)?'x':params.x);
-              else {
-                output+='\\left(';
-                output+=((params.x===undefined)?'x':params.x);
-                if(params.r1<0) output+='+';
-                output+=(-params.r1);
-                output+='\\right)';
-              }
-            }
-            if(params.r2===undefined);
-            else {
-              if(params.r2===0) {
-                if(params.r1===0) output+='^2';
-                else output+=((params.x===undefined)?'x':params.x);
-              } else {
-                output+='\\left(';
-                output+=((params.x===undefined)?'x':params.x);
-                if(params.r2<0) output+='+';
-                output+=(-params.r1);
-                output+='\\right)';
-              }
-            }
-            break;
-          default:
-            output='';
-        }
-        return output;
-       },
-      /* ←— labelPoint ———————→———————————————————————————————————————————→ *\
-       | Label a point according to its coordinates and name
-       | e.g., "P(3,2)"
-       |
-       | POINT MUST FIRST BE MANUALLY AUTHORED USING API:
-       |  calculator.setExpression({
-       |    id:'[unique name]',
-       |    latex:'[pointLaTeX]',
-       |    showLabel:true
-       |  });
-       | 
-       | For testing, use option {log:console.log}, which will log whenever
-       |  the expression's value changes.
-       * ←————————————————————————————————————————————————————————————————→ */
-       labelPoint: function(xVal, yVal, name, id, options={}, precision=cs.precision.COORDINATES) {
-        let o = hs.parseOptions(options);
-        let expr = name+'('+
-          ((xVal<0)?'−':'')+
-          Math.abs(Math.round(Math.pow(10,precision)*xVal)/Math.pow(10,precision))+
-          ',\u202f'+
-          ((yVal<0)?'−':'')+
-          Math.abs(Math.round(Math.pow(10,precision)*yVal)/Math.pow(10,precision))+
-          ')';
-        if (o.log) {o.log('Setting point label ' + expr);}
-        o.desmos.setExpression({id:id,label:expr});
        },
       /* ←— Distance From Point to Line ——————————————————————————————————→ *\
        | Compute the distance from a point to a line
@@ -547,7 +331,7 @@ PearsonGL.External.rootJS = (function() {
        | Constants, e.g. for tolerances or LaTeX strings.
        | Access with cs.type.NAME
        * ←—————————————————————————————————————————————————————————————————————→ */
-    const cs = {
+    var cs = {
       color:{
         agaColors:{ // Colors for AGA
           blue: '#0092C8',
@@ -633,23 +417,8 @@ PearsonGL.External.rootJS = (function() {
        | Note that console logging should only be used for debugging and is not
        | recommended for production.
        * ←—————————————————————————————————————————————————————————————————→ */
-   let exports = {}; // This object is used to export public functions/variables
-      exports.reflectParabola = function(options={}) { // for test SCO
-        let o = hs.parseOptions(options);
-        if (o.log) {o.log(o.name + " was updated to " + o.value);}
-        if (vs.M956353 === undefined) {
-          vs.M956353 = {a:0,h:0,k:0};
-          a = o.desmos.HelperExpression({latex:'a'});
-          h = o.desmos.HelperExpression({latex:'h'});
-          k = o.desmos.HelperExpression({latex:'k'});
-          a.observe('numericValue',function(val) {vs.M956353.a=a[val];});
-          h.observe('numericValue',function(val) {vs.M956353.h=h[val];});
-          k.observe('numericValue',function(val) {vs.M956353.k=k[val];});
-        }
-        o.desmos.setExpression({id: 'reflected', latex: 'y=-a(x-' + o.value + ')^2-k', color: '#00AA00'});
-        o.desmos.setExpression({id: 'exponential', latex: hs.updateExpForm(cs.enum.expform.EAHK,vs.M956353.a,vs.M956353.h,vs.M956353.k), color: '#00AAAA'});
-       };
-   let fs = {shared:{}}; // Function structure; define with fs[WIDGET_ID].myFunction()
+   var exports = {}; // This object is used to export public functions/variables
+   var fs = {shared:{}}; // Function structure; define with fs[WIDGET_ID].myFunction()
   
     /* ←— SHARED INITIALIZATION FUNCTIONS —————————————————————————————————→ */
      fs.shared.init = {
@@ -666,12 +435,11 @@ PearsonGL.External.rootJS = (function() {
        | For testing, use option {log:console.log}, which will log whenever
        |  the scale or aspect ratio changes by a significant amount.
        * ←———————————————————————————————————————————————————————————————————→ */
-       observeZoom: function(options={}) {
-        let o = hs.parseOptions(options);
+       observeZoom: function(){
+        let o = hs.parseOptions.apply(this,arguments);
 
         if (o.log) {o.log('observeZoom activated with '+JSON.stringify(Object.assign({},o,{'desmos':'l'})));}
 
-        if (vs[o.uniqueId] === undefined) {vs[o.uniqueId] = {};}
         let v = vs[o.uniqueId];
 
         // Static variables keep track of the last logged settings.
@@ -719,89 +487,6 @@ PearsonGL.External.rootJS = (function() {
           o.desmos.setExpression({id:'y_pxScale',latex:'y_{pxScale}='+1/newScale.y});
 
         });
-       },
-      /* ←— shareState ————————————————————————————————————————————————————→ *\
-       | Shares the state of this widget between multiple widgets in the same SCO
-       | NOTE: this initialization function is incompatible with state-based
-       |       HelperExpressions
-       * ←———————————————————————————————————————————————————————————————————→ */
-       shareState: function(options={}) {
-        let o = hs.parseOptions(options);
-        let myGuid = o.desmos.guid;
-        let vars = vs.shared[o.uniqueId];
-        if (vars.sharingInstances === undefined) {vars.sharingInstances={};}
-        if (vars.sharingInstances === undefined) {vars.recentLoad={};}
-        if (vars.sharingInstances === undefined) {vars.queuedActions={};}
-
-        vars.sharingInstances[myGuid] = o.desmos;
-        if (vars.sharedState === undefined) {
-          o.log('Queueing initial save from '+myGuid);
-          vars.queuedActions[myGuid] = setTimeout(delayedSave,cs.delay.SAVE);
-        } else {
-          o.desmos.setState(vars.sharedState);
-          o.log('Loading state from '+vars.lastSavedFrom+' into '+myGuid);
-        }
-
-        o.log(myGuid+' initialized.',vars);
-
-        function delayedSave() {
-          o.log('Saving state from '+myGuid);
-          vars.sharedState = o.desmos.getState();
-          vars.lastSavedFrom = myGuid;
-          if (vars.queuedActions[myGuid] !== undefined) {clearTimeout(vars.queuedActions[myGuid]);}
-          delete vars.queuedActions[myGuid];
-
-          // Load into all the others
-          let i;
-          let guid;
-          for (i=0;i<vars.sharingInstances.length;guid = vars.sharingInstances[i+=1]) {
-            if (guid !== myGuid) {
-              o.log('Loading state from '+myGuid+' into '+guid);
-              vars.recentLoad[guid] = true;
-              vars.sharingInstances[guid].setState(vars.sharedState);
-              // The `'change.save'` event will ensure the load is confirmed
-            } else {o.log('Skipped loading into '+guid);}
-          }
-        }
-
-        function confirmLoad() {
-          o.log('Considering '+myGuid+' loaded.');
-          vars.recentLoad[myGuid] = false;
-          delete vars.queuedActions[myGuid];
-        }
-
-        o.desmos.observeEvent('change.save',function(){
-          if (vars.queuedActions[myGuid] !== undefined) {clearTimeout(vars.queuedActions[myGuid]);}
-          if (vars.recentLoad[myGuid]) {
-            // o.log('Not saving from '+myGuid+'; loaded too recently.');
-            vars.queuedActions[myGuid] = setTimeout(confirmLoad,cs.delay.LOAD);
-          } else {
-            // o.log('Queueing save from '+myGuid);
-            vars.queuedActions[myGuid] = setTimeout(delayedSave,cs.delay.SAVE);
-          }
-        });
-       }
-     };
-    /* ←— SHARED LATEX FUNCTIONS ——————————————————————————————————————————→ */
-     fs.shared.latex = {
-      /* ←— reportValue ———————————————————————————————————————————————————→ *\
-       | Sets an expression equal to its evaluation.
-       | Use for reporting evaluations in line, instead of "=[val]" below.
-       |
-       | EXPRESSIONS MUST FIRST BE MANUALLY AUTHORED USING API:
-       |  calculator.setExpression({
-       |    id:'[expressionLaTeX]',
-       |    latex:'[expressionLaTeX]=[initialValue]'
-       |  });
-       | 
-       | For testing, use option {log:console.log}, which will log whenever
-       |  the expression's value changes.
-       * ←————————————————————————————————————————————————————————————————→ */
-       reportValue: function(options={}) {
-        let o = hs.parseOptions(options);
-        let expr = '' + o.name + '=' + o.value;
-        if (o.log) {o.log('Setting expression \'' + o.name + '\' to \'' + expr + '\'.');}
-        o.desmos.setExpression({id:o.name,latex:expr});
        }
      };
     /* ←— SHARED LABEL FUNCTIONS ——————————————————————————————————————————→ */
@@ -817,8 +502,8 @@ PearsonGL.External.rootJS = (function() {
        |    showLabel:true
        |  });
        * ←————————————————————————————————————————————————————————————————→ */
-       valueOnly: function(options={}) {
-        let o = hs.parseOptions(options);
+       valueOnly: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         o.desmos.setExpression({id:o.name,label:''+o.value});
        },
       /* ←— labelAngle ——————————————————————————————————————————————————→ *\
@@ -832,9 +517,38 @@ PearsonGL.External.rootJS = (function() {
        |    showLabel:true
        |  });
        * ←————————————————————————————————————————————————————————————————→ */
-       labelAngle: function(options={}) {
-        let o = hs.parseOptions(options);
+       labelAngle: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         o.desmos.setExpression({id:o.name,label:''+o.value+'°'});
+       },
+      /* ←— labelPoint ———————→———————————————————————————————————————————→ *\
+       | Label a point according to its coordinates and name
+       | e.g., "P(3,2)"
+       |
+       | POINT MUST FIRST BE MANUALLY AUTHORED USING API:
+       |  calculator.setExpression({
+       |    id:'[unique name]',
+       |    latex:'[pointLaTeX]',
+       |    showLabel:true
+       |  });
+       | 
+       | For testing, use option {log:console.log}, which will log whenever
+       |  the expression's value changes.
+       * ←————————————————————————————————————————————————————————————————→ */
+       labelPoint: function(xVal, yVal, name, id, options, precision) {
+        if(precision === undefined) {
+          precision = cs.precision.COORDINATES;
+        }
+        let o = hs.parseOptions.apply(this,[(options || {})]);
+        let expr = name+'('+
+          ((xVal<0)?'−':'')+
+          Math.abs(Math.round(Math.pow(10,precision)*xVal)/Math.pow(10,precision))+
+          ',\u202f'+
+          ((yVal<0)?'−':'')+
+          Math.abs(Math.round(Math.pow(10,precision)*yVal)/Math.pow(10,precision))+
+          ')';
+        if (o.log) {o.log('Setting point label ' + expr);}
+        o.desmos.setExpression({id:id,label:expr});
        },
       /* ←— labelEquation ———————————————————————————————————————————————→ *\
        | Label a point according to an equation with an expression equal to
@@ -851,8 +565,11 @@ PearsonGL.External.rootJS = (function() {
        | For testing, use option {log:console.log}, which will log whenever
        |  the expression's value changes.
        * ←————————————————————————————————————————————————————————————————→ */
-       labelEquation: function(options={},prec=cs.precision.EVAL) {
-        let o = hs.parseOptions(options);
+       labelEquation: function(options,prec) {
+        if (prec === undefined) {
+          prec = cs.precision.EVAL;
+        }
+        let o = hs.parseOptions.apply(this,[(options || {})]);
         let expr = hs.latexToText(o.name+'='+Math.round(o.value*Math.pow(10,prec))/Math.pow(10,prec));
         o.log('Setting point label ' + expr);
         o.desmos.setExpression({id:o.name,label:expr});
@@ -873,8 +590,14 @@ PearsonGL.External.rootJS = (function() {
        |   !REQUIRES options.name end in pointNames.A, etc.
        |   !REQUIRES options.value be the angle's value, in Radians.
        * ←———————————————————————————————————————————————————————————————————→ */
-       labelTriAngles: function(options={},pointNames={A:'A',B:'B',C:'C'},prec=cs.precision.DEGREES) {
-        let o = hs.parseOptions(options);
+       labelTriAngles: function(options,pointNames,prec) {
+        if(pointNames === undefined) {
+          pointNames = {A:'A',B:'B',C:'C'};
+        }
+        if(prec === undefined) {
+          prec = cs.precision.DEGREES;
+        }
+        let o = hs.parseOptions.apply(this,[(options || {})]);
         let A = pointNames.A;
         let B = pointNames.B;
         let C = pointNames.C;
@@ -945,12 +668,18 @@ PearsonGL.External.rootJS = (function() {
        |             }
        |   !REQUIRES Angle measure label points have ids matching name of their measures
        |             e.g., 'm_A', 'm_B', etc.
-       |   !REQUIRES Angle measures to be stored using `value_P`
+       |   !REQUIRES Angle measures to be stored in cache variable `P_*` for each angle *
        |   !REQUIRES options.name end in pointNames.A, etc.
        |   !REQUIRES options.value be the angle's value, in degrees.
        * ←———————————————————————————————————————————————————————————————————→ */
-       labelPolyAngles: function(options={},params={},prec=cs.precision.DEGREES) {
-        let o = hs.parseOptions(options);
+       labelPolyAngles: function(options,params,prec) {
+        if(params === undefined) {
+          params = {};
+        }
+        if(prec === undefined) {
+          prec = cs.precision.DEGREES;
+        }
+        let o = hs.parseOptions.apply(this,[(options || {})]);
         let ps = Object.assign({refreshAll:false,exterior:false},params);
         let v = o.name[o.name.length-1];
         let vars = vs[o.uniqueId];
@@ -1108,45 +837,6 @@ PearsonGL.External.rootJS = (function() {
 
        }
      };
-    /* ←— VALUE STORAGE FUNCTIONS —————————————————————————————————————————→ */
-     fs.value = {
-      /* ←— * —————————————————————————————————————————————————————————————→ *\
-       | Store the value of * for use as a parameter in setting expressions.
-       |
-       | Variable will be stored in vs.[uniqueId].values['*_#'], where # is
-       | any value in the subscript of the variable.
-       |
-       | The subscript # will be used when setting expressions using the
-       | shared function. If the subscript begins with a letter, that will
-       | be the function's name; otherwise it will default to y. If the
-       | subscript ends with a letter, that will be the argument of the
-       | function, otherwise it will default to x. Anything in-between will
-       | be the subscript of the function name.
-       |  e.g., Using the function on the variable t_2 will save it for y₂=…
-       |  e.g., q_{f83} → f₈₃=…
-       |  e.g., m_A → A=…
-       |  e.g., \theta _{r2theta} → r₂(θ)=…
-       |  e.g., L_{finitial} = r_{initia}(l)=…
-       | 
-       | For testing, use option {log:console.log}, which will log whenever
-       |  the expression's value changes.
-       * ←————————————————————————————————————————————————————————————————→ */
-       };
-       (function(){let i;
-       for(i=0;i<52;i+=1) {
-        let varName = 'QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm'[i];
-        fs.value[varName] = (function(l){
-          return function(options={}) {
-            let o = hs.parseOptions(options);
-            if (vs[o.uniqueId] === undefined) {vs[o.uniqueId] = {};}
-            let name = o.name.match(/(?:[a-zA-Z]|\\(?:alpha|beta|theta|phi|pi|tau)\s)_(?:\{([a-zA-Z0-9]+)\}|([a-zA-Z0-9]))/) || [];
-            name = l+'_'+((name[1] === undefined) ? ((name[2] === undefined) ? '' : name[2]) : name[1]);
-            if (name.length === 2) {name = name[0];}
-            vs[o.uniqueId][name] = o.value;
-            if (o.log) {o.log('Saving value of ' + o.name + ' as vs.' + o.uniqueId + '.' + name);}
-           };
-         })(varName);
-       }})();
     /* ←— SHARED EXPRESSION FUNCTIONS —————————————————————————————————————→ */
      fs.shared.expression = {
       /* ←— showHide —————————————————————————————————————————————————————→ *\
@@ -1154,8 +844,8 @@ PearsonGL.External.rootJS = (function() {
        |    0 is hidden
        |    1 is visible
        * ←————————————————————————————————————————————————————————————————→ */
-       showHide: function(options={}) {
-        let o = hs.parseOptions(options);
+       showHide: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         o.desmos.setExpression({id:o.id,hidden:(!(o.value))});
        }
      };
@@ -1167,8 +857,8 @@ PearsonGL.External.rootJS = (function() {
        | updates the labels of the function g(x) = |x - h|  with the value of "h"
        |
        * ←———————————————————————————————————————————————————————————————————→ */
-       updateAVfunction: function(options={}) {
-        let o = hs.parseOptions(options);
+       updateAVfunction: function(){
+        let o = hs.parseOptions.apply(this,arguments);
       
           if (o.value > 0) {
               o.desmos.setExpression({id:'9',label:('g(x) = |x –'+' '+ o.value+'|')});
@@ -1182,8 +872,8 @@ PearsonGL.External.rootJS = (function() {
     /* ←— A0598803 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0598803 = {
       
-       updateAVfunction: function(options={}) {
-        let o = hs.parseOptions(options);
+       updateAVfunction: function(){
+        let o = hs.parseOptions.apply(this,arguments);
           
           o.desmos.setExpression({id:'12',label:('g(x) ='+' '+o.value +'|x|')});
         }
@@ -1192,8 +882,8 @@ PearsonGL.External.rootJS = (function() {
      /* ←— A0598800 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0598800 = {
       
-       updateAVfunction: function(options={}) {
-        let o = hs.parseOptions(options);
+       updateAVfunction: function(){
+        let o = hs.parseOptions.apply(this,arguments);
       
           if (o.value > 0) {
               o.desmos.setExpression({id:'4',label:('g(x) = |x| +'+' '+ o.value)});
@@ -1212,8 +902,8 @@ PearsonGL.External.rootJS = (function() {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
        * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         vs[o.uniqueId] = {
           P_x:-4,
           P_y:-3,
@@ -1231,31 +921,31 @@ PearsonGL.External.rootJS = (function() {
        | Points P, Q, and M must be authored with showLabel:true, and the IDs
        |  P_point, Q_point, and M_point
        * ←———————————————————————————————————————————————————————————————————→ */
-       updateLabels: function(options={}) {
-        let o = hs.parseOptions(options);
+       updateLabels: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         switch (o.name) {
           case 'x_1':
             vs[o.uniqueId].P_x = o.value;
             vs[o.uniqueId].M_x = (vs[o.uniqueId].Q_x+o.value)/2;
-            hs.labelPoint(vs[o.uniqueId].P_x,vs[o.uniqueId].P_y,'P','P_point',o);
+            fs.shared.label.labelPoint(vs[o.uniqueId].P_x,vs[o.uniqueId].P_y,'P','P_point',o);
             break;
           case 'y_1':
             vs[o.uniqueId].P_y = o.value;
             vs[o.uniqueId].M_y = (vs[o.uniqueId].Q_y+o.value)/2;
-            hs.labelPoint(vs[o.uniqueId].P_x,vs[o.uniqueId].P_y,'P','P_point',o);
+            fs.shared.label.labelPoint(vs[o.uniqueId].P_x,vs[o.uniqueId].P_y,'P','P_point',o);
             break;
           case 'x_2':
             vs[o.uniqueId].Q_x = o.value;
             vs[o.uniqueId].M_x = (vs[o.uniqueId].P_x+o.value)/2;
-            hs.labelPoint(vs[o.uniqueId].Q_x,vs[o.uniqueId].Q_y,'Q','Q_point',o);
+            fs.shared.label.labelPoint(vs[o.uniqueId].Q_x,vs[o.uniqueId].Q_y,'Q','Q_point',o);
             break;
           case 'y_2':
             vs[o.uniqueId].Q_y = o.value;
             vs[o.uniqueId].M_y = (vs[o.uniqueId].P_y+o.value)/2;
-            hs.labelPoint(vs[o.uniqueId].Q_x,vs[o.uniqueId].Q_y,'Q','Q_point',o);
+            fs.shared.label.labelPoint(vs[o.uniqueId].Q_x,vs[o.uniqueId].Q_y,'Q','Q_point',o);
             break;
         }
-        hs.labelPoint(vs[o.uniqueId].M_x,vs[o.uniqueId].M_y,'M','M_point',o);
+        fs.shared.label.labelPoint(vs[o.uniqueId].M_x,vs[o.uniqueId].M_y,'M','M_point',o);
        }
      };
 
@@ -1265,8 +955,8 @@ PearsonGL.External.rootJS = (function() {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
        * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         vs[o.uniqueId] = {
           P_x:-4,
           P_y:-3,
@@ -1284,8 +974,8 @@ PearsonGL.External.rootJS = (function() {
        | and the IDs
        |  P_point, Q_point, distance, x_distance, and y_distance
        * ←———————————————————————————————————————————————————————————————————→ */
-       updateLabels: function(options={}) {
-        let o = hs.parseOptions(options);
+       updateLabels: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let P_x = vs[o.uniqueId].P_x;
         let P_y = vs[o.uniqueId].P_y;
         let Q_x = vs[o.uniqueId].Q_x;
@@ -1294,22 +984,22 @@ PearsonGL.External.rootJS = (function() {
           case 'x_1':
             vs[o.uniqueId].P_x = o.value;
             P_x = o.value;
-            hs.labelPoint(vs[o.uniqueId].P_x,vs[o.uniqueId].P_y,'P','P_point',o);
+            fs.shared.label.labelPoint(vs[o.uniqueId].P_x,vs[o.uniqueId].P_y,'P','P_point',o);
             break;
           case 'y_1':
             vs[o.uniqueId].P_y = o.value;
             P_y = o.value;
-            hs.labelPoint(vs[o.uniqueId].P_x,vs[o.uniqueId].P_y,'P','P_point',o);
+            fs.shared.label.labelPoint(vs[o.uniqueId].P_x,vs[o.uniqueId].P_y,'P','P_point',o);
             break;
           case 'x_2':
             vs[o.uniqueId].Q_x = o.value;
             Q_x = o.value;
-            hs.labelPoint(vs[o.uniqueId].Q_x,vs[o.uniqueId].Q_y,'Q','Q_point',o);
+            fs.shared.label.labelPoint(vs[o.uniqueId].Q_x,vs[o.uniqueId].Q_y,'Q','Q_point',o);
             break;
           case 'y_2':
             vs[o.uniqueId].Q_y = o.value;
             Q_y = o.value;
-            hs.labelPoint(vs[o.uniqueId].Q_x,vs[o.uniqueId].Q_y,'Q','Q_point',o);
+            fs.shared.label.labelPoint(vs[o.uniqueId].Q_x,vs[o.uniqueId].Q_y,'Q','Q_point',o);
             break;
         }
         let distance = Math.round(100*Math.sqrt(Math.pow(Q_x-P_x,2)+Math.pow(Q_y-P_y,2)))/100;
@@ -1330,8 +1020,8 @@ PearsonGL.External.rootJS = (function() {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
        * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         vs[o.uniqueId] = {
           // try changing 'h' with it's id (4) instead same with "k" (3).
           h:4,
@@ -1343,8 +1033,8 @@ PearsonGL.External.rootJS = (function() {
        | updates the label of function based  the values of h and k 
        | 
        * ←———————————————————————————————————————————————————————————————————→ */
-       updateAVfunction: function(options={}) {
-        let o = hs.parseOptions(options);
+       updateAVfunction: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let k = vs[o.uniqueId].k;
         let h = vs[o.uniqueId].h;
     
@@ -1434,8 +1124,8 @@ PearsonGL.External.rootJS = (function() {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
        * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         vs[o.uniqueId] = {
           a:1,
           b:0,
@@ -1446,18 +1136,60 @@ PearsonGL.External.rootJS = (function() {
        | updates the label of function based  the values of a and b 
        | 
        * ←———————————————————————————————————————————————————————————————————→ */
-       updateLabels: function(options={}) {
-        let o = hs.parseOptions(options);
+       updateLabels: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let vars = vs[o.uniqueId];
         vars[o.name] = o.value;
+        var a = vars.a;
+        var b = vars.b;
+        var c = vars.c;
 
-        o.desmos.setExpression({id:390,label:hs.latexToText('f(x)='+
-                                                              hs.quadraticForm({
-                                                                a:vars.a,
-                                                                b:vars.b,
-                                                                c:vars.c
-                                                              })
-                                                            )});
+        var label = 'f(x)=';
+
+        // ax²
+        if (a !== 0) {
+          if (a < 0) {
+            label += '−';
+            if (a !== -1) {
+              label += (-a);
+            }
+          } else if (a !== 1) {
+            label += a;
+          }
+          label += 'x²';
+          if (b > 0 ||
+              (b === 0 && c > 0)) {
+            label += '+'
+          }
+        }
+
+        // bx
+        if (b !== 0) {
+          if(b < 0) {
+            label += '−'
+            if (b !== -1) {
+              label += (-b);
+            }
+          } else if (b !== 1) {
+            label += b;
+          }
+          label += 'x';
+          if (c > 0) {
+            label += '+';
+          }
+        }
+
+        // c
+        if (c < 0) {
+          label += '−';
+          label += (-c);
+        } else if (c > 0) {
+          label += c;
+        } else if (a === 0 && b === 0) {
+          label += 0;
+        }
+
+        o.desmos.setExpression({id:390,label:label});
        } 
      };
 
@@ -1466,8 +1198,8 @@ PearsonGL.External.rootJS = (function() {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
        * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         vs[o.uniqueId] = {
           x:3,
           y:2
@@ -1477,8 +1209,8 @@ PearsonGL.External.rootJS = (function() {
        | updates the labels of function based  the values of x and y
       | 
        * ←———————————————————————————————————————————————————————————————————→ */
-       updateTriangle: function(options={}) {
-        let o = hs.parseOptions(options);
+       updateTriangle: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let vars = vs[o.uniqueId];
         vars[o.name[0]] = o.value;
 
@@ -1504,8 +1236,8 @@ PearsonGL.External.rootJS = (function() {
        | Hidden point must be authored with showLabel:true,
        | and the ID 268
        * ←———————————————————————————————————————————————————————————————————→ */
-       updateLabels: function(options={}) {
-        let o = hs.parseOptions(options);
+       updateLabels: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         switch (o.name) {
           case 'm':
             o.desmos.setExpression({id:'268',label:(+o.value+'°')});
@@ -1523,8 +1255,8 @@ PearsonGL.External.rootJS = (function() {
        | Hidden point must be authored with showLabel:true,
        | and the ID 17
        * ←———————————————————————————————————————————————————————————————————→ */
-       updateLabels: function(options={}) {
-        let o = hs.parseOptions(options);
+       updateLabels: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         switch (o.name) {
           case 'a':
             o.desmos.setExpression({id:'17',label:('f(x) = '+o.value+'x²')});
@@ -1542,8 +1274,8 @@ PearsonGL.External.rootJS = (function() {
        | Hidden point must be authored with showLabel:true,
        | and the ID 17
        * ←———————————————————————————————————————————————————————————————————→ */
-       updateLabels: function(options={}) {
-        let o = hs.parseOptions(options);
+       updateLabels: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         switch (o.name) {
           case 'a':
             o.desmos.setExpression({id:'21',label:('y = '+o.value+'x²')});
@@ -1562,8 +1294,8 @@ PearsonGL.External.rootJS = (function() {
        | Hidden points P_1, P_2, P_3, and P_4 must be authored with showLabel:true,
        | and the IDs a1, a2, a3, a4
        * ←———————————————————————————————————————————————————————————————————→ */
-       updateLabels: function(options={}) {
-        let o = hs.parseOptions(options);
+       updateLabels: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         switch (o.name) {
           case '\\theta_1':
             o.desmos.setExpression({id:'a1',label:(o.value+'°')});
@@ -1585,11 +1317,10 @@ PearsonGL.External.rootJS = (function() {
      fs.A0597544 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
+       | DEPRECATED
        * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
-        vs[o.uniqueId] = {
-        };
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
        },
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
        | updates the labels of theta 1, 2 based on changes to two lines
@@ -1597,8 +1328,8 @@ PearsonGL.External.rootJS = (function() {
        | Hidden points P_1, P_2 must be authored with showLabel:true,
        | and the IDs P1, P2
        * ←———————————————————————————————————————————————————————————————————→ */
-       updateLabels: function(options={}) {
-        let o = hs.parseOptions(options);
+       updateLabels: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         switch (o.name) {
           case '\\theta_1':
             o.desmos.setExpression({id:'P1',label:(o.value+'°')});
@@ -1613,11 +1344,10 @@ PearsonGL.External.rootJS = (function() {
      fs.A0597546 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
+       | DEPRECATED
        * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
-        vs[o.uniqueId] = {
-        };
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
        },
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
        | updates the labels of theta 1, 2 based on changes to two lines
@@ -1625,8 +1355,8 @@ PearsonGL.External.rootJS = (function() {
        | Hidden points P_1, P_2 must be authored with showLabel:true,
        | and the IDs P1, P2 *******
        * ←———————————————————————————————————————————————————————————————————→ */
-       updateLabels: function(options={}) {
-        let o = hs.parseOptions(options);
+       updateLabels: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         switch (o.name) {
           case '\\theta_1':
             o.desmos.setExpression({id:'100',label:(o.value+'°')});
@@ -1645,8 +1375,8 @@ PearsonGL.External.rootJS = (function() {
        |
        | H
        * ←———————————————————————————————————————————————————————————————————→ */
-       simulation: function(options={}) {
-        let o = hs.parseOptions(options);
+       simulation: function(){
+        let o = hs.parseOptions.apply(this,arguments);
 
         if(o.name == 'p') {
           vs[o.uniqueId].p = o.value;
@@ -1731,8 +1461,8 @@ PearsonGL.External.rootJS = (function() {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
        * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         vs[o.uniqueId] = {
           globalDiffArray:[],
           histFreq:[]
@@ -1741,8 +1471,8 @@ PearsonGL.External.rootJS = (function() {
       /*———————————————————————————————————————————————————————————————
        |    Additional function to reset histogram.
        *————————————————————————————————————————————————*/
-       histReset: function(options={}) {
-        let o = hs.parseOptions(options);
+       histReset: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let vars = vs[o.uniqueId];
         let globalDiffArray=vars.globalDiffArray;
         let histFreq = vars.histFreq;
@@ -1761,8 +1491,8 @@ PearsonGL.External.rootJS = (function() {
       /* ←— Resample ————————————————————————————————————————————————————→ *\
        |
        * ←———————————————————————————————————————————————————————————————————→ */
-       resample: function(options={}) {
-        let o = hs.parseOptions(options);
+       resample: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let vars = vs[o.uniqueId];
 
         if(o.value===0) return;
@@ -1895,8 +1625,8 @@ PearsonGL.External.rootJS = (function() {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
        * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         vs[o.uniqueId] = {                
           n:1,
           p:0.5,
@@ -1906,8 +1636,8 @@ PearsonGL.External.rootJS = (function() {
         };
        },
       //←———————————————————————————————————————————————————————————————————
-       simulation: function(options={}) {
-        let o = hs.parseOptions(options);
+       simulation: function(){
+        let o = hs.parseOptions.apply(this,arguments);
       
         let win = false;
         let net = 0;
@@ -2020,8 +1750,8 @@ PearsonGL.External.rootJS = (function() {
      fs.A0597217 = {
        /* Initializes the variables
        ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let n = 9;
         let i;
 
@@ -2069,8 +1799,8 @@ PearsonGL.External.rootJS = (function() {
        /* if widget is unlocked, to change focus or directrix reset the 
         the parabola points.*/
 
-       reset: function(options={}) {
-        let o = hs.parseOptions(options);
+       reset: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let n = vs[o.uniqueId].n;
         let ids = vs[o.uniqueId].ids;
         let i;
@@ -2096,8 +1826,8 @@ PearsonGL.External.rootJS = (function() {
        | Hidden points must be authored with showLabel:true,
        | and the IDs a1, a2, a3
        * ←———————————————————————————————————————————————————————————————————→ */
-       updateLabels: function(options={}) {
-        let o = hs.parseOptions(options);
+       updateLabels: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         switch (o.name) {
           case '\\theta_1':
             o.desmos.setExpression({id:'a1',label:('𝑚∠2 = '+o.value)});
@@ -2113,11 +1843,10 @@ PearsonGL.External.rootJS = (function() {
      fs.A0596584 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
+       | DEPRECATED
        * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
-        vs[o.uniqueId] = {
-        };
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
        },
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
        | updates the labels of Watered Area based on values of r_1, r_2, r_3 
@@ -2125,8 +1854,8 @@ PearsonGL.External.rootJS = (function() {
        | Hidden point must be authored with showLabel:true,
        | and the ID 26
        * ←———————————————————————————————————————————————————————————————————→ */
-       updateLabels: function(options={}) {
-        let o = hs.parseOptions(options);
+       updateLabels: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         switch (o.name) {
           case 'w':
             o.desmos.setExpression({id:'26',label:('Watered Area: '+o.value+' m')});
@@ -2137,14 +1866,6 @@ PearsonGL.External.rootJS = (function() {
 
     /* ←— A0596986 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0596986 = {
-      /* ←— init ————————————————————————————————————————————————————————————→ *\
-       | Initializes the variables
-       * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
-        vs[o.uniqueId] = {
-        };
-       },
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
        | updates the labels of Watered Area based on values of r_1, r_2, r_3 
        |       
@@ -2152,8 +1873,8 @@ PearsonGL.External.rootJS = (function() {
        | and the ID 639, hidden dashed line point must be authored 
        | with showLabel:true, and ID 636.
        * ←———————————————————————————————————————————————————————————————————→ */
-       updateLabels: function(options={}) {
-        let o = hs.parseOptions(options);
+       updateLabels: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         switch (o.name) {
           case 'k':
             o.desmos.setExpression({id:'636',label:(o.value)});
@@ -2164,51 +1885,17 @@ PearsonGL.External.rootJS = (function() {
 
     /* ←— A0598945 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0598945 = {
-      /* ←— init ————————————————————————————————————————————————————————————→ *\
-       | Initializes the variables
-       * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
-        vs[o.uniqueId] = {
-        };
-       },
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
        | updates the label of the function.
        |       
        | Hidden point must be authored with showLabel:true,
        | and the ID 394
        * ←———————————————————————————————————————————————————————————————————→ */
-       updateLabels: function(options={}) {
-        let o = hs.parseOptions(options);
+       updateLabels: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         switch (o.name) {
           case 'a':
             o.desmos.setExpression({id:'394',label:('y = '+o.value+' cos x')});
-            break;
-          }
-        }
-     };
-
-    /* ←— A0596417 FUNCTIONS ——————————————————————————————————————————————→ */
-     fs.A0596417 = {
-      /* ←— init ————————————————————————————————————————————————————————————→ *\
-       | Initializes the variables
-       * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
-        vs[o.uniqueId] = {
-        };
-       },
-      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
-       | updates the label of asymptote k.
-       |       
-       | Hidden point must be authored with showLabel:true,
-       | and the ID 125
-       * ←———————————————————————————————————————————————————————————————————→ */
-       updateLabels: function(options={}) {
-        let o = hs.parseOptions(options);
-        switch (o.name) {
-          case 'k':
-            o.desmos.setExpression({id:'104',label:('k = '+o.value)});
             break;
           }
         }
@@ -2218,11 +1905,10 @@ PearsonGL.External.rootJS = (function() {
      fs.A0596417_MO2 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
+       | DEPRECATED
        * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
-        vs[o.uniqueId] = {
-        };
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
        },
       /* ←— random Sample ————————————————————————————————————————————————————→ *\
        | populates a list with random points when a variable "r" is changed.
@@ -2230,8 +1916,8 @@ PearsonGL.External.rootJS = (function() {
        | also random samples the list 100 time and generates a list of 100 means.
        | 
        * ←———————————————————————————————————————————————————————————————————→ */
-       randomSample: function(options={}) {
-        let o = hs.parseOptions(options);
+       randomSample: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         switch (o.name) {
           case 'R':
             break;
@@ -2294,11 +1980,10 @@ PearsonGL.External.rootJS = (function() {
      fs.A0596417_MO = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
+       | DEPRECATED
        * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
-        vs[o.uniqueId] = {
-        };
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
        },
       /* ←— generatePoints ————————————————————————————————————————————————————→ *\
        | generatespoints when a variable "g" is changed.
@@ -2306,8 +1991,8 @@ PearsonGL.External.rootJS = (function() {
        | H
        | 
        * ←———————————————————————————————————————————————————————————————————→ */
-       generatePoints: function(options={}) {
-        let o = hs.parseOptions(options);
+       generatePoints: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         switch (o.name) {
           case 'g':
             break;
@@ -2336,8 +2021,8 @@ fs.A0597080 = {
        | Hidden point must be authored with showLabel:true,
        | and the ID 344
        * ←———————————————————————————————————————————————————————————————————→ */
-       updateLabels: function(options={}) {
-        let o = hs.parseOptions(options);                
+       updateLabels: function(){
+        let o = hs.parseOptions.apply(this,arguments);                
           if (o.value > 0){
             o.desmos.setExpression({id:'344',label:('g(x) = x² +'+' '+ o.value)});
             }
@@ -2359,8 +2044,8 @@ fs.A0597083 = {
        | Hidden point must be authored with showLabel:true, (decided to show "0 in front of the square root when  k = 1)")
        | and the ID 357
        * ←———————————————————————————————————————————————————————————————————→ */
-       updateLabels: function(options={}) {
-        let o = hs.parseOptions(options);                
+       updateLabels: function(){
+        let o = hs.parseOptions.apply(this,arguments);                
           
           if (o.value == 1){
             o.desmos.setExpression({id:'357',label:('j(x) = √(x)')});
@@ -2381,8 +2066,8 @@ fs.A0597083 = {
        | Hidden point must be authored with showLabel:true,
        | and the ID 467
        * ←———————————————————————————————————————————————————————————————————→ */
-       updateLabels: function(options={}) {
-        let o = hs.parseOptions(options);
+       updateLabels: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         
           if (o.value > 0){
             o.desmos.setExpression({id:'467',label:('g(x) = '+ o.value +'|x|')});
@@ -2402,8 +2087,8 @@ fs.A0597083 = {
        | Hidden point must be authored with showLabel:true,
        | and the ID 467
        * ←———————————————————————————————————————————————————————————————————→ */
-       updateLabels: function(options={}) {
-        let o = hs.parseOptions(options);
+       updateLabels: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         
           if(o.value < 0){
             o.desmos.setExpression({id:'467',label:('h(x) = '+ o.value +'|x|')});
@@ -2416,22 +2101,14 @@ fs.A0597083 = {
 
     /* ←— A0598652 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0598652 = {
-      /* ←— init ————————————————————————————————————————————————————————————→ *\
-       | Initializes the variables
-       * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
-        vs[o.uniqueId] = {
-        };
-       },
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
        | updates the distance label 
        |       
        | Hidden point D must be authored with showLabel:true,
        | and the ID distance
        * ←———————————————————————————————————————————————————————————————————→ */
-       updateLabels: function(options={}) {
-        let o = hs.parseOptions(options);
+       updateLabels: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         switch (o.name) {
           case 'd_2':
             o.desmos.setExpression({id:'distance',label:(o.value+' blocks')});
@@ -2446,8 +2123,8 @@ fs.A0597083 = {
        | updates the label of the angle of rotation
        | observe with \theta_x
        * ←———————————————————————————————————————————————————————————————————→ */
-       labelAngle: function(options={}) {
-        let o = hs.parseOptions(options);
+       labelAngle: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         o.desmos.setExpression({id:'angle_label',label:(hs.latexToText(o.value)+'°')});
        }
      };
@@ -2456,8 +2133,8 @@ fs.A0597083 = {
      cs.A0597616 = {CM_PRECISION:1};
      fs.A0597616 = {
       /* ←— label —————————————————————————————————————————————————————————→ */
-       label: function(options={}) {
-        let o = hs.parseOptions(options);
+       label: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         /* switch (o.name) {
           case 'm_B': */
             let value = Math.round(o.value);
@@ -2491,8 +2168,8 @@ fs.A0597083 = {
         } */
        },
       /* ←— label_noCorrection ————————————————————————————————————————————→ */
-       label_noCorrection: function(options={}) {
-        let o = hs.parseOptions(options);
+       label_noCorrection: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let value = Math.round(o.value);
         vs[o.uniqueId].B = value;
         o.desmos.setExpression({id:'labelB',label:''+value+'°'});
@@ -2515,8 +2192,8 @@ fs.A0597083 = {
     /* ←— A0596392 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0596392 = {
       /* ←— init ————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         vs[o.uniqueId] = {triAngleABC:{prevError:0,A:0,B:0,C:0}};
        },
       /* ←— labelTriAngles ——————————————————————————————————————————————————→ *\
@@ -2535,8 +2212,14 @@ fs.A0597083 = {
        |   !REQUIRES options.name end in pointNames.A, etc.
        |   !REQUIRES options.value be the angle's value, in Radians.
        * ←———————————————————————————————————————————————————————————————————→ */
-       labelTriAngles: function(options={},pointNames={A:'A',B:'B',C:'C'},prec=cs.precision.DEGREES) {
-        let o = hs.parseOptions(options);
+       labelTriAngles: function(options,pointNames,prec) {
+        if(pointNames === undefined) {
+          pointNames = {A:'A',B:'B',C:'C'};
+        }
+        if(prec === undefined) {
+          prec = cs.precision.DEGREES;
+        }
+        let o = hs.parseOptions.apply(this,[(options || {})]);
         let A = pointNames.A;
         let B = pointNames.B;
         let C = pointNames.C;
@@ -2603,8 +2286,8 @@ fs.A0597083 = {
        | Hidden point must be authored with showLabel:true,
        | and the ID 782
        * ←———————————————————————————————————————————————————————————————————→ */
-       updateLabels: function(options={}) {
-        let o = hs.parseOptions(options);
+       updateLabels: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         o.desmos.setExpression({id:'782',label:'y = −2x² + 4x'+(o.value<0?' − '+(-o.value):(o.value>0?' + '+o.value:''))});
        }
      };
@@ -2612,8 +2295,8 @@ fs.A0597083 = {
     /* ←— A0597720 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597720 = {
       /* ←— labelEquation ————————————————————————————————————————————————————→ */
-       labelEquation: function(options={}) {
-        let o = hs.parseOptions(options);
+       labelEquation: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         o.desmos.setExpression({id:'equation',label:''+(180-o.value)/*+'°'*/+' + '+o.value/*+'°'*/+' = 180'/*+'°'*/});
        }
      };
@@ -2621,8 +2304,8 @@ fs.A0597083 = {
     /* ←— A0597522 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0597522 = {
       /* ←— labelDiags ————————————————————————————————————————————————————→ */
-       labelDiags: function(options={}) {
-        let o = hs.parseOptions(options);
+       labelDiags: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         function diags(n) {
           if(n === 3) {return 0;}
           else if((n<1)||(n%1 !== 0)) {return undefined;}
@@ -2640,9 +2323,8 @@ fs.A0597083 = {
        cs.A0597744 = {PRECISION:10};
      fs.A0597744 = {
       /* ←— init ————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
-        vs[o.uniqueId] = {};
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let vars = vs[o.uniqueId];
         let cons = cs.A0597744;
 
@@ -2744,8 +2426,8 @@ fs.A0597083 = {
       /* ←— init ——————————————————————————————————————————————————————→ *\
        | Prepares the widget to listen to user input
        * ←—————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let vars = vs[o.uniqueId] = {
           x_1:8,
           y_1:4,
@@ -2784,8 +2466,8 @@ fs.A0597083 = {
        | Fixes the diagonal not being dragged to rotate, but not scale, with
        | the dragged point.
        * ←—————————————————————————————————————————————————————————————————→ */
-       dragging: function(options={}){
-        let o = hs.parseOptions(options);
+       dragging: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let vars = vs[o.uniqueId];
 
         vars[o.name] = o.value;
@@ -2804,8 +2486,8 @@ fs.A0597083 = {
       /* ←— equation ——————————————————————————————————————————————————————→ *\
        | Updates the equation (expression) with the new value of `n`
        * ←—————————————————————————————————————————————————————————————————→ */
-       equation: function(options={}) {
-        let o = hs.parseOptions(options);
+       equation: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         o.desmos.setExpression({id:'equation',latex:'\\frac{180\\left('+o.value+'-2\\right)}{'+o.value+'}'});
         o.desmos.setExpression({id:'centroid',label:hs.latexToText('180⋅\\left('+o.value+'-2\\right)÷'+o.value+'='+(Math.round(18000*(o.value-2)/o.value)/100))});
        }
@@ -2816,8 +2498,8 @@ fs.A0597083 = {
       /* ←— init ——————————————————————————————————————————————————————————→ *\
        | Updates the equation (expression) with the new angles
        * ←—————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let vars = vs[o.uniqueId] = {
           A:o.desmos.HelperExpression({latex:'m_A'}),
           B:o.desmos.HelperExpression({latex:'m_B'}),
@@ -2854,8 +2536,8 @@ fs.A0597083 = {
       /* ←— showHideQRST ——————————————————————————————————————————————————→ *\
        | Shows or hides QRST
        * ←—————————————————————————————————————————————————————————————————→ */
-       showHideQRST: function(options={}) {
-        let o = hs.parseOptions(options);
+       showHideQRST: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         o.desmos.setExpressions([
           {id:'EdgesQRST',type:'table',columns:[{},{hidden:o.value}]},
           {id:'Q',hidden:o.value,showLabel:(!(o.value))},
@@ -2867,8 +2549,8 @@ fs.A0597083 = {
       /* ←— showHideEFGH ——————————————————————————————————————————————————→ *\
        | Shows or hides EFGH
        * ←—————————————————————————————————————————————————————————————————→ */
-       showHideEFGH: function(options={}) {
-        let o = hs.parseOptions(options);
+       showHideEFGH: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         o.desmos.setExpressions([
           {id:'EdgesEFGH',type:'table',columns:[{},{hidden:o.value}]},
           {id:'E',hidden:o.value,showLabel:(!(o.value))},
@@ -2884,8 +2566,8 @@ fs.A0597083 = {
       /* ←— init ——————————————————————————————————————————————————————————→ *\
        | Updates the equation (expression) with the new angles
        * ←—————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let vars = vs[o.uniqueId] = {
           A:o.desmos.HelperExpression({latex:'m_A'}),
           B:o.desmos.HelperExpression({latex:'m_B'}),
@@ -2922,25 +2604,25 @@ fs.A0597083 = {
       /* ←— init ——————————————————————————————————————————————————————————→ *\
        | sets the
        * ←—————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let vars = vs[o.uniqueId] = {
           orange:1,
           blue:1
         };
        },
-       orange: function(options={}) {
-        let o = hs.parseOptions(options);
+       orange: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         vs[o.uniqueId].orange = o.value;
         fs.A0598839.setPlanes(options);
        },
-       blue: function(options={}) {
-        let o = hs.parseOptions(options);
+       blue: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         vs[o.uniqueId].blue = o.value;
         fs.A0598839.setPlanes(options);
        },
-       setPlanes: function(options={}) {
-        let o = hs.parseOptions(options);
+       setPlanes: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let orange = vs[o.uniqueId].orange;
         let blue = vs[o.uniqueId].blue;
 
@@ -2959,16 +2641,16 @@ fs.A0597083 = {
     /* ←— A0596385 FUNCTIONS ——————————————————————————————————————————————→ */
      fs.A0596385 = {
       /* ←— init ————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         vs[o.uniqueId] = {triAngleABC:{prevError:0,A:0,B:0,C:0}};
        },
       /* ←— updateAngles ————————————————————————————————————————————————————→ *\
        | updates the labels of the triangle's vertices with their respective
        | angle measures.
        * ←———————————————————————————————————————————————————————————————————→ */
-       updateAngles: function(options={}) {
-        let o = hs.parseOptions(options);
+       updateAngles: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let vertex = o.name[o.name.length-1];
         let val = Math.round(180*o.value/Math.PI);
         let vars = vs[o.uniqueId].triAngleABC;
@@ -2997,8 +2679,8 @@ fs.A0597083 = {
       /* ←— drawExtensions ——————————————————————————————————————————————————→ *\
        | Adds any side-extensions necessary; pass in name of obtuse angle
        * ←———————————————————————————————————————————————————————————————————→ */
-       drawExtensions: function(options={}) {
-        let o = hs.parseOptions(options);
+       drawExtensions: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let obtuse = (o.name[o.name.length-1] === 'A')?1:((o.name[o.name.length-1] === 'B')?2:3);
         let Ext1 = hs.ALPHA[obtuse%3+1];
         let ext1 = hs.alpha[obtuse%3+1];
@@ -3038,8 +2720,8 @@ fs.A0597083 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
        * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let vars = vs[o.uniqueId] = {lastDragged:0,placeholder:0};
         let hfs = vars.helperFunctions = {n:o.desmos.HelperExpression({latex:'n'}),showDiagonals:o.desmos.HelperExpression({latex:'d_{iags}'})};
         o.log(hfs);
@@ -3136,8 +2818,11 @@ fs.A0597083 = {
       /* ←— setPlaceholder ——————————————————————————————————————————————————→ *\
        | Attaches all segments from a vertex to the placeholder vertex
        * ←———————————————————————————————————————————————————————————————————→ */
-       setPlaceholder: function(options={},i=0) {
-        let o = hs.parseOptions(options);
+       setPlaceholder: function(options,i) {
+        if(i === undefined) {
+          i = 0;
+        }
+        let o = hs.parseOptions.apply(this,[(options || {})]);
         let vars = vs[o.uniqueId];
         let n = vars.n;
 
@@ -3203,8 +2888,8 @@ fs.A0597083 = {
        | moves the last dragged vertex back to the placeholder vertex's location
        | 
        * ←———————————————————————————————————————————————————————————————————→ */
-       clearPlaceholder: function(options={}) {
-        let o = hs.parseOptions(options);
+       clearPlaceholder: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let vars = vs[o.uniqueId];
         let hfs = vars.helperFunctions;
         let cons = cs.A0597629;
@@ -3275,8 +2960,8 @@ fs.A0597083 = {
       /* ←— coordinateChanged ———————————————————————————————————————————————→ *\
        | updates variables, and corrects if the user tries to cross diagonals
        * ←———————————————————————————————————————————————————————————————————→ */
-       coordinateChanged: function(options={}) {
-        let o = hs.parseOptions(options);
+       coordinateChanged: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let vars = vs[o.uniqueId];
         if (vars.belayCorrection === true) {return;}
         let n = vars.n;
@@ -3351,8 +3036,8 @@ fs.A0597083 = {
        | Restyles diagonals
        | Restores coordinates
        * ←———————————————————————————————————————————————————————————————————→ */
-       switchPolygon: function(options={}) {
-        let o = hs.parseOptions(options);
+       switchPolygon: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let vars = vs[o.uniqueId];
         let hfs = vars.helperFunctions;
         let cons = cs.A0597629;
@@ -3499,8 +3184,11 @@ fs.A0597083 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
        * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={},varparam={}) {
-        let o = hs.parseOptions(options);
+       init: function(options,varparam) {
+        if(varparam === undefined) {
+          varparam = {};
+        }
+        let o = hs.parseOptions.apply(this,[(options || {})]);
         let vars = vs[o.uniqueId] = Object.assign(varparam,{lastDragged:0,placeholder:0});
         let hfs = vars.helperFunctions = ((vars.helperFunctions === undefined)?{n:o.desmos.HelperExpression({latex:'n'})}:vars.helperFunctions);
         o.log(hfs);
@@ -3636,8 +3324,11 @@ fs.A0597083 = {
       /* ←— setPlaceholder ——————————————————————————————————————————————————→ *\
        | Attaches all segments from a vertex to the placeholder vertex
        * ←———————————————————————————————————————————————————————————————————→ */
-       setPlaceholder: function(options={},i=0) {
-        let o = hs.parseOptions(options);
+       setPlaceholder: function(options,i) {
+        if(i === undefined) {
+          i = 0;
+        }
+        let o = hs.parseOptions.apply(this,[(options || {})]);
         let vars = vs[o.uniqueId];
         let n = vars.n;
 
@@ -3717,8 +3408,8 @@ fs.A0597083 = {
        | moves the last dragged vertex back to the placeholder vertex's location
        | 
        * ←———————————————————————————————————————————————————————————————————→ */
-       clearPlaceholder: function(options={}) {
-        let o = hs.parseOptions(options);
+       clearPlaceholder: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let vars = vs[o.uniqueId];
         let hfs = vars.helperFunctions;
         let cons = cs.A0597630;
@@ -3803,8 +3494,8 @@ fs.A0597083 = {
       /* ←— coordinateChanged ———————————————————————————————————————————————→ *\
        | updates variables, and corrects if the user tries to cross diagonals
        * ←———————————————————————————————————————————————————————————————————→ */
-       coordinateChanged: function(options={}) {
-        let o = hs.parseOptions(options);
+       coordinateChanged: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let vars = vs[o.uniqueId];
         let cons = cs.A0597630;
         if (vars.belayCorrection === true) {
@@ -3892,8 +3583,8 @@ fs.A0597083 = {
        | Restyles diagonals
        | Restores coordinates
        * ←———————————————————————————————————————————————————————————————————→ */
-       switchPolygon: function(options={}) {
-        let o = hs.parseOptions(options);
+       switchPolygon: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let vars = vs[o.uniqueId];
         let hfs = vars.helperFunctions;
         let cons = cs.A0597630;
@@ -4058,8 +3749,11 @@ fs.A0597083 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
        * ←———————————————————————————————————————————————————————————————————→ */
-       init: function(options={},varparam={}) {
-        let o = hs.parseOptions(options);
+       init: function(options,varparam) {
+        if(varparam === undefined) {
+          varparam = {};
+        }
+        let o = hs.parseOptions.apply(this,[(options || {})]);
         let vars = vs[o.uniqueId] = Object.assign(varparam,{lastDragged:0,placeholder:0});
         let hfs = vars.helperFunctions = ((vars.helperFunctions === undefined)?{n:o.desmos.HelperExpression({latex:'n'})}:vars.helperFunctions);
         o.log(hfs);
@@ -4186,8 +3880,11 @@ fs.A0597083 = {
       /* ←— setPlaceholder ——————————————————————————————————————————————————→ *\
        | Attaches all segments from a vertex to the placeholder vertex
        * ←———————————————————————————————————————————————————————————————————→ */
-       setPlaceholder: function(options={},i=0) {
-        let o = hs.parseOptions(options);
+       setPlaceholder: function(options,i) {
+        if(i === undefined) {
+          i = 0;
+        }
+        let o = hs.parseOptions.apply(this,[(options || {})]);
         let vars = vs[o.uniqueId];
         let n = vars.n;
 
@@ -4284,8 +3981,8 @@ fs.A0597083 = {
        | moves the last dragged vertex back to the placeholder vertex's location
        | 
        * ←———————————————————————————————————————————————————————————————————→ */
-       clearPlaceholder: function(options={}) {
-        let o = hs.parseOptions(options);
+       clearPlaceholder: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let vars = vs[o.uniqueId];
         let hfs = vars.helperFunctions;
         let cons = cs.A0597634;
@@ -4387,8 +4084,8 @@ fs.A0597083 = {
       /* ←— coordinateChanged ———————————————————————————————————————————————→ *\
        | updates variables, and corrects if the user tries to cross diagonals
        * ←———————————————————————————————————————————————————————————————————→ */
-       coordinateChanged: function(options={}) {
-        let o = hs.parseOptions(options);
+       coordinateChanged: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let vars = vs[o.uniqueId];
         let cons = cs.A0597634;
         if (vars.belayCorrection === true) {
@@ -4470,8 +4167,8 @@ fs.A0597083 = {
        | Restyles diagonals
        | Restores coordinates
        * ←———————————————————————————————————————————————————————————————————→ */
-       switchPolygon: function(options={}) {
-        let o = hs.parseOptions(options);
+       switchPolygon: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let vars = vs[o.uniqueId];
         let hfs = vars.helperFunctions;
         let cons = cs.A0597634;
@@ -4631,8 +4328,8 @@ fs.A0597083 = {
        |  centered at x_0, y_0 with radius r_0
        | (Initialization option; starts the whole graph)
        * ←—————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let vars = vs[o.uniqueId] = {draggingPoint:null,dragging:false};
         let hxs = vars.helperExpressions = {};
         vars.belayUntil = Date.now()+cs.delay.LOAD;
@@ -4982,8 +4679,8 @@ fs.A0597083 = {
        |  centered at x_0, y_0 with radius r_0
        | (Initialization option; starts the whole graph)
        * ←—————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let vars = vs[o.uniqueId] = {draggingPoint:null,dragging:false};
         let hxs = vars.helperExpressions = {};
         let cons = cs.A0597773;
@@ -5208,8 +4905,8 @@ fs.A0597083 = {
       /* ←— init ———————————————————————————————————————————————→ *\
        | stuff
        * ←—————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let vars = vs[o.uniqueId] = {draggingPoint:null,dragging:false};
         let hxs = vars.helperExpressions = {};
         let cons = cs.A0597777;
@@ -5606,9 +5303,8 @@ fs.A0597083 = {
       /* ←— init ———————————————————————————————————————————————→ *\
        | stuff
        * ←—————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
-        vs[o.uniqueId] = {};
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let vars = vs[o.uniqueId];
         vars.helperExpressions = {};
         let hxs = vars.helperExpressions;
@@ -5801,8 +5497,8 @@ fs.A0597083 = {
       /* ←— init ———————————————————————————————————————————————→ *\
        | stuff
        * ←—————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let cons = cs.A0597506;
         vs[o.uniqueId] = {
           correcting: false,
@@ -6083,8 +5779,8 @@ fs.A0597083 = {
       /* ←— init ———————————————————————————————————————————————→ *\
        | stuff
        * ←—————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         vs[o.uniqueId] = {draggingPoint:null,dragging:false};
         let vars = vs[o.uniqueId];
         vars.helperExpressions = {};
@@ -6278,8 +5974,8 @@ fs.A0597083 = {
       /* ←— init ——————————————————————————————————————————————————————→ *\
        | Preps the watcher
        * ←—————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         o.desmos.observe('graphpaperBounds',function(){
           let cons = cs.A0597789;
           let units = o.desmos.graphpaperBounds.mathCoordinates;
@@ -6294,15 +5990,15 @@ fs.A0597083 = {
       /* ←— volumeCone ——————————————————————————————————————————————————————→ *\
        | Updates the volume of the cone
        * ←—————————————————————————————————————————————————————————————————→ */
-       volumeCone: function(options={}) {
-        let o = hs.parseOptions(options);
+       volumeCone: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         o.desmos.setExpression({id:'volumeCone',label:'Volume of cone: '+o.value});
        },
       /* ←— volumeStack ——————————————————————————————————————————————————————→ *\
        | Updates the volume of the stack
        * ←—————————————————————————————————————————————————————————————————→ */
-       volumeStack: function(options={}) {
-        let o = hs.parseOptions(options);
+       volumeStack: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         o.desmos.setExpression({id:'volumeStack',label:'Total volume of stack: '+o.value});
        }
      };
@@ -6315,8 +6011,8 @@ fs.A0597083 = {
       /* ←— init ——————————————————————————————————————————————————————→ *\
        | Preps the watcher
        * ←—————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let cons = cs.A0596370;
         vs[o.uniqueId] = {lastStep:1};
        },
@@ -6326,8 +6022,8 @@ fs.A0597083 = {
        | Plays the animation if given a value of -1, so you can call with an
        | animation toggle with a max of -1 (hopefully you don't have a Step -1)
        * ←—————————————————————————————————————————————————————————————————→ */
-       resetAnimation: function(options={}) {
-        let o = hs.parseOptions(options);
+       resetAnimation: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let cons = cs.A0596370;
         o.desmos.setExpression({
           id:'animationSlider',
@@ -6338,8 +6034,8 @@ fs.A0597083 = {
       /* ←— changeStep ——————————————————————————————————————————————————————→ *\
        | Switches to the next step.
        * ←—————————————————————————————————————————————————————————————————→ */
-       changeStep: function(options={}) {
-        let o = hs.parseOptions(options);
+       changeStep: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let cons = cs.A0596370;
         let lastStep = vs[o.uniqueId].lastStep;
         vs[o.uniqueId].lastStep = o.value;
@@ -6453,8 +6149,8 @@ fs.A0597083 = {
       /* ←— init ——————————————————————————————————————————————————————→ *\
        | Preps the watcher
        * ←—————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let cons = cs.A0596373;
         vs[o.uniqueId] = {lastStep:1};
        },
@@ -6464,8 +6160,8 @@ fs.A0597083 = {
        | Plays the animation if given a value of -1, so you can call with an
        | animation toggle with a max of -1 (hopefully you don't have a Step -1)
        * ←—————————————————————————————————————————————————————————————————→ */
-       resetAnimation: function(options={}) {
-        let o = hs.parseOptions(options);
+       resetAnimation: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let cons = cs.A0596373;
         o.desmos.setExpression({
           id:'animationSlider',
@@ -6476,8 +6172,8 @@ fs.A0597083 = {
       /* ←— changeStep ——————————————————————————————————————————————————————→ *\
        | Switches to the next step.
        * ←—————————————————————————————————————————————————————————————————→ */
-       changeStep: function(options={}) {
-        let o = hs.parseOptions(options);
+       changeStep: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let cons = cs.A0596373;
         let lastStep = vs[o.uniqueId].lastStep;
         vs[o.uniqueId].lastStep = o.value;
@@ -6594,8 +6290,8 @@ fs.A0597083 = {
       /* ←— init ——————————————————————————————————————————————————————→ *\
        | Preps the watchers
        * ←—————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         vs[o.uniqueId] = {
           lastPointCount:0/*,
           hxs:{
@@ -6608,8 +6304,8 @@ fs.A0597083 = {
        | Toggle switch should use -n and n to toggle line type on line n
        | positive for SOLID, otherwise, DASHED
        * ←—————————————————————————————————————————————————————————————————→ */
-       changeLineType: function(options={}) {
-        let o = hs.parseOptions(options);
+       changeLineType: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         o.desmos.setExpression({
           id:o.id,
           style:((o.value>0)?cs.enum.lineType.SOLID:cs.enum.lineType.DASHED)
@@ -6618,8 +6314,8 @@ fs.A0597083 = {
       /* ←— changeStep ——————————————————————————————————————————————————————→ *\
        | Switches to the next step.
        * ←—————————————————————————————————————————————————————————————————→ */
-       regionsAddRemove: function(options={}) {
-        let o = hs.parseOptions(options);
+       regionsAddRemove: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let cons = cs.A0599213;
         let vars = vs[o.uniqueId];
         //let x_c = vars.hxs.x_c.numericValue;
@@ -6659,8 +6355,8 @@ fs.A0597083 = {
       /* ←— init ——————————————————————————————————————————————————————→ *\
        | Preps the watchers
        * ←—————————————————————————————————————————————————————————————————→ */
-       init: function(options={}) {
-        let o = hs.parseOptions(options);
+       init: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         vs[o.uniqueId] = {
           lastPointCount:0/*,
           hxs:{
@@ -6673,8 +6369,8 @@ fs.A0597083 = {
        | Toggle switch should use -n and n to toggle line type on line n
        | positive for SOLID, otherwise, DASHED
        * ←—————————————————————————————————————————————————————————————————→ */
-       changeLineType: function(options={}) {
-        let o = hs.parseOptions(options);
+       changeLineType: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         o.desmos.setExpression({
           id:o.id,
           style:((o.value>0)?cs.enum.lineType.SOLID:cs.enum.lineType.DASHED)
@@ -6683,8 +6379,8 @@ fs.A0597083 = {
       /* ←— changeStep ——————————————————————————————————————————————————————→ *\
        | Switches to the next step.
        * ←—————————————————————————————————————————————————————————————————→ */
-       regionsAddRemove: function(options={}) {
-        let o = hs.parseOptions(options);
+       regionsAddRemove: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         let cons = cs.A0598832;
         let vars = vs[o.uniqueId];
         //let x_c = vars.hxs.x_c.numericValue;
@@ -6722,7 +6418,7 @@ fs.A0597083 = {
        * ←—————————————————————————————————————————————————————————————————→ */
        init: (function(){
         // Helper Functions
-          o = {log:console.log}; //function(){}}; // change log to console.log to debug
+          var o = {log:console.log}; //function(){}}; // change log to console.log to debug
 
           // Methods: next(), last(), all(), reset(start)
           var PrimeGenerator = (function() {
@@ -6839,13 +6535,6 @@ fs.A0597083 = {
 
             return generator;
           })();
-
-          function expr(latex,options) {
-            if(hs && hs.eval && typeof hs.eval === "function") {
-              return hs.eval(latex,options);
-            }
-            return NaN;
-          }
 
           function getPrimes(max,min=2) {
             //  returns a list of prime numbers less than or equal to max
@@ -7305,8 +6994,8 @@ fs.A0597083 = {
 
           var mostMajorIntervals = 29;
 
-        return function(options={}) {
-          let o = hs.parseOptions(options);
+        return function(){
+          let o = hs.parseOptions.apply(this,arguments);
           let vars = vs[o.uniqueId];
           let hxs = vars.helpers = {
             W:o.desmos.HelperExpression({latex:'W'}),
@@ -7487,8 +7176,8 @@ fs.A0597083 = {
        |  centered at x_0, y_0 with radius r_0
        | (Initialization option; starts the whole graph)
        * ←—————————————————————————————————————————————————————————————————→ */
-       circleConstrain: function(options={}) {
-        let o = hs.parseOptions(options);
+       circleConstrain: function(){
+        let o = hs.parseOptions.apply(this,arguments);
         vs[o.uniqueId] = (vs[o.uniqueId] || {});
         let vars = vs[o.uniqueId];
         vars.helperExpressions = {};
