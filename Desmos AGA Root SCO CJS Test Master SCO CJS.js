@@ -103,8 +103,6 @@ PearsonGL.External.masterJS = (function() {
 
   ts.shared.init.observeZoom = (val, name, desmos)=>PearsonGL.External.rootJS.shared_init_observeZoom((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':log}:val);
 
-  ts.shared.init.shareState = (val, name, desmos)=>PearsonGL.External.rootJS.shared_init_shareState((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':log, 'uniqueId':'shared'}:val);
-
   ts.shared.label.labelEquation = (val, name, desmos)=>PearsonGL.External.rootJS.shared_label_labelEquation((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':log}:val);
 
   ts.shared.label.valueOnly = (val, name, desmos)=>PearsonGL.External.rootJS.shared_label_valueOnly((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':log}:val);
