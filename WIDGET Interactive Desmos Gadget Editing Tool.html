@@ -1247,13 +1247,18 @@
           }
         } else {
           func = (function() {
-            if (value == '') return function() {
-              return PearsonGL.External.masterJS[funcName](helper.numericValue,latex,window.calculator);
-            };
-            else return function() {
-              if (helper.numericValue == value) return PearsonGL.External.masterJS[funcName](helper.numericValue,latex,window.calculator);
-            };
-          })();
+            if (/^[0-9]*$/.test(value)) {
+              return function() {
+                return PearsonGL.External.masterJS[funcName](helper.numericValue,latex,window.calculator);
+              };
+            } else {
+              return function() {
+                if (helper.numericValue == value) {
+                  return PearsonGL.External.masterJS[funcName](helper.numericValue,latex,window.calculator);
+                }
+              };
+            }
+          }());
         }
 
         this.enable = function() {
