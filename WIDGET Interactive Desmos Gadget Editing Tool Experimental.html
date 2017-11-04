@@ -1,0 +1,1643 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>WIDGET Interactive Desmos Gadget Editing Tool</title>
+  <link href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css" rel="stylesheet" type="text/css" />
+  <script src="https://code.jquery.com/jquery-3.1.0.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src='./cloudinary/jquery.ui.widget.js' type='text/javascript'></script>
+  <script src='./cloudinary/jquery.iframe-transport.js' type='text/javascript'></script>
+  <script src='./cloudinary/jquery.fileupload.js' type='text/javascript'></script>
+  <script src='./cloudinary/jquery.cloudinary.js' type='text/javascript'></script>
+  <!--script src="https://www.desmos.com/api/v0.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script-->
+  <script src="./desmos/calculator.2017-06-19.js"></script>
+  <!--script src="https://www.desmos.com/api/v0.9/geometry.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script-->
+  <script src="./desmos/geometry.2017-06-19.js"></script>
+  <script src="./Desmos AGA Root SCO CJS De-Linted.js"></script>
+  <script src="./Desmos AGA Root SCO CJS Test Master SCO CJS.js"></script>
+  <script src="./Desmos Helper Functions.js"></script>
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+    }
+    #calculator {
+      width: 550px;
+      height: 450px;
+    });
+  </style>
+</head>
+<body>
+  <table>
+    <tr>
+      <td colspan="2" style="vertical-align:top;">
+        <div id="frame"><div id="calculator"></div></div>
+      </td>
+      <td rowspan="3" style="vertical-align:top;text-align:center">
+        <button type="button" id="graphing" style="background:green;color:white;">Calculator</button>&nbsp;<button type="button" id="geometry" style="background:red;color:white;">Geometry</button><br>
+        <div id="calcConstructorButtons">
+        <table>
+          <tr><td style="text-align:right">Keypad: </td><td style="text-align:center"><button type="button" id="keypad">?</button></td></tr>
+          <tr><td style="text-align:right">Graph Paper: </td><td style="text-align:center"><button type="button" id="graphpaper">?</button></td></tr>
+          <tr><td style="text-align:right">Expressions: </td><td style="text-align:center"><button type="button" id="expressions">?</button></td></tr>
+          <tr><td style="text-align:right">Settings Menu: </td><td style="text-align:center"><button type="button" id="settingsMenu">?</button></td></tr>
+          <tr><td style="text-align:right">Zoom Buttons: </td><td style="text-align:center"><button type="button" id="zoomButtons">?</button></td></tr>
+          <tr><td style="text-align:right">Expressions Top Bar: </td><td style="text-align:center"><button type="button" id="expressionsTopbar">?</button></td></tr>
+          <tr><td style="text-align:right">Points of Interest: </td><td style="text-align:center"><button type="button" id="pointsOfInterest">?</button></td></tr>
+          <tr><td style="text-align:right">Single-Variable Solutions: </td><td style="text-align:center"><button type="button" id="singleVariableSolutions">?</button></td></tr>
+          <tr><td style="text-align:right">Trace: </td><td style="text-align:center"><button type="button" id="trace">?</button></td></tr>
+          <tr><td style="text-align:right">Border: </td><td style="text-align:center"><button type="button" id="border">?</button></td></tr>
+          <tr><td style="text-align:right">Lock Viewport: </td><td style="text-align:center"><button type="button" id="lockViewport">?</button></td></tr>
+          <tr><td style="text-align:right">Expressions Collapsed: </td><td style="text-align:center"><button type="button" id="expressionsCollapsed">?</button></td></tr>
+          <tr><td style="text-align:right">Administer Secret Folders: </td><td style="text-align:center"><button type="button" id="administerSecretFolders">?</button></td></tr>
+          <tr><td style="text-align:right">Images: </td><td style="text-align:center"><button type="button" id="images">?</button></td></tr>
+          <tr><td style="text-align:right">Folders: </td><td style="text-align:center"><button type="button" id="folders">?</button></td></tr>
+          <tr><td style="text-align:right">Notes: </td><td style="text-align:center"><button type="button" id="notes">?</button></td></tr>
+          <tr><td style="text-align:right">QWERTY Keyboard: </td><td style="text-align:center"><button type="button" id="qwertyKeyboard">?</button></td></tr>
+          <tr><td style="text-align:right">Restricted Functions: </td><td style="text-align:center"><button type="button" id="restrictedFunctions">?</button></td></tr>
+          <tr><td style="text-align:right">Paste Graph Link: </td><td style="text-align:center"><button type="button" id="pasteGraphLink">?</button></td></tr>
+          <tr><td style="text-align:right">Paste Table Data: </td><td style="text-align:center"><button type="button" id="pasteTableData">?</button></td></tr>
+          <tr><td style="text-align:right">Degree Mode: </td><td style="text-align:center"><button type="button" id="degreeMode">?</button></td></tr>
+        </table>
+        </div>
+        <div id="geoConstructorButtons">
+        <table>
+          <tr><td style="text-align:right">Construct Perpendicular Line: </td><td style="text-align:center"><button type="button" id="constructPerpendicular">?</button></td></tr>
+          <tr><td style="text-align:right">Construct Parallel Line: </td><td style="text-align:center"><button type="button" id="constructParallel">?</button></td></tr>
+          <tr><td style="text-align:right">Construct Midpoint: </td><td style="text-align:center"><button type="button" id="constructMidpoint">?</button></td></tr>
+          <tr><td style="text-align:right">Construct Compass: </td><td style="text-align:center"><button type="button" id="constructCompass">?</button></td></tr>
+          <tr><td style="text-align:right">Border: </td><td style="text-align:center"><button type="button" id="geoBorder">?</button></td></tr>
+          <tr><td style="text-align:right">Labels: </td><td style="text-align:center"><button type="button" id="labels">?</button></td></tr>
+          <tr><td style="text-align:right">Ruler: </td><td style="text-align:center"><button type="button" id="ruler">?</button></td></tr>
+          <tr><td style="text-align:right">Protractor: </td><td style="text-align:center"><button type="button" id="protractor">?</button></td></tr>
+        </table>
+        </div>
+        <div id="commonConstructorButtons" style="text-align:right">
+          <button type="button" id="defaultConstructors">Reset to Defaults</button><br>
+          <button type="button" id="clearConstructors">Clear All</button><br>
+          <button type="button" id="saveConstructors">Export</button><br>
+          <input type="text" id="constructorInput" placeholder="Custom list…"><br>
+          <button type="button" id="onlyConstructors">Enable Entered &amp;<br>Disable Others</button>
+          <button type="button" id="changeConstructors">Make Entered<br>Changes Only</button>
+        </div>
+      </td>
+    </tr>
+    <tr height="100%">
+      <td style="vertical-align:top">
+        <button type="button" id="copyState">Copy Current State</button><br>
+        <button type="button" id="download">Download Current State</button><br>
+        <button type="button" id="save">Save As New Widget</button><br>
+        <input type="text" id="stateInput" placeholder="Paste state here…">
+        <button type="button" id="load">Load State</button>
+      </td>
+      <td style="vertical-align:top">
+        <table style="float:right">
+          <tr>
+            <td>
+              <input type="text" id="desWidth" placeholder="w" style="width:3em;text-align:center">px
+            </td>
+            <td rowspan="2" style="vertical-align:top">×</td>
+            <td style="vertical-align:top;">
+              <input type="text" id="desHeight" placeholder="h" style="width:3em;text-align:center">px
+            </td>
+          </tr>
+          <tr>
+            <td style="vertical-align:top">
+              <button type="button" id="w280" style="width:3em;">1/3</button><br>
+              <button type="button" id="w415" style="width:3em;">50%</button><br>
+              <button type="button" id="w550" style="width:3em;">2/3</button><br>
+              <button type="button" id="w860" style="width:3em;">Full</button>
+            </td>
+            <td style="vertical-align:top">
+              <button type="button" id="h350" style="width:3em;">350</button><br>
+              <button type="button" id="h400" style="width:3em;">400</button><br>
+              <button type="button" id="h475" style="width:3em;">475</button><br>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <div id="saveBrowserDiv" style="overflow-x:scroll;">
+          <table>
+            <tr id="saveBrowserRow">
+            </tr>
+          </table>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="3">
+        <div id="helperExpressions" style="min-height:150px;">
+          <table>
+          <thead>
+            <tr><th>Expression</th><th>Function Name</th><th>Value</th></tr>
+          </thead>
+          <tbody id="helperList">
+            <tr id="newHelper">
+              <td><input type="text" class="helperName" placeholder="Expression…"></td>
+              <td><input type="text" class="helperFunction" placeholder="Function⁢…"></td>
+              <td><input type="text" class="helperValue" placeholder="Value⁢…"></td>
+              <td><button type="button" class="addHelper">Add</button></td>
+              <td><button type="button" class="deleteHelper">Clear</button></td>
+            </tr>
+          </tbody>
+          </table>
+          <div id="bottomPadding" style="height:50px"></div>
+        </div>
+      </td>
+    </tr>
+  </table>
+  <script>
+    $(function() {
+      // CLOUDINARY INTEGRATION STUFF
+      var cloudinaryUpload = false;
+
+      if($.cloudinary) {
+        $.cloudinary.config({ cloud_name: 'jwstrong-psn', api_key: '323322785131496'});
+
+        $(function() {
+          if($.fn.cloudinary_fileupload !== undefined) {
+            $("input.cloudinary-fileupload[type=file]").cloudinary_fileupload();
+          }
+        });
+        cloudinaryUpload = $.cloudinary.unsigned_upload_tag('eyycjxcx');
+      }
+
+
+      // unsigned upload tag = eyycjxcx
+      // cloud_name = jwstrong-psn
+
+      /*
+        var steve = $.cloudinary.unsigned_upload_tag('eyycjxcx');
+        steve.fileupload('option','formData').file = calculator.screenshot()
+        steve.bind('fileuploaddone',function(e,g){console.log(g.result.url);})
+        steve.fileupload('add', { files: [ data ] })
+        });
+      */
+
+      // idea from https://github.com/cloudinary/cloudinary_js/issues/78
+
+      // END CLOUDINARY INTEGRATION STUFF
+
+
+      var onbuttoncolor = "green";
+      var ontextcolor = "white";
+      var offbuttoncolor = "red";
+      var offtextcolor = "white";
+      const DOM_ID_PREFIX = "dom_guid_";
+      window.AUTO_SAVE_INTERVAL = 5000;
+      const LOADING_TIME_ALLOTMENT = 2500;
+      var previewHeight = 100;
+      var previewWidth = 100;
+      var $checkWarnGui = $('<div style="width:'+previewWidth+'px;"><p id="checkWarn"></p><button type="button" id="checkConfirm"></button><br><button type="button" id="checkCancel"></button></div>');
+      var domIdIndex = 0;
+      var newHelper;
+
+      $("#help").hide();
+      $("#geoConstructorButtons").hide();
+      $("#hide").click(function(){
+        $("#help").hide();
+        $("#show").show();
+      });
+      $("#show").click(function(){
+        $("#show").hide();
+        $("#help").show();
+      });
+      $("#graphing").click(function(){
+        $("#geoConstructorButtons").hide();
+        $("#calcConstructorButtons").show();
+        $("#graphing").css("background",onbuttoncolor);
+        $("#graphing").css("color",ontextcolor);
+        $("#geometry").css("background",offbuttoncolor);
+        $("#geometry").css("color",offtextcolor);
+        toolType = "graphing";
+        window.rebuild();
+      });
+      $("#geometry").click(function(){
+        $("#calcConstructorButtons").hide();
+        $("#geoConstructorButtons").show();
+        $("#graphing").css("background",offbuttoncolor);
+        $("#graphing").css("color",offtextcolor);
+        $("#geometry").css("background",onbuttoncolor);
+        $("#geometry").css("color",ontextcolor);
+        toolType = "geometry";
+        window.rebuild();
+      });
+      constructorButtons: {
+        $("#keypad").click(function(){
+          window.rebuild({keypad:!(window.currentCalcConstructors.keypad)});
+        });
+        $("#graphpaper").click(function(){
+          window.rebuild({graphpaper:!(window.currentCalcConstructors.graphpaper)});
+        });
+        $("#expressions").click(function(){
+          window.rebuild({expressions:!(window.currentCalcConstructors.expressions)});
+        });
+        $("#settingsMenu").click(function(){
+          window.rebuild({settingsMenu:!(window.currentCalcConstructors.settingsMenu)});
+        });
+        $("#zoomButtons").click(function(){
+          window.rebuild({zoomButtons:!(window.currentCalcConstructors.zoomButtons)});
+        });
+        $("#expressionsTopbar").click(function(){
+          window.rebuild({expressionsTopbar:!(window.currentCalcConstructors.expressionsTopbar)});
+        });
+        $("#pointsOfInterest").click(function(){
+          window.rebuild({pointsOfInterest:!(window.currentCalcConstructors.pointsOfInterest)});
+        });
+        $("#singleVariableSolutions").click(function(){
+          window.rebuild({singleVariableSolutions:!(window.currentCalcConstructors.singleVariableSolutions)});
+        });
+        $("#trace").click(function(){
+          window.rebuild({trace:!(window.currentCalcConstructors.trace)});
+        });
+        $("#border").click(function(){
+          window.rebuild({border:!(window.currentCalcConstructors.border)});
+        });
+        $("#lockViewport").click(function(){
+          window.rebuild({lockViewport:!(window.currentCalcConstructors.lockViewport)});
+        });
+        $("#expressionsCollapsed").click(function(){
+          window.rebuild({expressionsCollapsed:!(window.currentCalcConstructors.expressionsCollapsed)});
+        });
+        $("#administerSecretFolders").click(function(){
+          window.rebuild({administerSecretFolders:!(window.currentCalcConstructors.administerSecretFolders)});
+        });
+        $("#images").click(function(){
+          window.rebuild({images:!(window.currentCalcConstructors.images)});
+        });
+        $("#folders").click(function(){
+          window.rebuild({folders:!(window.currentCalcConstructors.folders)});
+        });
+        $("#notes").click(function(){
+          window.rebuild({notes:!(window.currentCalcConstructors.notes)});
+        });
+        $("#qwertyKeyboard").click(function(){
+          window.rebuild({qwertyKeyboard:!(window.currentCalcConstructors.qwertyKeyboard)});
+        });
+        $("#restrictedFunctions").click(function(){
+          window.rebuild({restrictedFunctions:!(window.currentCalcConstructors.restrictedFunctions)});
+        });
+        $("#pasteGraphLink").click(function(){
+          window.rebuild({pasteGraphLink:!(window.currentCalcConstructors.pasteGraphLink)});
+        });
+        $("#pasteTableData").click(function(){
+          window.rebuild({pasteTableData:!(window.currentCalcConstructors.pasteTableData)});
+        });
+        $("#degreeMode").click(function(){
+          window.rebuild({degreeMode:!(window.currentCalcConstructors.degreeMode)});
+        });
+        $("#constructPerpendicular").click(function(){
+          window.rebuild({'construct.perpendicular':!(window.currentGeoConstructors['construct.perpendicular'])});
+        });
+        $("#constructParallel").click(function(){
+          window.rebuild({'construct.parallel':!(window.currentGeoConstructors['construct.parallel'])});
+        });
+        $("#constructMidpoint").click(function(){
+          window.rebuild({'construct.midpoint':!(window.currentGeoConstructors['construct.midpoint'])});
+        });
+        $("#constructCompass").click(function(){
+          window.rebuild({'construct.compass':!(window.currentGeoConstructors['construct.compass'])});
+        });
+        $("#geoBorder").click(function(){
+          window.rebuild({'border':!(window.currentGeoConstructors['border'])});
+        });
+        $("#labels").click(function(){
+          window.rebuild({'labels':!(window.currentGeoConstructors['labels'])});
+        });
+        $("#ruler").click(function(){
+          window.currentGeoConstructors.ruler = !(window.currentGeoConstructors['ruler']);
+          if (!(toolType == 'geometry')) return;
+          if (window.currentGeoConstructors.ruler) window.Geo.showRuler();
+          else window.Geo.hideRuler();
+          updateView();
+          autoSave();
+        });
+        $("#protractor").click(function(){
+          window.currentGeoConstructors.protractor = !(window.currentGeoConstructors['protractor']);
+          if (!(toolType == 'geometry')) return;
+          if (window.currentGeoConstructors.protractor) window.Geo.showProtractor();
+          else window.Geo.hideProtractor();
+          updateView();
+          autoSave();
+        });
+        $("#defaultConstructors").click(function(){
+          window.reset();
+        });
+        $("#clearConstructors").click(function(){
+          window.only();
+        });
+      }
+      $("#copyState").click(function(){
+        var currState = window.copyState();
+        var field = $('#stateInput')[0];
+        field.value = JSON.stringify(currState);
+        field.focus()
+        field.setSelectionRange(0,field.value.length);
+        var succeed;
+        try {
+          succeed = document.execCommand('copy');
+          alert('Calculator state copied to clipboard.');
+        } catch(e) {
+          succeed = false;
+          alert('Failed to copy to clipboard. Select and copy manually from text field above \'Copy Current State\' button.');
+        }
+      });
+
+      $("#save").click(function(){
+        window.save();
+      });
+
+      $("#download").click(function(){
+        window.download(window.calculator.getState());//{stripDefaults: false}));
+      });
+
+      $(".addHelper").click(function(event){
+        // <button> → <td> → <tr id="helperId">
+        var helperId = event.target.parentNode.parentNode.id;
+        var helperRow = $('#'+helperId);
+        var name = helperRow.find('.helperName')[0].value;
+        var func = helperRow.find('.helperFunction')[0].value;
+        var value = helperRow.find('.helperValue')[0].value;
+        var success = false;
+        var helper = null;
+
+        if (helperId == 'newHelper') {
+          helperRow.remove();
+          newHelper.clone(true,true).appendTo($('#helperList'));
+        } else currentHelpers[helperId].destroy();
+
+        try {
+          helper = new DCAThelper({
+            latex:name,
+            funcName:func,
+            value:value
+          }, helperId);
+        } catch (e) {
+          alert(e.message);
+        }
+        if (helper === null) return;
+        currentHelpers[helper.id] = helper;
+      });
+
+      $(".deleteHelper").click(function(event){
+        // <button> → <td> → <tr id="helperId">
+        var helperId = event.target.parentNode.parentNode.id;
+        var helperRow = $('#'+helperId);
+        if (helperId == 'newHelper') {
+          // only clear fields when deleting the "new helper" row
+          helperRow.find('.helperName')[0].value = '';
+          helperRow.find('.helperFunction')[0].value = '';
+          helperRow.find('.helperValue')[0].value = '';
+          helperRow.find('.addHelper').prop("disabled",true);
+        } else currentHelpers[helperId].destroy();
+      });
+
+      $('.helperName').change(function(event){
+        $('#'+event.target.parentNode.parentNode.id).find('.addHelper').prop("disabled",false);
+      })
+
+      $('.helperFunction').change(function(event){
+        $('#'+event.target.parentNode.parentNode.id).find('.addHelper').prop("disabled",false);
+      })
+
+      $('.helperValue').change(function(event){
+        $('#'+event.target.parentNode.parentNode.id).find('.addHelper').prop("disabled",false);
+      })
+
+      // Back up helper expression rows
+      newHelper = $('#newHelper').clone(true,true);
+
+      function loadFromInput(){
+        var state;
+        try {
+          state = $.parseJSON($("#stateInput")[0].value);
+        } catch (e) {
+          alert('Failed to load state. Please input a valid Calculator or Geometry Tool state as output by the tool\'s \'getState()\' command.\n\nHint: A Calculator state will contain \"expressions\" and a Geometry Tool state will contain \"objects\".');
+          return;
+        }
+        try {
+          window.load(state);
+        } catch (e) {
+          alert('Failed to load state. Please input a valid Calculator or Geometry Tool state as output by the tool\'s \'getState()\' command.\n\nHint: A Calculator state will contain \"expressions\" and a Geometry Tool state will contain \"objects\".');
+          return;
+        }
+      };
+      $("#load").click(loadFromInput);
+
+      $("#stateInput").keyup(function(e){
+        if (e.keyCode == 13) loadFromInput();
+      });
+
+      $("#saveConstructors").click(function(){
+        var currentConstructors = ((toolType == 'geometry') ? currentGeoConstructors : currentCalcConstructors);
+        var conString = '';
+        for (option in currentConstructors) {
+          if (currentConstructors[option] === true && option != "administerSecretFolders") {
+            if (conString.length > 0) conString += ', ';
+            conString += option;
+          }
+        }
+        var field = $('#constructorInput')[0];
+        field.value = conString;
+        field.focus()
+        field.setSelectionRange(0,field.value.length);
+        var succeed;
+        try {
+          succeed = document.execCommand('copy');
+          alert('Constructor list copied to clipboard.');
+        } catch(e) {
+          succeed = false;
+          alert('Failed to copy constructor list to clipboard. Select and copy manually from text field below \'Export\' button.');
+        }
+      });
+      $("#onlyConstructors").click(function(){
+        var input = $("#constructorInput")[0].value;
+        var expr = 'only('+input+')';
+        try {
+          eval(expr);
+          $("#constructorInput")[0].value = '';
+        } catch (e) {
+          alert('Inappropriate constructor list: \n\n  '+input+'\n\nPlease input a list of constructors as named at desmos.com/api'+((toolType=='geometry') ? '/geometry#document-geometry' : '#document-calculator')+', or a JSON object containing constructor values.');
+          $("#constructorInput")[0].value = input;
+        }
+      });
+      $("#changeConstructors").click(function(){
+        var input = $("#constructorInput")[0].value;
+        var expr = 'rebuild('+input+')';
+        try {
+          eval(expr);
+          $("#constructorInput")[0].value = '';
+        } catch (e) {
+          alert('Inappropriate constructor list: \n\n  '+input+'\n\nPlease input a list of constructors as named at desmos.com/api'+((toolType=='geometry') ? '/geometry#document-geometry' : '#document-calculator')+', or a JSON object containing constructor values.');
+          $("#constructorInput")[0].value = input;
+        }
+      });
+      $("#desWidth").change(function(){
+        if (!(typeof eval($('#desWidth')[0].value) === "number") || eval($('#desWidth')[0].value) <= 0) {
+         $('#desWidth')[0].value = desWidth;
+         alert('Please enter a positive integer value for Width.');
+        }
+        desWidth = $('#desWidth')[0].value;
+        $elt.width(desWidth);
+        $frame.width(desWidth);
+        $('#saveBrowserDiv').width(desWidth);
+        window.calculator.resize();
+        autoSave();
+      });
+      $("#desHeight").change(function(){
+        if (!(typeof eval($('#desHeight')[0].value) === "number") || eval($('#desHeight')[0].value) <= 0) {
+         $('#desHeight')[0].value = desHeight;
+         alert('Please enter a positive integer value for Height.');
+        }
+        desHeight = $('#desHeight')[0].value;
+        $elt.height(desHeight);
+        $frame.height(desHeight);
+        window.calculator.resize();
+        autoSave();
+      });
+      $("#w280").click(function(){
+        $('#desWidth')[0].value=280;
+        $('#desWidth').trigger('change');
+      });
+      $("#w415").click(function(){
+        $('#desWidth')[0].value=415;
+        $('#desWidth').trigger('change');
+      });
+      $("#w550").click(function(){
+        $('#desWidth')[0].value=550;
+        $('#desWidth').trigger('change');
+      });
+      $("#w860").click(function(){
+        $('#desWidth')[0].value=860;
+        $('#desWidth').trigger('change');
+      });
+      $("#h350").click(function(){
+        $('#desHeight')[0].value=350;
+        $('#desHeight').trigger('change');
+      });
+      $("#h400").click(function(){
+        $('#desHeight')[0].value=400;
+        $('#desHeight').trigger('change');
+      });
+      $("#h475").click(function(){
+        $('#desHeight')[0].value=475;
+        $('#desHeight').trigger('change');
+      });
+      var $frame = $('#frame');
+      var $elt = $('#calculator');
+      window.agaColors = {
+        blue: '#0092C8',
+        red: '#F15A22',
+        green: '#0AB14B',
+        teal: '#36C1CD',
+        orange: '#EFA038',
+        lime: '#95CA59',
+        purple: '#812990',
+        black: '#000000',
+        grey: '#58595B'
+      };
+      var defaultGraphSettings = {
+        degreeMode:true,
+        xAxisArrowMode:Desmos.AxisArrowModes.BOTH,
+        yAxisArrowMode:Desmos.AxisArrowModes.BOTH,
+        xAxisLabel:"x",
+        yAxisLabel:"y"
+      };
+      constructorShortcuts: {
+        window.keypad={'keypad':true};
+        window.graphpaper={'graphpaper':true};
+        window.expressions={'expressions':true};
+        window.settingsMenu={'settingsMenu':true};
+        window.zoomButtons={'zoomButtons':true};
+        window.expressionsTopbar={'expressionsTopbar':true};
+        window.pointsOfInterest={'pointsOfInterest':true};
+        window.singleVariableSolutions={'singleVariableSolutions':true};
+        window.trace={'trace':true};
+        window.border={'border':true};
+        window.lockViewport={'lockViewport':true};
+        window.expressionsCollapsed={'expressionsCollapsed':true};
+        window.images={'images':true};
+        window.folders={'folders':true};
+        window.notes={'notes':true};
+        window.qwertyKeyboard={'qwertyKeyboard':true};
+        window.restrictedFunctions={'restrictedFunctions':true};
+        window.pasteGraphLink={'pasteGraphLink':true};
+        window.pasteTableData={'pasteTableData':true};
+        window.degreeMode={'degreeMode':true};
+        window.colors={'colors':agaColors};
+        window.construct={};
+        window.construct.perpendicular={'construct.perpendicular':true};
+        window.construct.parallel={'construct.parallel':true};
+        window.construct.midpoint={'construct.midpoint':true};
+        window.construct.compass={'construct.compass':true};
+        window.border={'border':true};
+        window.labels={'labels':true};
+        window.ruler={'ruler':true};
+        window.protractor={'protractor':true};
+        window.calcConstructors = {
+          /*Comment indicates difference from default.*/
+          /* default: graphpaper, expressions, settingsMenu, zoomButtons, expressionsTopbar, pointsOfInterest, singleVariableSolutions, trace, border, expressionsCollapsed, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
+          default:{
+            'keypad':false,
+            'graphpaper':true,
+            'expressions':true,
+            'settingsMenu':true,
+            'zoomButtons':true,
+            'expressionsTopbar':true,
+            'pointsOfInterest':true,
+            'singleVariableSolutions':true,
+            'trace':true,
+            'border':true,
+            'lockViewport':false,
+            'expressionsCollapsed':true,
+            'images':false,
+            'folders':true,
+            'notes':true,
+            'qwertyKeyboard':true,
+            'restrictedFunctions':false,
+            'pasteGraphLink':false,
+            'pasteTableData':true,
+            'degreeMode':true,
+            'colors':agaColors
+          },
+          /* allOff: */
+          allOff:{
+            'keypad':false,
+            'graphpaper':false, /**/
+            'expressions':false, /**/
+            'settingsMenu':false, /**/
+            'zoomButtons':false, /**/
+            'expressionsTopbar':false, /**/
+            'pointsOfInterest':false, /**/
+            'singleVariableSolutions':false, /**/
+            'trace':false, /**/
+            'border':false, /**/
+            'lockViewport':false,
+            'expressionsCollapsed':false, /**/
+            'images':false,
+            'folders':false, /**/
+            'notes':false, /**/
+            'qwertyKeyboard':false, /**/
+            'restrictedFunctions':false,
+            'pasteGraphLink':false,
+            'pasteTableData':false, /**/
+            'degreeMode':false, /**/
+            'colors':agaColors
+          },
+          /**/
+          /* tryIt: graphpaper, expressions, settingsMenu, zoomButtons, expressionsTopbar, border, qwertyKeyboard, degreeMode */
+          tryIt:{
+            'keypad':false,
+            'graphpaper':true,
+            'expressions':true,
+            'settingsMenu':true,
+            'zoomButtons':true,
+            'expressionsTopbar':true,
+            'pointsOfInterest':false, /**/
+            'singleVariableSolutions':false, /**/
+            'trace':false, /**/
+            'border':true,
+            'lockViewport':false,
+            'expressionsCollapsed':false, /**/
+            'images':false,
+            'folders':false, /**/
+            'notes':false, /**/
+            'qwertyKeyboard':true,
+            'restrictedFunctions':false,
+            'pasteGraphLink':false,
+            'pasteTableData':false, /**/
+            'degreeMode':true,
+            'colors':agaColors
+          },
+          /* noTopbar: graphpaper, expressions, settingsMenu, zoomButtons, pointsOfInterest, singleVariableSolutions, trace, border, expressionsCollapsed, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
+          noTopbar:{
+            'keypad':false,
+            'graphpaper':true,
+            'expressions':true,
+            'settingsMenu':true,
+            'zoomButtons':true,
+            'expressionsTopbar':false, /**/
+            'pointsOfInterest':true,
+            'singleVariableSolutions':true,
+            'trace':true,
+            'border':true,
+            'lockViewport':false,
+            'expressionsCollapsed':true,
+            'images':false,
+            'folders':true,
+            'notes':true,
+            'qwertyKeyboard':true,
+            'restrictedFunctions':false,
+            'pasteGraphLink':false,
+            'pasteTableData':true,
+            'degreeMode':true,
+            'colors':agaColors
+          },
+          /* locked: graphpaper, border, lockViewport, expressionsCollapsed, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
+          locked:{
+            'keypad':false,
+            'graphpaper':true,
+            'expressions':false, /**/
+            'settingsMenu':false, /**/
+            'zoomButtons':false, /**/
+            'expressionsTopbar':false, /**/
+            'pointsOfInterest':false, /**/
+            'singleVariableSolutions':false, /**/
+            'trace':false, /**/
+            'border':true,
+            'lockViewport':true, /**/
+            'expressionsCollapsed':true,
+            'images':false,
+            'folders':true,
+            'notes':true,
+            'qwertyKeyboard':true,
+            'restrictedFunctions':false,
+            'pasteGraphLink':false,
+            'pasteTableData':true,
+            'degreeMode':true,
+            'colors':agaColors
+          },
+          /* geometry: graphpaper, expressions, zoomButtons, expressionsTopbar, border, expressionsCollapsed, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
+          geometry:{
+            'keypad':false,
+            'graphpaper':true,
+            'expressions':true,
+            'settingsMenu':false, /**/
+            'zoomButtons':true,
+            'expressionsTopbar':true,
+            'pointsOfInterest':false, /**/
+            'singleVariableSolutions':false, /**/
+            'trace':false, /**/
+            'border':true,
+            'lockViewport':false,
+            'expressionsCollapsed':true,
+            'images':false,
+            'folders':true,
+            'notes':true,
+            'qwertyKeyboard':true,
+            'restrictedFunctions':false,
+            'pasteGraphLink':false,
+            'pasteTableData':true,
+            'degreeMode':true,
+            'colors':agaColors
+          },
+          /* geometryNoZoom: graphpaper, expressions, expressionsTopbar, border, lockViewport, expressionsCollapsed, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
+          geometryNoZoom:{
+            'keypad':false,
+            'graphpaper':true,
+            'expressions':true,
+            'settingsMenu':false, /**/
+            'zoomButtons':false, /**/
+            'expressionsTopbar':true,
+            'pointsOfInterest':false, /**/
+            'singleVariableSolutions':false, /**/
+            'trace':false, /**/
+            'border':true,
+            'lockViewport':true, /**/
+            'expressionsCollapsed':true,
+            'images':false,
+            'folders':true,
+            'notes':true,
+            'qwertyKeyboard':true,
+            'restrictedFunctions':false,
+            'pasteGraphLink':false,
+            'pasteTableData':true,
+            'degreeMode':true,
+            'colors':agaColors
+          },
+          /* geometrySlidersOnly: graphpaper, expressions, zoomButtons, expressionsTopbar, border, expressionsCollapsed, degreeMode */
+          geometrySlidersOnly:{
+            'keypad':false,
+            'graphpaper':true,
+            'expressions':true,
+            'settingsMenu':false, /**/
+            'zoomButtons':true,
+            'expressionsTopbar':true,
+            'pointsOfInterest':false, /**/
+            'singleVariableSolutions':false, /**/
+            'trace':false, /**/
+            'border':true,
+            'lockViewport':false,
+            'expressionsCollapsed':true,
+            'images':false,
+            'folders':false, /**/
+            'notes':false, /**/
+            'qwertyKeyboard':false, /**/
+            'restrictedFunctions':false,
+            'pasteGraphLink':false,
+            'pasteTableData':false, /**/
+            'degreeMode':true,
+            'colors':agaColors
+          },
+          /* geometrySlidersOnlyNoZoom: graphpaper, expressions, expressionsTopbar, border, lockViewport, expressionsCollapsed, degreeMode */
+          geometrySlidersOnlyNoZoom:{
+            'keypad':false,
+            'graphpaper':true,
+            'expressions':true,
+            'settingsMenu':false, /**/
+            'zoomButtons':false, /**/
+            'expressionsTopbar':true,
+            'pointsOfInterest':false, /**/
+            'singleVariableSolutions':false, /**/
+            'trace':false, /**/
+            'border':true,
+            'lockViewport':true, /**/
+            'expressionsCollapsed':true,
+            'images':false,
+            'folders':false, /**/
+            'notes':false, /**/
+            'qwertyKeyboard':false, /**/
+            'restrictedFunctions':false,
+            'pasteGraphLink':false,
+            'pasteTableData':false, /**/
+            'degreeMode':true,
+            'colors':agaColors
+          },
+          /* geometryGraphOnly: graphpaper, zoomButtons, border, degreeMode */
+          geometryGraphOnly:{
+            'keypad':false,
+            'graphpaper':true,
+            'expressions':false, /**/
+            'settingsMenu':false, /**/
+            'zoomButtons':true,
+            'expressionsTopbar':false, /**/
+            'pointsOfInterest':false, /**/
+            'singleVariableSolutions':false, /**/
+            'trace':false, /**/
+            'border':true,
+            'lockViewport':false,
+            'expressionsCollapsed':false, /**/
+            'images':false,
+            'folders':false, /**/
+            'notes':false, /**/
+            'qwertyKeyboard':false, /**/
+            'restrictedFunctions':false,
+            'pasteGraphLink':false,
+            'pasteTableData':false, /**/
+            'degreeMode':true,
+            'colors':agaColors
+          },
+          /* geometryGraphOnlyNoZoom: graphpaper, lockViewport, border, degreeMode */
+          geometryGraphOnlyNoZoom:{
+            'keypad':false,
+            'graphpaper':true,
+            'expressions':false, /**/
+            'settingsMenu':false, /**/
+            'zoomButtons':false, /**/
+            'expressionsTopbar':false, /**/
+            'pointsOfInterest':false, /**/
+            'singleVariableSolutions':false, /**/
+            'trace':false, /**/
+            'border':true,
+            'lockViewport':true, /**/
+            'expressionsCollapsed':false, /**/
+            'images':false,
+            'folders':false, /**/
+            'notes':false, /**/
+            'qwertyKeyboard':false, /**/
+            'restrictedFunctions':false,
+            'pasteGraphLink':false,
+            'pasteTableData':false, /**/
+            'degreeMode':true,
+            'colors':agaColors
+          },
+          /* graphOnly: graphpaper, settingsMenu, zoomButtons, pointsOfInterest, singleVariableSolutions, trace, border, qwertyKeyboard, degreeMode */
+          graphOnly:{
+            'keypad':false,
+            'graphpaper':true,
+            'expressions':false, /**/
+            'settingsMenu':true,
+            'zoomButtons':true,
+            'expressionsTopbar':false, /**/
+            'pointsOfInterest':true,
+            'singleVariableSolutions':true,
+            'trace':true,
+            'border':true,
+            'lockViewport':false,
+            'expressionsCollapsed':false, /**/
+            'images':false,
+            'folders':false, /**/
+            'notes':false, /**/
+            'qwertyKeyboard':true,
+            'restrictedFunctions':false,
+            'pasteGraphLink':false,
+            'pasteTableData':false, /**/
+            'degreeMode':true,
+            'colors':agaColors
+          },
+          /* noGraph: expressions, expressionsTopbar, singleVariableSolutions, border, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
+          noGraph:{
+            'keypad':false,
+            'graphpaper':false, /**/
+            'expressions':true,
+            'settingsMenu':false, /**/
+            'zoomButtons':false, /**/
+            'expressionsTopbar':true,
+            'pointsOfInterest':false, /**/
+            'singleVariableSolutions':true,
+            'trace':false, /**/
+            'border':true,
+            'lockViewport':false,
+            'expressionsCollapsed':false, /**/
+            'images':false,
+            'folders':true,
+            'notes':true,
+            'qwertyKeyboard':true,
+            'restrictedFunctions':false,
+            'pasteGraphLink':false,
+            'pasteTableData':true,
+            'degreeMode':true,
+            'colors':agaColors
+          }
+        }
+        window.geoConstructors = {
+          /* default: perpendicular, parallel, midpoint, compass, border, labels */
+          default:{
+            'construct.perpendicular':true,
+            'construct.parallel':true,
+            'construct.midpoint':true,
+            'construct.compass':true,
+            'border':true,
+            'labels':true,
+            'ruler':false,
+            'protractor':false
+          },
+          /* allOff */
+          allOff:{
+            'construct.perpendicular':false,
+            'construct.parallel':false,
+            'construct.midpoint':false,
+            'construct.compass':false,
+            'border':false,
+            'labels':false,
+            'ruler':false,
+            'protractor':false
+          }
+        }
+      }
+      window.currentCalcConstructors = Object.assign({},window.calcConstructors.default,{administerSecretFolders:true});
+      window.currentGeoConstructors = Object.assign({},window.geoConstructors.default);
+      window.calculator = window.Calc = window.Geo = null;
+
+      var toolType = 'graphing';
+      var calcDefaultState = null;
+      var geoDefaultState = null;
+      var calcPrevState = null;
+      var geoPrevState = null;
+      var desWidth = 550;
+      var desHeight = 475;
+      var workingState = null;
+      var autoSaveQueued = false;
+      window.queuedSave = null;
+
+      var savedGraphs = [];
+      var currentHelpers = {};
+
+      function savedGraph(pack=null,ID=null) {
+        var self = this;
+        var id = DOM_ID_PREFIX+(ID?ID:(domIdIndex++));
+        var position = ((ID == 'workingState')?-1:savedGraphs.length);
+        var name = ((ID == 'workingState') ? "AutoSaved" : '');
+        var type;
+        var constructors;
+        var state;
+        var helpers = [];
+        var width;
+        var height;
+        var $gui;
+        var thumbnail;
+
+        this.saveCurrent = function(updateLibrary=true) {
+          type = toolType;
+          state = window.calculator.getState();//{stripDefaults: false});
+          width = desWidth;
+          height = desHeight;
+          helpers = [];
+
+          if (toolType == 'graphing') for (helper in currentHelpers) helpers.push(currentHelpers[helper].package());
+
+          if (toolType == 'graphing') {
+            constructors = Object.assign({},window.currentCalcConstructors);
+          } else if (toolType == 'geometry') {
+            constructors = Object.assign({},window.currentGeoConstructors);
+          };
+
+          if ($gui === undefined) buildGui();
+
+          thumbnail = window.calculator.screenshot({width:2*previewWidth,height:2*previewHeight});
+
+          $('#'+id+'_img').attr("src",thumbnail);
+
+          // NEW CLOUDINARY STUFF
+          if (cloudinaryUpload && position !== -1) {
+
+            $gui.css("background","silver");
+
+            cloudinaryUpload.one('fileuploaddone',function(e,data){
+              $('#'+id+'_img').attr("src",data.result.secure_url);
+              thumbnail = data.result.secure_url;
+              $gui.css("background","white");
+              if (updateLibrary) updateStorage();
+            });
+
+            cloudinaryUpload.fileupload('option','formData').file = thumbnail;
+            cloudinaryUpload.fileupload('add', { files: [ thumbnail ] });
+
+          } else
+          // END NEW CLOUDINARY STUFF
+
+            if (updateLibrary) updateStorage();
+        }
+
+        if (pack && (pack['state'])) {
+          unpack(pack);
+          if (ID == 'workingState') {
+            if (type == "graphing") {
+              if (calcPrevState == null) {
+                calcPrevState = calcDefaultState = state;
+              }
+            } else if (type == "geometry") {
+              if (geoPrevState == null) {
+                geoPrevState = geoDefaultState = state;
+              }
+            }
+            load();
+          }
+        } else if (window.calculator) self.saveCurrent(false);
+
+        function buildGui() {
+          if ($gui === undefined) {
+            var $cell = $('<td id="'+id+'_cell" style="text-align:center;border-style:solid;border-width:1px;vertical-align:top;"><div id="'+id+'"></div></td>');
+            if (id == DOM_ID_PREFIX+'workingState') $('#saveBrowserRow').append($cell);
+            else $cell.insertAfter($('#'+DOM_ID_PREFIX+'workingState_cell'));
+            $gui = $('#'+id);
+          } else {
+            $gui.remove();
+            $gui.appendTo($('#'+id+'_cell'));
+            $gui.html('');
+          }
+          if (id != DOM_ID_PREFIX+'workingState') {
+            $gui.append('<input type="text" id="'+id+'_name" placeholder="unnamed widget" style="text-align:center;width:'+previewWidth+'px;"><br>'+
+            '<div style="width:'+previewWidth+'px;height:'+previewHeight+'px;border-style:outset;border-width:2px;">'+
+            '<img class="'+id+'_load" id="'+id+'_img" style="max-width:100%;max-height:100%;">'+
+            '</div><div style="float:bottom;">'+
+            '<button type="button" class="'+id+'_load">load</button><br>'+
+            '<button type="button" class="'+id+'_download">download</button><br>'+
+            '<button type="button" class="'+id+'_save">overwrite</button><br>'+
+            '<button type="button" class="'+id+'_delete">delete</button></div>');
+            if (name !== undefined) $('#'+id+'_name')[0].value=name;
+            $('#'+id+'_name').change(function(){name=$('#'+id+'_name')[0].value;updateStorage()});
+            $('.'+id+'_load').click(function(){check('load');});
+            $('.'+id+'_save').click(function(){check('save');});
+            $('.'+id+'_delete').click(function(){check('delete');});
+          } else {
+            $gui.append('<div id="'+id+'_name" style="float:top;padding:2px">AutoSaved</div><div style="float:top;width:'+previewWidth+'px;height:'+previewHeight+'px;border-style:outset;border-width:2px;">'+
+            '<img id="'+id+'_img" style="max-width:100%;max-height:100%;">'+
+            '</div><br><div style="float:bottom;">'+
+            '<button type="button" class="'+id+'_download">download</button><br>'+
+            '<button type="button" class="'+id+'_new">save as new</button><br>'+
+            '<button type="button" class="'+id+'_clear">clear all</button></div>')
+            $('.'+id+'_new').click(function(){check('new');});
+            $('.'+id+'_clear').click(function(){check('clear');});
+          }
+          $('.'+id+'_download').click(download);
+        }
+
+        function download() {
+          var file = {name:name,type:type,state:state,helpers:helpers};
+          window.download(file,name);
+        }
+
+        function check(type) {
+          for (graph in savedGraphs) savedGraphs[graph].clearWarning();
+          $gui.detach();
+          $('#'+id+'_cell').append($checkWarnGui);
+          switch (type) {
+            case 'load':
+              $('#checkWarn').html('Load '+(name?name:'unnamed widget')+' without saving current state?');
+              $('#checkConfirm').html('cancel');
+              $('#checkConfirm').click(function(){
+                $checkWarnGui.remove();
+                $gui.appendTo($('#'+id+'_cell'));
+              });
+              $('#checkCancel').html('load without saving');
+              $('#checkCancel').click(function(){
+                $checkWarnGui.remove();
+                $gui.appendTo($('#'+id+'_cell'))
+                load()
+              });
+              break;
+            case 'save':
+              $('#checkWarn').html('Overwrite '+(name?name:'unnamed widget')+' with current state?');
+              $('#checkConfirm').html('overwrite');
+              $('#checkConfirm').click(function(){
+                $checkWarnGui.remove();
+                $gui.appendTo($('#'+id+'_cell'));
+                self.saveCurrent();
+              });
+              $('#checkCancel').html('cancel');
+              $('#checkCancel').click(function(){
+                $checkWarnGui.remove();
+                $gui.appendTo($('#'+id+'_cell'));
+              });
+              break;
+            case 'delete':
+              $('#checkWarn').html('Are you sure you want to delete '+(name?name:'unnamed widget')+'?');
+              $('#checkConfirm').html('delete '+(name?name:'unnamed widget'));
+              $('#checkConfirm').click(function(){
+                $checkWarnGui.remove();
+                destroy();
+              });
+              $('#checkCancel').html('keep '+(name?name:'unnamed widget'));
+              $('#checkCancel').click(function(){
+                $checkWarnGui.remove();
+                $gui.appendTo($('#'+id+'_cell'))
+              });
+              break;
+            case 'new':
+              $('#checkWarn').html('Create new save from current state?');
+              $('#checkConfirm').html('save new');
+              $('#checkConfirm').click(function(){
+                $checkWarnGui.remove();
+                $gui.appendTo($('#'+id+'_cell'));
+                window.save();
+              });
+              $('#checkCancel').html('cancel');
+              $('#checkCancel').click(function(){
+                $checkWarnGui.remove();
+                $gui.appendTo($('#'+id+'_cell'));
+              });
+              break;
+            case 'clear':
+              $('#checkWarn').html('Clear current graph and reset to default settings?');
+              $('#checkConfirm').html('clear all');
+              $('#checkConfirm').click(function(){
+                $checkWarnGui.remove();
+                calcDefaultState = null;
+                geoDefaultState = null;
+                calcPrevState = null;
+                geoPrevState = null;
+                desWidth = 550;
+                desHeight = 475;
+                if (window.Geo) window.Geo.detach();
+                $elt.remove();
+                delete window.Calc;
+                delete window.Geo;
+                $gui.appendTo($('#'+id+'_cell'));
+                window.reset();
+              });
+              $('#checkCancel').html('cancel');
+              $('#checkCancel').click(function(){
+                $checkWarnGui.remove();
+                $gui.appendTo($('#'+id+'_cell'))
+              });
+              break;
+          }
+        }
+
+        this.clearWarning = function() {
+          if ($checkWarnGui.parent().is($('#'+id+'_cell'))) {
+            $checkWarnGui.remove();
+            $('#'+id+'_cell').append($gui);
+          }
+        }
+
+        function load() {
+          desWidth = width;
+          desHeight = height;
+          if (type == 'graphing') {
+            window.currentCalcConstructors = Object.assign({},constructors);
+          } else if (type == 'geometry') {
+            window.currentGeoConstructors = Object.assign({},constructors);
+          };
+          window.load(state,{allowUndo:false,remapColors:false});
+          for (helper in helpers) {
+            var newHelper = new DCAThelper(helpers[helper]);
+            currentHelpers[newHelper.id] = newHelper;
+          }
+        }
+
+        this.package = function() {
+          return {
+            name:name,
+            type:type,
+            constructors:constructors,
+            state:state,
+            helpers:helpers,
+            width:width,
+            height:height,
+            preview:thumbnail,
+            previewCloud:(($('#'+id+'_img').attr("src")===thumbnail)?undefined:$('#'+id+'_img').attr("src"))
+          };
+        }
+
+        function unpack(pack) {
+          name = pack.name;
+          type = pack.type;
+          constructors = Object.assign({},pack.constructors);
+          state = pack.state;
+          width = pack.width;
+          height = pack.height;
+          helpers = Object.assign([],pack.helpers);
+          thumbnail = pack.previewCloud ? pack.previewCloud : pack.preview;
+          buildGui();
+
+          $('#'+id+'_img').attr("src",thumbnail);
+        }
+
+        function destroy() {
+          $('#'+id+'_cell').remove();
+          for (i=position+1;i<savedGraphs.length;i++) {
+            savedGraphs[i].shiftLeft();
+          }
+          savedGraphs.splice(position,1);
+
+          updateStorage();
+
+          delete self;
+        }
+
+        this.shiftLeft = function() {
+          position--;
+        }
+      }
+
+      function DCAThelper(pack,id=null) {
+        var self = this;
+        this.id = (((id == 'newHelper')||(id === null)) ? (DOM_ID_PREFIX+(domIdIndex++)) : id);
+        var latex;
+        var value;
+        var funcName = funcName;
+        var helper = null;
+        var func;
+        var $row;
+
+        unpack(pack);
+
+        if (PearsonGL.External.masterJS[funcName] === undefined) {
+          if (PearsonGL.External.rootJS[funcName] === undefined) {
+            $row.remove();
+            throw new Error('Function does not exist: '+funcName);
+            return null;
+          } else {
+            func = (function() {
+              if (value == '') return function() {
+                return PearsonGL.External.rootJS[funcName](helper.numericValue,latex,window.calculator/*{
+                  value:helper.numericValue,
+                  name:latex,
+                  desmos:window.calculator,
+                  log:console.log
+                }*/);
+              };
+              else return function() {
+                if (helper.numericValue == value) return PearsonGL.External.rootJS[funcName](helper.numericValue,latex,window.calculator/*{
+                  value:helper.numericValue,
+                  name:latex,
+                  desmos:window.calculator,
+                  log:console.log
+                }*/);
+              };
+            })();
+          }
+        } else {
+          func = (function() {
+            if (/^[0-9]*$/.test(value)) {
+              return function() {
+                return PearsonGL.External.masterJS[funcName](helper.numericValue,latex,window.calculator);
+              };
+            } else {
+              return function() {
+                if (helper.numericValue == value) {
+                  return PearsonGL.External.masterJS[funcName](helper.numericValue,latex,window.calculator);
+                }
+              };
+            }
+          }());
+        }
+
+        this.enable = function() {
+          if (helper !== null) {
+            throw new Error('Helper function \"'+latex+'\": \"'+funcName+'\" already initialized.');
+            if (helper.__observers.numericValue === undefined) {
+              throw new Error('Helper function \"'+latex+'\": \"'+funcName+'\" was initialized but was not observed. Attempting to add observer.');
+            } else return true;
+          } else if (window.calculator.HelperExpression === undefined) {
+            $row.remove();
+            throw new Error('Helper function \"'+latex+'\": \"'+funcName+'\" not supported by current tool type: '+window.tooltype);
+            return false;
+          } else helper = window.calculator.HelperExpression({latex:latex});
+
+          helper.observe('numericValue', func);
+
+          if($row) {
+            $row.appendTo($('#helperList'));
+            $('#newHelper').appendTo($('#helperList'));
+          }
+
+          return true;
+        };
+
+        if (!(self.enable())) {
+          $row.remove();
+          delete self;
+          return null;
+        }
+
+        this.disable = function() {
+          if (helper === null) {
+            throw new Error('Error disabling helper function: \"'+latex+'\": \"'+funcName+'\" was not initialized.');
+            return true;
+          }
+
+          $row.detach();
+
+          helper.unobserveAll();
+          helper = null;
+          return true;
+        }
+
+        this.destroy = function() {
+          self.disable();
+          delete currentHelpers[self.id];
+
+          if (!(autoSaveQueued)) autoSave();
+
+          $row.remove();
+
+          delete self;
+        }
+
+        this.package = function() {
+          return {
+            latex:latex,
+            funcName:funcName,
+            value:value
+          };
+        }
+
+        function unpack(pack) {
+          latex = pack.latex;
+          funcName = pack.funcName;
+          value = pack.value;
+          buildGui();
+        }
+
+        function buildGui() {
+          if ($row === undefined) {
+            if($('#'+self.id).length > 0) $row = $('#'+self.id);
+            else {
+              $row = newHelper.clone(true,true).attr('id',self.id).appendTo($('#helperList'));
+              $('#newHelper').appendTo($('#helperList'));
+            }
+          }
+          $row.find('.helperName')[0].value = latex;
+          $row.find('.helperFunction')[0].value = funcName;
+          $row.find('.helperValue')[0].value = value;
+          $row.find('.addHelper').html('Update');
+          $row.find('.addHelper').prop("disabled",true);
+          $row.find('.deleteHelper').html('Delete');
+        }
+      }
+
+      function updateStorage() {
+        if (typeof(Storage) !== undefined) {
+          var package = [];
+          for (graph in savedGraphs) package.push(savedGraphs[graph].package());
+          localStorage.setItem("AGAsavedGraphs",JSON.stringify(package));
+        } else {
+          console.log('No local storage available.');
+        }
+      }
+
+      function autoSave() {
+        if (window.queuedSave) {
+          window.clearTimeout(window.queuedSave);
+          delete window.queuedSave;
+        }
+        if (workingState === null) {
+          autoSaveQueued = false;
+          console.log('Autosave unavailable.');
+          return;
+        }
+        autoSaveQueued = true;
+        console.log('Autosaving…');
+        workingState.saveCurrent(false);
+        latestVersion = Date.now();
+        autoSaveQueued = false;
+        if (typeof(Storage) === undefined) return;
+        // console.log('Checking for new versions…')
+        // if (latestVersion < localStorage.AGAcurrentVersion); // STUB
+        localStorage.setItem("AGAautoSave",JSON.stringify(workingState.package()));
+        localStorage.setItem("AGAcurrentVersion",Date.now());
+      }
+
+      // Note: never set toolType before refreshing the calculator;
+      //       toolType should always match current toolType.
+      function refreshCalculator(type = toolType) {
+        if (window.queuedSave) {
+          window.clearTimeout(window.queuedSave);
+          delete window.queuedSave;
+          autoSaveQueued = false;
+        }
+
+        // Clean up previous instances
+        if (toolType == 'graphing') for (helper in currentHelpers) currentHelpers[helper].disable();
+
+        window.calculator = null;
+        if(window.Geo) {
+          geoPrevState = window.Geo.getState();//{stripDefaults: false});
+          window.Geo.detach();
+          delete window.Geo;
+        }
+        if(window.Calc) {
+          calcPrevState = window.Calc.getState();//{stripDefaults: false});
+          delete window.Calc;
+        }
+        if($elt) $elt.remove();
+
+        // Build the frame and UI
+        $frame.html('<div id="calculator" style="width:'+desWidth+'px;height:'+desHeight+'px;"></div>');
+        $elt = $('#calculator');
+        $elt.resizable({
+          handles: 'e, s, se',
+          grid: [5,5],
+          resize: function(evt, ui) {
+            var tail='';
+            var h=ui.size.height;
+            var w=ui.size.width;
+            if (Math.abs(280-w)<15) {ui.size.width=w=280; tail+=' (1/3 Column)';}
+            else if (Math.abs(415-w)<15) {ui.size.width=w=415; tail+=' (50% Column)';}
+            else if (Math.abs(550-w)<15) {ui.size.width=w=550; tail+=' (2/3 Column)';}
+            else if (Math.abs(860-w)<15) {ui.size.width=w=860; tail+=' (Full Column)';}
+            if (Math.abs(475-h)<15) {ui.size.height=h=475; tail+=' (Height 1)';}
+            else if (Math.abs(400-h)<15) {ui.size.height=h=400; tail+=' (Height 2)';}
+            else if (Math.abs(350-h)<15) {ui.size.height=h=350; tail+=' (Height 3)';}
+            console.log('' + w + ' × ' + h + tail);
+            var margin = 0;
+            if (w>desWidth || desWidth>window.innerWidth-2*($elt.offset().left)-20) {
+              desWidth=w;
+              $frame.width(w);
+            };
+            if (h>desHeight) {
+              desHeight=h;
+              $frame.height(h);
+            };
+            $('#desWidth')[0].value=w;
+            $('#desHeight')[0].value=h;
+          },
+          stop: function(evt, ui) { 
+            desWidth=ui.size.width;
+            desHeight=ui.size.height;
+            $frame.width(desWidth);
+            $frame.height(desHeight);
+            $('#saveBrowserDiv').width(desWidth);
+            window.calculator.resize();
+            autoSave();
+          }
+        });
+
+        $('#desWidth')[0].value=desWidth;
+        $('#desHeight')[0].value=desHeight;
+        $('#saveBrowserDiv').width(desWidth);
+
+        // Instantiate the calculator and set its state
+        if (type == 'graphing') {
+          window.calculator = window.Calc = Desmos.GraphingCalculator($elt[0], window.currentCalcConstructors);
+          if (calcPrevState) window.calculator.setState(calcPrevState);
+          else window.calculator.updateSettings(defaultGraphSettings);
+          if (calcDefaultState) window.calculator.setDefaultState(calcDefaultState);
+          else window.calculator.setDefaultState(window.calculator.getState());//{stripDefaults: false}));
+        } else if (type == 'geometry') {
+          window.calculator = window.Geo = Desmos.Geometry($elt[0], window.currentGeoConstructors);
+          window.calculator.setState(geoPrevState);
+          if (window.currentGeoConstructors.ruler) window.Geo.showRuler();
+          if (window.currentGeoConstructors.protractor) window.Geo.showProtractor();
+          window.calculator.setDefaultState(geoDefaultState);
+        };
+
+        // Register autosave
+        window.calculator.observeEvent('change',function(){
+          if (!autoSaveQueued) {
+            autoSaveQueued = true;
+            console.log('Queueing autosave…');
+            window.queuedSave = window.setTimeout(autoSave,window.AUTO_SAVE_INTERVAL);
+          }
+        });
+
+        if (type == 'graphing') for (helper in currentHelpers) currentHelpers[helper].enable();
+
+        toolType = type;
+        updateView();
+
+        if (!(autoSaveQueued)) autoSave();
+      }
+
+      function updateView(type = toolType) {
+        if ((type == "geometry") && (!($("#geoConstructorButtons").is(":visible")))) {
+          $("#calcConstructorButtons").hide();
+          $("#geoConstructorButtons").show();
+          $("#graphing").css("background",offbuttoncolor);
+          $("#graphing").css("color",offtextcolor);
+          $("#geometry").css("background",onbuttoncolor);
+          $("#geometry").css("color",ontextcolor);
+        } else if ((type == "graphing") && (!($("#calcConstructorButtons").is(":visible")))) {
+          $("#geoConstructorButtons").hide();
+          $("#calcConstructorButtons").show();
+          $("#graphing").css("background",onbuttoncolor);
+          $("#graphing").css("color",ontextcolor);
+          $("#geometry").css("background",offbuttoncolor);
+          $("#geometry").css("color",offtextcolor);
+        }
+        var currentConstructors = ((type == "graphing")?currentCalcConstructors:currentGeoConstructors);
+        if ((type == 'geometry') && (currentConstructors.ruler === undefined)) currentConstructors.ruler = false;
+        if ((type == 'geometry') && (currentConstructors.protractor === undefined)) currentConstructors.protractor = false;
+        for (option in currentConstructors) {
+          if (typeof(currentConstructors[option]) != 'boolean');
+          else {
+            var $option;
+            if (option == 'border' && type == 'geometry') $option = $('#geoBorder');
+            else $option = $("#"+option.replace(/\.[a-z]/g,function(match){return match[1].toUpperCase();}));
+            if (currentConstructors[option]) {
+              $option.html("ON");
+              $option.css("background",onbuttoncolor);
+              $option.css("color",ontextcolor);
+            } else {
+              $option.html("OFF");
+              $option.css("background",offbuttoncolor);
+              $option.css("color",offtextcolor);
+            };
+          };
+        };
+
+        if(toolType != type) {
+          refreshCalculator(type);
+        };
+      }
+
+      window.rebuild = function(options={}) {
+        // Update the constructors
+        var currentConstructors = ((toolType == "graphing")?currentCalcConstructors:currentGeoConstructors);
+        for (arg in arguments) Object.assign(currentConstructors,arguments[arg]);
+        refreshCalculator();
+      };
+      window.reset = function(options={}) {
+        if (toolType == 'graphing') {
+          delete window.currentCalcConstructors;
+          window.currentCalcConstructors = Object.assign({},window.calcConstructors.default,{'administerSecretFolders':true});
+        } else if (toolType == 'geometry') {
+          delete window.currentGeoConstructors;
+          window.currentGeoConstructors = Object.assign({},window.geoConstructors.default);
+        }
+        window.rebuild.apply(this,arguments);
+      };
+      window.only = function(options={}) {
+        if (toolType == 'graphing') {
+          delete window.currentCalcConstructors;
+          window.currentCalcConstructors = Object.assign({},window.calcConstructors.allOff,{'administerSecretFolders':true});
+        } else if (toolType == 'geometry') {
+          delete window.currentGeoConstructors;
+          window.currentGeoConstructors = Object.assign({},window.geoConstructors.allOff);
+        }
+        window.rebuild.apply(this,arguments);
+      };
+      window.show = function(options={}) {
+        if (toolType == 'graphing') {
+          Object.assign(window.currentCalcConstructors,{'administerSecretFolders':true});
+        };
+        window.rebuild.apply(this,options);
+      };
+      window.hide = function(options={}) {
+        if (toolType == 'graphing') {
+          Object.assign(window.currentCalcConstructors,{'administerSecretFolders':false});
+        };
+        window.rebuild.apply(this,options);
+      };
+      window.load = function(state, options={remapColors:true,allowUndo:true}) {
+        if (window.queuedSave) {
+          window.clearTimeout(window.queuedSave);
+          delete window.queuedSave;
+        }
+        autoSaveQueued = true;
+        var type;
+        if (state.expressions != undefined) {
+          calcDefaultState = state;
+          type = 'graphing';
+        }
+        if (state.objects != undefined) {
+          geoDefaultState = state;
+          type = 'geometry';
+        }
+
+        for (helper in currentHelpers) currentHelpers[helper].destroy();
+
+        refreshCalculator(type);
+        window.calculator.setState(state, options);
+        autoSave();
+        var screen = window.calculator.screenshot({width:previewWidth,height:previewHeight});
+        window.setTimeout(function(){if(screen != window.calculator.screenshot({width:previewWidth,height:previewHeight})) autoSave();},LOADING_TIME_ALLOTMENT);
+      };
+      window.copyState = function() {
+        var currState = window.calculator.getState();//{stripDefaults: false});
+        try {copy(JSON.stringify(currState));} catch(e) {};
+        return currState;
+      };
+      window.download = function(state, filename="unnamed_widget") {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(state,null,"\t")));
+        element.setAttribute('download', ((filename == '')?"unnamed_widget":filename)+'.json');
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+      };
+
+      window.save = function() {
+        savedGraphs.push(new savedGraph());
+        updateStorage();
+      };
+
+      var latestVersion = Date.now();
+
+      if (typeof(Storage) !== undefined) {
+        // Transfer old storage to namespaced storage
+        if (localStorage.getItem("savedGraphs")) {
+          let currentVersion = localStorage.getItem("currentVersion"),
+              autoSave = localStorage.getItem("autoSave"),
+              savedGraphs = localStorage.getItem("savedGraphs");
+
+          localStorage.removeItem("autoSave");
+          localStorage.removeItem("savedGraphs");
+          localStorage.removeItem("currentVersion");
+
+          localStorage.setItem("AGAautoSave",autoSave);
+          localStorage.setItem("AGAcurrentVersion",currentVersion);
+          localStorage.setItem("AGAsavedGraphs",savedGraphs);
+        }
+        // End Transfer
+        
+        if (localStorage.getItem("AGAcurrentVersion")) latestVersion = localStorage.getItem("AGAcurrentVersion");
+        if (localStorage.getItem("AGAautoSave")) {
+          workingState = new savedGraph($.parseJSON(localStorage.getItem("AGAautoSave")),'workingState');
+        } else {
+          workingState = new savedGraph(null,'workingState');
+          refreshCalculator();
+        }
+        if (localStorage.getItem("AGAsavedGraphs")) {
+          var unpacked = $.parseJSON(localStorage.getItem("AGAsavedGraphs"));
+          for (graph in unpacked) savedGraphs.push(new savedGraph(unpacked[graph]));
+        }
+      } else {
+        console.log('Cannot load saved data. No storage available.');
+      // by default, administer secret folders
+      window.show();
+      }
+    });
+  </script>
+</body>
+</html>
