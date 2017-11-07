@@ -126,7 +126,7 @@ PearsonGL.External.rootJS = (function() {
         }
         return functions;
        },
-      /* ←— parseOptions ——————————————————————————————————————————————————→ *\
+      /* ←— parseArgs ——————————————————————————————————————————————————→ *\
        ↑ Returns a new struct merging given options with defaults for those   ↑
        | options not provided.                                                |
        |                                                                      |
@@ -137,7 +137,11 @@ PearsonGL.External.rootJS = (function() {
        | @Returns: standard helper function option struct                     |
        ↓ @Returns: default options if input is empty                          ↓
        * ←—————————————————————————————————————————————————————————————————→ */
-       parseOptions: function(arg,name,desmos) {
+       parseArgs: function(args) {
+        var arg = args[0];
+        var name = args[1];
+        var desmos = args[2];
+
         var options = {
           'value': arg,
           'name': name,
@@ -150,7 +154,7 @@ PearsonGL.External.rootJS = (function() {
           Object.assign(options,arg);
         }
 
-        if (desmos === undefined) {
+        if (options.desmos === undefined) {
           options.desmos = window.calculator || window.Calc;
         }
 
@@ -168,7 +172,7 @@ PearsonGL.External.rootJS = (function() {
         }
         if(hxs[options.uniqueId].maker===undefined) {
           hxs[options.uniqueId].maker = function(){
-            return options.desmos.HelperExpression.apply(options.desmos,arguments);
+            return desmos.HelperExpression.apply(desmos,arguments);
           };
         }
         if (window.widget === undefined && options.log === console.log) {
@@ -507,7 +511,7 @@ PearsonGL.External.rootJS = (function() {
        |  the scale or aspect ratio changes by a significant amount.
        * ←———————————————————————————————————————————————————————————————————→ */
        observeZoom: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
 
         if (o.log) {
           o.log('observeZoom activated with '+JSON.stringify(Object.assign({},o,{'desmos':'l'})));
@@ -576,8 +580,8 @@ PearsonGL.External.rootJS = (function() {
        |  });
        * ←————————————————————————————————————————————————————————————————→ */
        valueOnly: function(){
-        var o = hs.parseOptions.apply(this,arguments);
-        o.desmos.setExpression({id:o.name,label:''+o.value});
+        var o = hs.parseArgs(arguments);
+        o.desmos.setExpression({id:o.name,label:hs.latexToText(o.value)});
        },
       /* ←— labelAngle ——————————————————————————————————————————————————→ *\
        | Label a point according to the value of an expression, with degree marker
@@ -591,8 +595,8 @@ PearsonGL.External.rootJS = (function() {
        |  });
        * ←————————————————————————————————————————————————————————————————→ */
        labelAngle: function(){
-        var o = hs.parseOptions.apply(this,arguments);
-        o.desmos.setExpression({id:o.name,label:''+o.value+'°'});
+        var o = hs.parseArgs(arguments);
+        o.desmos.setExpression({id:o.name,label:hs.latexToText(o.value)+'°'});
        },
       /* ←— labelPoint ———————→———————————————————————————————————————————→ *\
        | Label a point according to its coordinates and name
@@ -612,7 +616,7 @@ PearsonGL.External.rootJS = (function() {
         if(precision === undefined) {
           precision = cs.precision.COORDINATES;
         }
-        var o = hs.parseOptions.apply(this,[(options || {})]);
+        var o = hs.parseArgs([(options || {})]);
         var expr = name+'('+
           ((xVal<0)?'−':'')+
           Math.abs(Math.round(Math.pow(10,precision)*xVal)/Math.pow(10,precision))+
@@ -640,7 +644,7 @@ PearsonGL.External.rootJS = (function() {
        * ←————————————————————————————————————————————————————————————————→ */
        labelEquation: function() {
         var prec = cs.precision.EVAL;
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         var expr = hs.latexToText(o.name+'='+Math.round(o.value*Math.pow(10,prec))/Math.pow(10,prec));
         o.log('Setting point label ' + expr);
         o.desmos.setExpression({id:o.name,label:expr});
@@ -668,7 +672,7 @@ PearsonGL.External.rootJS = (function() {
         if(prec === undefined) {
           prec = cs.precision.DEGREES;
         }
-        var o = hs.parseOptions.apply(this,[(options || {})]);
+        var o = hs.parseArgs([(options || {})]);
         var A = pointNames.A;
         var B = pointNames.B;
         var C = pointNames.C;
@@ -750,7 +754,7 @@ PearsonGL.External.rootJS = (function() {
         if(prec === undefined) {
           prec = cs.precision.DEGREES;
         }
-        var o = hs.parseOptions.apply(this,[(options || {})]);
+        var o = hs.parseArgs([(options || {})]);
         var ps = Object.assign({refreshAll:false,exterior:false},params);
         var v = o.name[o.name.length-1];
         var vars = vs[o.uniqueId];
@@ -927,7 +931,7 @@ PearsonGL.External.rootJS = (function() {
        |    1 is visible
        * ←————————————————————————————————————————————————————————————————→ */
        showHide: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         o.desmos.setExpression({id:o.id,hidden:(!(o.value))});
        }
      };
@@ -942,7 +946,7 @@ PearsonGL.External.rootJS = (function() {
        | and the ID 17
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         o.desmos.setExpression({id:'17',label:('f(x) = '+o.value+'x²')});
        }
      };
@@ -957,7 +961,7 @@ PearsonGL.External.rootJS = (function() {
        | and the ID 17
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         o.desmos.setExpression({id:'21',label:('y = '+o.value+'x²')});
         o.desmos.setExpression({id:'20',label:('f(x) = −'+o.value+'x²')});
        }
@@ -972,7 +976,7 @@ PearsonGL.External.rootJS = (function() {
        | and the ID 782
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         o.desmos.setExpression({id:'782',label:'y = −2x² + 4x'+(o.value<0?' − '+(-o.value):(o.value>0?' + '+o.value:''))});
        }
      };
@@ -983,14 +987,14 @@ PearsonGL.External.rootJS = (function() {
        | Preps the watcher
        * ←—————————————————————————————————————————————————————————————————→ */
        init: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         vs[o.uniqueId] = {lastStep:1};
        },
       /* ←— changeStep ——————————————————————————————————————————————————————→ *\
        | Switches to the next step.
        * ←—————————————————————————————————————————————————————————————————→ */
        changeStep: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         var lastStep = vs[o.uniqueId].lastStep;
         vs[o.uniqueId].lastStep = o.value;
 
@@ -1091,7 +1095,7 @@ PearsonGL.External.rootJS = (function() {
        | Switches to the next step.
        * ←—————————————————————————————————————————————————————————————————→ */
        changeStep: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
           
         var exprs = [
           // Step 1: show radii congruent
@@ -1201,7 +1205,7 @@ PearsonGL.External.rootJS = (function() {
      fs.A0596385 = {
       /* ←— init ————————————————————————————————————————————————————————————→ */
        init: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         vs[o.uniqueId] = {triAngleABC:{prevError:0,A:0,B:0,C:0}};
        },
       /* ←— updateAngles ————————————————————————————————————————————————————→ *\
@@ -1209,7 +1213,7 @@ PearsonGL.External.rootJS = (function() {
        | angle measures.
        * ←———————————————————————————————————————————————————————————————————→ */
        updateAngles: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         var vertex = o.name[o.name.length-1];
         var val = Math.round(180*o.value/Math.PI);
         var vars = vs[o.uniqueId].triAngleABC;
@@ -1239,7 +1243,7 @@ PearsonGL.External.rootJS = (function() {
        | Adds any side-extensions necessary; pass in name of obtuse angle
        * ←———————————————————————————————————————————————————————————————————→ */
        drawExtensions: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         var obtuse = (o.name[o.name.length-1] === 'A')?1:((o.name[o.name.length-1] === 'B')?2:3);
         var Ext1 = hs.ALPHA[obtuse%3+1];
         var ext1 = hs.alpha[obtuse%3+1];
@@ -1265,7 +1269,7 @@ PearsonGL.External.rootJS = (function() {
      fs.A0596392 = {
       /* ←— init ————————————————————————————————————————————————————————————→ */
        init: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         vs[o.uniqueId] = {triAngleABC:{prevError:0,A:0,B:0,C:0}};
        },
       /* ←— labelTriAngles ——————————————————————————————————————————————————→ *\
@@ -1291,7 +1295,7 @@ PearsonGL.External.rootJS = (function() {
         if(prec === undefined) {
           prec = cs.precision.DEGREES;
         }
-        var o = hs.parseOptions.apply(this,[(options || {})]);
+        var o = hs.parseArgs.apply(this,[(options || {})]);
         var A = pointNames.A;
         var B = pointNames.B;
         var C = pointNames.C;
@@ -1360,7 +1364,7 @@ PearsonGL.External.rootJS = (function() {
        | and the ID 26
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         o.desmos.setExpression({id:'26',label:('Watered Area: '+o.value+' m')});
        }
      };
@@ -1374,7 +1378,7 @@ PearsonGL.External.rootJS = (function() {
        | and the ID 344
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(){
-        var o = hs.parseOptions.apply(this,arguments);                
+        var o = hs.parseArgs(arguments);                
           if (o.value > 0){
             o.desmos.setExpression({id:'344',label:('g(x) = x² + '+ o.value)});
             }
@@ -1396,7 +1400,7 @@ PearsonGL.External.rootJS = (function() {
        | and the ID 357
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(){
-          var o = hs.parseOptions.apply(this,arguments); 
+          var o = hs.parseArgs(arguments); 
           if (o.value === 1){
             o.desmos.setExpression({id:'357',label:('j(x) = √(x)')});
           // } else if (o.value === 0) {
@@ -1413,7 +1417,7 @@ PearsonGL.External.rootJS = (function() {
        | Initializes the variables
        * ←———————————————————————————————————————————————————————————————————→ */
        init: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         vs[o.uniqueId] = {
           a:1,
           b:0,
@@ -1425,7 +1429,7 @@ PearsonGL.External.rootJS = (function() {
        | 
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         var vars = vs[o.uniqueId];
         vars[o.name] = o.value;
         var a = vars.a;
@@ -1487,7 +1491,7 @@ PearsonGL.External.rootJS = (function() {
        | Initializes the variables
        * ←———————————————————————————————————————————————————————————————————→ */
        init: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         vs[o.uniqueId] = {
           x:3,
           y:2
@@ -1498,7 +1502,7 @@ PearsonGL.External.rootJS = (function() {
       | 
        * ←———————————————————————————————————————————————————————————————————→ */
        updateTriangle: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         var vars = vs[o.uniqueId];
         vars[o.name[0]] = o.value;
 
@@ -1520,7 +1524,7 @@ PearsonGL.External.rootJS = (function() {
        /* Initializes the variables
        ←———————————————————————————————————————————————————————————————————→ */
        init: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         var n = 9;
         var i;
 
@@ -1572,7 +1576,7 @@ PearsonGL.External.rootJS = (function() {
         the parabola points.*/
 
        reset: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         var n = vs[o.uniqueId].n;
         var ids = vs[o.uniqueId].ids;
         var i;
@@ -1598,7 +1602,7 @@ PearsonGL.External.rootJS = (function() {
        | H
        * ←———————————————————————————————————————————————————————————————————→ */
        simulation: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
 
         if(o.name === 'p') {
           vs[o.uniqueId].p = o.value;
@@ -1704,7 +1708,7 @@ PearsonGL.External.rootJS = (function() {
        | Initializes the variables
        * ←———————————————————————————————————————————————————————————————————→ */
        init: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         vs[o.uniqueId] = {
           globalDiffArray:[],
           histFreq:[]
@@ -1714,7 +1718,7 @@ PearsonGL.External.rootJS = (function() {
        |    Additional function to reset histogram.
        *————————————————————————————————————————————————*/
        histReset: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         if(o.value===0) {
           return;
         }
@@ -1734,7 +1738,7 @@ PearsonGL.External.rootJS = (function() {
        |
        * ←———————————————————————————————————————————————————————————————————→ */
        resample: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         var vars = vs[o.uniqueId];
 
         if(o.value===0) {
@@ -1873,7 +1877,7 @@ PearsonGL.External.rootJS = (function() {
        | Initializes the variables
        * ←———————————————————————————————————————————————————————————————————→ */
        init: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         vs[o.uniqueId] = {                
           n:1,
           p:0.5,
@@ -1884,7 +1888,7 @@ PearsonGL.External.rootJS = (function() {
        },
       //←———————————————————————————————————————————————————————————————————
        simulation: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
       
         var win = false;
         var net = 0;
@@ -2000,7 +2004,7 @@ PearsonGL.External.rootJS = (function() {
        | stuff
        * ←—————————————————————————————————————————————————————————————————→ */
        init: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         var vars = vs[o.uniqueId];
         var hlps = hxs[o.uniqueId];
         var cons = cs.A0597503;
@@ -2200,7 +2204,7 @@ PearsonGL.External.rootJS = (function() {
        | stuff
        * ←—————————————————————————————————————————————————————————————————→ */
        init: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         var cons = cs.A0597506;
         vs[o.uniqueId] = {
           correcting: false,
@@ -2495,7 +2499,7 @@ PearsonGL.External.rootJS = (function() {
        | Initializes the variables
        * ←———————————————————————————————————————————————————————————————————→ */
        init: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         vs[o.uniqueId] = {
           P_x:-4,
           P_y:-3,
@@ -2514,7 +2518,7 @@ PearsonGL.External.rootJS = (function() {
        |  P_point, Q_point, and M_point
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         switch (o.name) {
           case 'x_1':
             vs[o.uniqueId].P_x = o.value;
@@ -2545,7 +2549,7 @@ PearsonGL.External.rootJS = (function() {
      fs.A0597522 = {
       /* ←— labelDiags ————————————————————————————————————————————————————→ */
        labelDiags: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         function diags(n) {
           if(n === 3) {
             return 0;
@@ -2563,6 +2567,3226 @@ PearsonGL.External.rootJS = (function() {
      };
 
 
+    /* ←— A0597552 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0597552 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variables
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function(){
+        var o = hs.parseArgs(arguments);
+        vs[o.uniqueId] = {
+          P_x:-4,
+          P_y:-3,
+          Q_x:2,
+          Q_y:1
+        };
+       },
+      /* ←— updateLabels ————————————————————————————————————————————————————→ *\
+       | updates the labels of P, Q, and the distances based on changes in their
+       | coordinates
+       |
+       | P=(x_1,y_1) and Q=(x_2,y_2)
+       |
+       | Points P, Q, and the distances must be authored with showLabel:true,
+       | and the IDs
+       |  P_point, Q_point, distance, x_distance, and y_distance
+       * ←———————————————————————————————————————————————————————————————————→ */
+       updateLabels: function(){
+        var o = hs.parseArgs(arguments);
+        var P_x = vs[o.uniqueId].P_x;
+        var P_y = vs[o.uniqueId].P_y;
+        var Q_x = vs[o.uniqueId].Q_x;
+        var Q_y = vs[o.uniqueId].Q_y;
+        switch (o.name) {
+          case 'x_1':
+            vs[o.uniqueId].P_x = o.value;
+            P_x = o.value;
+            fs.shared.label.labelPoint(vs[o.uniqueId].P_x,vs[o.uniqueId].P_y,'P','P_point',o);
+            break;
+          case 'y_1':
+            vs[o.uniqueId].P_y = o.value;
+            P_y = o.value;
+            fs.shared.label.labelPoint(vs[o.uniqueId].P_x,vs[o.uniqueId].P_y,'P','P_point',o);
+            break;
+          case 'x_2':
+            vs[o.uniqueId].Q_x = o.value;
+            Q_x = o.value;
+            fs.shared.label.labelPoint(vs[o.uniqueId].Q_x,vs[o.uniqueId].Q_y,'Q','Q_point',o);
+            break;
+          case 'y_2':
+            vs[o.uniqueId].Q_y = o.value;
+            Q_y = o.value;
+            fs.shared.label.labelPoint(vs[o.uniqueId].Q_x,vs[o.uniqueId].Q_y,'Q','Q_point',o);
+            break;
+        }
+        var distance = Math.round(100*Math.sqrt(Math.pow(Q_x-P_x,2)+Math.pow(Q_y-P_y,2)))/100;
+        var x_distance = Math.abs(Q_x-P_x);
+        var y_distance = Math.abs(Q_y-P_y);
+
+        o.desmos.setExpressions([
+          {id:'distance',label:('√('+x_distance+'² + '+y_distance+'²) = '+distance)},
+          {id:'x_distance',label:x_distance},
+          {id:'y_distance',label:y_distance}
+        ]);
+       }
+     };
+
+    /* ←— A0597560 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0597560 = {
+      /* ←— init ——————————————————————————————————————————————————————————→ *\
+       | Updates the equation (expression) with the new angles
+       * ←—————————————————————————————————————————————————————————————————→ */
+       init: function(){
+        var o = hs.parseArgs(arguments);
+        vs[o.uniqueId] = {
+          A:hxs[o.uniqueId].maker({latex:'m_A'}),
+          B:hxs[o.uniqueId].maker({latex:'m_B'}),
+          C:hxs[o.uniqueId].maker({latex:'m_C'})
+        };
+        var vars = vs[o.uniqueId];
+
+        function updateEquation() {
+          o.desmos.setExpression({
+            id:'equation',
+            label:'' + vars.A.numericValue+' + ' +
+                       vars.B.numericValue+' + ' +
+                       vars.C.numericValue+' = 180'
+          });
+        }
+
+        vars.A.observe('numericValue',updateEquation);
+        vars.B.observe('numericValue',updateEquation);
+        vars.C.observe('numericValue',updateEquation);
+
+        o.desmos.observe('graphpaperBounds',function(){
+          o.desmos.setExpression({
+            id:'equation',
+            latex:'\\left(0,'+hs.number(o.desmos.graphpaperBounds.mathCoordinates.bottom+
+                                (36*o.desmos.graphpaperBounds.mathCoordinates.height/
+                                  o.desmos.graphpaperBounds.pixelCoordinates.height
+                                ))+'\\right)'
+          });
+        });
+      }
+     };
+
+    /* ←— A0597563 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0597563 = {
+      /* ←— init ——————————————————————————————————————————————————————————→ *\
+       | Updates the equation (expression) with the new angles
+       * ←—————————————————————————————————————————————————————————————————→ */
+       init: function(){
+        var o = hs.parseArgs(arguments);
+        vs[o.uniqueId] = {
+          A:hxs[o.uniqueId].maker({latex:'m_A'}),
+          B:hxs[o.uniqueId].maker({latex:'m_B'}),
+          C:hxs[o.uniqueId].maker({latex:'m_C'})
+        };
+        var vars = vs[o.uniqueId];
+
+        function updateEquation() {
+          o.desmos.setExpression({
+            id:'equation',
+            label:''+vars.A.numericValue+' = '+
+                    vars.B.numericValue+' + '+
+                    vars.C.numericValue
+          });
+        }
+
+        vars.A.observe('numericValue',updateEquation);
+        vars.B.observe('numericValue',updateEquation);
+        vars.C.observe('numericValue',updateEquation);
+
+        o.desmos.observe('graphpaperBounds',function(){
+          o.desmos.setExpression({
+            id:'equation',
+            latex:'\\left(0,'+hs.number(o.desmos.graphpaperBounds.mathCoordinates.bottom+
+                                (36*o.desmos.graphpaperBounds.mathCoordinates.height/
+                                  o.desmos.graphpaperBounds.pixelCoordinates.height
+                                ))+'\\right)'
+          });
+        });
+      }
+     };
+
+    /* ←— A0597629 FUNCTIONS ——————————————————————————————————————————————→ */
+      cs.A0597629 = {
+        MAX_VERTICES:14,
+        RADIUS:5,
+        INITIAL_COORDINATES_PRECISION:6,
+        DRAG_BUFFER:0.25,
+        DRAG_BUFFER_REBOUND:0.1, // How much to bounce back when going past the buffer
+        SEGMENT_TEMPLATE:'\\left(x_U\\left(1-t\\right)+x_Vt,y_U\\left(1-t\\right)+y_Vt\\right)',
+        HIDDEN_COLOR:'#FFFFFF', // white is close enough to hidden
+        VERTEX_COLOR:'#000000'
+       };
+     fs.A0597629 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variables
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function(){
+        var o = hs.parseArgs(arguments);
+        vs[o.uniqueId] = {lastDragged:0,placeholder:0};
+        var vars = vs[o.uniqueId];
+        var hlps = hxs[o.uniqueId];
+        var cons = cs.A0597629;
+        var i;
+        var j;
+
+        hlps.n = hlps.maker({latex:'n'});
+        hlps.showDiagonals = hlps.maker({latex:'d_{iags}'});
+
+        vars.belayCorrection = true;
+
+        function changeFunc(varName,i){
+          return function(){
+            fs.A0597629.coordinateChanged({
+              name:hs.sub(varName,i),
+              value:vars[varName+'_'+i].numericValue,
+              desmos:o.desmos,
+              uniqueId:o.uniqueId,
+              log:o.log
+            });
+          };
+         }
+
+        // Set up variables and observers for vertices of each polygon
+         for(i=1;i<=cons.MAX_VERTICES;i+=1) {
+          // Track x & y for this vertex
+          vars["x_"+i] = hlps.maker({latex:hs.sub('x',i)});
+          vars["y_"+i] = hlps.maker({latex:hs.sub('y',i)});
+          vars[i]={};
+          if (i >= 3) {
+            for(j=1;j<=i;j+=1) {
+              if (i === vars.n) {
+                // Initialize active polygon to current state
+                vars[i]['x_'+j] = vars['x_'+i].numericValue;
+                vars[i]['y_'+j] = vars['y_'+i].numericValue;
+              } else {
+                // Initialize inactive polygons to default
+                vars[i]['x_'+j] = cons.RADIUS*Math.round(Math.pow(10,cons.INITIAL_COORDINATES_PRECISION)*Math.sin(2*Math.PI*((j-1)/i)))/Math.pow(10,cons.INITIAL_COORDINATES_PRECISION);
+                vars[i]['y_'+j] = cons.RADIUS*Math.round(Math.pow(10,cons.INITIAL_COORDINATES_PRECISION)*Math.cos(2*Math.PI*((j-1)/i)))/Math.pow(10,cons.INITIAL_COORDINATES_PRECISION);
+              }
+             }
+          }
+          // Set up observers for when the user drags a point
+          hlps["x_"+i] = changeFunc('x',i);
+          hlps['y_'+i] = changeFunc('y',i);
+          vars["x_"+i].observe('numericValue.correction',hlps['x_'+i]);
+          vars['y_'+i].observe('numericValue.correction',hlps['y_'+i]);
+         }
+
+         // 
+
+        // Let the user turn the diagonals on and off
+        hlps.showDiagonals.observe('numericValue',function(){
+          var exprs = [];
+          for (i = 3; i < hlps.n.numericValue; i+=1) {
+            exprs.push({
+              id:'segment_'+hs.ALPHA[i]+'A',
+              hidden:(hlps.showDiagonals.numericValue === 0)
+            });
+          }
+          exprs.push({
+            id:'centroid-1',
+            showLabel:(hlps.showDiagonals.numericValue === 1)
+          });
+          o.desmos.setExpressions(exprs);
+        });
+
+        // Wait until the state fully loads before initializing the switchPolygon observer
+        hlps.n.observe('numericValue.init',function(){
+          if (hlps.n.numericValue !== undefined && hlps.n.numericValue>2) {
+            vars.n = hlps.n.numericValue;
+            o.log('n initialized to '+vars.n);
+            hlps.n.unobserve('numericValue.init');
+            hlps.n.observe('numericValue.switchingPolygon',function(){
+              fs.A0597629.switchPolygon({
+                name:'n',
+                value:hlps.n.numericValue,
+                desmos:o.desmos,
+                uniqueId:o.uniqueId,
+                log:o.log
+              });
+            });
+          }
+        });
+
+        // prepare to clear placeholders
+        document.addEventListener('mouseup',function(){fs.A0597629.clearPlaceholder(o);});
+        document.addEventListener('touchend',function(){fs.A0597629.clearPlaceholder(o);});
+        
+        o.log("Observers initialized:",vars);
+
+        hlps.correctionBuffer = window.setTimeout(function(){vars.belayCorrection = false;},cs.delay.LOAD);
+       },
+      /* ←— setPlaceholder ——————————————————————————————————————————————————→ *\
+       | Attaches all segments from a vertex to the placeholder vertex
+       * ←———————————————————————————————————————————————————————————————————→ */
+       setPlaceholder: function(options,i) {
+        if(i === undefined) {
+          i = 0;
+        }
+        var o = hs.parseArgs([(options || {})]);
+        var vars = vs[o.uniqueId];
+        var n = vars.n;
+
+        var j;
+
+        // move the placeholder to the location of the vertex to hold place
+        o.desmos.setExpression({id:'x_0',latex:'x_0='+Math.round(vars[n]['x_'+i]*Math.pow(10,cs.precision.FLOAT_PRECISION))/Math.pow(10,cs.precision.FLOAT_PRECISION)});
+        o.desmos.setExpression({id:'y_0',latex:'y_0='+Math.round(vars[n]['y_'+i]*Math.pow(10,cs.precision.FLOAT_PRECISION))/Math.pow(10,cs.precision.FLOAT_PRECISION)});
+
+        if (i === vars.placeholder) {return;} // The rest of this stuff only needs to be done the first time
+
+        o.log('Adding placeholder '+hs.ALPHA[i]);
+
+        vars.placeholder = i;
+        var cons = cs.A0597629;
+
+        // make the placeholder visible, and the dragged vertex invisible
+        o.desmos.setExpression({id:'placeholder_vertex',hidden:false,showLabel:true,label:hs.ALPHA[i],dragMode:Desmos.DragModes.NONE});
+        o.desmos.setExpression({id:'vertex_'+hs.ALPHA[i],showLabel:false,color:cons.HIDDEN_COLOR});
+
+        // Attach the vertex to its edges and diagonals
+        if (i === 1) {
+          // Attach placeholder to B
+          o.desmos.setExpression({
+            id:'segment_AB',
+            latex:cons.SEGMENT_TEMPLATE.replace(/U/g,'0').replace(/V/g,'2')
+          });
+          // Attach every other vertex to placeholder
+          for (j = 3;j<=n;j+=1) {
+            o.desmos.setExpression({
+              id:'segment_'+hs.ALPHA[j]+'A',
+              latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',j)).replace(/V/g,'0')
+            });
+          }
+        } else {
+          if (i === 2) {
+            o.desmos.setExpression({
+              id:'segment_AB',
+              latex:cons.SEGMENT_TEMPLATE.replace(/U/g,'0').replace(/V/g,'1')
+            });
+          } else {
+            // attach to previous vertex
+            o.desmos.setExpression({
+              id:'segment_'+hs.ALPHA[i-1]+hs.ALPHA[i],
+              latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',i-1)).replace(/V/g,'0')
+            });
+            // attach diagonal to A
+            if (2 < i && i < n) {
+              o.desmos.setExpression({
+                id:'segment_'+hs.ALPHA[i]+'A',
+                latex:cons.SEGMENT_TEMPLATE.replace(/U/g,'0').replace(/V/g,'1')
+              });
+            }
+          }
+          // Attach to the next vertex
+          o.desmos.setExpression({
+            id:'segment_'+hs.ALPHA[i]+hs.ALPHA[i%n+1],
+            latex:cons.SEGMENT_TEMPLATE.replace(/U/g,'0').replace(/([xy])_V/g,hs.sub('$1',i%n+1))
+          });
+        }
+       },
+      /* ←— clearPlaceholder ————————————————————————————————————————————————→ *\
+       | moves the last dragged vertex back to the placeholder vertex's location
+       | 
+       * ←———————————————————————————————————————————————————————————————————→ */
+       clearPlaceholder: function(){
+        var o = hs.parseArgs(arguments);
+        var vars = vs[o.uniqueId];
+        var hlps = hxs[o.uniqueId];
+        var cons = cs.A0597629;
+        var i = vars.placeholder;
+        var n = vars.n;
+
+        var j;
+
+        if (i === 0) {return;} // if it ain't broke, don't fix it
+
+        o.log('Now clearing placeholder '+hs.ALPHA[i]);
+
+        // Don't recorrect while clearing the placeholder
+        if (hlps.correctionBuffer !== undefined) {window.clearTimeout(hlps.correctionBuffer);}
+        vars.belayCorrection = true;
+
+        // Move the place-held point to the placeholder
+        o.desmos.setExpression({id:'x_'+i,latex:hs.sub('x',i)+'='+Math.round(vars[n]['x_'+i]*Math.pow(10,cs.precision.FLOAT_PRECISION))/Math.pow(10,cs.precision.FLOAT_PRECISION)});
+        o.desmos.setExpression({id:'y_'+i,latex:hs.sub('y',i)+'='+Math.round(vars[n]['y_'+i]*Math.pow(10,cs.precision.FLOAT_PRECISION))/Math.pow(10,cs.precision.FLOAT_PRECISION)});
+
+        hlps.correctionBuffer = window.setTimeout(function(){vars.belayCorrection = false;},cs.delay.SET_EXPRESSION);
+
+        // Make the place-held point visible, and the placeholder invisible
+        o.desmos.setExpression({id:'placeholder_vertex',hidden:true,showLabel:false});
+        o.desmos.setExpression({id:'vertex_'+hs.ALPHA[i],showLabel:true,color:cons.VERTEX_COLOR});
+
+        // Attach the vertex to its edges and diagonals
+        if (i === 1) {
+          // Attach A to B
+          o.desmos.setExpression({
+            id:'segment_AB',
+            latex:cons.SEGMENT_TEMPLATE.replace(/U/g,'1').replace(/V/g,'2')
+          });
+          // Attach A to every other vertex
+          for (j = 3;j<=n;j+=1) {
+            o.desmos.setExpression({
+              id:'segment_'+hs.ALPHA[j]+'A',
+              latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',j)).replace(/V/g,'1')
+            });
+          }
+        } else {
+          if (i === 2) {
+            o.desmos.setExpression({
+              id:'segment_AB',
+              latex:cons.SEGMENT_TEMPLATE.replace(/U/g,'1').replace(/V/g,'2')
+            });
+          } else {
+            // attach to previous vertex
+            o.desmos.setExpression({
+              id:'segment_'+hs.ALPHA[i-1]+hs.ALPHA[i],
+              latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',i-1)).replace(/([xy])_V/g,hs.sub('$1',i))
+            });
+            // attach diagonal to A
+            o.desmos.setExpression({
+                id:'segment_'+hs.ALPHA[i]+'A',
+                latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',i)).replace(/V/g,'1')
+              });
+          }
+          // Attach to the next vertex
+          o.desmos.setExpression({
+            id:'segment_'+hs.ALPHA[i]+hs.ALPHA[i%n+1],
+            latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',i)).replace(/([xy])_V/g,hs.sub('$1',i%n+1))
+          });
+        }
+
+        vars.placeholder = 0;
+       },
+      /* ←— coordinateChanged ———————————————————————————————————————————————→ *\
+       | updates variables, and corrects if the user tries to cross diagonals
+       * ←———————————————————————————————————————————————————————————————————→ */
+       coordinateChanged: function(){
+        var o = hs.parseArgs(arguments);
+        var vars = vs[o.uniqueId];
+        if (vars.belayCorrection === true) {return;}
+        var n = vars.n;
+        var i = +(o.name.match(/[0-9]+/)[0]);
+        var newPoint = {
+          x:vars['x_'+i].numericValue,
+          y:vars['y_'+i].numericValue
+        };
+
+        var j;
+
+        if (i !== vars.lastDragged) {
+          o.log('Now dragging n='+n+',i='+i);
+          vars.lastDragged = i;
+
+          // First, put the last dragged vertex back.
+          fs.A0597629.clearPlaceholder(o);
+
+          // Now create a list of all the new boundaries
+          vars.dragBoundaries = [];
+          if (i === 1) {
+            // All edges are boundaries, except [n]A and AB
+            // NOTE: Since the vertices are numbered clockwise, edges must be defined in reverse so the positive-orientation of the polygon constrain function will work
+            for (j=2;j<n;j+=1) {
+              vars.dragBoundaries.push(hs.lineTwoPoints(
+                {x:vars[n]['x_'+(j+1)],y:vars[n]['y_'+(j+1)]},
+                {x:vars[n]['x_'+j],y:vars[n]['y_'+j]}
+              ));
+            }
+          } else {
+            // Bind by the previous diagonal
+            if (2 < i) {
+              vars.dragBoundaries.push(hs.lineTwoPoints(
+                {x:vars[n]['x_'+(i-1)],y:vars[n]['y_'+(i-1)]},
+                {x:vars[n].x_1,y:vars[n].y_1}
+              ));
+            }
+            // Bind by the next diagonal
+            if (i < n) {
+              vars.dragBoundaries.push(hs.lineTwoPoints(
+                {x:vars[n].x_1,y:vars[n].y_1},
+                {x:vars[n]['x_'+(i%n+1)],y:vars[n]['y_'+(i%n+1)]}
+              ));
+            }
+          }
+
+          o.log('Now constraining by:',vars.dragBoundaries);
+
+          // Note: in previous versions, bound instead to keep the polygon convex.
+          //  This meant binding by line(i-1,i+1), line(i-1,i-2), and line(i+2,i+1).
+        }
+
+        var constrained = hs.polygonConstrain(newPoint,vars.dragBoundaries);
+
+        vars[n]['x_'+i] = constrained.x;
+        vars[n]['y_'+i] = constrained.y;
+
+        if (constrained === newPoint) {
+          fs.A0597629.clearPlaceholder(o);
+        } else {
+          /** o.log('Correcting ('+
+            Math.round(Math.pow(10,cs.debug.COORDINATE_DECIMALS)*newPoint.x)/Math.pow(10,cs.debug.COORDINATE_DECIMALS)
+            +','+
+            Math.round(Math.pow(10,cs.debug.COORDINATE_DECIMALS)*newPoint.y)/Math.pow(10,cs.debug.COORDINATE_DECIMALS)
+            +') to ('+
+            Math.round(Math.pow(10,cs.debug.COORDINATE_DECIMALS)*constrained.x)/Math.pow(10,cs.debug.COORDINATE_DECIMALS)
+            +','+
+            Math.round(Math.pow(10,cs.debug.COORDINATE_DECIMALS)*constrained.y)/Math.pow(10,cs.debug.COORDINATE_DECIMALS)
+            +')'); **/
+          fs.A0597629.setPlaceholder(o,i);
+        }
+       },
+      /* ←— switchPolygon ———————————————————————————————————————————————————→ *\
+       | Adds and removes vertices and edges
+       | Restyles diagonals
+       | Restores coordinates
+       * ←———————————————————————————————————————————————————————————————————→ */
+       switchPolygon: function(){
+        var o = hs.parseArgs(arguments);
+        var vars = vs[o.uniqueId];
+        var hlps = hxs[o.uniqueId];
+        var cons = cs.A0597629;
+        vars.belayCorrection = true;
+
+        var i;
+
+        fs.A0597629.clearPlaceholder(o);
+
+        var prevn = vars.n;
+        var n = o.value;
+        vars.n = n;
+
+        o.log("Changing from "+prevn+" sides to "+n+" sides");
+
+        var exprs = [];
+
+        // Delete extra vertices
+        for (i = cons.MAX_VERTICES; i >= n+1; i-=1) {
+          exprs.push({
+            id:'vertex_'+hs.ALPHA[i],
+            hidden:true,
+            showLabel:false
+          });
+          exprs.push({
+            id:'segment_'+hs.ALPHA[i]+'A',
+            hidden:true
+          });
+          exprs.push({
+              id:'segment_'+hs.ALPHA[i-1]+hs.ALPHA[i],
+              hidden:true
+          });
+          // o.log('Deleting vertex '+hs.ALPHA[i]);
+        }
+
+        // Add new vertices
+        for (i = 3; i < n; i+=1) {
+          exprs.push({
+            id:'vertex_'+hs.ALPHA[i+1],
+            hidden:false,
+            showLabel:true
+          });
+          exprs.push({
+              id:'segment_'+hs.ALPHA[i]+'A',
+              hidden:(hlps.showDiagonals.numericValue === 0),
+              style:cs.enum.lineType.DASHED,
+              color:cs.color.agaColors.red
+          });
+          exprs.push({
+              id:'segment_'+hs.ALPHA[i]+hs.ALPHA[i+1],
+              hidden:false,
+              style:cs.enum.lineType.SOLID,
+              color:cs.color.agaColors.black
+          });
+        }
+
+        // Style terminal edge
+        exprs.push({
+          id:'segment_'+hs.ALPHA[n]+'A',
+          hidden:false,
+          style:cs.enum.lineType.SOLID,
+          color:cs.color.agaColors.black
+        });
+
+        // Update centroid and labels
+        var x_centroid = 'x_{centroid}=\\frac{';
+        for (i = 1; i < n; i+=1) {x_centroid+=(hs.sub('x',i)+'+');}
+        x_centroid += (hs.sub('x',n)+'}{n}');
+        exprs.push({
+          id:'x_centroid',
+          latex:x_centroid
+        });
+        exprs.push({
+          id:'y_centroid',
+          latex:x_centroid.replace(/x/g,'y')
+        });
+        exprs.push({
+          id:'centroid',
+          label:'n = '+n
+        });
+        exprs.push({
+          id:'centroid-1',
+          label:''+(n-2)+' triangle'+((n>3)?'s':'')
+        });
+
+        // o.log('Changed figures:',exprs);
+
+        o.desmos.setExpressions(exprs);
+
+        exprs = [];
+
+        // Update coordinates
+        for (i = 1; i <= n; i+=1) {
+          exprs.push({
+            id:'x_'+i,
+            latex:hs.sub('x',i)+'='+vars[n]['x_'+i]
+          });
+          exprs.push({
+            id:'y_'+i,
+            latex:hs.sub('y',i)+'='+vars[n]['y_'+i]
+          });
+          //o.log('Moving vertex '+hs.ALPHA[i]+' to ('+vars[n]['x_'+i]+','+vars[n]['y_'+i]+')');
+        }
+
+        // o.log('Changed coordinates:',exprs);
+
+        // clear observers
+        for(i=1;i<=cons.MAX_VERTICES;i+=1){
+          vars['x_'+i].unobserve('numericValue.correction');
+          vars['y_'+i].unobserve('numericValue.correction');
+        }
+
+        if (hlps.correctionBuffer !== undefined) {
+          window.clearTimeout(hlps.correctionBuffer);
+        }
+
+        o.desmos.setExpressions(exprs);
+
+        // Reinitialize observers.
+         for(i=1;i<=n;i+=1) {
+          // Observe x
+          vars["x_"+i].observe('numericValue.correction',hlps["x_"+i]);
+          // Observe y
+          vars["y_"+i].observe('numericValue.correction',hlps["y_"+i]);
+         }
+
+        hlps.correctionBuffer = window.setTimeout(function(){vars.belayCorrection = false;},cs.delay.LOAD);
+
+       }
+     };
+
+    /* ←— A0597630 FUNCTIONS ——————————————————————————————————————————————→ */
+      cs.A0597630 = {
+        MAX_VERTICES:14,
+        RADIUS:5,
+        INITIAL_COORDINATES_PRECISION:6,
+        ANGLE_PRECISION:2,
+        DRAG_BUFFER:0.25,
+        DRAG_BUFFER_REBOUND:0.1, // How much to bounce back when going past the buffer
+        SEGMENT_TEMPLATE:'\\left(x_U\\left(1-t\\right)+x_Vt,y_U\\left(1-t\\right)+y_Vt\\right)',
+        MEASURE_TEMPLATE:'m_U=\\theta_{LVL}\\left(W,U,Z\\right)',
+        LABEL_TEMPLATE:'W_{label}=P_{xyrt}\\left(xU,yU,\\frac{3}{2}t_{ick},\\theta_{xy}\\left(xZ-xU,yZ-yU\\right)-\\frac{\\theta_{LVL}\\left(S,W,Q\\right)}{2}\\right)',
+        HIDDEN_COLOR:'#000000', // white is close enough to hidden
+        VERTEX_COLOR:'#000000'
+       };
+     fs.A0597630 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variables
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function() {
+        var o = hs.parseArgs(arguments);
+        var vars = vs[o.uniqueId];
+        Object.assign(vars,{lastDragged:0,placeholder:0});
+        var hlps = hxs[o.uniqueId];
+        if(hlps.n === undefined) {
+          hlps.n = hlps.maker({latex:'n'});
+        }
+        o.log(hlps);
+        var cons = cs.A0597630;
+
+        var i;
+        var j;
+        var n;
+
+        vars.belayCorrection = true;
+
+
+        // Set up watchers for each vertex of each polygon
+         for(i=1;i<=cons.MAX_VERTICES;i+=1) {
+          if (vars[i] === undefined) {
+            vars["x_"+i] = hlps.maker({latex:hs.sub('x',i)});
+            vars["y_"+i] = hlps.maker({latex:hs.sub('y',i)});
+            vars[i]={};
+          }
+         }
+
+        // Initialize Vertices
+         if (hlps.n.numericValue === undefined) {
+          o.log('n not yet initialized; delaying initialization by '+cs.delay.SET_EXPRESSION+'ms');
+          setTimeout(function(){fs.A0597630.init(o);},cs.delay.SET_EXPRESSION);
+          return;
+         }
+
+         vars.n = hlps.n.numericValue;
+         n = vars.n;
+         
+         function loopFunc() {
+          fs.A0597630.init(o);
+         }
+
+         for(i=1;i<=cons.MAX_VERTICES;i+=1) {
+          if (i >= 3) {
+            for(j=1;j<=i;j+=1) {
+              if (i === n) {
+                if (vars['x_'+j].numericValue === undefined || vars['y_'+j].numericValue === undefined) {
+                  o.log('Vertex '+hs.ALPHA[j]+' not yet initialized; delaying initialization by '+cs.delay.SET_EXPRESSION+'ms');
+                  setTimeout(loopFunc,cs.delay.SET_EXPRESSION);
+                  return;
+                }
+                // Initialize active polygon to current state
+                vars[i]['x_'+j] = vars['x_'+j].numericValue;
+                vars[i]['y_'+j] = vars['y_'+j].numericValue;
+              } else if (vars[i]['x_'+j] === undefined || vars[i]['y_'+j] === undefined) {
+                // Initialize inactive polygons to default
+                vars[i]['x_'+j] = cons.RADIUS*Math.round(Math.pow(10,cons.INITIAL_COORDINATES_PRECISION)*Math.sin(2*Math.PI*((j-1)/i)))/Math.pow(10,cons.INITIAL_COORDINATES_PRECISION);
+                vars[i]['y_'+j] = cons.RADIUS*Math.round(Math.pow(10,cons.INITIAL_COORDINATES_PRECISION)*Math.cos(2*Math.PI*((j-1)/i)))/Math.pow(10,cons.INITIAL_COORDINATES_PRECISION);
+              }
+             }
+          }
+         }
+
+        // Initialize angles and set observers
+         vars.polygonName = 'polygonABC';
+         vars.polygonABC_angles = {A:60,B:60,C:60};
+         function changeFunc(varName,i){
+          return function(){
+            fs.A0597630.coordinateChanged({
+              name:hs.sub(varName,i),
+              value:vars[varName+'_'+i].numericValue,
+              desmos:o.desmos,
+              uniqueId:o.uniqueId,
+              log:o.log
+              });
+          };
+         }
+         var newPoly;
+
+         for(i=1;i<=cons.MAX_VERTICES;i+=1) {
+          // Set up polygon angle values for the polygon terminating in this vertex
+          if (i > 3) {
+            newPoly = Object.assign({},vars[vars.polygonName+'_angles']);
+            newPoly[hs.ALPHA[i]]=0;
+            vars.polygonName+=hs.ALPHA[i];
+            vars[vars.polygonName+'_angles'] = newPoly;
+            vars[vars.polygonName+'_vertices'] = vars[i];
+            o.log('Initializing '+vars.polygonName+' with angles:',vars[vars.polygonName+'_angles']);
+          }
+          // Set up observers for when the user drags a point
+          hlps["x_"+i] = changeFunc('x',i);
+          hlps['y_'+i] = changeFunc('y',i);
+          vars["x_"+i].observe('numericValue.correction',hlps['x_'+i]);
+          vars['y_'+i].observe('numericValue.correction',hlps['y_'+i]);
+          o.log('Vertex '+hs.ALPHA[i]+' initialized at ('+vars['x_'+i].numericValue+', '+vars['y_'+i].numericValue+')');
+         }
+         vars.polygonName = vars.polygonName.slice(0,7+n);
+
+         var asquared;
+         var bsquared;
+         var csquared;
+         for (i = 1; i <= n; i+=1) {
+          asquared = Math.pow(vars[n]['x_'+((i+n-2)%n+1)]-vars[n]['x_'+i],2)+Math.pow(vars[n]['y_'+((i+n-2)%n+1)]-vars[n]['y_'+i],2);
+          bsquared = Math.pow(vars[n]['x_'+(i%n+1)]-vars[n]['x_'+i],2)+Math.pow(vars[n]['y_'+(i%n+1)]-vars[n]['y_'+i],2);
+          csquared = Math.pow(vars[n]['x_'+((i+n-2)%n+1)]-vars[n]['x_'+(i%n+1)],2)+Math.pow(vars[n]['y_'+((i+n-2)%n+1)]-vars[n]['y_'+(i%n+1)],2);
+          vars['P_'+hs.ALPHA[i]] = 180*Math.acos((asquared+bsquared-csquared)/(2*Math.sqrt(asquared*bsquared)))/Math.PI;
+         }
+
+         fs.shared.label.labelPolyAngles(o,{refreshAll:true},cons.ANGLE_PRECISION);
+
+        var expr = '';
+        for (j = 1;j <= n;j+=1) {expr+=((vars[vars.polygonName+'_angles'][hs.ALPHA[j]]/Math.pow(10,cons.ANGLE_PRECISION))+'+');}
+        expr = expr.slice(0,expr.length-1);
+        o.desmos.setExpressions([{id:'sum',latex:expr},
+          {
+            id:'centroid-1',
+            label:'180'/*+'°'*/+'⋅('+n+' − 2) = '+(180*(n-2))/*+'°'*/
+          },
+          {
+            id:'centroid',
+            label:hs.latexToText(expr+'='+(180*(n-2)))
+          },{id:'product',latex:'180\\left('+n+'-2\\right)'}]);
+
+        hlps.n.observe('numericValue.switchingPolygon',function(){
+          fs.A0597630.switchPolygon({
+            name:'n',
+            value:hlps.n.numericValue,
+            desmos:o.desmos,
+            uniqueId:o.uniqueId,
+            log:o.log
+          });
+        });
+
+        // prepare to clear placeholders
+        document.addEventListener('mouseup',function(){fs.A0597630.clearPlaceholder(o);});
+        document.addEventListener('touchend',function(){fs.A0597630.clearPlaceholder(o);});
+      
+        o.log("Observers initialized:",vars);
+
+        hlps.correctionBuffer = window.setTimeout(function(){
+          // set up the initial angles
+          fs.shared.label.labelPolyAngles(o,{refreshAll:true},cons.ANGLE_PRECISION);
+
+          vars.belayCorrection = false;
+        },cs.delay.LOAD);
+       },
+      /* ←— setPlaceholder ——————————————————————————————————————————————————→ *\
+       | Attaches all segments from a vertex to the placeholder vertex
+       * ←———————————————————————————————————————————————————————————————————→ */
+       setPlaceholder: function(options,i) {
+        if(i === undefined) {
+          i = 0;
+        }
+        var o = hs.parseArgs([(options || {})]);
+        var vars = vs[o.uniqueId];
+        var n = vars.n;
+
+        var j;
+
+        // move the placeholder to the location of the vertex to hold place
+        o.desmos.setExpression({id:'x_0',latex:'x_0='+Math.round(vars[n]['x_'+i]*Math.pow(10,cs.precision.FLOAT_PRECISION))/Math.pow(10,cs.precision.FLOAT_PRECISION)});
+        o.desmos.setExpression({id:'y_0',latex:'y_0='+Math.round(vars[n]['y_'+i]*Math.pow(10,cs.precision.FLOAT_PRECISION))/Math.pow(10,cs.precision.FLOAT_PRECISION)});
+
+        if (i === vars.placeholder) {return;} // The rest of this stuff only needs to be done the first time
+
+        o.log('Adding placeholder '+hs.ALPHA[i]);
+
+        vars.placeholder = i;
+        var cons = cs.A0597630;
+
+        // make the placeholder visible, and the dragged vertex invisible
+        o.desmos.setExpression({id:'placeholder_vertex',hidden:false,showLabel:true,label:hs.ALPHA[i],dragMode:Desmos.DragModes.NONE});
+        o.desmos.setExpression({id:'vertex_'+hs.ALPHA[i],showLabel:false,color:cons.HIDDEN_COLOR});
+
+        // Attach the angle label to the placeholder
+        o.desmos.setExpression({
+          id:'m_'+hs.ALPHA[i],
+          latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',0)).replace(/Z/g,hs.sub('',i%n+1)).replace(/W/g,'P').replace(/Q/g,hs.ALPHA[(i+n-2)%n+1]).replace(/S/g,hs.ALPHA[i%n+1]).replace(/P_\{label/g,hs.ALPHA[i]+'_{label')
+        });
+        o.desmos.setExpression({
+          id:'m_'+hs.ALPHA[(i+n-2)%n+1],
+          latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',((i+n-2)%n+1))).replace(/Z/g,hs.sub('',0)).replace(/W/g,hs.ALPHA[(i+n-2)%n+1]).replace(/Q/g,'P').replace(/S/g,hs.ALPHA[(i+n-3)%n+1]).replace(/P_\{label/g,hs.ALPHA[(i+n-2)%n+1]+'_{label')
+        });
+        o.desmos.setExpression({
+          id:'m_'+hs.ALPHA[i%n+1],
+          latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',i%n+1)).replace(/Z/g,hs.sub('',(i+1)%n+1)).replace(/W/g,hs.ALPHA[i%n+1]).replace(/Q/g,hs.ALPHA[(i+1)%n+1]).replace(/S/g,'P').replace(/P_\{label/g,hs.ALPHA[i%n+1]+'_{label')
+        });
+
+        // Attach the vertex to its edges and diagonals
+        if (i === 1) {
+          // Attach placeholder to B
+          o.desmos.setExpression({
+            id:'segment_AB',
+            latex:cons.SEGMENT_TEMPLATE.replace(/U/g,'0').replace(/V/g,'2')
+          });
+          // Attach every other vertex to placeholder
+          for (j = 3;j<=n;j+=1) {
+            o.desmos.setExpression({
+              id:'segment_'+hs.ALPHA[j]+'A',
+              latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',j)).replace(/V/g,'0')
+            });
+          }
+        } else {
+          if (i === 2) {
+            o.desmos.setExpression({
+              id:'segment_AB',
+              latex:cons.SEGMENT_TEMPLATE.replace(/U/g,'0').replace(/V/g,'1')
+            });
+          } else {
+            // attach to previous vertex
+            o.desmos.setExpression({
+              id:'segment_'+hs.ALPHA[i-1]+hs.ALPHA[i],
+              latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',i-1)).replace(/V/g,'0')
+            });
+            // attach diagonal to A
+            if (2 < i && i < n) {
+              o.desmos.setExpression({
+                id:'segment_'+hs.ALPHA[i]+'A',
+                latex:cons.SEGMENT_TEMPLATE.replace(/U/g,'0').replace(/V/g,'1')
+              });
+            }
+          }
+          // Attach to the next vertex
+          o.desmos.setExpression({
+            id:'segment_'+hs.ALPHA[i]+hs.ALPHA[i%n+1],
+            latex:cons.SEGMENT_TEMPLATE.replace(/U/g,'0').replace(/([xy])_V/g,hs.sub('$1',i%n+1))
+          });
+        }
+       },
+      /* ←— clearPlaceholder ————————————————————————————————————————————————→ *\
+       | moves the last dragged vertex back to the placeholder vertex's location
+       | 
+       * ←———————————————————————————————————————————————————————————————————→ */
+       clearPlaceholder: function(){
+        var o = hs.parseArgs(arguments);
+        var vars = vs[o.uniqueId];
+        var hlps = hxs[o.uniqueId];
+        var cons = cs.A0597630;
+        var i = vars.placeholder;
+        var n = vars.n;
+
+        var j;
+
+        if (i === 0) {return;} // if it ain't broke, don't fix it
+
+        o.log('Now clearing placeholder '+hs.ALPHA[i]);
+
+        // Don't recorrect while clearing the placeholder
+        if (hlps.correctionBuffer !== undefined) {window.clearTimeout(hlps.correctionBuffer);}
+        vars.belayCorrection = true;
+
+        // Move the place-held point to the placeholder
+        o.desmos.setExpression({id:'x_'+i,latex:hs.sub('x',i)+'='+Math.round(vars[n]['x_'+i]*Math.pow(10,cs.precision.FLOAT_PRECISION))/Math.pow(10,cs.precision.FLOAT_PRECISION)});
+        o.desmos.setExpression({id:'y_'+i,latex:hs.sub('y',i)+'='+Math.round(vars[n]['y_'+i]*Math.pow(10,cs.precision.FLOAT_PRECISION))/Math.pow(10,cs.precision.FLOAT_PRECISION)});
+
+        // Detach the angle label from the placeholder
+        o.desmos.setExpression({
+            id:'m_'+hs.ALPHA[i],
+            latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',i)).replace(/Z/g,hs.sub('',i%n+1)).replace(/W/g,hs.ALPHA[i]).replace(/Q/g,hs.ALPHA[(i+n-2)%n+1]).replace(/S/g,hs.ALPHA[i%n+1])
+        });
+        o.desmos.setExpression({
+          id:'m_'+hs.ALPHA[(i+n-2)%n+1],
+          latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',((i+n-2)%n+1))).replace(/Z/g,hs.sub('',i)).replace(/W/g,hs.ALPHA[(i+n-2)%n+1]).replace(/Q/g,hs.ALPHA[i]).replace(/S/g,hs.ALPHA[(i+n-3)%n+1]).replace(/P_\{label/g,hs.ALPHA[(i+n-2)%n+1]+'_{label')
+        });
+        o.desmos.setExpression({
+          id:'m_'+hs.ALPHA[i%n+1],
+          latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',i%n+1)).replace(/Z/g,hs.sub('',(i+1)%n+1)).replace(/W/g,hs.ALPHA[i%n+1]).replace(/Q/g,hs.ALPHA[(i+1)%n+1]).replace(/S/g,hs.ALPHA[i]).replace(/P_\{label/g,hs.ALPHA[i%n+1]+'_{label')
+        });
+
+        hlps.correctionBuffer = window.setTimeout(function(){vars.belayCorrection = false;},cs.delay.SET_EXPRESSION);
+
+        // Make the place-held point visible, and the placeholder invisible
+        o.desmos.setExpression({id:'placeholder_vertex',hidden:true,showLabel:false});
+        o.desmos.setExpression({id:'vertex_'+hs.ALPHA[i],showLabel:true,color:cons.VERTEX_COLOR});
+
+        // Attach the vertex to its edges and diagonals
+        if (i === 1) {
+          // Attach A to B
+          o.desmos.setExpression({
+            id:'segment_AB',
+            latex:cons.SEGMENT_TEMPLATE.replace(/U/g,'1').replace(/V/g,'2')
+          });
+          // Attach A to every other vertex
+          for (j = 3;j<=n;j+=1) {
+            o.desmos.setExpression({
+              id:'segment_'+hs.ALPHA[j]+'A',
+              latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',j)).replace(/V/g,'1')
+            });
+          }
+        } else {
+          if (i === 2) {
+            o.desmos.setExpression({
+              id:'segment_AB',
+              latex:cons.SEGMENT_TEMPLATE.replace(/U/g,'1').replace(/V/g,'2')
+            });
+          } else {
+            // attach to previous vertex
+            o.desmos.setExpression({
+              id:'segment_'+hs.ALPHA[i-1]+hs.ALPHA[i],
+              latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',i-1)).replace(/([xy])_V/g,hs.sub('$1',i))
+            });
+            // attach diagonal to A
+            o.desmos.setExpression({
+                id:'segment_'+hs.ALPHA[i]+'A',
+                latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',i)).replace(/V/g,'1')
+              });
+          }
+          // Attach to the next vertex
+          o.desmos.setExpression({
+            id:'segment_'+hs.ALPHA[i]+hs.ALPHA[i%n+1],
+            latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',i)).replace(/([xy])_V/g,hs.sub('$1',i%n+1))
+          });
+        }
+
+        vars.placeholder = 0;
+       },
+      /* ←— coordinateChanged ———————————————————————————————————————————————→ *\
+       | updates variables, and corrects if the user tries to cross diagonals
+       * ←———————————————————————————————————————————————————————————————————→ */
+       coordinateChanged: function(){
+        var o = hs.parseArgs(arguments);
+        var vars = vs[o.uniqueId];
+        var cons = cs.A0597630;
+        if (vars.belayCorrection === true) {
+          o.log('Belaying order to correct '+o.name);
+          return;
+        }
+        var n = vars.n;
+        var i = +(o.name.match(/[0-9]+/)[0]);
+        var newPoint = {x:vars['x_'+i].numericValue,y:vars['y_'+i].numericValue};
+
+        if (i !== vars.lastDragged) {
+          o.log('Now dragging n='+n+',i='+i);
+          vars.lastDragged = i;
+
+          // First, put the last dragged vertex back.
+          fs.A0597630.clearPlaceholder(o);
+
+          // Now create a list of all the new boundaries
+          vars.dragBoundaries = [];
+          // Bind by the 2-previous edge
+          vars.dragBoundaries.push(hs.lineTwoPoints(
+              {x:vars[n]['x_'+((n+i-2)%n+1)],y:vars[n]['y_'+((n+i-2)%n+1)]},
+              {x:vars[n]['x_'+((n+i-3)%n+1)],y:vars[n]['y_'+((n+i-3)%n+1)]}
+            ));
+
+          // Bind by the in-between edge
+          vars.dragBoundaries.push(hs.lineTwoPoints(
+              {x:vars[n]['x_'+((n+i-2)%n+1)],y:vars[n]['y_'+((n+i-2)%n+1)]},
+              {x:vars[n]['x_'+(i%n+1)],y:vars[n]['y_'+(i%n+1)]}
+            ));
+
+          // Bind by the 2-next edge
+          vars.dragBoundaries.push(hs.lineTwoPoints(
+              {x:vars[n]['x_'+((i+1)%n+1)],y:vars[n]['y_'+((i+1)%n+1)]},
+              {x:vars[n]['x_'+(i%n+1)],y:vars[n]['y_'+(i%n+1)]}
+            ));
+
+          o.log('Now constraining by:',vars.dragBoundaries);
+
+          if (o.log === console.log) {
+            vars.dragBoundaries.forEach(function(line,id) {
+              o.desmos.setExpression({id:'boundary'+id,latex:'b_'+id+'\\left(x,y\\right)='+line.a+'x+'+line.b+'y+'+line.c});
+            });
+          }
+        }
+
+        var constrained = hs.polygonConstrain(newPoint,vars.dragBoundaries);
+
+        if (constrained !== null) {
+          vars[n]['x_'+i] = constrained.x;
+          vars[n]['y_'+i] = constrained.y;
+        }
+
+        [(i+n-2)%n+1,i,i%n+1].forEach(function(j) {
+          var asquared = Math.pow(vars[n]['x_'+((j+n-2)%n+1)]-vars[n]['x_'+j],2)+Math.pow(vars[n]['y_'+((j+n-2)%n+1)]-vars[n]['y_'+j],2);
+          var bsquared = Math.pow(vars[n]['x_'+(j%n+1)]-vars[n]['x_'+j],2)+Math.pow(vars[n]['y_'+(j%n+1)]-vars[n]['y_'+j],2);
+          var csquared = Math.pow(vars[n]['x_'+((j+n-2)%n+1)]-vars[n]['x_'+(j%n+1)],2)+Math.pow(vars[n]['y_'+((j+n-2)%n+1)]-vars[n]['y_'+(j%n+1)],2);
+          vars['P_'+hs.ALPHA[j]] = 180*Math.acos((asquared+bsquared-csquared)/(2*Math.sqrt(asquared*bsquared)))/Math.PI;
+        });
+
+        fs.shared.label.labelPolyAngles(Object.assign({},o,{name:'m_'+hs.ALPHA[i],value:vars['P_'+hs.ALPHA[i]]}),{},cons.ANGLE_PRECISION);
+
+        var expr = '';
+        var j;
+        for (j = 1;j <= n;j+=1) {expr+=((vars[vars.polygonName+'_angles'][hs.ALPHA[j]]/Math.pow(10,cons.ANGLE_PRECISION))+'+');}
+        expr = expr.slice(0,expr.length-1);
+        o.desmos.setExpressions([{id:'sum',latex:expr},
+          {
+            id:'centroid-1',
+            label:'180'/*+'°'*/+'⋅('+n+' − 2) = '+(180*(n-2))/*+'°'*/
+          },
+          {
+            id:'centroid',
+            label:hs.latexToText(expr+'='+(180*(n-2)))
+          },{id:'product',latex:'180\\left('+n+'-2\\right)'}]);
+
+        if (constrained === newPoint) {
+          fs.A0597630.clearPlaceholder(o);
+        } else {
+          fs.A0597630.setPlaceholder(o,i);
+        }
+       },
+      /* ←— switchPolygon ———————————————————————————————————————————————————→ *\
+       | Adds and removes vertices and edges
+       | Restyles diagonals
+       | Restores coordinates
+       * ←———————————————————————————————————————————————————————————————————→ */
+       switchPolygon: function(){
+        var o = hs.parseArgs(arguments);
+        var vars = vs[o.uniqueId];
+        var hlps = hxs[o.uniqueId];
+        var cons = cs.A0597630;
+        vars.belayCorrection = true;
+
+        var i;
+        var j;
+
+        fs.A0597630.clearPlaceholder(o);
+
+        var prevn = vars.n;
+        var n = o.value;
+        vars.n = n;
+        var polyNames = 'polygonABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        vars.polygonName = polyNames.slice(0,7+n);
+
+        o.log("Changing from "+prevn+" sides to "+n+" sides");
+
+        var exprs = [];
+
+        // Move terminal vertex
+         exprs.push({
+          id:'segment_'+hs.ALPHA[prevn]+'A',
+          hidden:true
+         });
+         exprs.push({
+          id:'m_A',
+          latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',1)).replace(/Z/g,hs.sub('',2)).replace(/W/g,'A').replace(/Q/g,hs.ALPHA[n]).replace(/S/g,'B')
+         });
+
+        // Delete extra vertices
+         for (i = cons.MAX_VERTICES; i >= n+1; i-=1) {
+          exprs.push({
+            id:'vertex_'+hs.ALPHA[i],
+            hidden:true,
+            showLabel:false
+          });
+          exprs.push({
+            id:'segment_'+hs.ALPHA[i-1]+hs.ALPHA[i],
+            hidden:true
+          });
+          exprs.push({
+            id:'m_'+hs.ALPHA[i],
+            showLabel:false
+          });
+          // o.log('Deleting vertex '+hs.ALPHA[i]);
+         }
+
+        // Add new vertices
+         for (i = 3; i <= n; i+=1) {
+          exprs.push({
+            id:'vertex_'+hs.ALPHA[i%n+1],
+            hidden:false,
+            showLabel:true
+          });
+          exprs.push({
+            id:'segment_'+hs.ALPHA[i]+hs.ALPHA[i%n+1],
+            hidden:false
+          });
+          o.log(cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',i)).replace(/Z/g,hs.sub('',i%n+1)).replace(/W/g,hs.ALPHA[i]).replace(/Q/g,hs.ALPHA[(i+n-2)%n+1]).replace(/S/g,hs.ALPHA[i%n+1]));
+          exprs.push({
+            id:'m_'+hs.ALPHA[i],
+            showLabel:true,
+            latex:cs.A0597630.LABEL_TEMPLATE.replace(/U/g,hs.sub('',i)).replace(/Z/g,hs.sub('',i%n+1)).replace(/W/g,hs.ALPHA[i]).replace(/Q/g,hs.ALPHA[(i+n-2)%n+1]).replace(/S/g,hs.ALPHA[i%n+1])
+          });
+         }
+
+        // Update centroid and labels
+         var x_centroid = 'x_{centroid}=\\frac{';
+         for (i = 1; i < n; i+=1) {x_centroid+=(hs.sub('x',i)+'+');}
+         x_centroid += (hs.sub('x',n)+'}{n}');
+         exprs.push({
+          id:'x_centroid',
+          latex:x_centroid
+         });
+         exprs.push({
+          id:'y_centroid',
+          latex:x_centroid.replace(/x/g,'y')
+         });
+         // exprs.push({
+         //  id:'centroid',
+         //  label:'180'/*+'°'*/+'⋅('+n+' − 2) = '+(180*(n-2))/*+'°'*/
+         // });
+         // exprs.push({
+         //  id:'centroid-1',
+         //  label:' ' // Placeholder (TK)
+         // });
+
+        // o.log('Changed figures:',exprs);
+
+        o.desmos.setExpressions(exprs);
+
+        var asquared;
+        var bsquared;
+        var csquared;
+
+        for (i = 1; i <= n; i+=1) {
+          asquared = Math.pow(vars[n]['x_'+((i+n-2)%n+1)]-vars[n]['x_'+i],2)+Math.pow(vars[n]['y_'+((i+n-2)%n+1)]-vars[n]['y_'+i],2);
+          bsquared = Math.pow(vars[n]['x_'+(i%n+1)]-vars[n]['x_'+i],2)+Math.pow(vars[n]['y_'+(i%n+1)]-vars[n]['y_'+i],2);
+          csquared = Math.pow(vars[n]['x_'+((i+n-2)%n+1)]-vars[n]['x_'+(i%n+1)],2)+Math.pow(vars[n]['y_'+((i+n-2)%n+1)]-vars[n]['y_'+(i%n+1)],2);
+          vars['P_'+hs.ALPHA[i]] = 180*Math.acos((asquared+bsquared-csquared)/(2*Math.sqrt(asquared*bsquared)))/Math.PI;
+        }
+
+        fs.shared.label.labelPolyAngles(o,{refreshAll:true},cons.ANGLE_PRECISION);
+
+        var expr = '';
+        for (j = 1;j <= n;j+=1) {expr+=((vars[vars.polygonName+'_angles'][hs.ALPHA[j]]/Math.pow(10,cons.ANGLE_PRECISION))+'+');}
+        expr = expr.slice(0,expr.length-1);
+        o.desmos.setExpressions([
+          {id:'sum',latex:expr},
+          {
+            id:'centroid',
+            label:hs.latexToText(expr+'='+(180*(n-2)))
+          },
+          {id:'product',latex:'180\\left('+n+'-2\\right)'},
+          {
+            id:'centroid-1',
+            label:'180'/*+'°'*/+'⋅('+n+' − 2) = '+(180*(n-2))/*+'°'*/
+          }
+          ]);
+
+        exprs = [];
+
+        // Update coordinates
+        for (i = 1; i <= n; i+=1) {
+          exprs.push({
+            id:'x_'+i,
+            latex:hs.sub('x',i)+'='+vars[n]['x_'+i]
+          });
+          exprs.push({
+            id:'y_'+i,
+            latex:hs.sub('y',i)+'='+vars[n]['y_'+i]
+          });
+          // Prevent correction from kicking in
+          vars['x_'+i].numericValue = vars[n]['x_'+i];
+          vars['y_'+i].numericValue = vars[n]['y_'+i];
+          //o.log('Moving vertex '+hs.ALPHA[i]+' to ('+vars[n]['x_'+i]+','+vars[n]['y_'+i]+')');
+        }
+        // o.log('Changed coordinates:',exprs);
+
+        if (hlps.correctionBuffer !== undefined) {window.clearTimeout(hlps.correctionBuffer);}
+
+        o.desmos.setExpressions(exprs);
+
+        hlps.correctionBuffer = window.setTimeout(function(){
+          vars.belayCorrection = false;
+        },cs.delay.LOAD);
+
+       }
+     };
+
+    /* ←— A0597631 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0597631 = {
+      /* ←— equation ——————————————————————————————————————————————————————→ *\
+       | Updates the equation (expression) with the new value of `n`
+       * ←—————————————————————————————————————————————————————————————————→ */
+       equation: function(){
+        var o = hs.parseArgs(arguments);
+        o.desmos.setExpression({id:'equation',latex:'\\frac{180\\left('+o.value+'-2\\right)}{'+o.value+'}'});
+        o.desmos.setExpression({id:'centroid',label:hs.latexToText('180⋅\\left('+o.value+'-2\\right)÷'+o.value+'='+(Math.round(18000*(o.value-2)/o.value)/100))});
+       }
+     };
+
+    /* ←— A0597634 FUNCTIONS ——————————————————————————————————————————————→ */
+      cs.A0597634 = {
+        MAX_VERTICES:14,
+        RADIUS:4,
+        EXTENSION_LENGTH:3, // in ticks
+        INITIAL_COORDINATES_PRECISION:6,
+        ANGLE_PRECISION:2,
+        DRAG_BUFFER:0.25,
+        DRAG_BUFFER_REBOUND:0.1, // How much to bounce back when going past the buffer
+        SEGMENT_TEMPLATE:'\\left(x_U\\left(1-t\\right)+x_Vt,y_U\\left(1-t\\right)+y_Vt\\right)',
+        EXTENSION_TEMPLATE:'\\left(xU+\\left(xU-xV\\right)\\frac{Wt_{ick}}{\\operatorname{distance}\\left(Z,Q\\right)}t,yU+\\left(yU-yV\\right)\\frac{Wt_{ick}}{\\operatorname{distance}\\left(Z,Q\\right)}t\\right)',
+        MEASURE_TEMPLATE:'m_U=\\theta_{LVL}\\left(W,U,Z\\right)',
+        LABEL_TEMPLATE:'W_{label}=P_{xyrt}\\left(xU,yU,\\frac{3}{2}t_{ick},\\theta_{xy}\\left(xZ-xU,yZ-yU\\right)+90-\\frac{\\theta_{LVL}\\left(S,W,Q\\right)}{2}\\right)',
+        HIDDEN_COLOR:'#000000', // white is close enough to hidden
+        VERTEX_COLOR:'#000000'
+       };
+     fs.A0597634 = {
+      /* ←— init ————————————————————————————————————————————————————————————→ *\
+       | Initializes the variables
+       * ←———————————————————————————————————————————————————————————————————→ */
+       init: function() {
+        var o = hs.parseArgs(arguments);
+        var vars = vs[o.uniqueId];
+        Object.assign(vars,{lastDragged:0,placeholder:0});
+        var hlps = hxs[o.uniqueId];
+        if (hlps.n === undefined) {
+          hlps.n = hlps.maker({latex:'n'});
+        }
+        var cons = cs.A0597634;
+        cons.EXTENSION_TEMPLATE = cons.EXTENSION_TEMPLATE.replace(/W/g,cons.EXTENSION_LENGTH);
+
+        var i;
+        var j;
+
+        vars.belayCorrection = true;
+
+        // Set up watchers for each vertex of each polygon
+         for(i=1;i<=cons.MAX_VERTICES;i+=1) {
+          if (vars[i] === undefined) {
+            vars["x_"+i] = hlps.maker({latex:hs.sub('x',i)});
+            vars["y_"+i] = hlps.maker({latex:hs.sub('y',i)});
+            vars[i]={};
+          }
+         }
+
+        // Initialize Vertices
+         if (hlps.n.numericValue === undefined) {
+          o.log('n not yet initialized; delaying initialization by '+cs.delay.SET_EXPRESSION+'ms');
+          setTimeout(function(){fs.A0597634.init(o);},cs.delay.SET_EXPRESSION);
+          return;
+         }
+         // else
+         var n = hlps.n.numericValue;
+         vars.n = n;
+
+         function loopFunc() {
+          fs.A0597634.init(o);
+         }
+
+         for(i=1;i<=cons.MAX_VERTICES;i+=1) {
+          if (i >= 3) {
+            for(j=1;j<=i;j+=1) {
+              if (i === n) {
+                if (vars['x_'+j].numericValue === undefined || vars['y_'+j].numericValue === undefined) {
+                  o.log('Vertex '+hs.ALPHA[j]+' not yet initialized; delaying initialization by '+cs.delay.SET_EXPRESSION+'ms');
+                  setTimeout(loopFunc,cs.delay.SET_EXPRESSION);
+                  return;
+                }
+                // Initialize active polygon to current state
+                vars[i]['x_'+j] = vars['x_'+j].numericValue;
+                vars[i]['y_'+j] = vars['y_'+j].numericValue;
+              } else if (vars[i]['x_'+j] === undefined || vars[i]['y_'+j] === undefined) {
+                // Initialize inactive polygons to default
+                vars[i]['x_'+j] = cons.RADIUS*Math.round(Math.pow(10,cons.INITIAL_COORDINATES_PRECISION)*Math.sin(2*Math.PI*((j-1)/i)))/Math.pow(10,cons.INITIAL_COORDINATES_PRECISION);
+                vars[i]['y_'+j] = cons.RADIUS*Math.round(Math.pow(10,cons.INITIAL_COORDINATES_PRECISION)*Math.cos(2*Math.PI*((j-1)/i)))/Math.pow(10,cons.INITIAL_COORDINATES_PRECISION);
+              }
+             }
+          }
+         }
+
+        // Initialize angles and set observers
+         vars.polygonName = 'polygonABC';
+         vars.polygonABC_angles = {A:60,B:60,C:60};
+         var newPoly;
+         function changeFunc(varName,i) {
+          return function(){
+            fs.A0597634.coordinateChanged({
+              name:hs.sub(varName,i),
+              value:vars[varName+'_'+i].numericValue,
+              desmos:o.desmos,
+              uniqueId:o.uniqueId,
+              log:o.log
+            });
+          };
+         }
+         for(i=1;i<=cons.MAX_VERTICES;i+=1) {
+          // Set up polygon angle values for the polygon terminating in this vertex
+          if (i > 3) {
+            newPoly = Object.assign({},vars[vars.polygonName+'_angles']);
+            newPoly[hs.ALPHA[i]]=0;
+            vars.polygonName+=hs.ALPHA[i];
+            vars[vars.polygonName+'_angles'] = newPoly;
+            vars[vars.polygonName+'_vertices'] = vars[i];
+            o.log('Initializing '+vars.polygonName+' with angles:',vars[vars.polygonName+'_angles']);
+          }
+          // Set up observers for when the user drags a point
+          hlps["x_"+i] = changeFunc('x',i);
+          hlps['y_'+i] = changeFunc('y',i);
+          vars["x_"+i].observe('numericValue.correction',hlps['x_'+i]);
+          vars['y_'+i].observe('numericValue.correction',hlps['y_'+i]);
+          o.log('Vertex '+hs.ALPHA[i]+' initialized at ('+vars['x_'+i].numericValue+', '+vars['y_'+i].numericValue+')');
+         }
+         vars.polygonName = vars.polygonName.slice(0,7+n);
+
+         var asquared;
+         var bsquared;
+         var csquared;
+
+         for (i = 1; i <= n; i+=1) {
+          asquared = Math.pow(vars[n]['x_'+((i+n-2)%n+1)]-vars[n]['x_'+i],2)+Math.pow(vars[n]['y_'+((i+n-2)%n+1)]-vars[n]['y_'+i],2);
+          bsquared = Math.pow(vars[n]['x_'+(i%n+1)]-vars[n]['x_'+i],2)+Math.pow(vars[n]['y_'+(i%n+1)]-vars[n]['y_'+i],2);
+          csquared = Math.pow(vars[n]['x_'+((i+n-2)%n+1)]-vars[n]['x_'+(i%n+1)],2)+Math.pow(vars[n]['y_'+((i+n-2)%n+1)]-vars[n]['y_'+(i%n+1)],2);
+          vars['P_'+hs.ALPHA[i]] = 180*Math.acos((asquared+bsquared-csquared)/(2*Math.sqrt(asquared*bsquared)))/Math.PI;
+         }
+
+         fs.shared.label.labelPolyAngles(o,{refreshAll:true,exterior:true},cons.ANGLE_PRECISION);
+
+        var expr = '';
+        for (j = 1;j <= n;j+=1) {expr+=((Math.round(180*Math.pow(10,cons.ANGLE_PRECISION)-vars[vars.polygonName+'_angles'][hs.ALPHA[j]])/Math.pow(10,cons.ANGLE_PRECISION))+'+');}
+        expr = expr.slice(0,expr.length-1);
+        o.desmos.setExpression({id:'sum',latex:expr});
+        o.desmos.setExpression({id:'centroid',label:hs.latexToText(expr+'=360')});
+
+        hlps.n.observe('numericValue.switchingPolygon',function(){
+          fs.A0597634.switchPolygon({
+            name:'n',
+            value:hlps.n.numericValue,
+            desmos:o.desmos,
+            uniqueId:o.uniqueId,
+            log:o.log
+          });
+        });
+
+        // prepare to clear placeholders
+        document.addEventListener('mouseup',function(){fs.A0597634.clearPlaceholder(o);});
+        document.addEventListener('touchend',function(){fs.A0597634.clearPlaceholder(o);});
+      
+        o.log("Observers initialized:",vars);
+
+        hlps.correctionBuffer = window.setTimeout(function(){
+          // set up the initial angles
+          fs.shared.label.labelPolyAngles(o,{refreshAll:true,exterior:true},cons.ANGLE_PRECISION);
+
+          vars.belayCorrection = false;
+        },cs.delay.LOAD);
+       },
+      /* ←— setPlaceholder ——————————————————————————————————————————————————→ *\
+       | Attaches all segments from a vertex to the placeholder vertex
+       * ←———————————————————————————————————————————————————————————————————→ */
+       setPlaceholder: function(options,i) {
+        if(i === undefined) {
+          i = 0;
+        }
+        var o = hs.parseArgs.apply(this,[(options || {})]);
+        var vars = vs[o.uniqueId];
+        var n = vars.n;
+
+        var j;
+
+        // move the placeholder to the location of the vertex to hold place
+        o.desmos.setExpression({id:'x_0',latex:'x_0='+Math.round(vars[n]['x_'+i]*Math.pow(10,cs.precision.FLOAT_PRECISION))/Math.pow(10,cs.precision.FLOAT_PRECISION)});
+        o.desmos.setExpression({id:'y_0',latex:'y_0='+Math.round(vars[n]['y_'+i]*Math.pow(10,cs.precision.FLOAT_PRECISION))/Math.pow(10,cs.precision.FLOAT_PRECISION)});
+
+        if (i === vars.placeholder) {return;} // The rest of this stuff only needs to be done the first time
+
+        o.log('Adding placeholder '+hs.ALPHA[i]);
+
+        vars.placeholder = i;
+        var cons = cs.A0597634;
+
+        // make the placeholder visible, and the dragged vertex invisible
+        o.desmos.setExpression({id:'placeholder_vertex',hidden:false,showLabel:true,label:hs.ALPHA[i],dragMode:Desmos.DragModes.NONE});
+        o.desmos.setExpression({id:'vertex_'+hs.ALPHA[i],showLabel:false,color:cons.HIDDEN_COLOR});
+
+        // Attach the angle label to the placeholder
+        o.desmos.setExpression({
+          id:'m_'+hs.ALPHA[i],
+          latex:cs.A0597634.LABEL_TEMPLATE.replace(/U/g,hs.sub('',0)).replace(/Z/g,hs.sub('',i%n+1)).replace(/W/g,'P').replace(/Q/g,hs.ALPHA[(i+n-2)%n+1]).replace(/S/g,hs.ALPHA[i%n+1]).replace(/P_\{label/g,hs.ALPHA[i]+'_{label')
+        });
+        o.desmos.setExpression({
+          id:'m_'+hs.ALPHA[(i+n-2)%n+1],
+          latex:cs.A0597634.LABEL_TEMPLATE.replace(/U/g,hs.sub('',((i+n-2)%n+1))).replace(/Z/g,hs.sub('',0)).replace(/W/g,hs.ALPHA[(i+n-2)%n+1]).replace(/Q/g,'P').replace(/S/g,hs.ALPHA[(i+n-3)%n+1]).replace(/P_\{label/g,hs.ALPHA[(i+n-2)%n+1]+'_{label')
+        });
+        o.desmos.setExpression({
+          id:'m_'+hs.ALPHA[i%n+1],
+          latex:cs.A0597634.LABEL_TEMPLATE.replace(/U/g,hs.sub('',i%n+1)).replace(/Z/g,hs.sub('',(i+1)%n+1)).replace(/W/g,hs.ALPHA[i%n+1]).replace(/Q/g,hs.ALPHA[(i+1)%n+1]).replace(/S/g,'P').replace(/P_\{label/g,hs.ALPHA[i%n+1]+'_{label')
+        });
+
+        // Attach the vertex to its edges and diagonals
+        if (i === 1) {
+          // Attach placeholder to B
+          o.desmos.setExpression({
+            id:'segment_AB',
+            latex:cons.SEGMENT_TEMPLATE.replace(/U/g,'0').replace(/V/g,'2')
+          });
+          o.desmos.setExpression({
+            id:'extend_AB',
+            latex:cons.EXTENSION_TEMPLATE.replace(/U/g,'_2').replace(/V/g,'_0').replace(/Z/g,'B').replace(/Q/g,'P')
+          });
+          // Attach every other vertex to placeholder
+          for (j = 3;j<=n;j+=1) {
+            o.desmos.setExpression({
+              id:'segment_'+hs.ALPHA[j]+'A',
+              latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',j)).replace(/V/g,'0')
+            });
+            o.desmos.setExpression({
+              id:'extend_'+hs.ALPHA[j]+'A',
+              latex:cons.EXTENSION_TEMPLATE.replace(/U/g,'_0').replace(/V/g,hs.sub('',j)).replace(/Z/g,'P').replace(/Q/g,hs.ALPHA[j])
+            });
+          }
+        } else {
+          if (i === 2) {
+            o.desmos.setExpression({
+              id:'segment_AB',
+              latex:cons.SEGMENT_TEMPLATE.replace(/U/g,'0').replace(/V/g,'1')
+            });
+          } else {
+            // attach to previous vertex
+            o.desmos.setExpression({
+              id:'segment_'+hs.ALPHA[i-1]+hs.ALPHA[i],
+              latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',i-1)).replace(/V/g,'0')
+            });
+            // attach diagonal to A
+            if (2 < i && i < n) {
+              o.desmos.setExpression({
+                id:'segment_'+hs.ALPHA[i]+'A',
+                latex:cons.SEGMENT_TEMPLATE.replace(/U/g,'0').replace(/V/g,'1')
+              });
+            }
+          }
+          // Attach exterior angle
+          o.desmos.setExpression({
+            id:'extend_'+hs.ALPHA[i-1]+hs.ALPHA[i],
+            latex:cons.EXTENSION_TEMPLATE.replace(/U/g,'_0').replace(/V/g,hs.sub('',i-1)).replace(/Z/g,'P').replace(/Q/g,hs.ALPHA[i-1])
+          });
+          // Attach to the next vertex
+          o.desmos.setExpression({
+            id:'segment_'+hs.ALPHA[i]+hs.ALPHA[i%n+1],
+            latex:cons.SEGMENT_TEMPLATE.replace(/U/g,'0').replace(/([xy])_V/g,hs.sub('$1',i%n+1))
+          });
+          o.desmos.setExpression({
+            id:'extend_'+hs.ALPHA[i]+hs.ALPHA[i%n+1],
+            latex:cons.EXTENSION_TEMPLATE.replace(/U/g,hs.sub('',i%n+1)).replace(/V/g,'_0').replace(/Z/g,hs.ALPHA[i%n+1]).replace(/Q/g,'P')
+          });
+        }
+       },
+      /* ←— clearPlaceholder ————————————————————————————————————————————————→ *\
+       | moves the last dragged vertex back to the placeholder vertex's location
+       | 
+       * ←———————————————————————————————————————————————————————————————————→ */
+       clearPlaceholder: function(){
+        var o = hs.parseArgs(arguments);
+        var vars = vs[o.uniqueId];
+        var hlps = hxs[o.uniqueId];
+        var cons = cs.A0597634;
+        var i = vars.placeholder;
+        var n = vars.n;
+
+        var j;
+
+        if (i === 0) {return;} // if it ain't broke, don't fix it
+
+        o.log('Now clearing placeholder '+hs.ALPHA[i]);
+
+        // Don't recorrect while clearing the placeholder
+        if (hlps.correctionBuffer !== undefined) {window.clearTimeout(hlps.correctionBuffer);}
+        vars.belayCorrection = true;
+
+        // Move the place-held point to the placeholder
+        o.desmos.setExpression({id:'x_'+i,latex:hs.sub('x',i)+'='+Math.round(vars[n]['x_'+i]*Math.pow(10,cs.precision.FLOAT_PRECISION))/Math.pow(10,cs.precision.FLOAT_PRECISION)});
+        o.desmos.setExpression({id:'y_'+i,latex:hs.sub('y',i)+'='+Math.round(vars[n]['y_'+i]*Math.pow(10,cs.precision.FLOAT_PRECISION))/Math.pow(10,cs.precision.FLOAT_PRECISION)});
+
+        // Detach the angle label from the placeholder
+        o.desmos.setExpression({
+            id:'m_'+hs.ALPHA[i],
+            latex:cs.A0597634.LABEL_TEMPLATE.replace(/U/g,hs.sub('',i)).replace(/Z/g,hs.sub('',i%n+1)).replace(/W/g,hs.ALPHA[i]).replace(/Q/g,hs.ALPHA[(i+n-2)%n+1]).replace(/S/g,hs.ALPHA[i%n+1])
+        });
+        o.desmos.setExpression({
+          id:'m_'+hs.ALPHA[(i+n-2)%n+1],
+          latex:cs.A0597634.LABEL_TEMPLATE.replace(/U/g,hs.sub('',((i+n-2)%n+1))).replace(/Z/g,hs.sub('',i)).replace(/W/g,hs.ALPHA[(i+n-2)%n+1]).replace(/Q/g,hs.ALPHA[i]).replace(/S/g,hs.ALPHA[(i+n-3)%n+1]).replace(/P_\{label/g,hs.ALPHA[(i+n-2)%n+1]+'_{label')
+        });
+        o.desmos.setExpression({
+          id:'m_'+hs.ALPHA[i%n+1],
+          latex:cs.A0597634.LABEL_TEMPLATE.replace(/U/g,hs.sub('',i%n+1)).replace(/Z/g,hs.sub('',(i+1)%n+1)).replace(/W/g,hs.ALPHA[i%n+1]).replace(/Q/g,hs.ALPHA[(i+1)%n+1]).replace(/S/g,hs.ALPHA[i]).replace(/P_\{label/g,hs.ALPHA[i%n+1]+'_{label')
+        });
+
+        hlps.correctionBuffer = window.setTimeout(function(){vars.belayCorrection = false;},cs.delay.SET_EXPRESSION);
+
+        // Make the place-held point visible, and the placeholder invisible
+        o.desmos.setExpression({id:'placeholder_vertex',hidden:true,showLabel:false});
+        o.desmos.setExpression({id:'vertex_'+hs.ALPHA[i],showLabel:true,color:cons.VERTEX_COLOR});
+
+        // Attach the vertex to its edges and diagonals
+        if (i === 1) {
+          // Attach A to B
+          o.desmos.setExpression({
+            id:'segment_AB',
+            latex:cons.SEGMENT_TEMPLATE.replace(/U/g,'1').replace(/V/g,'2')
+          });
+          o.desmos.setExpression({
+            id:'extend_AB',
+            latex:cons.EXTENSION_TEMPLATE.replace(/U/g,'_2').replace(/V/g,'_1').replace(/Z/g,'B').replace(/Q/g,'A')
+          });
+          // Attach A to every other vertex
+          for (j = 3;j<=n;j+=1) {
+            o.desmos.setExpression({
+              id:'segment_'+hs.ALPHA[j]+'A',
+              latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',j)).replace(/V/g,'1')
+            });
+            o.desmos.setExpression({
+              id:'extend_'+hs.ALPHA[j]+'A',
+              latex:cons.EXTENSION_TEMPLATE.replace(/U/g,'_1').replace(/V/g,hs.sub('',j)).replace(/Z/g,'A').replace(/Q/g,hs.ALPHA[j])
+            });
+          }
+        } else {
+          if (i === 2) {
+            o.desmos.setExpression({
+              id:'segment_AB',
+              latex:cons.SEGMENT_TEMPLATE.replace(/U/g,'1').replace(/V/g,'2')
+            });
+          } else {
+            // attach to previous vertex
+            o.desmos.setExpression({
+              id:'segment_'+hs.ALPHA[i-1]+hs.ALPHA[i],
+              latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',i-1)).replace(/([xy])_V/g,hs.sub('$1',i))
+            });
+            // attach diagonal to A
+            o.desmos.setExpression({
+                id:'segment_'+hs.ALPHA[i]+'A',
+                latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',i)).replace(/V/g,'1')
+              });
+          }
+          // Attach exterior angle
+          o.desmos.setExpression({
+            id:'extend_'+hs.ALPHA[i-1]+hs.ALPHA[i],
+            latex:cons.EXTENSION_TEMPLATE.replace(/U/g,hs.sub('',i)).replace(/V/g,hs.sub('',i-1)).replace(/Z/g,hs.ALPHA[i]).replace(/Q/g,hs.ALPHA[i-1])
+          });
+          // Attach to the next vertex
+          o.desmos.setExpression({
+            id:'segment_'+hs.ALPHA[i]+hs.ALPHA[i%n+1],
+            latex:cons.SEGMENT_TEMPLATE.replace(/([xy])_U/g,hs.sub('$1',i)).replace(/([xy])_V/g,hs.sub('$1',i%n+1))
+          });
+          o.desmos.setExpression({
+            id:'extend_'+hs.ALPHA[i]+hs.ALPHA[i%n+1],
+            latex:cons.EXTENSION_TEMPLATE.replace(/U/g,hs.sub('',i%n+1)).replace(/V/g,hs.sub('',i)).replace(/Z/g,hs.ALPHA[i%n+1]).replace(/Q/g,hs.ALPHA[i])
+          });
+        }
+
+        vars.placeholder = 0;
+       },
+      /* ←— coordinateChanged ———————————————————————————————————————————————→ *\
+       | updates variables, and corrects if the user tries to cross diagonals
+       * ←———————————————————————————————————————————————————————————————————→ */
+       coordinateChanged: function(){
+        var o = hs.parseArgs(arguments);
+        var vars = vs[o.uniqueId];
+        var cons = cs.A0597634;
+        if (vars.belayCorrection === true) {
+          o.log('Belaying order to correct '+o.name);
+          return;
+        }
+        var n = vars.n;
+        var i = +(o.name.match(/[0-9]+/)[0]);
+        var newPoint = {x:vars['x_'+i].numericValue,y:vars['y_'+i].numericValue};
+
+        var j;
+
+        if (i !== vars.lastDragged) {
+          o.log('Now dragging n='+n+',i='+i);
+          vars.lastDragged = i;
+
+          // First, put the last dragged vertex back.
+          fs.A0597634.clearPlaceholder(o);
+
+          // Now create a list of all the new boundaries
+          vars.dragBoundaries = [];
+          // Bind by the 2-previous edge
+          vars.dragBoundaries.push(hs.lineTwoPoints(
+              {x:vars[n]['x_'+((n+i-2)%n+1)],y:vars[n]['y_'+((n+i-2)%n+1)]},
+              {x:vars[n]['x_'+((n+i-3)%n+1)],y:vars[n]['y_'+((n+i-3)%n+1)]}
+            ));
+
+          // Bind by the in-between edge
+          vars.dragBoundaries.push(hs.lineTwoPoints(
+              {x:vars[n]['x_'+((n+i-2)%n+1)],y:vars[n]['y_'+((n+i-2)%n+1)]},
+              {x:vars[n]['x_'+(i%n+1)],y:vars[n]['y_'+(i%n+1)]}
+            ));
+
+          // Bind by the 2-next edge
+          vars.dragBoundaries.push(hs.lineTwoPoints(
+              {x:vars[n]['x_'+((i+1)%n+1)],y:vars[n]['y_'+((i+1)%n+1)]},
+              {x:vars[n]['x_'+(i%n+1)],y:vars[n]['y_'+(i%n+1)]}
+            ));
+
+          o.log('Now constraining by:',vars.dragBoundaries);
+
+          if (o.log === console.log) {
+            vars.dragBoundaries.forEach(function(line,id) {
+              o.desmos.setExpression({id:'boundary'+id,latex:'b_'+id+'\\left(x,y\\right)='+line.a+'x+'+line.b+'y+'+line.c});
+            });
+          }
+        }
+
+        var constrained = hs.polygonConstrain(newPoint,vars.dragBoundaries);
+
+        if (constrained !== null) {
+          vars[n]['x_'+i] = constrained.x;
+          vars[n]['y_'+i] = constrained.y;
+        }
+
+        var asquared;
+        var bsquared;
+        var csquared;
+
+        [(i+n-2)%n+1,i,i%n+1].forEach(function(j){
+          asquared = Math.pow(vars[n]['x_'+((j+n-2)%n+1)]-vars[n]['x_'+j],2)+Math.pow(vars[n]['y_'+((j+n-2)%n+1)]-vars[n]['y_'+j],2);
+          bsquared = Math.pow(vars[n]['x_'+(j%n+1)]-vars[n]['x_'+j],2)+Math.pow(vars[n]['y_'+(j%n+1)]-vars[n]['y_'+j],2);
+          csquared = Math.pow(vars[n]['x_'+((j+n-2)%n+1)]-vars[n]['x_'+(j%n+1)],2)+Math.pow(vars[n]['y_'+((j+n-2)%n+1)]-vars[n]['y_'+(j%n+1)],2);
+          vars['P_'+hs.ALPHA[j]] = 180*Math.acos((asquared+bsquared-csquared)/(2*Math.sqrt(asquared*bsquared)))/Math.PI;
+        });
+
+        fs.shared.label.labelPolyAngles(Object.assign({},o,{name:'m_'+hs.ALPHA[i],value:vars['P_'+hs.ALPHA[i]]}),{exterior:true},cons.ANGLE_PRECISION);
+
+        var expr = '';
+        for (j = 1;j <= n;j+=1) {expr+=((Math.round(180*Math.pow(10,cons.ANGLE_PRECISION)-vars[vars.polygonName+'_angles'][hs.ALPHA[j]])/Math.pow(10,cons.ANGLE_PRECISION))+'+');}
+        expr = expr.slice(0,expr.length-1);
+        o.desmos.setExpression({id:'sum',latex:expr});
+        o.desmos.setExpression({id:'centroid',label:hs.latexToText(expr+'=360')});
+
+        if (constrained === newPoint) {
+          fs.A0597634.clearPlaceholder(o);
+        } else {
+          fs.A0597634.setPlaceholder(o,i);
+        }
+       },
+      /* ←— switchPolygon ———————————————————————————————————————————————————→ *\
+       | Adds and removes vertices and edges
+       | Restyles diagonals
+       | Restores coordinates
+       * ←———————————————————————————————————————————————————————————————————→ */
+       switchPolygon: function(){
+        var o = hs.parseArgs(arguments);
+        var vars = vs[o.uniqueId];
+        var hlps = hxs[o.uniqueId];
+        var cons = cs.A0597634;
+        vars.belayCorrection = true;
+
+        var i;
+        var j;
+
+        fs.A0597634.clearPlaceholder(o);
+
+        var prevn = vars.n;
+        var n = o.value;
+        vars.n = n;
+        var polygons = 'polygonABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        vars.polygonName = polygons.slice(0,7+n);
+
+        o.log("Changing from "+prevn+" sides to "+n+" sides");
+
+        var exprs = [];
+
+        // Move terminal vertex
+         exprs.push({
+          id:'segment_'+hs.ALPHA[prevn]+'A',
+          hidden:true
+         });
+         exprs.push({
+          id:'extend_'+hs.ALPHA[prevn]+'A',
+          hidden:true
+         });
+         exprs.push({
+          id:'m_A',
+          latex:cs.A0597634.LABEL_TEMPLATE.replace(/U/g,hs.sub('',1)).replace(/Z/g,hs.sub('',2)).replace(/W/g,'A').replace(/Q/g,hs.ALPHA[n]).replace(/S/g,'B')
+         });
+
+        // Delete extra vertices
+         for (i = cons.MAX_VERTICES; i >= n+1; i-=1) {
+          exprs.push({
+            id:'vertex_'+hs.ALPHA[i],
+            hidden:true,
+            showLabel:false
+          });
+          exprs.push({
+            id:'segment_'+hs.ALPHA[i-1]+hs.ALPHA[i],
+            hidden:true
+          });
+          exprs.push({
+            id:'extend_'+hs.ALPHA[i-1]+hs.ALPHA[i],
+            hidden:true
+          });
+          exprs.push({
+            id:'m_'+hs.ALPHA[i],
+            showLabel:false
+          });
+          // o.log('Deleting vertex '+hs.ALPHA[i]);
+         }
+
+        // Add new vertices
+         for (i = 3; i <= n; i+=1) {
+          exprs.push({
+            id:'vertex_'+hs.ALPHA[i%n+1],
+            hidden:false,
+            showLabel:true
+          });
+          exprs.push({
+            id:'segment_'+hs.ALPHA[i]+hs.ALPHA[i%n+1],
+            hidden:false
+          });
+          exprs.push({
+            id:'extend_'+hs.ALPHA[i]+hs.ALPHA[i%n+1],
+            hidden:false
+          });
+          o.log(cs.A0597634.LABEL_TEMPLATE.replace(/U/g,hs.sub('',i)).replace(/Z/g,hs.sub('',i%n+1)).replace(/W/g,hs.ALPHA[i]).replace(/Q/g,hs.ALPHA[(i+n-2)%n+1]).replace(/S/g,hs.ALPHA[i%n+1]));
+          exprs.push({
+            id:'m_'+hs.ALPHA[i],
+            showLabel:true,
+            latex:cs.A0597634.LABEL_TEMPLATE.replace(/U/g,hs.sub('',i)).replace(/Z/g,hs.sub('',i%n+1)).replace(/W/g,hs.ALPHA[i]).replace(/Q/g,hs.ALPHA[(i+n-2)%n+1]).replace(/S/g,hs.ALPHA[i%n+1])
+          });
+         }
+
+        // Update centroid and labels
+         var x_centroid = 'x_{centroid}=\\frac{';
+         for (i = 1; i < n; i+=1) {x_centroid+=(hs.sub('x',i)+'+');}
+         x_centroid += (hs.sub('x',n)+'}{n}');
+         exprs.push({
+          id:'x_centroid',
+          latex:x_centroid
+         });
+         exprs.push({
+          id:'y_centroid',
+          latex:x_centroid.replace(/x/g,'y')
+         });
+         // exprs.push({
+         //  id:'centroid',
+         //  label:'180'/*+'°'*/+'⋅('+n+' − 2) = '+(180*(n-2))/*+'°'*/
+         // });
+         // exprs.push({
+         //  id:'centroid-1',
+         //  label:' ' // Placeholder (TK)
+         // });
+
+        // o.log('Changed figures:',exprs);
+
+        o.desmos.setExpressions(exprs);
+
+        var asquared;
+        var bsquared;
+        var csquared;
+
+        for (i = 1; i <= n; i+=1) {
+          asquared = Math.pow(vars[n]['x_'+((i+n-2)%n+1)]-vars[n]['x_'+i],2)+Math.pow(vars[n]['y_'+((i+n-2)%n+1)]-vars[n]['y_'+i],2);
+          bsquared = Math.pow(vars[n]['x_'+(i%n+1)]-vars[n]['x_'+i],2)+Math.pow(vars[n]['y_'+(i%n+1)]-vars[n]['y_'+i],2);
+          csquared = Math.pow(vars[n]['x_'+((i+n-2)%n+1)]-vars[n]['x_'+(i%n+1)],2)+Math.pow(vars[n]['y_'+((i+n-2)%n+1)]-vars[n]['y_'+(i%n+1)],2);
+          vars['P_'+hs.ALPHA[i]] = 180*Math.acos((asquared+bsquared-csquared)/(2*Math.sqrt(asquared*bsquared)))/Math.PI;
+        }
+
+        fs.shared.label.labelPolyAngles(o,{refreshAll:true,exterior:true},cons.ANGLE_PRECISION);
+
+        var expr = '';
+        for (j = 1;j <= n;j+=1) {expr+=((Math.round(180*Math.pow(10,cons.ANGLE_PRECISION)-vars[vars.polygonName+'_angles'][hs.ALPHA[j]])/Math.pow(10,cons.ANGLE_PRECISION))+'+');}
+        expr = expr.slice(0,expr.length-1);
+        o.desmos.setExpression({id:'sum',latex:expr});
+        o.desmos.setExpression({id:'centroid',label:hs.latexToText(expr+'=360')});
+
+        exprs = [];
+
+        // Update coordinates
+        for (i = 1; i <= n; i+=1) {
+          exprs.push({
+            id:'x_'+i,
+            latex:hs.sub('x',i)+'='+vars[n]['x_'+i]
+          });
+          exprs.push({
+            id:'y_'+i,
+            latex:hs.sub('y',i)+'='+vars[n]['y_'+i]
+          });
+          // Prevent correction from kicking in
+          vars['x_'+i].numericValue = vars[n]['x_'+i];
+          vars['y_'+i].numericValue = vars[n]['y_'+i];
+          //o.log('Moving vertex '+hs.ALPHA[i]+' to ('+vars[n]['x_'+i]+','+vars[n]['y_'+i]+')');
+        }
+        // o.log('Changed coordinates:',exprs);
+
+        if (hlps.correctionBuffer !== undefined) {window.clearTimeout(hlps.correctionBuffer);}
+
+        o.desmos.setExpressions(exprs);
+
+        hlps.correctionBuffer = window.setTimeout(function(){
+          vars.belayCorrection = false;
+        },cs.delay.LOAD);
+
+       }
+     };
+
+    /* ←— A0597720 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0597720 = {
+      /* ←— labelEquation ————————————————————————————————————————————————————→ */
+       labelEquation: function(){
+        var o = hs.parseArgs(arguments);
+        o.desmos.setExpression({id:'equation',label:''+(180-o.value)/*+'°'*/+' + '+o.value/*+'°'*/+' = 180'/*+'°'*/});
+       }
+     };
+
+    /* ←— A0597724 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0597724 = {
+      /* ←— init ——————————————————————————————————————————————————————→ *\
+       | Prepares the widget to listen to user input
+       * ←—————————————————————————————————————————————————————————————————→ */
+       init: function(){
+        var o = hs.parseArgs(arguments);
+        var vars = vs[o.uniqueId];
+        Object.assign(vars,{
+          x_1:8,
+          y_1:4,
+          x_2:-2,
+          y_2:4,
+          dragging:0
+        });
+        vars.d1 = hxs[o.uniqueId].maker({latex:'d_1'});
+        vars.d2 = hxs[o.uniqueId].maker({latex:'d_2'});
+
+        function startDragging(){
+          vars.dragging = -1;
+        }
+
+        function stopDragging(){
+          if (vars.dragging > 0) {
+            o.desmos.setExpressions([
+              {id:'x_1',latex:'x_1='+vars.x_1},
+              {id:'y_1',latex:'y_1='+vars.y_1},
+              {id:'x_2',latex:'x_2='+vars.x_2},
+              {id:'y_2',latex:'y_2='+vars.y_2}
+            ]);
+          }
+          vars.dragging = 0;
+        }
+
+        // prepare to clear placeholders
+        setTimeout(function(){
+          document.addEventListener('mousedown',startDragging);
+          document.addEventListener('touchstart',startDragging);
+          document.addEventListener('mouseup',stopDragging);
+          document.addEventListener('touchend',stopDragging);
+        },cs.delay.LOAD);
+       },
+      /* ←— dragging ——————————————————————————————————————————————————————→ *\
+       | Fixes the diagonal not being dragged to rotate, but not scale, with
+       | the dragged point.
+       * ←—————————————————————————————————————————————————————————————————→ */
+       dragging: function(){
+        var o = hs.parseArgs(arguments);
+        var vars = vs[o.uniqueId];
+
+        vars[o.name] = o.value;
+
+        if (vars.dragging > -1) {return;}
+
+        vars.dragging = o.name[o.name.length-1];
+
+        o.desmos.setExpression({id:'x_'+(3-vars.dragging),latex:'x_'+(3-vars.dragging)+'='+vars['d'+(3-vars.dragging)].numericValue+'\\frac{'+((vars.dragging === 1)?'':'-')+'y_'+vars.dragging+'}{d_'+vars.dragging+'}'});
+        o.desmos.setExpression({id:'y_'+(3-vars.dragging),latex:'y_'+(3-vars.dragging)+'='+vars['d'+(3-vars.dragging)].numericValue+'\\frac{'+((vars.dragging === 1)?'-':'')+'x_'+vars.dragging+'}{d_'+vars.dragging+'}'});
+       }
+     };
+
+    /* ←— A0597744 FUNCTIONS ——————————————————————————————————————————————→ */
+      /* ←— A0597744 Constants ——————————————————————————————————————————————→ */
+       cs.A0597744 = {PRECISION:10};
+     fs.A0597744 = {
+      /* ←— init ————————————————————————————————————————————————————→ */
+       init: function(){
+        var o = hs.parseArgs(arguments);
+        var vars = vs[o.uniqueId];
+        var hlps = hxs[o.uniqueId];
+        var cons = cs.A0597744;
+
+        hlps.h = hlps.maker({latex:'h'});
+        hlps.k = hlps.maker({latex:'k'});
+        hlps.p = hlps.maker({latex:'p'});
+        hlps.a = hlps.maker({latex:'a'});
+        hlps.t = hlps.maker({latex:'P\\left(a\\right)'});
+        
+
+        function dragging() {
+          vars.dragged=true;
+
+          vars.H=Math.round(cons.PRECISION*hlps.h.numericValue)/cons.PRECISION;
+          vars.K=Math.round(cons.PRECISION*hlps.k.numericValue)/cons.PRECISION;
+          vars.P=Math.round(cons.PRECISION*hlps.p.numericValue)/cons.PRECISION;
+          vars.A=Math.round(cons.PRECISION*hlps.a.numericValue)/cons.PRECISION;
+          vars.T=Math.round(cons.PRECISION*hlps.t.numericValue)/cons.PRECISION;
+          var f = Math.round(cons.PRECISION*(vars.K+vars.P))/cons.PRECISION;
+          var d = Math.round(cons.PRECISION*(vars.K-vars.P))/cons.PRECISION;
+          var tx = Math.round(cons.PRECISION*(vars.H+vars.A))/cons.PRECISION;
+          var ty = Math.round(cons.PRECISION*(vars.K+vars.T))/cons.PRECISION;
+
+          o.desmos.setExpressions([
+            {id:'liveParabola',hidden:false},
+            {id:'focus',label:'focus '+hs.latexToText('('+vars.H+','+f+')')},
+            {id:'vertex',label:'vertex '+hs.latexToText('('+vars.H+','+vars.K+')')},
+            {id:'pMeasure',label:hs.latexToText('p='+vars.P)},
+            {id:'directrix',label:'directrix '+hs.latexToText('y='+d)},
+            {id:'equation',hidden:true,
+              latex:'y'+((vars.K === 0)?'':((vars.K<0)?'+'+Math.abs(vars.K):'-'+vars.K)) +
+                      '='+((vars.P<0)?'-':'')+'\\frac{1}{4\\left('+Math.abs(vars.P)+'\\right)}' +
+                      ((vars.H === 0)?'x':
+                        '\\left(x' +
+                         ((vars.H<0)?'+'+Math.abs(vars.H):'-'+vars.H) +
+                         '\\right)') +
+                      '^2'},
+            {id:'tracePoint',label:hs.latexToText('\\left('+tx+','+ty+'\\right)')}
+           ]);
+         }
+
+        hlps.h.observe('numericValue.dragging',dragging);
+        hlps.k.observe('numericValue.dragging',dragging);
+        hlps.p.observe('numericValue.dragging',dragging);
+        hlps.a.observe('numericValue.dragging',dragging);
+        hlps.t.observe('numericValue.dragging',dragging);
+
+        var unclick;
+
+        function click() {
+          document.removeEventListener('mousedown',click);
+          document.removeEventListener('touchstart',click);
+
+          o.desmos.setExpressions([
+            {id:'equation',hidden:true},
+            {id:'liveParabola',hidden:false}
+           ]);
+          /*
+          hlps.h.observe('numericValue.dragging',dragging);
+          hlps.k.observe('numericValue.dragging',dragging);
+          hlps.p.observe('numericValue.dragging',dragging);
+          */
+          document.addEventListener('mouseup',unclick);
+          document.addEventListener('touchend',unclick);
+         }
+
+        unclick = function() {
+          document.removeEventListener('mouseup',unclick);
+          document.removeEventListener('touchend',unclick);
+
+          /*
+          hlps.h.unobserve('numericValue.dragging');
+          hlps.k.unobserve('numericValue.dragging');
+          hlps.p.unobserve('numericValue.dragging');
+
+          if(vars.dragged===true) {
+            vars.dragged=false;
+            o.desmos.setExpressions([
+              {id:'h',latex:'h='+vars.H},
+              {id:'k',latex:'k='+vars.K},
+              {id:'p',latex:'p='+vars.P}
+             ]);
+          }
+          */
+          setTimeout(function(){o.desmos.setExpressions([
+            {id:'equation',hidden:false},
+            {id:'liveParabola',hidden:true}
+            ]);},cs.delay.SET_EXPRESSION);
+
+          document.addEventListener('mousedown',click);
+          document.addEventListener('touchstart',click);
+         };
+
+        document.addEventListener('mousedown',click);
+        document.addEventListener('touchstart',click); //*/
+       }
+     };
+
+    /* ←— A0597768 FUNCTIONS ——————————————————————————————————————————————→ */
+     fs.A0597768 = {
+      /* ←— init ———————————————————————————————————————————————→ *\
+       | stuff
+       * ←—————————————————————————————————————————————————————————————————→ */
+       init: function(){
+        var o = hs.parseArgs(arguments);
+        vs[o.uniqueId] = {draggingPoint:null,dragging:false};
+        var vars = vs[o.uniqueId];
+        var hlps = hxs[o.uniqueId];
+        vars.belayUntil = Date.now()+cs.delay.LOAD;
+
+        Object.assign(hlps,{
+          x_0:hlps.maker({latex:'x_0'}),
+          y_0:hlps.maker({latex:'y_0'}),
+          x_1:hlps.maker({latex:'x_1'}),
+          y_1:hlps.maker({latex:'y_1'}),
+          x_2:hlps.maker({latex:'x_2'}),
+          y_2:hlps.maker({latex:'y_2'}),
+          x_3:hlps.maker({latex:'x_3'}),
+          y_3:hlps.maker({latex:'y_3'}),
+
+          u_1:hlps.maker({latex:'u_1'}),
+          v_1:hlps.maker({latex:'v_1'}),
+          u_2:hlps.maker({latex:'u_2'}),
+          v_2:hlps.maker({latex:'v_2'}),
+          u_3:hlps.maker({latex:'u_3'}),
+          v_3:hlps.maker({latex:'v_3'}),
+
+          R_C:hlps.maker({latex:'R'})
+        });
+
+        var unclick;
+
+        function isolateHandle(which) {
+          // o.log('Isolating Handles');
+          Object.keys(hlps).forEach(function(helper) {
+            if(helper !== 'maker') {
+              hlps[helper].unobserve('numericValue.dragging');
+              hlps[helper].unobserve('numericValue.checkReplace');
+            }
+          });
+
+          document.addEventListener('mouseup',unclick);
+          document.addEventListener('touchend',unclick);
+
+          // o.log(which+' changed.');
+
+          vars.dragging = true;
+          var exprs = [
+            {id:'center',hidden:(which[2] !== '0')},
+            {id:'vertexHandle',hidden:(which[2] !== '1')},
+            {id:'handleM',hidden:(which[2] !== '2')},
+            {id:'handleN',hidden:(which[2] !== '3')}
+          ];
+
+          if (which[2] === '0') {vars.draggingPoint = 'C';}
+          if (which[2] === '1') {vars.draggingPoint = 'D';}
+          if (which[2] === '2') {vars.draggingPoint = 'E';}
+          if (which[2] === '3') {vars.draggingPoint = 'A';}
+          if (which[0] === 'R') {vars.draggingPoint = 'R';}
+
+          if (vars.draggingPoint === 'D') {
+            exprs.push({id:'x_1',latex:'x_1=\\left\\{D_{ofE}=0:\\left(u_1\\right)\\max\\left(\\frac{R}{D_H},1\\right),R\\left(cos\\theta_r-sin\\theta_r\\right)\\right\\}'});
+            exprs.push({id:'y_1',latex:'y_1=\\left\\{D_{ofE}=0:\\left(v_1\\right)\\max\\left(\\frac{R}{D_H},1\\right),R\\left(sin\\theta_r+cos\\theta_r\\right)\\right\\}'});
+            exprs.push({id:'x_2',latex:'x_2=R\\cos\\theta_r'});
+            exprs.push({id:'y_2',latex:'y_2=R\\sin\\theta_r'});
+            exprs.push({id:'DofE',latex:'D_{ofE}=\\left\\{D_H\\le R:1,0\\right\\}'});
+            exprs.push({id:'theta_r',latex:'\\theta_r=\\theta_D-\\theta_h'});
+          } else {
+            exprs.push({id:'x_1',latex:'x_1=x_2-y_2'});
+            exprs.push({id:'y_1',latex:'y_1=y_2+x_2'});
+            exprs.push({id:'x_2',latex:'x_2=u_2\\frac{R}{d_M}'});
+            exprs.push({id:'y_2',latex:'y_2=v_2\\frac{R}{d_M}'});
+            exprs.push({id:'DofE',latex:'D_{ofE}=1'});
+            exprs.push({id:'theta_r',latex:'\\theta_r=\\theta_{xy}\\left(u_2,v_2\\right)'});
+          }
+
+          o.log('Isolating handle '+which);//+'; setting expressions:',exprs);
+
+          o.desmos.setExpressions(exprs);
+        }
+
+        function replaceHandles() {
+          // o.log('Replacing Handles');
+
+          var i;
+
+          var vals = {
+            x_1: hlps.x_1.numericValue,
+            y_1: hlps.y_1.numericValue,
+            x_2: hlps.x_2.numericValue,
+            y_2: hlps.y_2.numericValue,
+            x_3: hlps.x_3.numericValue,
+            y_3: hlps.y_3.numericValue
+          };
+
+          var exprs = [
+            {id:'u_1',latex:('u_1='+vals.x_1)},
+            {id:'v_1',latex:('v_1='+vals.y_1)},
+            {id:'u_2',latex:('u_2='+vals.x_2)},
+            {id:'v_2',latex:('v_2='+vals.y_2)},
+            {id:'u_3',latex:('u_3='+vals.x_3)},
+            {id:'v_3',latex:('v_3='+vals.y_3)}
+          ];
+
+          function checkReplace(n) {
+            // o.log('u_'+n+' = '+hlps['u_'+n].numericValue);
+            // o.log('x_'+n+' = '+hlps['x_'+n].numericValue);
+            // o.log('v_'+n+' = '+hlps['v_'+n].numericValue);
+            // o.log('y_'+n+' = '+hlps['y_'+n].numericValue);
+            if((Math.abs(hlps['u_'+n].numericValue-vals['x_'+n])<cs.precision.FLOAT_PRECISION) &&
+               (Math.abs(hlps['v_'+n].numericValue-vals['y_'+n])<cs.precision.FLOAT_PRECISION)) {
+              hlps['u_'+n].unobserve('numericValue.checkReplace');
+              hlps['v_'+n].unobserve('numericValue.checkReplace');
+              switch(n) {
+                case 1:
+                  o.desmos.setExpression({id:'vertexHandle',hidden:false});
+                  break;
+                case 2:
+                  o.desmos.setExpression({id:'handleM',hidden:false});
+                  break;
+                case 3:
+                  o.desmos.setExpression({id:'handleN',hidden:false});
+                  break;
+              }
+              hlps['u_'+n].observe('numericValue.dragging',function(){if(vars.dragging){isolateHandle('u_'+n);}});
+              hlps['v_'+n].observe('numericValue.dragging',function(){if(vars.dragging){isolateHandle('v_'+n);}});
+            }
+          }
+
+          exprs.push({id:'center',hidden:false});
+          hlps.x_0.observe('numericValue.dragging',function(){if(vars.dragging){isolateHandle('x_0');}});
+          hlps.y_0.observe('numericValue.dragging',function(){if(vars.dragging){isolateHandle('y_0');}});
+          hlps.R_C.observe('numericValue.dragging',function(){if(vars.dragging){isolateHandle('x_0');}});
+
+          function loopFunc(k) {
+            return function() {
+              checkReplace(k);
+            };
+          }
+          for (i = 1; i <= 3; i+=1) {
+            hlps['u_'+i].observe('numericValue.checkReplace',loopFunc(i));
+            hlps['v_'+i].observe('numericValue.checkReplace',loopFunc(i));
+            checkReplace(i);
+          }
+
+          // o.log('Replacing handles; setting expressions:',exprs);
+
+          if ((!(Number.isNaN(hlps.x_0.numericValue))) &&
+              (!(Number.isNaN(hlps.y_0.numericValue))) &&
+              (!(Number.isNaN(hlps.x_1.numericValue))) &&
+              (!(Number.isNaN(hlps.y_1.numericValue))) &&
+              (!(Number.isNaN(hlps.x_2.numericValue))) &&
+              (!(Number.isNaN(hlps.y_2.numericValue))) &&
+              (!(Number.isNaN(hlps.x_3.numericValue))) &&
+              (!(Number.isNaN(hlps.y_3.numericValue)))
+              ) {o.desmos.setExpressions(exprs);}
+        }
+
+        function click() {
+          vars.dragging=true;
+          // escape();
+        }
+
+        var escape;
+
+        unclick = function() {
+          vars.dragging=false;
+          delete vars.draggingPoint;
+          document.removeEventListener('mouseup',unclick);
+          document.removeEventListener('touchend',unclick);
+          // escape();
+          setTimeout(function(){
+            if (vars === vs[o.uniqueId]) {replaceHandles();}
+            else {escape();}
+          },cs.delay.SET_EXPRESSION);
+        };
+
+        escape = function() {
+          document.removeEventListener('mousedown',click);
+          document.removeEventListener('touchstart',click);
+          document.removeEventListener('mouseup',unclick);
+          document.removeEventListener('touchend',unclick);
+        };
+
+        document.addEventListener('mousedown',click);
+        document.addEventListener('touchstart',click);
+
+        function loop2Func(which,i) {
+          return function() {
+            if(vars.dragging) {
+              isolateHandle(which+'_'+i);
+            }
+          };
+        }
+        setTimeout(function(){
+          hlps.x_0.observe('numericValue.dragging',loop2Func('x',0));
+          hlps.y_0.observe('numericValue.dragging',loop2Func('y',0));
+          hlps.R_C.observe('numericValue.dragging',loop2Func('x',0));
+          var i;
+          for (i = 1; i <= 3; i+=1) {
+            hlps['u_'+i].observe('numericValue.dragging',loop2Func('u',i));
+            hlps['v_'+i].observe('numericValue.dragging',loop2Func('v',i));
+          }
+        },cs.delay.LOAD);
+       }
+     };
+
+    /* ←— A0597772 FUNCTIONS ——————————————————————————————————————————————→ */
+      cs.A0597772 = {
+        CENTER_COLOR:cs.color.agaColors.black,
+        INTERSECTION_COLOR:cs.color.agaColors.black,
+        HIDDEN_COLOR:'#FFFFFF'
+       };
+     fs.A0597772 = {
+      /* ←— circleConstrain ———————————————————————————————————————————————→ *\
+       | Monitors x_1 and y_1 and corrects them if they go outside the circle
+       |  centered at x_0, y_0 with radius r_0
+       | (Initialization option; starts the whole graph)
+       * ←—————————————————————————————————————————————————————————————————→ */
+       init: function(){
+        var o = hs.parseArgs(arguments);
+        var vars = vs[o.uniqueId];
+        Object.assign(vars,{draggingPoint:null,dragging:false});
+        var hlps = hxs[o.uniqueId];
+        vars.belayUntil = Date.now()+cs.delay.LOAD;
+
+        Object.assign(hlps,{
+          u_0:hlps.maker({latex:'u_0'}),
+          v_0:hlps.maker({latex:'v_0'}),
+          u_1:hlps.maker({latex:'u_1'}),
+          v_1:hlps.maker({latex:'v_1'}),
+          u_2:hlps.maker({latex:'u_2'}),
+          v_2:hlps.maker({latex:'v_2'}),
+          u_3:hlps.maker({latex:'u_3'}),
+          v_3:hlps.maker({latex:'v_3'}),
+          w_2:hlps.maker({latex:'w_2'}),
+          z_2:hlps.maker({latex:'z_2'}),
+          w_3:hlps.maker({latex:'w_3'}),
+          z_3:hlps.maker({latex:'z_3'}),
+          R:hlps.maker({latex:'R'}),
+          m1_x:hlps.maker({latex:'P_{MC1}\\left[1\\right]'}),
+          m1_y:hlps.maker({latex:'P_{MC1}\\left[2\\right]'}),
+          m2_x:hlps.maker({latex:'P_{MC2}\\left[1\\right]'}),
+          m2_y:hlps.maker({latex:'P_{MC2}\\left[2\\right]'}),
+          n1_x:hlps.maker({latex:'P_{NC1}\\left[1\\right]'}),
+          n1_y:hlps.maker({latex:'P_{NC1}\\left[2\\right]'}),
+          n2_x:hlps.maker({latex:'P_{NC2}\\left[1\\right]'}),
+          n2_y:hlps.maker({latex:'P_{NC2}\\left[2\\right]'}),
+          D:hlps.maker({latex:'D'}),
+          i_nv:hlps.maker({latex:'i_{nv}'}),
+          t_ick:hlps.maker({latex:'t_{ick}'})
+        });
+
+        var unclick;
+
+        function isolateHandle(which) {
+          // o.log('Isolating Handles');
+          Object.keys(hlps).forEach(function(helper) {
+            if(helper !== 'maker') {
+              hlps[helper].unobserve('numericValue.dragging');
+            }
+          });
+
+          document.addEventListener('mouseup',unclick);
+          document.addEventListener('touchend',unclick);
+
+          vars.dragging = true;
+          var exprs = [
+            {id:'intersection',hidden:(which[2] !== '1')},
+            {id:'handleM1',hidden:(!(/[uv]_2/.test(which)))},
+            {id:'handleM2',hidden:(!(/[wz]_2/.test(which)))},
+            {id:'handleN1',hidden:(!(/[uv]_3/.test(which)))},
+            {id:'handleN2',hidden:(!(/[wz]_3/.test(which)))}//*/
+          ];
+          switch (which[2]) {
+            case '0':
+              exprs.push({id:'x_0',latex:'x_0=u_1+\\frac{u_0-u_1}{D}\\min\\left(R-'+cs.distance.CONSTRAIN_BUFFER+',D\\right)'});
+              exprs.push({id:'y_0',latex:'y_0=v_1+\\frac{v_0-v_1}{D}\\min\\left(R-'+cs.distance.CONSTRAIN_BUFFER+',D\\right)'});
+              vars.draggingPoint = 'center';
+              break;
+            case '1':
+              exprs.push({id:'x_1',latex:'x_1=u_0+\\frac{u_1-u_0}{D}\\min \\left(R-'+cs.distance.CONSTRAIN_BUFFER+',D\\right)'});
+              exprs.push({id:'y_1',latex:'y_1=v_0+\\frac{v_1-v_0}{D}\\min \\left(R-'+cs.distance.CONSTRAIN_BUFFER+',D\\right)'});
+              vars.draggingPoint = 'intersection';
+              break;
+            case '2':
+              if (/[uv]/.test(which)) {
+                vars.draggingPoint = 'handleM1';
+                exprs.push({id:'x_2',latex:'x_2=u_2'});
+                exprs.push({id:'y_2',latex:'y_2=v_2'});
+              } else {
+                vars.draggingPoint = 'handleM2';
+                exprs.push({id:'x_2',latex:'x_2=-w_2'});
+                exprs.push({id:'y_2',latex:'y_2=-z_2'});
+              }
+              break;
+            case '3':
+              if (/[uv]/.test(which)) {
+                vars.draggingPoint = 'handleN1';
+                exprs.push({id:'x_3',latex:'x_3=u_3'});
+                exprs.push({id:'y_3',latex:'y_3=v_3'});
+              } else {
+                vars.draggingPoint = 'handleN2';
+                exprs.push({id:'x_3',latex:'x_3=-w_3'});
+                exprs.push({id:'y_3',latex:'y_3=-z_3'});
+              }
+              break;
+            default:
+              return;
+          }
+          o.desmos.setExpressions(exprs);
+        }
+
+        var activateHandles;
+
+        function adjustHandles() {
+          // o.log('Adjusting Handles');
+          if (Date.now() <= vars.belayUntil) {setTimeout(adjustHandles,vars.belayUntil-Date.now()+1);return;}
+
+          vars.belayUntil = Date.now()+cs.delay.EXECUTE_HELPER;
+
+          var exprs = [
+            {id:'u_2',latex:'u_2='+hs.number(hlps.m1_x.numericValue-hlps.u_1.numericValue)},
+            {id:'v_2',latex:'v_2='+hs.number(hlps.m1_y.numericValue-hlps.v_1.numericValue)},
+            {id:'w_2',latex:'w_2='+hs.number(hlps.m2_x.numericValue-hlps.u_1.numericValue)},
+            {id:'z_2',latex:'z_2='+hs.number(hlps.m2_y.numericValue-hlps.v_1.numericValue)},
+            {id:'u_3',latex:'u_3='+hs.number(hlps.n1_x.numericValue-hlps.u_1.numericValue)},
+            {id:'v_3',latex:'v_3='+hs.number(hlps.n1_y.numericValue-hlps.v_1.numericValue)},
+            {id:'w_3',latex:'w_3='+hs.number(hlps.n2_x.numericValue-hlps.u_1.numericValue)},
+            {id:'z_3',latex:'z_3='+hs.number(hlps.n2_y.numericValue-hlps.v_1.numericValue)}
+          ];
+          o.desmos.setExpressions(exprs);
+
+          vars.belayUntil = Date.now()+cs.delay.SET_EXPRESSION;
+          setTimeout(activateHandles,cs.delay.SET_EXPRESSION);
+        }
+
+        var clearPlaceholder;
+
+        function replaceHandles() {
+          // o.log('Replacing Handles');
+          o.log('Placeholder = '+vars.placeholder);
+          if (vars.placeholder !== undefined) {clearPlaceholder();}
+
+          adjustHandles();
+
+          var exprs = [
+            {id:'x_0',latex:'x_0=u_0'},
+            {id:'y_0',latex:'y_0=v_0'},
+            {id:'x_1',latex:'x_1=u_1'},
+            {id:'y_1',latex:'y_1=v_1'}
+          ];
+
+          var intersection = {x:hlps.u_1.numericValue,y:hlps.v_1.numericValue};
+          if (Math.pow(hlps.m1_x.numericValue-intersection.x,2)+
+            Math.pow(hlps.m1_y.numericValue-intersection.y,2) > 
+            Math.pow(hlps.m2_x.numericValue-intersection.x,2) +
+            Math.pow(hlps.m2_y.numericValue-intersection.y,2)) {
+            exprs.push({id:'x_2',latex:'x_2=u_2'});
+            exprs.push({id:'y_2',latex:'y_2=v_2'});
+          } else {
+            exprs.push({id:'x_2',latex:'x_2=-w_2'});
+            exprs.push({id:'y_2',latex:'y_2=-z_2'});
+          }
+          if (Math.pow(hlps.n1_x.numericValue-intersection.x,2)+
+            Math.pow(hlps.n1_y.numericValue-intersection.y,2) > 
+            Math.pow(hlps.n2_x.numericValue-intersection.x,2) +
+            Math.pow(hlps.n2_y.numericValue-intersection.y,2)) {
+            exprs.push({id:'x_3',latex:'x_3=u_3'});
+            exprs.push({id:'y_3',latex:'y_3=v_3'});
+          } else {
+            exprs.push({id:'x_3',latex:'x_3=-w_3'});
+            exprs.push({id:'y_3',latex:'y_3=-z_3'});
+          }
+
+          o.desmos.setExpressions(exprs);
+
+          setTimeout(adjustHandles,cs.delay.SET_EXPRESSION);
+        }
+
+        activateHandles = function() {
+          // o.log('Activating Handles');
+          delete vars.constrainingCircle;
+
+          o.desmos.setExpressions([
+            {id:'center',hidden:false},
+            {id:'intersection',hidden:false},
+            {id:'handleM1',hidden:(Math.pow(hlps.m1_x.numericValue-hlps.u_1.numericValue,2)+Math.pow(hlps.m1_y.numericValue-hlps.v_1.numericValue,2)<Math.pow(hlps.t_ick.numericValue,2))},
+            {id:'handleM2',hidden:(Math.pow(hlps.m2_x.numericValue-hlps.u_1.numericValue,2)+Math.pow(hlps.m2_y.numericValue-hlps.v_1.numericValue,2)<Math.pow(hlps.t_ick.numericValue,2))},
+            {id:'handleN1',hidden:(Math.pow(hlps.n1_x.numericValue-hlps.u_1.numericValue,2)+Math.pow(hlps.n1_y.numericValue-hlps.v_1.numericValue,2)<Math.pow(hlps.t_ick.numericValue,2))},
+            {id:'handleN2',hidden:(Math.pow(hlps.n2_x.numericValue-hlps.u_1.numericValue,2)+Math.pow(hlps.n2_y.numericValue-hlps.v_1.numericValue,2)<Math.pow(hlps.t_ick.numericValue,2))}
+          ]);
+
+          Object.keys(hlps).forEach(function(helper) {
+            if (/[uvwz]_/.test(helper)) {
+              hlps[helper].observe(
+                'numericValue.dragging',
+                function(){if(vars.dragging){isolateHandle(helper);}}
+              );
+            }
+          });
+        };
+
+        // function logChanges() {
+        //   hlps.u_0.observe('numericValue.log',function(){o.log('center.u:'+hlps.u_0.numericValue);});
+        //   hlps.v_0.observe('numericValue.log',function(){o.log('center.v:'+hlps.v_0.numericValue);});
+        //   hlps.u_1.observe('numericValue.log',function(){o.log('intersection.u:'+hlps.u_1.numericValue);});
+        //   hlps.v_1.observe('numericValue.log',function(){o.log('intersection.v:'+hlps.v_1.numericValue);});
+        // }
+
+        var correctIt;
+
+        function enableCorrection() {
+          hlps.D.observe('numericValue.correction',function(){correctIt();});
+        }
+
+        function disableCorrection() {
+          hlps.D.unobserve('numericValue.correction');
+        }
+
+        clearPlaceholder = function(draggingPoint) {
+          if(draggingPoint === undefined) {
+            draggingPoint=vars.draggingPoint;
+          }
+          // o.log('Clearing Placeholder');
+          if (vars.placeholder === undefined) {return;}
+          vars.belayUntil = Date.now() + cs.delay.EXECUTE_HELPER;
+
+          var exprs = [];
+          var corrected;
+
+          switch (draggingPoint) {
+            case 'center':
+              corrected = hs.circleConstrain(
+                {x:hlps.u_0.numericValue,y:hlps.v_0.numericValue},
+                vars.constrainingCircle,cs.enum.INTERIOR
+              );
+              exprs.push({id:'center',color:cs.A0597772.CENTER_COLOR});
+              break;
+            case 'intersection':
+              corrected = hs.circleConstrain(
+                {x:hlps.u_1.numericValue,y:hlps.v_1.numericValue},
+                vars.constrainingCircle,cs.enum.INTERIOR
+              );
+              exprs.push({id:'intersection',color:cs.A0597772.INTERSECTION_COLOR});
+              break;
+            default:
+              return;
+          }
+
+          // o.log('Center: ('+hlps.u_0.numericValue+','+hlps.v_0.numericValue+')');
+          // o.log('Intersection: ('+hlps.u_1.numericValue+','+hlps.v_1.numericValue+')');
+          // o.log('Constraint: ('+vars.constrainingCircle.x+','+vars.constrainingCircle.y+','+vars.constrainingCircle.r+')');
+          // o.log('Distance: '+Math.sqrt(Math.pow(hlps.u_0.numericValue-hlps.u_1.numericValue,2)+Math.pow(hlps.v_0.numericValue-hlps.v_1.numericValue,2)));
+          // o.log('Corrected: ('+corrected.x+','+corrected.y+')')
+
+          exprs.push({id:'placeholder',hidden:true});
+
+          exprs.push({id:'u_'+vars.placeholder,latex:'u_'+vars.placeholder+'='+corrected.x});
+          exprs.push({id:'v_'+vars.placeholder,latex:'v_'+vars.placeholder+'='+corrected.y});
+
+          disableCorrection();
+          o.desmos.setExpressions(exprs);
+          delete vars.placeholder;
+          setTimeout(enableCorrection,5*cs.delay.SET_EXPRESSION);
+          vars.belayUntil = Date.now() + cs.delay.SET_EXPRESSION;
+         };
+
+        function setPlaceholder(draggingPoint) {
+          if(draggingPoint === undefined) {
+            draggingPoint=vars.draggingPoint;
+          }
+          // o.log('Setting Placeholder');
+          var exprs = [];
+          if (vars.placeholder === undefined) {
+            vars.placeholder = ((draggingPoint === 'center')?0:1);
+            exprs.push({id:draggingPoint,color:cs.A0597772.HIDDEN_COLOR});
+            var stringBase = '\\left(x_#,y_#\\right)';
+            exprs.push({
+              id:'placeholder',
+              latex:stringBase.replace(/#/g,vars.placeholder),
+              hidden:false,
+              dragMode:Desmos.DragModes.XY
+            });
+          } else {return;}
+          o.desmos.setExpressions(exprs);
+         }
+
+        correctIt = function(draggingPoint) {
+          if(draggingPoint === undefined) {
+            draggingPoint=vars.draggingPoint;
+          }
+          var point;
+          var corrected;
+
+          o.log('Correcting It; dragging point = '+draggingPoint);
+          switch (draggingPoint) {
+            case 'center':
+              if (hlps.D.numericValue < hlps.R.numericValue-cs.distance.CONSTRAIN_BUFFER) {
+                if (vars.placeholder !== undefined) {clearPlaceholder();}
+                return;
+              }
+              if (vars.constrainingCircle === undefined) {vars.constrainingCircle = {x:hlps.u_1.numericValue,y:hlps.v_1.numericValue,r:hlps.R.numericValue};}
+              if (vars.dragging === true) {setPlaceholder(draggingPoint);}
+              else {
+                point = {x:hlps.u_0.numericValue,y:hlps.v_0.numericValue};
+                corrected = hs.circleConstrain(point,vars.constrainingCircle,cs.enum.INTERIOR);
+                if (corrected !== point) {
+                  o.desmos.setExpressions([
+                    {id:'u_0',latex:'u_0='+corrected.x},
+                    {id:'v_0',latex:'v_0='+corrected.y}
+                  ]);
+                  setTimeout(adjustHandles,cs.delay.SET_EXPRESSION);
+                }
+              }
+              break;
+            case 'intersection':
+              if (hlps.D.numericValue < hlps.R.numericValue-cs.distance.CONSTRAIN_BUFFER) {
+                if (vars.placeholder !== undefined) {clearPlaceholder();}
+                return;
+              }
+              if (vars.constrainingCircle === undefined) {vars.constrainingCircle = {x:hlps.u_0.numericValue,y:hlps.v_0.numericValue,r:hlps.R.numericValue};}
+              if (vars.dragging === true) {setPlaceholder(draggingPoint);}
+              else {
+                point = {x:hlps.u_1.numericValue,y:hlps.v_1.numericValue};
+                corrected = hs.circleConstrain(point,vars.constrainingCircle,cs.enum.INTERIOR);
+                if (corrected !== point) {
+                  o.desmos.setExpressions([
+                    {id:'u_1',latex:'u_1='+corrected.x},
+                    {id:'v_1',latex:'v_1='+corrected.y}
+                  ]);
+                  setTimeout(adjustHandles,cs.delay.SET_EXPRESSION);
+                }
+              }
+              break;
+            default:
+              return;
+          }
+          return;
+         };
+
+        function click() {
+          vars.dragging=true;
+          // escape();
+        }
+
+        var escape;
+
+        unclick = function() {
+          vars.dragging=false;
+          delete vars.draggingPoint;
+          document.removeEventListener('mouseup',unclick);
+          document.removeEventListener('touchend',unclick);
+          // escape();
+          setTimeout(function(){
+            if (vars === vs[o.uniqueId]) {replaceHandles();}
+            else {escape();}
+          },cs.delay.SET_EXPRESSION);
+        };
+
+        escape = function() {
+          document.removeEventListener('mousedown',click);
+          document.removeEventListener('touchstart',click);
+          document.removeEventListener('mouseup',unclick);
+          document.removeEventListener('touchend',unclick);
+        };
+
+        document.addEventListener('mousedown',click);
+        document.addEventListener('touchstart',click);
+
+        setTimeout(function(){
+          activateHandles();
+          enableCorrection();
+          // logChanges();
+        },cs.delay.LOAD);
+       }
+     };
+
+    /* ←— A0597773 FUNCTIONS ——————————————————————————————————————————————→ */
+      cs.A0597773 = {
+        CENTER_COLOR:cs.color.agaColors.black,
+        INTERSECTION_COLOR:cs.color.agaColors.black,
+        HIDDEN_COLOR:'#FFFFFF',
+        LEG_HANDLE:'\\theta_LEGNUM=SIGN\\operatorname{sign}\\left(D_{pl}\\left(\\left[u_{HLEGNUMPOINTID},v_{HLEGNUMPOINTID},1\\right],U_{through}\\left(\\left[0,0,1\\right],\\left[x_V,y_V,1\\right]\\right)\\right)\\right)\\min\\left(\\arcsin\\left(\\min\\left(1,\\frac{r_C}{d}\\right)\\right),\\theta_{LVL}\\left(H_{LEGNUMPOINTID},V,C\\right)\\right)',
+        VERTEX_COORDINATE:'COORDINATE_V=COORDINATE_C+HANDLE_V\\max\\left(\\frac{r_C\\left(1+10^{-10}\\right)}{D},\\min\\left(1,\\frac{R}{D}\\right)\\right)',
+        R_DEPENDENT_ON_THETAS:'R=\\left\\{\\theta_1=0:\\left\\{\\theta_2=0:10^{100}r_C,R_2\\right\\},\\theta_2=0:R_1,\\min\\left(R_1,R_2\\right)\\right\\}',
+        THETAS_DEPENDENT_ON_D:'\\theta_LEGNUM=SIGN\\min\\left(PREVMEASURE,\\arcsin\\left(\\min\\left(1,\\frac{r_C}{d}\\right)\\right)\\right)'
+       };
+     fs.A0597773 = {
+      // TK TODO STUB differentiate parts a, b, c
+      /* ←— circleConstrain ———————————————————————————————————————————————→ *\
+       | Monitors x_1 and y_1 and corrects them if they go outside the circle
+       |  centered at x_0, y_0 with radius r_0
+       | (Initialization option; starts the whole graph)
+       * ←—————————————————————————————————————————————————————————————————→ */
+       init: function(){
+        var o = hs.parseArgs(arguments);
+        var vars = vs[o.uniqueId];
+        Object.assign(vars,{draggingPoint:null,dragging:false});
+        var hlps = hxs[o.uniqueId];
+        var cons = cs.A0597773;
+        vars.belayUntil = Date.now()+cs.delay.LOAD;
+
+        Object.assign(hlps,{
+          x_C:hlps.maker({latex:'x_C'}),
+          y_C:hlps.maker({latex:'y_C'}),
+          x_V:hlps.maker({latex:'x_V'}),
+          y_V:hlps.maker({latex:'y_V'}),
+          u_V:hlps.maker({latex:'u_V'}),
+          v_V:hlps.maker({latex:'v_V'}),
+          u_H1near:hlps.maker({latex:'u_{H1near}'}),
+          v_H1near:hlps.maker({latex:'v_{H1near}'}),
+          u_H1far:hlps.maker({latex:'u_{H1far}'}),
+          v_H1far:hlps.maker({latex:'v_{H1far}'}),
+          u_H2near:hlps.maker({latex:'u_{H2near}'}),
+          v_H2near:hlps.maker({latex:'v_{H2near}'}),
+          u_H2far:hlps.maker({latex:'u_{H2far}'}),
+          v_H2far:hlps.maker({latex:'v_{H2far}'}),
+
+          r_C:hlps.maker({latex:'r_C'}),
+          R:hlps.maker({latex:'R'}),
+          theta_1:hlps.maker({latex:'\\theta_1'}),
+          theta_2:hlps.maker({latex:'\\theta_2'}),
+
+          theta_VC:hlps.maker({latex:'\\theta_{VC}'}),
+          theta_1near:hlps.maker({latex:'\\theta_{1near}'}),
+          theta_1far:hlps.maker({latex:'\\theta_{1far}'}),
+          theta_2near:hlps.maker({latex:'\\theta_{2near}'}),
+          theta_2far:hlps.maker({latex:'\\theta_{2far}'}),
+
+          arc_near:hlps.maker({latex:'\\theta_{arc}\\left[1\\right]'}),
+          arc_far:hlps.maker({latex:'\\theta_{arc}\\left[2\\right]'}),
+          angle:hlps.maker({latex:'\\operatorname{round}\\left(\\left|\\theta_1+\\theta_2\\right|\\right)'}),
+
+          t_ick:hlps.maker({latex:'t_{ick}'})
+        });
+
+        var unclick;
+
+        function isolateHandle(which) {
+          // o.log('Isolating Handles');
+          Object.keys(hlps).forEach(function(helper) {
+            if(helper !== 'maker') {
+              hlps[helper].unobserve('numericValue.dragging');
+            }
+          });
+          document.addEventListener('mouseup',unclick);
+          document.addEventListener('touchend',unclick);
+
+          // o.log(which+' changed.');
+
+
+          vars.dragging = true;
+          var exprs = [
+            {id:'vertex_handle',hidden:(which[2] !== 'V')},
+            {id:'H1near',hidden:(!(/H1near/.test(which)))},
+            {id:'H1far',hidden:(!(/H1far/.test(which)))},
+            {id:'H2near',hidden:(!(/H2near/.test(which)))},
+            {id:'H2far',hidden:(!(/H2far/.test(which)))}//*/
+          ];
+
+          if (which[2] === 'H') {
+            exprs.push({id:('theta_'+which[3]),latex:(cons.LEG_HANDLE.replace(/LEGNUM/g,which[3]).replace(/POINTID/g,which.substring(4,which.length)).replace(/SIGN/,((which[3] === '1')?'-':'')))});
+            exprs.push({id:'x_V',latex:'x_V=x_C+u_V'});
+            exprs.push({id:'y_V',latex:'y_V=y_C+v_V'});
+            vars.draggingPoint = which.substring(2,which.length);
+          } else if (/[uv]_V/.test(which)) {
+            exprs.push({id:'x_V',latex:(cons.VERTEX_COORDINATE.replace(/COORDINATE/g,'x').replace(/HANDLE/g,'u'))});
+            exprs.push({id:'y_V',latex:(cons.VERTEX_COORDINATE.replace(/COORDINATE/g,'y').replace(/HANDLE/g,'v'))});
+            exprs.push({id:'maximumDistance',latex:'R=10^{100}r_C'});
+            exprs.push({id:'theta_1',latex:cons.THETAS_DEPENDENT_ON_D.replace(/LEGNUM/g,'1').replace(/SIGN/g,((hlps.theta_1.numericValue>=0)?'':'-')).replace(/PREVMEASURE/g,''+Math.abs(hlps.theta_1.numericValue))});
+            exprs.push({id:'theta_2',latex:cons.THETAS_DEPENDENT_ON_D.replace(/LEGNUM/g,'2').replace(/SIGN/g,((hlps.theta_2.numericValue>=0)?'':'-')).replace(/PREVMEASURE/g,''+Math.abs(hlps.theta_2.numericValue))});
+            vars.draggingPoint = 'vertex_handle';
+          } else if (/[xy]_C/.test(which)) {
+            vars.draggingPoint = 'center';
+          } else if (which === 'r_C') {
+            exprs.push({id:'u_V',latex:('u_V=\\frac{r_C}{'+vars.lastRadius+'}\\cdot'+hlps.u_V.numericValue)});
+            exprs.push({id:'v_V',latex:('v_V=\\frac{r_C}{'+vars.lastRadius+'}\\cdot'+hlps.v_V.numericValue)});
+            vars.draggingPoint = 'radius';
+          }
+
+          // o.log('Isolating handle '+which+'; setting expressions:',exprs);
+
+          o.desmos.setExpressions(exprs);
+        }
+
+        var activateHandles;
+
+        function adjustHandles() {
+          // o.log('Adjusting Handles');
+          if (Date.now() < vars.belayUntil) {setTimeout(adjustHandles,vars.belayUntil-Date.now());return;}
+
+          vars.belayUntil = Date.now()+cs.delay.EXECUTE_HELPER;
+
+          // o.log('x_C='+hlps.x_C.numericValue,'; y_C='+hlps.r_C.numericValue,'; theta_VC='+hlps.theta_VC.numericValue,'; theta_1near='+hlps.theta_1near.numericValue);
+
+          var exprs = [
+            {id:'u_H1near',latex:'u_{H1near}='+hs.number(hlps.r_C.numericValue*Math.cos(Math.PI*(1+(hlps.theta_VC.numericValue+hlps.theta_1near.numericValue)/180)))},
+            {id:'v_H1near',latex:'v_{H1near}='+hs.number(hlps.r_C.numericValue*Math.sin(Math.PI*(1+(hlps.theta_VC.numericValue+hlps.theta_1near.numericValue)/180)))},
+            {id:'u_H1far',latex:'u_{H1far}='+hs.number(hlps.r_C.numericValue*Math.cos(Math.PI*(1+(hlps.theta_VC.numericValue+hlps.theta_1far.numericValue)/180)))},
+            {id:'v_H1far',latex:'v_{H1far}='+hs.number(hlps.r_C.numericValue*Math.sin(Math.PI*(1+(hlps.theta_VC.numericValue+hlps.theta_1far.numericValue)/180)))},
+            {id:'u_H2near',latex:'u_{H2near}='+hs.number(hlps.r_C.numericValue*Math.cos(Math.PI*(1+(hlps.theta_VC.numericValue-hlps.theta_2near.numericValue)/180)))},
+            {id:'v_H2near',latex:'v_{H2near}='+hs.number(hlps.r_C.numericValue*Math.sin(Math.PI*(1+(hlps.theta_VC.numericValue-hlps.theta_2near.numericValue)/180)))},
+            {id:'u_H2far',latex:'u_{H2far}='+hs.number(hlps.r_C.numericValue*Math.cos(Math.PI*(1+(hlps.theta_VC.numericValue-hlps.theta_2far.numericValue)/180)))},
+            {id:'v_H2far',latex:'v_{H2far}='+hs.number(hlps.r_C.numericValue*Math.sin(Math.PI*(1+(hlps.theta_VC.numericValue-hlps.theta_2far.numericValue)/180)))}/* ,
+            {id:'x_V',latex:(cons.VERTEX_COORDINATE.replace(/COORDINATE/g,'x').replace(/HANDLE/g,'u')},
+            {id:'y_V',latex:(cons.VERTEX_COORDINATE.replace(/COORDINATE/g,'y').replace(/HANDLE/g,'v')}// */
+          ];
+
+          // o.log('Adjusting handles; setting expressions:',exprs);
+
+          o.desmos.setExpressions(exprs);
+
+          vars.belayUntil = Date.now()+cs.delay.SET_EXPRESSION;
+          setTimeout(activateHandles,cs.delay.SET_EXPRESSION);
+        }
+
+        function replaceHandles() {
+          // o.log('Replacing Handles');
+
+          // adjustHandles();
+
+          // o.log(hlps.x_V.latex+'='+hlps.x_V.numericValue,hlps.x_C.latex+'='+hlps.x_C.numericValue,hlps.y_V.latex+'='+hlps.y_V.numericValue,hlps.y_C.latex+'='+hlps.y_C.numericValue);
+
+          var exprs = [
+            {id:'u_V',latex:('u_V='+hs.number(hlps.x_V.numericValue-hlps.x_C.numericValue))},
+            {id:'v_V',latex:('v_V='+hs.number(hlps.y_V.numericValue-hlps.y_C.numericValue))},
+            {id:'theta_1',latex:('\\theta_1='+hlps.theta_1.numericValue)},
+            {id:'theta_2',latex:('\\theta_2='+hlps.theta_2.numericValue)},
+            {id:'maximumDistance',latex:cons.R_DEPENDENT_ON_THETAS}
+          ];
+
+          // o.log('Replacing handles; setting expressions:',exprs);
+
+          o.desmos.setExpressions(exprs);
+
+          adjustHandles();
+          setTimeout(adjustHandles,cs.delay.SET_EXPRESSION*5);
+          // setTimeout(activateHandles,cs.delay.SET_EXPRESSION*2);
+        }
+
+        activateHandles = function() {
+          // o.log('Activating Handles');
+
+          vars.lastRadius = hlps.r_C.numericValue;
+
+          var exprs=[
+            {id:'center',hidden:true},
+            {id:'vertex_handle',hidden:false},
+            {id:'H1near',hidden:(Math.abs(Math.sin(Math.PI*hlps.theta_1near.numericValue/180)*hlps.r_C.numericValue/Math.sin(Math.PI*hlps.theta_1.numericValue/180))<hlps.t_ick.numericValue)},
+            {id:'H1far',hidden:false},
+            {id:'H2near',hidden:(Math.abs(Math.sin(Math.PI*hlps.theta_2near.numericValue/180)*hlps.r_C.numericValue/Math.sin(Math.PI*hlps.theta_2.numericValue/180))<hlps.t_ick.numericValue)},
+            {id:'H2far',hidden:false}
+          ];
+
+          // o.log('Activating handles; setting expressions:',exprs);
+
+          o.desmos.setExpressions(exprs);
+
+          Object.keys(hlps).forEach(function(helper) {
+            if (/(?:[uv]_|_C)/.test(helper)) {
+              // o.log('Observing '+helper);
+              hlps[helper].observe(
+                'numericValue.dragging',
+                function(){if(vars.dragging){isolateHandle(helper);}}
+              );
+            }
+          });
+        };
+
+        function updateEquation() {
+          var expr = hlps.angle.numericValue+'=½('+hlps.arc_far.numericValue+'-'+hlps.arc_near.numericValue+')';
+          expr = hs.latexToText(expr);
+          o.desmos.setExpression({id:'center',label:expr});
+        }
+
+        function click() {
+          vars.dragging=true;
+          //document.removeEventListener('mousedown',click);
+          //document.removeEventListener('touchstart',click);
+        }
+
+        unclick = function() {
+          vars.dragging=false;
+          document.removeEventListener('mouseup',unclick);
+          document.removeEventListener('touchend',unclick);
+          setTimeout(replaceHandles,cs.delay.SET_EXPRESSION);
+        };
+
+        function escape() {
+          document.removeEventListener('mousedown',click);
+          document.removeEventListener('touchstart',click);
+          document.removeEventListener('mouseup',unclick);
+          document.removeEventListener('touchend',unclick);
+        }
+
+        function debug() {
+          hlps.theta_1.observe('numericValue',function(){if (Number.isNaN(hlps.theta_1.numericValue)) {
+            escape();
+            return;//*/
+          }});
+        }
+
+        document.addEventListener('mousedown',click);
+        document.addEventListener('touchstart',click);
+
+        setTimeout(function(){
+          activateHandles();
+          hlps.angle.observe('numericValue',updateEquation);
+          hlps.arc_far.observe('numericValue',updateEquation);
+          hlps.arc_near.observe('numericValue',updateEquation);
+          updateEquation();
+          debug();
+        },cs.delay.LOAD);
+       }
+     };
+
+    /* ←— A0597777 FUNCTIONS ——————————————————————————————————————————————→ */
+      cs.A0597777 = {
+        CENTER_COLOR:cs.color.agaColors.black,
+        INTERSECTION_COLOR:cs.color.agaColors.black,
+        HIDDEN_COLOR:'#FFFFFF',
+        PRECISION:2,
+        MAX_ERROR:10
+       };
+     fs.A0597777 = {
+      // TK TODO STUB differentiate parts a, b, c
+      /* ←— init ———————————————————————————————————————————————→ *\
+       | stuff
+       * ←—————————————————————————————————————————————————————————————————→ */
+       init: function(){
+        var o = hs.parseArgs(arguments);
+        var vars = vs[o.uniqueId];
+        Object.assign(vars,{draggingPoint:null,dragging:false});
+        var hlps = hxs[o.uniqueId];
+        var cons = cs.A0597777;
+        vars.belayUntil = Date.now()+cs.delay.LOAD;
+
+        Object.assign(hlps,{
+          x_0:hlps.maker({latex:'x_0'}),
+          y_0:hlps.maker({latex:'y_0'}),
+          x_1:hlps.maker({latex:'x_1'}),
+          y_1:hlps.maker({latex:'y_1'}),
+          x_2:hlps.maker({latex:'x_2'}),
+          y_2:hlps.maker({latex:'y_2'}),
+          x_3:hlps.maker({latex:'x_3'}),
+          y_3:hlps.maker({latex:'y_3'}),
+
+          m2_x:hlps.maker({latex:'P_{M2}\\left[1\\right]'}),
+          m2_y:hlps.maker({latex:'P_{M2}\\left[2\\right]'}),
+          n2_x:hlps.maker({latex:'P_{N2}\\left[1\\right]'}),
+          n2_y:hlps.maker({latex:'P_{N2}\\left[2\\right]'}),
+          
+          R_C:hlps.maker({latex:'R'}),
+          D_E:hlps.maker({latex:'D'}),
+          D_H:hlps.maker({latex:'D_H'}),
+          D_M:hlps.maker({latex:'D_M'}),
+          D_N:hlps.maker({latex:'D_N'}),
+
+          t_M1:hlps.maker({latex:'t_{M1}'}),
+          t_M2:hlps.maker({latex:'t_{M2}'}),
+          t_N1:hlps.maker({latex:'t_{N1}'}),
+          t_N2:hlps.maker({latex:'t_{N2}'}),
+          
+          m_tangent:hlps.maker({latex:'m_{tngnt}'}),
+          n_tangent:hlps.maker({latex:'n_{tngnt}'}),
+          p_erimeter:hlps.maker({latex:'p_{erim}'}),
+
+          t_ick:hlps.maker({latex:'t_{ick}'})
+        });
+
+        var unclick;
+
+        function isolateHandle(which) {
+          // o.log('Isolating Handles');
+          Object.keys(hlps).forEach(function(helper){
+            if(helper !== 'maker') {
+              hlps[helper].unobserve('numericValue.dragging');
+            }
+          });
+          document.addEventListener('mouseup',unclick);
+          document.addEventListener('touchend',unclick);
+
+          // o.log(which+' changed.');
+
+
+          vars.dragging = true;
+          var exprs = [
+            {id:'center',hidden:(which[2] !== '0')},
+            {id:'vertexHandle',hidden:(which[2] !== '1')},
+            {id:'handleM',hidden:(which[2] !== '2')},
+            {id:'handleN',hidden:(which[2] !== '3')}
+          ];
+
+          if (which[2] === '0') {vars.draggingPoint = 'C';}
+          if (which[2] === '1') {vars.draggingPoint = 'V';}
+          if (which[2] === '2') {vars.draggingPoint = 'M';}
+          if (which[2] === '3') {vars.draggingPoint = 'N';}
+          if (which[0] === 'R') {vars.draggingPoint = 'R';}
+
+          o.log('Isolating handle '+which+'; setting expressions:',exprs);
+
+          o.desmos.setExpressions(exprs);
+        }
+
+        function activateHandles() {
+          // o.log('Activating Handles');
+
+          vars.lastRadius = hlps.R_C.numericValue;
+
+          var exprs=[
+            {id:'center',hidden:false},
+            {id:'vertexHandle',hidden:false},
+            {id:'handleM',hidden:false},
+            {id:'handleN',hidden:false}
+          ];
+
+          // o.log('Activating handles; setting expressions:',exprs);
+
+          o.desmos.setExpressions(exprs);
+
+          Object.keys(hlps).forEach(function(helper) {
+            if (/(?:[xy]_|_C)/.test(helper)) {
+              // o.log('Observing '+helper);
+              hlps[helper].observe(
+                'numericValue.dragging',
+                function(){if(vars.dragging){isolateHandle(helper);}}
+              );
+            }
+          });
+        }
+
+        function replaceHandles() {
+          // o.log('Replacing Handles');
+
+          var exprs = [
+            {id:'u_1',latex:('u_1='+hlps.x_1.numericValue)},
+            {id:'v_1',latex:('v_1='+hlps.y_1.numericValue)},
+            {id:'u_2',latex:('u_2='+hs.number(hlps.m2_x.numericValue-hlps.x_0.numericValue))},
+            {id:'v_2',latex:('v_2='+hs.number(hlps.m2_y.numericValue-hlps.y_0.numericValue))},
+            {id:'u_3',latex:('u_3='+hs.number(hlps.n2_x.numericValue-hlps.x_0.numericValue))},
+            {id:'v_3',latex:('v_3='+hs.number(hlps.n2_y.numericValue-hlps.y_0.numericValue))}
+          ];
+
+          // o.log('Replacing handles; setting expressions:',exprs);
+
+          if ((!(Number.isNaN(hlps.x_0.numericValue))) &&
+              (!(Number.isNaN(hlps.y_0.numericValue))) &&
+              (!(Number.isNaN(hlps.x_1.numericValue))) &&
+              (!(Number.isNaN(hlps.y_1.numericValue))) &&
+              (!(Number.isNaN(hlps.m2_x.numericValue))) &&
+              (!(Number.isNaN(hlps.m2_y.numericValue))) &&
+              (!(Number.isNaN(hlps.n2_x.numericValue))) &&
+              (!(Number.isNaN(hlps.n2_y.numericValue)))
+              ) {o.desmos.setExpressions(exprs);}
+
+          setTimeout(activateHandles,cs.delay.SET_EXPRESSION);
+        }
+
+        function recalculateLabels(draggingPoint) {
+          if(draggingPoint === undefined) {
+            draggingPoint = vars.draggingPoint;
+          }
+          if(vars.recalculating) {
+            vars.recalculateFor = draggingPoint;
+            return;
+          }
+          if (vars.recalculateFor === draggingPoint) {delete vars.recalculateFor;}
+          if (draggingPoint === undefined) {return;}
+          vars.recalculating = true;
+          var prec = cons.PRECISION;
+          var t_M1 = vars.t_M1;
+          var t_M2 = vars.t_M2;
+          var t_N1 = vars.t_N1;
+          var t_N2 = vars.t_N2;
+          var a = vars.a;
+          var b = vars.b;
+          var c = vars.c;
+          var d = vars.d;
+
+          var i;
+          var j;
+
+          // If the vertex is on the perimeter, the near lengths must both be 0.
+          if (hlps.p_erimeter.numericValue === 1) {
+            vars.a = 0;
+            vars.b = Math.round(Math.pow(10,prec)*t_M2)/Math.pow(10,prec);
+            vars.c = 0;
+            vars.d = Math.round(Math.pow(10,prec)*t_N2)/Math.pow(10,prec);
+            o.desmos.setExpressions([
+              {id:'d_{M1}',label:'0'},
+              {id:'d_{M2}',label:vars.b},
+              {id:'d_{N1}',label:'0'},
+              {id:'d_{N2}',label:vars.d}
+            ]);
+            vars.recalculating = false;
+            return;
+          }
+
+
+          var mTan = (hlps.m_tangent.numericValue === 1);
+          var nTan = (hlps.n_tangent.numericValue === 1);
+
+          var inv = (t_M1*t_M2 < 0 || t_N1*t_N2 < 0);
+
+          var product = Math.abs(Math.round((hlps.D_E.numericValue*hlps.D_E.numericValue-hlps.R_C.numericValue*hlps.R_C.numericValue)*Math.pow(10,prec)));
+          var tangent = true;
+          var baseP; // Integer representation of rounded values
+          var baseQ;
+          var fixLeg;
+
+          var productAB;
+          var productCD;
+          var actualProduct;
+
+          // Determine the actual values of the moving pair.
+          if (draggingPoint === 'M') {
+            // product = Math.round(Math.pow(10,prec)*c*d);
+            if(mTan) {
+              baseQ = Math.abs(Math.round(Math.pow(10,prec)*(t_M1+t_M2)/2));
+              baseP = baseQ;
+            } else {
+              baseP = Math.abs(Math.round(Math.pow(10,prec)*t_M1));
+              baseQ = Math.abs(Math.round(Math.pow(10,prec)*t_M2));
+              tangent = false;
+            }
+            fixLeg = 'M';
+          } else if (draggingPoint === 'N') {
+            // product = Math.round(Math.pow(10,prec)*a*b);
+            if(nTan) {
+              baseQ = Math.abs(Math.round(Math.pow(10,prec)*(t_N1+t_N2)/2));
+              baseP = baseQ;
+            } else {
+              baseP = Math.abs(Math.round(Math.pow(10,prec)*t_N1));
+              baseQ = Math.abs(Math.round(Math.pow(10,prec)*t_N2));
+              tangent = false;
+            }
+            fixLeg = 'N';
+          } else if (
+            draggingPoint === 'C' ||
+            draggingPoint === 'V' ||
+            draggingPoint === 'R'
+            ) {
+            // Both pairs are moving, so choose the pair with the rounded product
+            // closest to the actual product as the fixed pair, and vary the other.
+            productAB = Math.round(Math.pow(10,prec)*
+              (mTan?Math.pow(t_M1+t_M2,2)/4:t_M1*t_M2));
+            productCD = Math.round(Math.pow(10,prec)*
+              (nTan?Math.pow(t_N1+t_N2,2)/4:t_N1*t_N2));
+            actualProduct = product; // t_N1*t_N2;
+            if (Math.abs(productAB-actualProduct) < Math.abs(productCD-actualProduct)) {
+              a = Math.round(Math.pow(10,prec)*Math.abs(t_M1))/Math.pow(10,prec);
+              b = Math.round(Math.pow(10,prec)*Math.abs(t_M2))/Math.pow(10,prec);
+              // product = productAB;
+              if(nTan) {
+                baseQ = Math.abs(Math.round(Math.pow(10,prec)*(t_N1+t_N2)/2));
+                baseP = baseQ;
+              } else {
+                baseP = Math.abs(Math.round(Math.pow(10,prec)*t_N1));
+                baseQ = Math.abs(Math.round(Math.pow(10,prec)*t_N2));
+                tangent = false;
+              }
+              fixLeg = 'N';
+            } else {
+              c = Math.round(Math.pow(10,prec)*Math.abs(t_N1))/Math.pow(10,prec);
+              d = Math.round(Math.pow(10,prec)*Math.abs(t_N2))/Math.pow(10,prec);
+              // product = productCD;
+              if(mTan) {
+                baseQ = Math.abs(Math.round(Math.pow(10,prec)*(t_M1+t_M2)/2));
+                baseP = baseQ;
+              } else {
+                baseP = Math.abs(Math.round(Math.pow(10,prec)*t_M1));
+                baseQ = Math.abs(Math.round(Math.pow(10,prec)*t_M2));
+                tangent = false;
+              }
+              fixLeg = 'M';
+            }
+          } else {
+            o.log('Something went wrong: dragging point '+draggingPoint+' is not M, N, vertex, center, or radius.');
+          }
+
+          var closestP = baseP;
+          var closestQ = baseQ;
+          var closestProduct = Math.round(closestP*closestQ/Math.pow(10,prec));
+          var minimumSquaredError = 0;
+          var test = function(n,k) {
+            var newProduct = Math.round((baseP+n)*(baseQ+k)/Math.pow(10,prec));
+            if ((Math.abs(newProduct-product) < Math.abs(closestProduct-product)) ||
+                ((Math.abs(newProduct-product) === Math.abs(closestProduct-product)) &&
+                 (n*n+k*k < minimumSquaredError))) {
+              closestP = baseP+n;
+              closestQ = baseQ+k;
+              closestProduct = newProduct;
+              minimumSquaredError = n*n+k*k;
+            }
+          };
+
+          for (
+              i = 1;
+              ((closestProduct !== product || minimumSquaredError > i*i) && 
+                (i < Math.abs(baseP)-1) && 
+                (i < Math.abs(baseQ)-1) &&
+                (i < cons.MAX_ERROR));
+              i+=1
+          ) {
+
+            if (tangent) {
+              test(i,i);
+              test(-i,-i);
+            } else {
+
+              // test axes
+              test(i,0);
+              test(-i,0);
+              test(0,i);
+              test(0,-i);
+
+              // test edges
+              for (j = 1; j < i; j+=1) {
+                test(i,j);
+                test(i,-j);
+                test(-i,j);
+                test(-i,-j);
+                test(j,i);
+                test(j,-i);
+                test(-j,i);
+                test(-j,-i);
+              }
+
+              // test corners
+              test(i,i);
+              test(i,-i);
+              test(-i,i);
+              test(-i,-i);
+            }
+          }
+
+          if (fixLeg === 'M') {
+            vars.a = closestP/Math.pow(10,prec);
+            vars.b = closestQ/Math.pow(10,prec);
+            vars.c = c;
+            vars.d = d;
+          } else if (fixLeg === 'N') {
+            vars.a = a;
+            vars.b = b;
+            vars.c = closestP/Math.pow(10,prec);
+            vars.d = closestQ/Math.pow(10,prec);
+          } else {o.log('Something went wrong: computed labels but no leg chosen.');}
+
+          var exprs = [
+            {id:'d_{M1}',label:vars.a},
+            {id:'d_{M2}',label:((inv)?vars.b:hs.number(vars.b-vars.a,prec)),showLabel:(!(mTan))},
+            {id:'d_{N1}',label:vars.c},
+            {id:'d_{N2}',label:((inv)?vars.d:hs.number(vars.d-vars.c,prec)),showLabel:(!(nTan))}
+          ];
+
+          var err = Math.abs(Math.round(Math.pow(10,prec)*(vars.a*vars.b-vars.c*vars.d))/Math.pow(10,prec));
+          var LHS = ((inv)?'('+vars.a+')('+vars.b+')':((mTan)?vars.a+'²':'('+vars.a+' + '+hs.number(vars.b-vars.a,prec)+')('+vars.a+')'));
+          var RHS = ((inv)?'('+vars.c+')('+vars.d+')':((nTan)?vars.c+'²':'('+vars.c+' + '+hs.number(vars.d-vars.c,prec)+')('+vars.c+')'));
+          var EQ = ((err === 0)?' = ':' ≈ ');
+
+          exprs.push({id:'equation',label:(LHS+EQ+RHS)});
+
+          if (!(Number.isNaN(vars.a)) &&
+              !(Number.isNaN(vars.b)) &&
+              !(Number.isNaN(vars.c)) &&
+              !(Number.isNaN(vars.d))
+            ) {o.desmos.setExpressions(exprs);}
+
+          // o.log('Error: '+Math.round((Math.abs(vars.a-vars.t_M1)+Math.abs(vars.b-vars.t_M2))*Math.pow(10,prec))/Math.pow(10,prec));
+
+          vars.recalculating = false;
+          if (vars.recalculateFor !== undefined) {setTimeout(function(){recalculateLabels(vars.recalculateFor);},cs.delay.SET_EXPRESSION);}
+          return;
+        }
+
+        function click() {
+          vars.dragging=true;
+          // escape();
+        }
+
+        function escape() {
+          document.removeEventListener('mousedown',click);
+          document.removeEventListener('touchstart',click);
+          document.removeEventListener('mouseup',unclick);
+          document.removeEventListener('touchend',unclick);
+        }
+
+        unclick = function() {
+          vars.dragging=false;
+          delete vars.draggingPoint;
+          document.removeEventListener('mouseup',unclick);
+          document.removeEventListener('touchend',unclick);
+          // escape();
+          setTimeout(function(){
+            if (vars === vs[o.uniqueId]) {replaceHandles();}
+            else {escape();}
+          },cs.delay.SET_EXPRESSION);
+        };
+
+        document.addEventListener('mousedown',click);
+        document.addEventListener('touchstart',click);
+
+        setTimeout(function(){
+          activateHandles();
+
+          vars.t_M1 = hlps.t_M1.numericValue;
+          vars.a = hlps.t_M1.numericValue;
+          vars.t_M2 = hlps.t_M2.numericValue;
+          vars.b = hlps.t_M2.numericValue;
+          vars.t_N1 = hlps.t_N1.numericValue;
+          vars.c = hlps.t_N1.numericValue;
+          vars.t_N2 = hlps.t_N2.numericValue;
+          vars.d = hlps.t_N2.numericValue;
+
+          recalculateLabels('V');
+
+          hlps.t_M1.observe('numericValue.readValue',function(p){vars.t_M1 = hlps.t_M1[p];});
+          hlps.t_M2.observe('numericValue.readValue',function(p){vars.t_M2 = hlps.t_M2[p];});
+          hlps.t_N1.observe('numericValue.readValue',function(p){vars.t_N1 = hlps.t_N1[p];});
+          hlps.t_N2.observe('numericValue.readValue',function(p){vars.t_N2 = hlps.t_N2[p];});
+
+          hlps.x_0.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('C');},0);});
+          hlps.y_0.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('C');},0);});
+          hlps.x_1.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('V');},0);});
+          hlps.y_1.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('V');},0);});
+          hlps.m_tangent.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('M');},0);});
+          hlps.x_2.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('M');},0);});
+          hlps.y_2.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('M');},0);});
+          hlps.n_tangent.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('N');},0);});
+          hlps.x_3.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('N');},0);});
+          hlps.y_3.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('N');},0);});
+        },cs.delay.LOAD);
+       }
+     };
+
+
 // OUT OF ORDER
 
     /* ←— A0598528 FUNCTIONS ——————————————————————————————————————————————→ */
@@ -2571,7 +5795,7 @@ PearsonGL.External.rootJS = (function() {
        | Shows or hides QRST
        * ←—————————————————————————————————————————————————————————————————→ */
        showHideQRST: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         o.desmos.setExpressions([
           {id:'EdgesQRST',type:'table',columns:[{},{hidden:o.value}]},
           {id:'Q',hidden:o.value,showLabel:(!(o.value))},
@@ -2584,7 +5808,7 @@ PearsonGL.External.rootJS = (function() {
        | Shows or hides EFGH
        * ←—————————————————————————————————————————————————————————————————→ */
        showHideEFGH: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         o.desmos.setExpressions([
           {id:'EdgesEFGH',type:'table',columns:[{},{hidden:o.value}]},
           {id:'E',hidden:o.value,showLabel:(!(o.value))},
@@ -2602,7 +5826,7 @@ PearsonGL.External.rootJS = (function() {
        | Preps the watchers
        * ←—————————————————————————————————————————————————————————————————→ */
        init: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         vs[o.uniqueId] = {
           lastPointCount:0
         };
@@ -2612,7 +5836,7 @@ PearsonGL.External.rootJS = (function() {
        | positive for SOLID, otherwise, DASHED
        * ←—————————————————————————————————————————————————————————————————→ */
        changeLineType: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         o.desmos.setExpression({
           id:o.id,
           style:((o.value>0)?cs.enum.lineType.SOLID:cs.enum.lineType.DASHED)
@@ -2622,7 +5846,7 @@ PearsonGL.External.rootJS = (function() {
        | Switches to the next step.
        * ←—————————————————————————————————————————————————————————————————→ */
        regionsAddRemove: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         var vars = vs[o.uniqueId];
         var exprs = [];
 
@@ -2656,24 +5880,24 @@ PearsonGL.External.rootJS = (function() {
        | sets the
        * ←—————————————————————————————————————————————————————————————————→ */
        init: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         vs[o.uniqueId] = {
           orange:1,
           blue:1
         };
        },
        orange: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         vs[o.uniqueId].orange = o.value;
         fs.A0598839.setPlanes(o);
        },
        blue: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         vs[o.uniqueId].blue = o.value;
         fs.A0598839.setPlanes(o);
        },
        setPlanes: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         var orange = vs[o.uniqueId].orange;
         var blue = vs[o.uniqueId].blue;
 
@@ -2698,7 +5922,7 @@ PearsonGL.External.rootJS = (function() {
        | Preps the watchers
        * ←—————————————————————————————————————————————————————————————————→ */
        init: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         vs[o.uniqueId] = {
           lastPointCount:0
         };
@@ -2708,7 +5932,7 @@ PearsonGL.External.rootJS = (function() {
        | positive for SOLID, otherwise, DASHED
        * ←—————————————————————————————————————————————————————————————————→ */
        changeLineType: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         o.desmos.setExpression({
           id:o.id,
           style:((o.value>0)?cs.enum.lineType.SOLID:cs.enum.lineType.DASHED)
@@ -2718,7 +5942,7 @@ PearsonGL.External.rootJS = (function() {
        | Switches to the next step.
        * ←—————————————————————————————————————————————————————————————————→ */
        regionsAddRemove: function(){
-        var o = hs.parseOptions.apply(this,arguments);
+        var o = hs.parseArgs(arguments);
         var vars = vs[o.uniqueId];
         var exprs = [];
 
