@@ -53,7 +53,7 @@ PearsonGL.External.rootJS = (function() {
         }
         return functions;
        },
-      /* ←— parseOptions ——————————————————————————————————————————————————→ *\
+      /* ←— parseArgs ——————————————————————————————————————————————————→ *\
        ↑ Returns a new struct merging given options with defaults for those   ↑
        | options not provided.                                                |
        |                                                                      |
@@ -64,10 +64,15 @@ PearsonGL.External.rootJS = (function() {
        | @Returns: standard helper function option struct                     |
        ↓ @Returns: default options if input is empty                          ↓
        * ←—————————————————————————————————————————————————————————————————→ */
-       parseOptions: function(arg,name,desmos) {
+       parseArgs: function(args) {
+        var arg = args[0];
+        var name = args[1];
+        var desmos = args[2];
+
         var options = {
           'value': arg,
           'name': name,
+          'id': name,
           'desmos': desmos,
           'log':console.log // change to function(){} for production
         };
@@ -436,7 +441,7 @@ PearsonGL.External.rootJS = (function() {
        |  the scale or aspect ratio changes by a significant amount.
        * ←———————————————————————————————————————————————————————————————————→ */
        observeZoom: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
 
         if (o.log) {o.log('observeZoom activated with '+JSON.stringify(Object.assign({},o,{'desmos':'l'})));}
 
@@ -503,7 +508,7 @@ PearsonGL.External.rootJS = (function() {
        |  });
        * ←————————————————————————————————————————————————————————————————→ */
        valueOnly: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         o.desmos.setExpression({id:o.name,label:''+o.value});
        },
       /* ←— labelAngle ——————————————————————————————————————————————————→ *\
@@ -518,7 +523,7 @@ PearsonGL.External.rootJS = (function() {
        |  });
        * ←————————————————————————————————————————————————————————————————→ */
        labelAngle: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         o.desmos.setExpression({id:o.name,label:''+o.value+'°'});
        },
       /* ←— labelPoint ———————→———————————————————————————————————————————→ *\
@@ -539,7 +544,7 @@ PearsonGL.External.rootJS = (function() {
         if(precision === undefined) {
           precision = cs.precision.COORDINATES;
         }
-        let o = hs.parseOptions.apply(this,[(options || {})]);
+        let o = hs.parseArgs.apply(this,[(options || {})]);
         let expr = name+'('+
           ((xVal<0)?'−':'')+
           Math.abs(Math.round(Math.pow(10,precision)*xVal)/Math.pow(10,precision))+
@@ -569,7 +574,7 @@ PearsonGL.External.rootJS = (function() {
         if (prec === undefined) {
           prec = cs.precision.EVAL;
         }
-        let o = hs.parseOptions.apply(this,[(options || {})]);
+        let o = hs.parseArgs.apply(this,[(options || {})]);
         let expr = hs.latexToText(o.name+'='+Math.round(o.value*Math.pow(10,prec))/Math.pow(10,prec));
         o.log('Setting point label ' + expr);
         o.desmos.setExpression({id:o.name,label:expr});
@@ -597,7 +602,7 @@ PearsonGL.External.rootJS = (function() {
         if(prec === undefined) {
           prec = cs.precision.DEGREES;
         }
-        let o = hs.parseOptions.apply(this,[(options || {})]);
+        let o = hs.parseArgs.apply(this,[(options || {})]);
         let A = pointNames.A;
         let B = pointNames.B;
         let C = pointNames.C;
@@ -679,7 +684,7 @@ PearsonGL.External.rootJS = (function() {
         if(prec === undefined) {
           prec = cs.precision.DEGREES;
         }
-        let o = hs.parseOptions.apply(this,[(options || {})]);
+        let o = hs.parseArgs.apply(this,[(options || {})]);
         let ps = Object.assign({refreshAll:false,exterior:false},params);
         let v = o.name[o.name.length-1];
         let vars = vs[o.uniqueId];
@@ -845,7 +850,7 @@ PearsonGL.External.rootJS = (function() {
        |    1 is visible
        * ←————————————————————————————————————————————————————————————————→ */
        showHide: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         o.desmos.setExpression({id:o.id,hidden:(!(o.value))});
        }
      };
@@ -858,7 +863,7 @@ PearsonGL.External.rootJS = (function() {
        |
        * ←———————————————————————————————————————————————————————————————————→ */
        updateAVfunction: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
       
           if (o.value > 0) {
               o.desmos.setExpression({id:'9',label:('g(x) = |x –'+' '+ o.value+'|')});
@@ -873,7 +878,7 @@ PearsonGL.External.rootJS = (function() {
      fs.A0598803 = {
       
        updateAVfunction: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
           
           o.desmos.setExpression({id:'12',label:('g(x) ='+' '+o.value +'|x|')});
         }
@@ -883,7 +888,7 @@ PearsonGL.External.rootJS = (function() {
      fs.A0598800 = {
       
        updateAVfunction: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
       
           if (o.value > 0) {
               o.desmos.setExpression({id:'4',label:('g(x) = |x| +'+' '+ o.value)});
@@ -903,7 +908,7 @@ PearsonGL.External.rootJS = (function() {
        | Initializes the variables
        * ←———————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         vs[o.uniqueId] = {
           P_x:-4,
           P_y:-3,
@@ -922,7 +927,7 @@ PearsonGL.External.rootJS = (function() {
        |  P_point, Q_point, and M_point
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         switch (o.name) {
           case 'x_1':
             vs[o.uniqueId].P_x = o.value;
@@ -950,13 +955,13 @@ PearsonGL.External.rootJS = (function() {
      };
 
 
-    /* ←— A0597552 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0597552 FUNCTIONS (transpiled) ——————————————————————————————————————————————→ */
      fs.A0597552 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
        * ←———————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         vs[o.uniqueId] = {
           P_x:-4,
           P_y:-3,
@@ -975,7 +980,7 @@ PearsonGL.External.rootJS = (function() {
        |  P_point, Q_point, distance, x_distance, and y_distance
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let P_x = vs[o.uniqueId].P_x;
         let P_y = vs[o.uniqueId].P_y;
         let Q_x = vs[o.uniqueId].Q_x;
@@ -1021,7 +1026,7 @@ PearsonGL.External.rootJS = (function() {
        | Initializes the variables
        * ←———————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         vs[o.uniqueId] = {
           // try changing 'h' with it's id (4) instead same with "k" (3).
           h:4,
@@ -1034,7 +1039,7 @@ PearsonGL.External.rootJS = (function() {
        | 
        * ←———————————————————————————————————————————————————————————————————→ */
        updateAVfunction: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let k = vs[o.uniqueId].k;
         let h = vs[o.uniqueId].h;
     
@@ -1125,7 +1130,7 @@ PearsonGL.External.rootJS = (function() {
        | Initializes the variables
        * ←———————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         vs[o.uniqueId] = {
           a:1,
           b:0,
@@ -1137,7 +1142,7 @@ PearsonGL.External.rootJS = (function() {
        | 
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let vars = vs[o.uniqueId];
         vars[o.name] = o.value;
         var a = vars.a;
@@ -1199,7 +1204,7 @@ PearsonGL.External.rootJS = (function() {
        | Initializes the variables
        * ←———————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         vs[o.uniqueId] = {
           x:3,
           y:2
@@ -1210,7 +1215,7 @@ PearsonGL.External.rootJS = (function() {
       | 
        * ←———————————————————————————————————————————————————————————————————→ */
        updateTriangle: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let vars = vs[o.uniqueId];
         vars[o.name[0]] = o.value;
 
@@ -1237,7 +1242,7 @@ PearsonGL.External.rootJS = (function() {
        | and the ID 268
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         switch (o.name) {
           case 'm':
             o.desmos.setExpression({id:'268',label:(+o.value+'°')});
@@ -1256,7 +1261,7 @@ PearsonGL.External.rootJS = (function() {
        | and the ID 17
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         switch (o.name) {
           case 'a':
             o.desmos.setExpression({id:'17',label:('f(x) = '+o.value+'x²')});
@@ -1275,7 +1280,7 @@ PearsonGL.External.rootJS = (function() {
        | and the ID 17
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         switch (o.name) {
           case 'a':
             o.desmos.setExpression({id:'21',label:('y = '+o.value+'x²')});
@@ -1286,7 +1291,7 @@ PearsonGL.External.rootJS = (function() {
      };
 
 
-    /* ←— A0597534 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0597534 FUNCTIONS (transpiled) ——————————————————————————————————————————————→ */
      fs.A0597534 = {
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
        | updates the labels of theta 1, 2, 3, 4 based on changes to two lines
@@ -1295,7 +1300,7 @@ PearsonGL.External.rootJS = (function() {
        | and the IDs a1, a2, a3, a4
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         switch (o.name) {
           case '\\theta_1':
             o.desmos.setExpression({id:'a1',label:(o.value+'°')});
@@ -1313,14 +1318,14 @@ PearsonGL.External.rootJS = (function() {
         }
      };
 
-    /* ←— A0597544 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0597544 FUNCTIONS (transpiled) ——————————————————————————————————————————————→ */
      fs.A0597544 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
        | DEPRECATED
        * ←———————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
        },
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
        | updates the labels of theta 1, 2 based on changes to two lines
@@ -1329,7 +1334,7 @@ PearsonGL.External.rootJS = (function() {
        | and the IDs P1, P2
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         switch (o.name) {
           case '\\theta_1':
             o.desmos.setExpression({id:'P1',label:(o.value+'°')});
@@ -1340,14 +1345,14 @@ PearsonGL.External.rootJS = (function() {
           }
         }
      };
-     /* ←— A0597546 FUNCTIONS ——————————————————————————————————————————————→ */
+     /* ←— A0597546 FUNCTIONS (transpiled) ——————————————————————————————————————————————→ */
      fs.A0597546 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
        | DEPRECATED
        * ←———————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
        },
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
        | updates the labels of theta 1, 2 based on changes to two lines
@@ -1356,7 +1361,7 @@ PearsonGL.External.rootJS = (function() {
        | and the IDs P1, P2 *******
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         switch (o.name) {
           case '\\theta_1':
             o.desmos.setExpression({id:'100',label:(o.value+'°')});
@@ -1376,7 +1381,7 @@ PearsonGL.External.rootJS = (function() {
        | H
        * ←———————————————————————————————————————————————————————————————————→ */
        simulation: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
 
         if(o.name == 'p') {
           vs[o.uniqueId].p = o.value;
@@ -1462,7 +1467,7 @@ PearsonGL.External.rootJS = (function() {
        | Initializes the variables
        * ←———————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         vs[o.uniqueId] = {
           globalDiffArray:[],
           histFreq:[]
@@ -1472,7 +1477,7 @@ PearsonGL.External.rootJS = (function() {
        |    Additional function to reset histogram.
        *————————————————————————————————————————————————*/
        histReset: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let vars = vs[o.uniqueId];
         let globalDiffArray=vars.globalDiffArray;
         let histFreq = vars.histFreq;
@@ -1492,7 +1497,7 @@ PearsonGL.External.rootJS = (function() {
        |
        * ←———————————————————————————————————————————————————————————————————→ */
        resample: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let vars = vs[o.uniqueId];
 
         if(o.value===0) return;
@@ -1626,7 +1631,7 @@ PearsonGL.External.rootJS = (function() {
        | Initializes the variables
        * ←———————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         vs[o.uniqueId] = {                
           n:1,
           p:0.5,
@@ -1637,7 +1642,7 @@ PearsonGL.External.rootJS = (function() {
        },
       //←———————————————————————————————————————————————————————————————————
        simulation: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
       
         let win = false;
         let net = 0;
@@ -1751,7 +1756,7 @@ PearsonGL.External.rootJS = (function() {
        /* Initializes the variables
        ←———————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let n = 9;
         let i;
 
@@ -1800,7 +1805,7 @@ PearsonGL.External.rootJS = (function() {
         the parabola points.*/
 
        reset: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let n = vs[o.uniqueId].n;
         let ids = vs[o.uniqueId].ids;
         let i;
@@ -1827,7 +1832,7 @@ PearsonGL.External.rootJS = (function() {
        | and the IDs a1, a2, a3
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         switch (o.name) {
           case '\\theta_1':
             o.desmos.setExpression({id:'a1',label:('𝑚∠2 = '+o.value)});
@@ -1846,7 +1851,7 @@ PearsonGL.External.rootJS = (function() {
        | DEPRECATED
        * ←———————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
        },
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
        | updates the labels of Watered Area based on values of r_1, r_2, r_3 
@@ -1855,7 +1860,7 @@ PearsonGL.External.rootJS = (function() {
        | and the ID 26
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         switch (o.name) {
           case 'w':
             o.desmos.setExpression({id:'26',label:('Watered Area: '+o.value+' m')});
@@ -1874,7 +1879,7 @@ PearsonGL.External.rootJS = (function() {
        | with showLabel:true, and ID 636.
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         switch (o.name) {
           case 'k':
             o.desmos.setExpression({id:'636',label:(o.value)});
@@ -1892,7 +1897,7 @@ PearsonGL.External.rootJS = (function() {
        | and the ID 394
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         switch (o.name) {
           case 'a':
             o.desmos.setExpression({id:'394',label:('y = '+o.value+' cos x')});
@@ -1908,7 +1913,7 @@ PearsonGL.External.rootJS = (function() {
        | DEPRECATED
        * ←———————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
        },
       /* ←— random Sample ————————————————————————————————————————————————————→ *\
        | populates a list with random points when a variable "r" is changed.
@@ -1917,7 +1922,7 @@ PearsonGL.External.rootJS = (function() {
        | 
        * ←———————————————————————————————————————————————————————————————————→ */
        randomSample: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         switch (o.name) {
           case 'R':
             break;
@@ -1983,7 +1988,7 @@ PearsonGL.External.rootJS = (function() {
        | DEPRECATED
        * ←———————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
        },
       /* ←— generatePoints ————————————————————————————————————————————————————→ *\
        | generatespoints when a variable "g" is changed.
@@ -1992,7 +1997,7 @@ PearsonGL.External.rootJS = (function() {
        | 
        * ←———————————————————————————————————————————————————————————————————→ */
        generatePoints: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         switch (o.name) {
           case 'g':
             break;
@@ -2022,7 +2027,7 @@ PearsonGL.External.rootJS = (function() {
        | and the ID 344
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(){
-        let o = hs.parseOptions.apply(this,arguments);                
+        let o = hs.parseArgs(arguments);                
           if (o.value > 0){
             o.desmos.setExpression({id:'344',label:('g(x) = x² +'+' '+ o.value)});
             }
@@ -2045,7 +2050,7 @@ PearsonGL.External.rootJS = (function() {
        | and the ID 357
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(){
-        let o = hs.parseOptions.apply(this,arguments);                
+        let o = hs.parseArgs(arguments);                
           
           if (o.value == 1){
             o.desmos.setExpression({id:'357',label:('j(x) = √(x)')});
@@ -2067,7 +2072,7 @@ PearsonGL.External.rootJS = (function() {
        | and the ID 467
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         
           if (o.value > 0){
             o.desmos.setExpression({id:'467',label:('g(x) = '+ o.value +'|x|')});
@@ -2088,7 +2093,7 @@ PearsonGL.External.rootJS = (function() {
        | and the ID 467
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         
           if(o.value < 0){
             o.desmos.setExpression({id:'467',label:('h(x) = '+ o.value +'|x|')});
@@ -2108,7 +2113,7 @@ PearsonGL.External.rootJS = (function() {
        | and the ID distance
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         switch (o.name) {
           case 'd_2':
             o.desmos.setExpression({id:'distance',label:(o.value+' blocks')});
@@ -2117,14 +2122,14 @@ PearsonGL.External.rootJS = (function() {
         }
      };
 
-    /* ←— A0597598_A FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0597598_A FUNCTIONS (transpiled) ——————————————————————————————————————————————→ */
      fs.A0597598_A = {
       /* ←— labelAngle ————————————————————————————————————————————————————→ *\
        | updates the label of the angle of rotation
        | observe with \theta_x
        * ←———————————————————————————————————————————————————————————————————→ */
        labelAngle: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         o.desmos.setExpression({id:'angle_label',label:(hs.latexToText(o.value)+'°')});
        }
      };
@@ -2134,7 +2139,7 @@ PearsonGL.External.rootJS = (function() {
      fs.A0597616 = {
       /* ←— label —————————————————————————————————————————————————————————→ */
        label: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         /* switch (o.name) {
           case 'm_B': */
             let value = Math.round(o.value);
@@ -2169,7 +2174,7 @@ PearsonGL.External.rootJS = (function() {
        },
       /* ←— label_noCorrection ————————————————————————————————————————————→ */
        label_noCorrection: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let value = Math.round(o.value);
         vs[o.uniqueId].B = value;
         o.desmos.setExpression({id:'labelB',label:''+value+'°'});
@@ -2193,7 +2198,7 @@ PearsonGL.External.rootJS = (function() {
      fs.A0596392 = {
       /* ←— init ————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         vs[o.uniqueId] = {triAngleABC:{prevError:0,A:0,B:0,C:0}};
        },
       /* ←— labelTriAngles ——————————————————————————————————————————————————→ *\
@@ -2219,7 +2224,7 @@ PearsonGL.External.rootJS = (function() {
         if(prec === undefined) {
           prec = cs.precision.DEGREES;
         }
-        let o = hs.parseOptions.apply(this,[(options || {})]);
+        let o = hs.parseArgs.apply(this,[(options || {})]);
         let A = pointNames.A;
         let B = pointNames.B;
         let C = pointNames.C;
@@ -2287,16 +2292,16 @@ PearsonGL.External.rootJS = (function() {
        | and the ID 782
        * ←———————————————————————————————————————————————————————————————————→ */
        updateLabels: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         o.desmos.setExpression({id:'782',label:'y = −2x² + 4x'+(o.value<0?' − '+(-o.value):(o.value>0?' + '+o.value:''))});
        }
      };
 
-    /* ←— A0597720 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0597720 FUNCTIONS (transpiled) ——————————————————————————————————————————————→ */
      fs.A0597720 = {
       /* ←— labelEquation ————————————————————————————————————————————————————→ */
        labelEquation: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         o.desmos.setExpression({id:'equation',label:''+(180-o.value)/*+'°'*/+' + '+o.value/*+'°'*/+' = 180'/*+'°'*/});
        }
      };
@@ -2305,7 +2310,7 @@ PearsonGL.External.rootJS = (function() {
      fs.A0597522 = {
       /* ←— labelDiags ————————————————————————————————————————————————————→ */
        labelDiags: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         function diags(n) {
           if(n === 3) {return 0;}
           else if((n<1)||(n%1 !== 0)) {return undefined;}
@@ -2318,13 +2323,13 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
-    /* ←— A0597744 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0597744 FUNCTIONS (transpiled) ——————————————————————————————————————————————→ */
       /* ←— A0597744 Constants ——————————————————————————————————————————————→ */
        cs.A0597744 = {PRECISION:10};
      fs.A0597744 = {
       /* ←— init ————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let vars = vs[o.uniqueId];
         let cons = cs.A0597744;
 
@@ -2421,13 +2426,13 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
-    /* ←— A0597724 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0597724 FUNCTIONS (transpiled) ——————————————————————————————————————————————→ */
      fs.A0597724 = {
       /* ←— init ——————————————————————————————————————————————————————→ *\
        | Prepares the widget to listen to user input
        * ←—————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let vars = vs[o.uniqueId] = {
           x_1:8,
           y_1:4,
@@ -2467,7 +2472,7 @@ PearsonGL.External.rootJS = (function() {
        | the dragged point.
        * ←—————————————————————————————————————————————————————————————————→ */
        dragging: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let vars = vs[o.uniqueId];
 
         vars[o.name] = o.value;
@@ -2481,25 +2486,25 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
-    /* ←— A0597631 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0597631 FUNCTIONS (transpiled) ——————————————————————————————————————————————→ */
      fs.A0597631 = {
       /* ←— equation ——————————————————————————————————————————————————————→ *\
        | Updates the equation (expression) with the new value of `n`
        * ←—————————————————————————————————————————————————————————————————→ */
        equation: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         o.desmos.setExpression({id:'equation',latex:'\\frac{180\\left('+o.value+'-2\\right)}{'+o.value+'}'});
         o.desmos.setExpression({id:'centroid',label:hs.latexToText('180⋅\\left('+o.value+'-2\\right)÷'+o.value+'='+(Math.round(18000*(o.value-2)/o.value)/100))});
        }
      };
 
-    /* ←— A0597560 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0597560 FUNCTIONS (transpiled) ——————————————————————————————————————————————→ */
      fs.A0597560 = {
       /* ←— init ——————————————————————————————————————————————————————————→ *\
        | Updates the equation (expression) with the new angles
        * ←—————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let vars = vs[o.uniqueId] = {
           A:o.desmos.HelperExpression({latex:'m_A'}),
           B:o.desmos.HelperExpression({latex:'m_B'}),
@@ -2537,7 +2542,7 @@ PearsonGL.External.rootJS = (function() {
        | Shows or hides QRST
        * ←—————————————————————————————————————————————————————————————————→ */
        showHideQRST: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         o.desmos.setExpressions([
           {id:'EdgesQRST',type:'table',columns:[{},{hidden:o.value}]},
           {id:'Q',hidden:o.value,showLabel:(!(o.value))},
@@ -2550,7 +2555,7 @@ PearsonGL.External.rootJS = (function() {
        | Shows or hides EFGH
        * ←—————————————————————————————————————————————————————————————————→ */
        showHideEFGH: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         o.desmos.setExpressions([
           {id:'EdgesEFGH',type:'table',columns:[{},{hidden:o.value}]},
           {id:'E',hidden:o.value,showLabel:(!(o.value))},
@@ -2561,13 +2566,13 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
-    /* ←— A0597563 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0597563 FUNCTIONS (transpiled)——————————————————————————————————————————————→ */
      fs.A0597563 = {
       /* ←— init ——————————————————————————————————————————————————————————→ *\
        | Updates the equation (expression) with the new angles
        * ←—————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let vars = vs[o.uniqueId] = {
           A:o.desmos.HelperExpression({latex:'m_A'}),
           B:o.desmos.HelperExpression({latex:'m_B'}),
@@ -2605,24 +2610,24 @@ PearsonGL.External.rootJS = (function() {
        | sets the
        * ←—————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let vars = vs[o.uniqueId] = {
           orange:1,
           blue:1
         };
        },
        orange: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         vs[o.uniqueId].orange = o.value;
         fs.A0598839.setPlanes(options);
        },
        blue: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         vs[o.uniqueId].blue = o.value;
         fs.A0598839.setPlanes(options);
        },
        setPlanes: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let orange = vs[o.uniqueId].orange;
         let blue = vs[o.uniqueId].blue;
 
@@ -2642,7 +2647,7 @@ PearsonGL.External.rootJS = (function() {
      fs.A0596385 = {
       /* ←— init ————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         vs[o.uniqueId] = {triAngleABC:{prevError:0,A:0,B:0,C:0}};
        },
       /* ←— updateAngles ————————————————————————————————————————————————————→ *\
@@ -2650,7 +2655,7 @@ PearsonGL.External.rootJS = (function() {
        | angle measures.
        * ←———————————————————————————————————————————————————————————————————→ */
        updateAngles: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let vertex = o.name[o.name.length-1];
         let val = Math.round(180*o.value/Math.PI);
         let vars = vs[o.uniqueId].triAngleABC;
@@ -2680,7 +2685,7 @@ PearsonGL.External.rootJS = (function() {
        | Adds any side-extensions necessary; pass in name of obtuse angle
        * ←———————————————————————————————————————————————————————————————————→ */
        drawExtensions: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let obtuse = (o.name[o.name.length-1] === 'A')?1:((o.name[o.name.length-1] === 'B')?2:3);
         let Ext1 = hs.ALPHA[obtuse%3+1];
         let ext1 = hs.alpha[obtuse%3+1];
@@ -2705,7 +2710,7 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
-    /* ←— A0597629 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0597629 FUNCTIONS (transpiled) ——————————————————————————————————————————————→ */
       cs.A0597629 = {
         MAX_VERTICES:14,
         RADIUS:5,
@@ -2721,7 +2726,7 @@ PearsonGL.External.rootJS = (function() {
        | Initializes the variables
        * ←———————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let vars = vs[o.uniqueId] = {lastDragged:0,placeholder:0};
         let hfs = vars.helperFunctions = {n:o.desmos.HelperExpression({latex:'n'}),showDiagonals:o.desmos.HelperExpression({latex:'d_{iags}'})};
         o.log(hfs);
@@ -2822,7 +2827,7 @@ PearsonGL.External.rootJS = (function() {
         if(i === undefined) {
           i = 0;
         }
-        let o = hs.parseOptions.apply(this,[(options || {})]);
+        let o = hs.parseArgs.apply(this,[(options || {})]);
         let vars = vs[o.uniqueId];
         let n = vars.n;
 
@@ -2889,7 +2894,7 @@ PearsonGL.External.rootJS = (function() {
        | 
        * ←———————————————————————————————————————————————————————————————————→ */
        clearPlaceholder: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let vars = vs[o.uniqueId];
         let hfs = vars.helperFunctions;
         let cons = cs.A0597629;
@@ -2961,7 +2966,7 @@ PearsonGL.External.rootJS = (function() {
        | updates variables, and corrects if the user tries to cross diagonals
        * ←———————————————————————————————————————————————————————————————————→ */
        coordinateChanged: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let vars = vs[o.uniqueId];
         if (vars.belayCorrection === true) {return;}
         let n = vars.n;
@@ -3037,7 +3042,7 @@ PearsonGL.External.rootJS = (function() {
        | Restores coordinates
        * ←———————————————————————————————————————————————————————————————————→ */
        switchPolygon: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let vars = vs[o.uniqueId];
         let hfs = vars.helperFunctions;
         let cons = cs.A0597629;
@@ -3166,7 +3171,7 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
-    /* ←— A0597630 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0597630 FUNCTIONS (transpiled) ——————————————————————————————————————————————→ */
       cs.A0597630 = {
         MAX_VERTICES:14,
         RADIUS:5,
@@ -3188,7 +3193,7 @@ PearsonGL.External.rootJS = (function() {
         if(varparam === undefined) {
           varparam = {};
         }
-        let o = hs.parseOptions.apply(this,[(options || {})]);
+        let o = hs.parseArgs.apply(this,[(options || {})]);
         let vars = vs[o.uniqueId] = Object.assign(varparam,{lastDragged:0,placeholder:0});
         let hfs = vars.helperFunctions = ((vars.helperFunctions === undefined)?{n:o.desmos.HelperExpression({latex:'n'})}:vars.helperFunctions);
         o.log(hfs);
@@ -3328,7 +3333,7 @@ PearsonGL.External.rootJS = (function() {
         if(i === undefined) {
           i = 0;
         }
-        let o = hs.parseOptions.apply(this,[(options || {})]);
+        let o = hs.parseArgs.apply(this,[(options || {})]);
         let vars = vs[o.uniqueId];
         let n = vars.n;
 
@@ -3409,7 +3414,7 @@ PearsonGL.External.rootJS = (function() {
        | 
        * ←———————————————————————————————————————————————————————————————————→ */
        clearPlaceholder: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let vars = vs[o.uniqueId];
         let hfs = vars.helperFunctions;
         let cons = cs.A0597630;
@@ -3495,7 +3500,7 @@ PearsonGL.External.rootJS = (function() {
        | updates variables, and corrects if the user tries to cross diagonals
        * ←———————————————————————————————————————————————————————————————————→ */
        coordinateChanged: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let vars = vs[o.uniqueId];
         let cons = cs.A0597630;
         if (vars.belayCorrection === true) {
@@ -3584,7 +3589,7 @@ PearsonGL.External.rootJS = (function() {
        | Restores coordinates
        * ←———————————————————————————————————————————————————————————————————→ */
        switchPolygon: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let vars = vs[o.uniqueId];
         let hfs = vars.helperFunctions;
         let cons = cs.A0597630;
@@ -3729,7 +3734,7 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
-    /* ←— A0597634 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0597634 FUNCTIONS (transpiled) ——————————————————————————————————————————————→ */
       cs.A0597634 = {
         MAX_VERTICES:14,
         RADIUS:4,
@@ -3753,7 +3758,7 @@ PearsonGL.External.rootJS = (function() {
         if(varparam === undefined) {
           varparam = {};
         }
-        let o = hs.parseOptions.apply(this,[(options || {})]);
+        let o = hs.parseArgs.apply(this,[(options || {})]);
         let vars = vs[o.uniqueId] = Object.assign(varparam,{lastDragged:0,placeholder:0});
         let hfs = vars.helperFunctions = ((vars.helperFunctions === undefined)?{n:o.desmos.HelperExpression({latex:'n'})}:vars.helperFunctions);
         o.log(hfs);
@@ -3884,7 +3889,7 @@ PearsonGL.External.rootJS = (function() {
         if(i === undefined) {
           i = 0;
         }
-        let o = hs.parseOptions.apply(this,[(options || {})]);
+        let o = hs.parseArgs.apply(this,[(options || {})]);
         let vars = vs[o.uniqueId];
         let n = vars.n;
 
@@ -3982,7 +3987,7 @@ PearsonGL.External.rootJS = (function() {
        | 
        * ←———————————————————————————————————————————————————————————————————→ */
        clearPlaceholder: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let vars = vs[o.uniqueId];
         let hfs = vars.helperFunctions;
         let cons = cs.A0597634;
@@ -4085,7 +4090,7 @@ PearsonGL.External.rootJS = (function() {
        | updates variables, and corrects if the user tries to cross diagonals
        * ←———————————————————————————————————————————————————————————————————→ */
        coordinateChanged: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let vars = vs[o.uniqueId];
         let cons = cs.A0597634;
         if (vars.belayCorrection === true) {
@@ -4168,7 +4173,7 @@ PearsonGL.External.rootJS = (function() {
        | Restores coordinates
        * ←———————————————————————————————————————————————————————————————————→ */
        switchPolygon: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let vars = vs[o.uniqueId];
         let hfs = vars.helperFunctions;
         let cons = cs.A0597634;
@@ -4316,7 +4321,7 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
-    /* ←— A0597772 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0597772 FUNCTIONS (transpiled) ——————————————————————————————————————————————→ */
       cs.A0597772 = {
         CENTER_COLOR:cs.color.agaColors.black,
         INTERSECTION_COLOR:cs.color.agaColors.black,
@@ -4329,12 +4334,12 @@ PearsonGL.External.rootJS = (function() {
        | (Initialization option; starts the whole graph)
        * ←—————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let vars = vs[o.uniqueId] = {draggingPoint:null,dragging:false};
-        let hxs = vars.helperExpressions = {};
+        let hlps = vars.helperExpressions = {};
         vars.belayUntil = Date.now()+cs.delay.LOAD;
 
-        Object.assign(hxs,{
+        Object.assign(hlps,{
           u_0:o.desmos.HelperExpression({latex:'u_0'}),
           v_0:o.desmos.HelperExpression({latex:'v_0'}),
           u_1:o.desmos.HelperExpression({latex:'u_1'}),
@@ -4363,7 +4368,7 @@ PearsonGL.External.rootJS = (function() {
 
         function isolateHandle(which) {
           // o.log('Isolating Handles');
-          Object.keys(hxs).forEach(function(helper) {hxs[helper].unobserve('numericValue.dragging');});
+          Object.keys(hlps).forEach(function(helper) {hlps[helper].unobserve('numericValue.dragging');});
 
           document.addEventListener('mouseup',unclick);
           document.addEventListener('touchend',unclick);
@@ -4422,14 +4427,14 @@ PearsonGL.External.rootJS = (function() {
           vars.belayUntil = Date.now()+cs.delay.EXECUTE_HELPER;
 
           let exprs = [
-            {id:'u_2',latex:'u_2='+hs.number(hxs.m1_x.numericValue-hxs.u_1.numericValue)},
-            {id:'v_2',latex:'v_2='+hs.number(hxs.m1_y.numericValue-hxs.v_1.numericValue)},
-            {id:'w_2',latex:'w_2='+hs.number(hxs.m2_x.numericValue-hxs.u_1.numericValue)},
-            {id:'z_2',latex:'z_2='+hs.number(hxs.m2_y.numericValue-hxs.v_1.numericValue)},
-            {id:'u_3',latex:'u_3='+hs.number(hxs.n1_x.numericValue-hxs.u_1.numericValue)},
-            {id:'v_3',latex:'v_3='+hs.number(hxs.n1_y.numericValue-hxs.v_1.numericValue)},
-            {id:'w_3',latex:'w_3='+hs.number(hxs.n2_x.numericValue-hxs.u_1.numericValue)},
-            {id:'z_3',latex:'z_3='+hs.number(hxs.n2_y.numericValue-hxs.v_1.numericValue)}
+            {id:'u_2',latex:'u_2='+hs.number(hlps.m1_x.numericValue-hlps.u_1.numericValue)},
+            {id:'v_2',latex:'v_2='+hs.number(hlps.m1_y.numericValue-hlps.v_1.numericValue)},
+            {id:'w_2',latex:'w_2='+hs.number(hlps.m2_x.numericValue-hlps.u_1.numericValue)},
+            {id:'z_2',latex:'z_2='+hs.number(hlps.m2_y.numericValue-hlps.v_1.numericValue)},
+            {id:'u_3',latex:'u_3='+hs.number(hlps.n1_x.numericValue-hlps.u_1.numericValue)},
+            {id:'v_3',latex:'v_3='+hs.number(hlps.n1_y.numericValue-hlps.v_1.numericValue)},
+            {id:'w_3',latex:'w_3='+hs.number(hlps.n2_x.numericValue-hlps.u_1.numericValue)},
+            {id:'z_3',latex:'z_3='+hs.number(hlps.n2_y.numericValue-hlps.v_1.numericValue)}
           ];
           o.desmos.setExpressions(exprs);
 
@@ -4451,21 +4456,21 @@ PearsonGL.External.rootJS = (function() {
             {id:'y_1',latex:'y_1=v_1'}
           ];
 
-          let intersection = {x:hxs.u_1.numericValue,y:hxs.v_1.numericValue};
-          if (Math.pow(hxs.m1_x.numericValue-intersection.x,2)+
-            Math.pow(hxs.m1_y.numericValue-intersection.y,2) > 
-            Math.pow(hxs.m2_x.numericValue-intersection.x,2) +
-            Math.pow(hxs.m2_y.numericValue-intersection.y,2)) {
+          let intersection = {x:hlps.u_1.numericValue,y:hlps.v_1.numericValue};
+          if (Math.pow(hlps.m1_x.numericValue-intersection.x,2)+
+            Math.pow(hlps.m1_y.numericValue-intersection.y,2) > 
+            Math.pow(hlps.m2_x.numericValue-intersection.x,2) +
+            Math.pow(hlps.m2_y.numericValue-intersection.y,2)) {
             exprs.push({id:'x_2',latex:'x_2=u_2'});
             exprs.push({id:'y_2',latex:'y_2=v_2'});
           } else {
             exprs.push({id:'x_2',latex:'x_2=-w_2'});
             exprs.push({id:'y_2',latex:'y_2=-z_2'});
           }
-          if (Math.pow(hxs.n1_x.numericValue-intersection.x,2)+
-            Math.pow(hxs.n1_y.numericValue-intersection.y,2) > 
-            Math.pow(hxs.n2_x.numericValue-intersection.x,2) +
-            Math.pow(hxs.n2_y.numericValue-intersection.y,2)) {
+          if (Math.pow(hlps.n1_x.numericValue-intersection.x,2)+
+            Math.pow(hlps.n1_y.numericValue-intersection.y,2) > 
+            Math.pow(hlps.n2_x.numericValue-intersection.x,2) +
+            Math.pow(hlps.n2_y.numericValue-intersection.y,2)) {
             exprs.push({id:'x_3',latex:'x_3=u_3'});
             exprs.push({id:'y_3',latex:'y_3=v_3'});
           } else {
@@ -4485,15 +4490,15 @@ PearsonGL.External.rootJS = (function() {
           o.desmos.setExpressions([
             {id:'center',hidden:false},
             {id:'intersection',hidden:false},
-            {id:'handleM1',hidden:(Math.pow(hxs.m1_x.numericValue-hxs.u_1.numericValue,2)+Math.pow(hxs.m1_y.numericValue-hxs.v_1.numericValue,2)<Math.pow(hxs.t_ick.numericValue,2))},
-            {id:'handleM2',hidden:(Math.pow(hxs.m2_x.numericValue-hxs.u_1.numericValue,2)+Math.pow(hxs.m2_y.numericValue-hxs.v_1.numericValue,2)<Math.pow(hxs.t_ick.numericValue,2))},
-            {id:'handleN1',hidden:(Math.pow(hxs.n1_x.numericValue-hxs.u_1.numericValue,2)+Math.pow(hxs.n1_y.numericValue-hxs.v_1.numericValue,2)<Math.pow(hxs.t_ick.numericValue,2))},
-            {id:'handleN2',hidden:(Math.pow(hxs.n2_x.numericValue-hxs.u_1.numericValue,2)+Math.pow(hxs.n2_y.numericValue-hxs.v_1.numericValue,2)<Math.pow(hxs.t_ick.numericValue,2))}
+            {id:'handleM1',hidden:(Math.pow(hlps.m1_x.numericValue-hlps.u_1.numericValue,2)+Math.pow(hlps.m1_y.numericValue-hlps.v_1.numericValue,2)<Math.pow(hlps.t_ick.numericValue,2))},
+            {id:'handleM2',hidden:(Math.pow(hlps.m2_x.numericValue-hlps.u_1.numericValue,2)+Math.pow(hlps.m2_y.numericValue-hlps.v_1.numericValue,2)<Math.pow(hlps.t_ick.numericValue,2))},
+            {id:'handleN1',hidden:(Math.pow(hlps.n1_x.numericValue-hlps.u_1.numericValue,2)+Math.pow(hlps.n1_y.numericValue-hlps.v_1.numericValue,2)<Math.pow(hlps.t_ick.numericValue,2))},
+            {id:'handleN2',hidden:(Math.pow(hlps.n2_x.numericValue-hlps.u_1.numericValue,2)+Math.pow(hlps.n2_y.numericValue-hlps.v_1.numericValue,2)<Math.pow(hlps.t_ick.numericValue,2))}
           ]);
 
-          Object.keys(hxs).forEach(function(helper) {
+          Object.keys(hlps).forEach(function(helper) {
             if (/[uvwz]_/.test(helper)) {
-              hxs[helper].observe(
+              hlps[helper].observe(
                 'numericValue.dragging',
                 function(){if(vars.dragging){isolateHandle(helper);}}
               );
@@ -4502,18 +4507,18 @@ PearsonGL.External.rootJS = (function() {
         }
 
         function logChanges() {
-          hxs.u_0.observe('numericValue.log',function(){o.log('center.u:'+hxs.u_0.numericValue);});
-          hxs.v_0.observe('numericValue.log',function(){o.log('center.v:'+hxs.v_0.numericValue);});
-          hxs.u_1.observe('numericValue.log',function(){o.log('intersection.u:'+hxs.u_1.numericValue);});
-          hxs.v_1.observe('numericValue.log',function(){o.log('intersection.v:'+hxs.v_1.numericValue);});
+          hlps.u_0.observe('numericValue.log',function(){o.log('center.u:'+hlps.u_0.numericValue);});
+          hlps.v_0.observe('numericValue.log',function(){o.log('center.v:'+hlps.v_0.numericValue);});
+          hlps.u_1.observe('numericValue.log',function(){o.log('intersection.u:'+hlps.u_1.numericValue);});
+          hlps.v_1.observe('numericValue.log',function(){o.log('intersection.v:'+hlps.v_1.numericValue);});
         }
 
         function enableCorrection() {
-          hxs.D.observe('numericValue.correction',function(){correctIt();});
+          hlps.D.observe('numericValue.correction',function(){correctIt();});
         }
 
         function disableCorrection() {
-          hxs.D.unobserve('numericValue.correction');
+          hlps.D.unobserve('numericValue.correction');
         }
 
         function clearPlaceholder(draggingPoint=vars.draggingPoint) {
@@ -4527,14 +4532,14 @@ PearsonGL.External.rootJS = (function() {
           switch (draggingPoint) {
             case 'center':
               corrected = hs.circleConstrain(
-                {x:hxs.u_0.numericValue,y:hxs.v_0.numericValue},
+                {x:hlps.u_0.numericValue,y:hlps.v_0.numericValue},
                 vars.constrainingCircle,cs.enum.INTERIOR
               );
               exprs.push({id:'center',color:cs.A0597772.CENTER_COLOR});
               break;
             case 'intersection':
               corrected = hs.circleConstrain(
-                {x:hxs.u_1.numericValue,y:hxs.v_1.numericValue},
+                {x:hlps.u_1.numericValue,y:hlps.v_1.numericValue},
                 vars.constrainingCircle,cs.enum.INTERIOR
               );
               exprs.push({id:'intersection',color:cs.A0597772.INTERSECTION_COLOR});
@@ -4543,10 +4548,10 @@ PearsonGL.External.rootJS = (function() {
               return;
           }
 
-          // o.log('Center: ('+hxs.u_0.numericValue+','+hxs.v_0.numericValue+')');
-          // o.log('Intersection: ('+hxs.u_1.numericValue+','+hxs.v_1.numericValue+')');
+          // o.log('Center: ('+hlps.u_0.numericValue+','+hlps.v_0.numericValue+')');
+          // o.log('Intersection: ('+hlps.u_1.numericValue+','+hlps.v_1.numericValue+')');
           // o.log('Constraint: ('+vars.constrainingCircle.x+','+vars.constrainingCircle.y+','+vars.constrainingCircle.r+')');
-          // o.log('Distance: '+Math.sqrt(Math.pow(hxs.u_0.numericValue-hxs.u_1.numericValue,2)+Math.pow(hxs.v_0.numericValue-hxs.v_1.numericValue,2)));
+          // o.log('Distance: '+Math.sqrt(Math.pow(hlps.u_0.numericValue-hlps.u_1.numericValue,2)+Math.pow(hlps.v_0.numericValue-hlps.v_1.numericValue,2)));
           // o.log('Corrected: ('+corrected.x+','+corrected.y+')')
 
           exprs.push({id:'placeholder',hidden:true});
@@ -4584,14 +4589,14 @@ PearsonGL.External.rootJS = (function() {
           o.log('Correcting It; dragging point = '+draggingPoint);
           switch (draggingPoint) {
             case 'center':
-              if (hxs.D.numericValue < hxs.R.numericValue-cs.distance.CONSTRAIN_BUFFER) {
+              if (hlps.D.numericValue < hlps.R.numericValue-cs.distance.CONSTRAIN_BUFFER) {
                 if (vars.placeholder !== undefined) {clearPlaceholder();}
                 return;
               }
-              if (vars.constrainingCircle === undefined) {vars.constrainingCircle = {x:hxs.u_1.numericValue,y:hxs.v_1.numericValue,r:hxs.R.numericValue};}
+              if (vars.constrainingCircle === undefined) {vars.constrainingCircle = {x:hlps.u_1.numericValue,y:hlps.v_1.numericValue,r:hlps.R.numericValue};}
               if (vars.dragging === true) {setPlaceholder(draggingPoint);}
               else {
-                point = {x:hxs.u_0.numericValue,y:hxs.v_0.numericValue};
+                point = {x:hlps.u_0.numericValue,y:hlps.v_0.numericValue};
                 corrected = hs.circleConstrain(point,vars.constrainingCircle,cs.enum.INTERIOR);
                 if (corrected !== point) {
                   o.desmos.setExpressions([
@@ -4603,14 +4608,14 @@ PearsonGL.External.rootJS = (function() {
               }
               break;
             case 'intersection':
-              if (hxs.D.numericValue < hxs.R.numericValue-cs.distance.CONSTRAIN_BUFFER) {
+              if (hlps.D.numericValue < hlps.R.numericValue-cs.distance.CONSTRAIN_BUFFER) {
                 if (vars.placeholder !== undefined) {clearPlaceholder();}
                 return;
               }
-              if (vars.constrainingCircle === undefined) {vars.constrainingCircle = {x:hxs.u_0.numericValue,y:hxs.v_0.numericValue,r:hxs.R.numericValue};}
+              if (vars.constrainingCircle === undefined) {vars.constrainingCircle = {x:hlps.u_0.numericValue,y:hlps.v_0.numericValue,r:hlps.R.numericValue};}
               if (vars.dragging === true) {setPlaceholder(draggingPoint);}
               else {
-                point = {x:hxs.u_1.numericValue,y:hxs.v_1.numericValue};
+                point = {x:hlps.u_1.numericValue,y:hlps.v_1.numericValue};
                 corrected = hs.circleConstrain(point,vars.constrainingCircle,cs.enum.INTERIOR);
                 if (corrected !== point) {
                   o.desmos.setExpressions([
@@ -4662,7 +4667,7 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
-    /* ←— A0597773 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0597773 FUNCTIONS (transpiled) ——————————————————————————————————————————————→ */
       cs.A0597773 = {
         CENTER_COLOR:cs.color.agaColors.black,
         INTERSECTION_COLOR:cs.color.agaColors.black,
@@ -4680,13 +4685,13 @@ PearsonGL.External.rootJS = (function() {
        | (Initialization option; starts the whole graph)
        * ←—————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let vars = vs[o.uniqueId] = {draggingPoint:null,dragging:false};
-        let hxs = vars.helperExpressions = {};
+        let hlps = vars.helperExpressions = {};
         let cons = cs.A0597773;
         vars.belayUntil = Date.now()+cs.delay.LOAD;
 
-        Object.assign(hxs,{
+        Object.assign(hlps,{
           x_C:o.desmos.HelperExpression({latex:'x_C'}),
           y_C:o.desmos.HelperExpression({latex:'y_C'}),
           x_V:o.desmos.HelperExpression({latex:'x_V'}),
@@ -4722,7 +4727,7 @@ PearsonGL.External.rootJS = (function() {
 
         function isolateHandle(which) {
           // o.log('Isolating Handles');
-          Object.keys(hxs).forEach(function(helper) {hxs[helper].unobserve('numericValue.dragging');});
+          Object.keys(hlps).forEach(function(helper) {hlps[helper].unobserve('numericValue.dragging');});
           document.addEventListener('mouseup',unclick);
           document.addEventListener('touchend',unclick);
 
@@ -4739,7 +4744,7 @@ PearsonGL.External.rootJS = (function() {
           ];
 
           if (which[2] === 'H') {
-            exprs.push({id:('theta_'+which[3]),latex:(cons.LEG_HANDLE.replace(/LEGNUM/g,which[3]).replace(/POINTID/g,which.substring(4,which.length)).replace(/SIGN/,((which[3] === 1)?'-':'')))});
+            exprs.push({id:('theta_'+which[3]),latex:(cons.LEG_HANDLE.replace(/LEGNUM/g,which[3]).replace(/POINTID/g,which.substring(4,which.length)).replace(/SIGN/,((which[3] === '1')?'-':'')))});
             exprs.push({id:'x_V',latex:'x_V=x_C+u_V'});
             exprs.push({id:'y_V',latex:'y_V=y_C+v_V'});
             vars.draggingPoint = which.substring(2,which.length);
@@ -4747,14 +4752,14 @@ PearsonGL.External.rootJS = (function() {
             exprs.push({id:'x_V',latex:(cons.VERTEX_COORDINATE.replace(/COORDINATE/g,'x').replace(/HANDLE/g,'u'))});
             exprs.push({id:'y_V',latex:(cons.VERTEX_COORDINATE.replace(/COORDINATE/g,'y').replace(/HANDLE/g,'v'))});
             exprs.push({id:'maximumDistance',latex:'R=10^{100}r_C'});
-            exprs.push({id:'theta_1',latex:cons.THETAS_DEPENDENT_ON_D.replace(/LEGNUM/g,'1').replace(/SIGN/g,((hxs.theta_1.numericValue>=0)?'':'-')).replace(/PREVMEASURE/g,''+Math.abs(hxs.theta_1.numericValue))});
-            exprs.push({id:'theta_2',latex:cons.THETAS_DEPENDENT_ON_D.replace(/LEGNUM/g,'2').replace(/SIGN/g,((hxs.theta_2.numericValue>=0)?'':'-')).replace(/PREVMEASURE/g,''+Math.abs(hxs.theta_2.numericValue))});
+            exprs.push({id:'theta_1',latex:cons.THETAS_DEPENDENT_ON_D.replace(/LEGNUM/g,'1').replace(/SIGN/g,((hlps.theta_1.numericValue>=0)?'':'-')).replace(/PREVMEASURE/g,''+Math.abs(hlps.theta_1.numericValue))});
+            exprs.push({id:'theta_2',latex:cons.THETAS_DEPENDENT_ON_D.replace(/LEGNUM/g,'2').replace(/SIGN/g,((hlps.theta_2.numericValue>=0)?'':'-')).replace(/PREVMEASURE/g,''+Math.abs(hlps.theta_2.numericValue))});
             vars.draggingPoint = 'vertex_handle';
           } else if (/[xy]_C/.test(which)) {
             vars.draggingPoint = 'center';
           } else if (which === 'r_C') {
-            exprs.push({id:'u_V',latex:('u_V=\\frac{r_C}{'+vars.lastRadius+'}\\cdot'+hxs.u_V.numericValue)});
-            exprs.push({id:'v_V',latex:('v_V=\\frac{r_C}{'+vars.lastRadius+'}\\cdot'+hxs.v_V.numericValue)});
+            exprs.push({id:'u_V',latex:('u_V=\\frac{r_C}{'+vars.lastRadius+'}\\cdot'+hlps.u_V.numericValue)});
+            exprs.push({id:'v_V',latex:('v_V=\\frac{r_C}{'+vars.lastRadius+'}\\cdot'+hlps.v_V.numericValue)});
             vars.draggingPoint = 'radius';
           }
 
@@ -4769,17 +4774,17 @@ PearsonGL.External.rootJS = (function() {
 
           vars.belayUntil = Date.now()+cs.delay.EXECUTE_HELPER;
 
-          // o.log('x_C='+hxs.x_C.numericValue,'; y_C='+hxs.r_C.numericValue,'; theta_VC='+hxs.theta_VC.numericValue,'; theta_1near='+hxs.theta_1near.numericValue);
+          // o.log('x_C='+hlps.x_C.numericValue,'; y_C='+hlps.r_C.numericValue,'; theta_VC='+hlps.theta_VC.numericValue,'; theta_1near='+hlps.theta_1near.numericValue);
 
           let exprs = [
-            {id:'u_H1near',latex:'u_{H1near}='+hs.number(hxs.r_C.numericValue*Math.cos(Math.PI*(1+(hxs.theta_VC.numericValue+hxs.theta_1near.numericValue)/180)))},
-            {id:'v_H1near',latex:'v_{H1near}='+hs.number(hxs.r_C.numericValue*Math.sin(Math.PI*(1+(hxs.theta_VC.numericValue+hxs.theta_1near.numericValue)/180)))},
-            {id:'u_H1far',latex:'u_{H1far}='+hs.number(hxs.r_C.numericValue*Math.cos(Math.PI*(1+(hxs.theta_VC.numericValue+hxs.theta_1far.numericValue)/180)))},
-            {id:'v_H1far',latex:'v_{H1far}='+hs.number(hxs.r_C.numericValue*Math.sin(Math.PI*(1+(hxs.theta_VC.numericValue+hxs.theta_1far.numericValue)/180)))},
-            {id:'u_H2near',latex:'u_{H2near}='+hs.number(hxs.r_C.numericValue*Math.cos(Math.PI*(1+(hxs.theta_VC.numericValue-hxs.theta_2near.numericValue)/180)))},
-            {id:'v_H2near',latex:'v_{H2near}='+hs.number(hxs.r_C.numericValue*Math.sin(Math.PI*(1+(hxs.theta_VC.numericValue-hxs.theta_2near.numericValue)/180)))},
-            {id:'u_H2far',latex:'u_{H2far}='+hs.number(hxs.r_C.numericValue*Math.cos(Math.PI*(1+(hxs.theta_VC.numericValue-hxs.theta_2far.numericValue)/180)))},
-            {id:'v_H2far',latex:'v_{H2far}='+hs.number(hxs.r_C.numericValue*Math.sin(Math.PI*(1+(hxs.theta_VC.numericValue-hxs.theta_2far.numericValue)/180)))}/* ,
+            {id:'u_H1near',latex:'u_{H1near}='+hs.number(hlps.r_C.numericValue*Math.cos(Math.PI*(1+(hlps.theta_VC.numericValue+hlps.theta_1near.numericValue)/180)))},
+            {id:'v_H1near',latex:'v_{H1near}='+hs.number(hlps.r_C.numericValue*Math.sin(Math.PI*(1+(hlps.theta_VC.numericValue+hlps.theta_1near.numericValue)/180)))},
+            {id:'u_H1far',latex:'u_{H1far}='+hs.number(hlps.r_C.numericValue*Math.cos(Math.PI*(1+(hlps.theta_VC.numericValue+hlps.theta_1far.numericValue)/180)))},
+            {id:'v_H1far',latex:'v_{H1far}='+hs.number(hlps.r_C.numericValue*Math.sin(Math.PI*(1+(hlps.theta_VC.numericValue+hlps.theta_1far.numericValue)/180)))},
+            {id:'u_H2near',latex:'u_{H2near}='+hs.number(hlps.r_C.numericValue*Math.cos(Math.PI*(1+(hlps.theta_VC.numericValue-hlps.theta_2near.numericValue)/180)))},
+            {id:'v_H2near',latex:'v_{H2near}='+hs.number(hlps.r_C.numericValue*Math.sin(Math.PI*(1+(hlps.theta_VC.numericValue-hlps.theta_2near.numericValue)/180)))},
+            {id:'u_H2far',latex:'u_{H2far}='+hs.number(hlps.r_C.numericValue*Math.cos(Math.PI*(1+(hlps.theta_VC.numericValue-hlps.theta_2far.numericValue)/180)))},
+            {id:'v_H2far',latex:'v_{H2far}='+hs.number(hlps.r_C.numericValue*Math.sin(Math.PI*(1+(hlps.theta_VC.numericValue-hlps.theta_2far.numericValue)/180)))}/* ,
             {id:'x_V',latex:(cons.VERTEX_COORDINATE.replace(/COORDINATE/g,'x').replace(/HANDLE/g,'u')},
             {id:'y_V',latex:(cons.VERTEX_COORDINATE.replace(/COORDINATE/g,'y').replace(/HANDLE/g,'v')}// */
           ];
@@ -4797,13 +4802,13 @@ PearsonGL.External.rootJS = (function() {
 
           // adjustHandles();
 
-          // o.log(hxs.x_V.latex+'='+hxs.x_V.numericValue,hxs.x_C.latex+'='+hxs.x_C.numericValue,hxs.y_V.latex+'='+hxs.y_V.numericValue,hxs.y_C.latex+'='+hxs.y_C.numericValue);
+          // o.log(hlps.x_V.latex+'='+hlps.x_V.numericValue,hlps.x_C.latex+'='+hlps.x_C.numericValue,hlps.y_V.latex+'='+hlps.y_V.numericValue,hlps.y_C.latex+'='+hlps.y_C.numericValue);
 
           let exprs = [
-            {id:'u_V',latex:('u_V='+hs.number(hxs.x_V.numericValue-hxs.x_C.numericValue))},
-            {id:'v_V',latex:('v_V='+hs.number(hxs.y_V.numericValue-hxs.y_C.numericValue))},
-            {id:'theta_1',latex:('\\theta_1='+hxs.theta_1.numericValue)},
-            {id:'theta_2',latex:('\\theta_2='+hxs.theta_2.numericValue)},
+            {id:'u_V',latex:('u_V='+hs.number(hlps.x_V.numericValue-hlps.x_C.numericValue))},
+            {id:'v_V',latex:('v_V='+hs.number(hlps.y_V.numericValue-hlps.y_C.numericValue))},
+            {id:'theta_1',latex:('\\theta_1='+hlps.theta_1.numericValue)},
+            {id:'theta_2',latex:('\\theta_2='+hlps.theta_2.numericValue)},
             {id:'maximumDistance',latex:cons.R_DEPENDENT_ON_THETAS}
           ];
 
@@ -4819,14 +4824,14 @@ PearsonGL.External.rootJS = (function() {
         function activateHandles() {
           // o.log('Activating Handles');
 
-          vars.lastRadius = hxs.r_C.numericValue;
+          vars.lastRadius = hlps.r_C.numericValue;
 
           let exprs=[
             {id:'center',hidden:true},
             {id:'vertex_handle',hidden:false},
-            {id:'H1near',hidden:(Math.abs(Math.sin(Math.PI*hxs.theta_1near.numericValue/180)*hxs.r_C.numericValue/Math.sin(Math.PI*hxs.theta_1.numericValue/180))<hxs.t_ick.numericValue)},
+            {id:'H1near',hidden:(Math.abs(Math.sin(Math.PI*hlps.theta_1near.numericValue/180)*hlps.r_C.numericValue/Math.sin(Math.PI*hlps.theta_1.numericValue/180))<hlps.t_ick.numericValue)},
             {id:'H1far',hidden:false},
-            {id:'H2near',hidden:(Math.abs(Math.sin(Math.PI*hxs.theta_2near.numericValue/180)*hxs.r_C.numericValue/Math.sin(Math.PI*hxs.theta_2.numericValue/180))<hxs.t_ick.numericValue)},
+            {id:'H2near',hidden:(Math.abs(Math.sin(Math.PI*hlps.theta_2near.numericValue/180)*hlps.r_C.numericValue/Math.sin(Math.PI*hlps.theta_2.numericValue/180))<hlps.t_ick.numericValue)},
             {id:'H2far',hidden:false}
           ];
 
@@ -4834,10 +4839,10 @@ PearsonGL.External.rootJS = (function() {
 
           o.desmos.setExpressions(exprs);
 
-          Object.keys(hxs).forEach(function(helper) {
+          Object.keys(hlps).forEach(function(helper) {
             if (/(?:[uv]_|_C)/.test(helper)) {
               // o.log('Observing '+helper);
-              hxs[helper].observe(
+              hlps[helper].observe(
                 'numericValue.dragging',
                 function(){if(vars.dragging){isolateHandle(helper);}}
               );
@@ -4846,13 +4851,13 @@ PearsonGL.External.rootJS = (function() {
         }
 
         function updateEquation() {
-          let expr = hxs.angle.numericValue+'=½('+hxs.arc_far.numericValue+'-'+hxs.arc_near.numericValue+')';
+          let expr = hlps.angle.numericValue+'=½('+hlps.arc_far.numericValue+'-'+hlps.arc_near.numericValue+')';
           expr = hs.latexToText(expr);
           o.desmos.setExpression({id:'center',label:expr});
         }
 
         function debug() {
-          hxs.theta_1.observe('numericValue',function(){if (Number.isNaN(hxs.theta_1.numericValue)) {
+          hlps.theta_1.observe('numericValue',function(){if (Number.isNaN(hlps.theta_1.numericValue)) {
             escape();
             return;//*/
           }});
@@ -4883,16 +4888,16 @@ PearsonGL.External.rootJS = (function() {
 
         setTimeout(function(){
           activateHandles();
-          hxs.angle.observe('numericValue',updateEquation);
-          hxs.arc_far.observe('numericValue',updateEquation);
-          hxs.arc_near.observe('numericValue',updateEquation);
+          hlps.angle.observe('numericValue',updateEquation);
+          hlps.arc_far.observe('numericValue',updateEquation);
+          hlps.arc_near.observe('numericValue',updateEquation);
           updateEquation();
           debug();
         },cs.delay.LOAD);
        }
      };
 
-    /* ←— A0597777 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0597777 FUNCTIONS (transpiled) ——————————————————————————————————————————————→ */
       cs.A0597777 = {
         CENTER_COLOR:cs.color.agaColors.black,
         INTERSECTION_COLOR:cs.color.agaColors.black,
@@ -4906,13 +4911,13 @@ PearsonGL.External.rootJS = (function() {
        | stuff
        * ←—————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let vars = vs[o.uniqueId] = {draggingPoint:null,dragging:false};
-        let hxs = vars.helperExpressions = {};
+        let hlps = vars.helperExpressions = {};
         let cons = cs.A0597777;
         vars.belayUntil = Date.now()+cs.delay.LOAD;
 
-        Object.assign(hxs,{
+        Object.assign(hlps,{
           x_0:o.desmos.HelperExpression({latex:'x_0'}),
           y_0:o.desmos.HelperExpression({latex:'y_0'}),
           x_1:o.desmos.HelperExpression({latex:'x_1'}),
@@ -4947,7 +4952,7 @@ PearsonGL.External.rootJS = (function() {
 
         function isolateHandle(which) {
           // o.log('Isolating Handles');
-          Object.keys(hxs).forEach(function(helper){hxs[helper].unobserve('numericValue.dragging');});
+          Object.keys(hlps).forEach(function(helper){hlps[helper].unobserve('numericValue.dragging');});
           document.addEventListener('mouseup',unclick);
           document.addEventListener('touchend',unclick);
 
@@ -4977,24 +4982,24 @@ PearsonGL.External.rootJS = (function() {
           // o.log('Replacing Handles');
 
           let exprs = [
-            {id:'u_1',latex:('u_1='+hxs.x_1.numericValue)},
-            {id:'v_1',latex:('v_1='+hxs.y_1.numericValue)},
-            {id:'u_2',latex:('u_2='+hs.number(hxs.m2_x.numericValue-hxs.x_0.numericValue))},
-            {id:'v_2',latex:('v_2='+hs.number(hxs.m2_y.numericValue-hxs.y_0.numericValue))},
-            {id:'u_3',latex:('u_3='+hs.number(hxs.n2_x.numericValue-hxs.x_0.numericValue))},
-            {id:'v_3',latex:('v_3='+hs.number(hxs.n2_y.numericValue-hxs.y_0.numericValue))}
+            {id:'u_1',latex:('u_1='+hlps.x_1.numericValue)},
+            {id:'v_1',latex:('v_1='+hlps.y_1.numericValue)},
+            {id:'u_2',latex:('u_2='+hs.number(hlps.m2_x.numericValue-hlps.x_0.numericValue))},
+            {id:'v_2',latex:('v_2='+hs.number(hlps.m2_y.numericValue-hlps.y_0.numericValue))},
+            {id:'u_3',latex:('u_3='+hs.number(hlps.n2_x.numericValue-hlps.x_0.numericValue))},
+            {id:'v_3',latex:('v_3='+hs.number(hlps.n2_y.numericValue-hlps.y_0.numericValue))}
           ];
 
           // o.log('Replacing handles; setting expressions:',exprs);
 
-          if ((!(Number.isNaN(hxs.x_0.numericValue))) &&
-              (!(Number.isNaN(hxs.y_0.numericValue))) &&
-              (!(Number.isNaN(hxs.x_1.numericValue))) &&
-              (!(Number.isNaN(hxs.y_1.numericValue))) &&
-              (!(Number.isNaN(hxs.m2_x.numericValue))) &&
-              (!(Number.isNaN(hxs.m2_y.numericValue))) &&
-              (!(Number.isNaN(hxs.n2_x.numericValue))) &&
-              (!(Number.isNaN(hxs.n2_y.numericValue)))
+          if ((!(Number.isNaN(hlps.x_0.numericValue))) &&
+              (!(Number.isNaN(hlps.y_0.numericValue))) &&
+              (!(Number.isNaN(hlps.x_1.numericValue))) &&
+              (!(Number.isNaN(hlps.y_1.numericValue))) &&
+              (!(Number.isNaN(hlps.m2_x.numericValue))) &&
+              (!(Number.isNaN(hlps.m2_y.numericValue))) &&
+              (!(Number.isNaN(hlps.n2_x.numericValue))) &&
+              (!(Number.isNaN(hlps.n2_y.numericValue)))
               ) {o.desmos.setExpressions(exprs);}
 
           setTimeout(activateHandles,cs.delay.SET_EXPRESSION);
@@ -5003,7 +5008,7 @@ PearsonGL.External.rootJS = (function() {
         function activateHandles() {
           // o.log('Activating Handles');
 
-          vars.lastRadius = hxs.R_C.numericValue;
+          vars.lastRadius = hlps.R_C.numericValue;
 
           let exprs=[
             {id:'center',hidden:false},
@@ -5016,10 +5021,10 @@ PearsonGL.External.rootJS = (function() {
 
           o.desmos.setExpressions(exprs);
 
-          Object.keys(hxs).forEach(function(helper) {
+          Object.keys(hlps).forEach(function(helper) {
             if (/(?:[xy]_|_C)/.test(helper)) {
               // o.log('Observing '+helper);
-              hxs[helper].observe(
+              hlps[helper].observe(
                 'numericValue.dragging',
                 function(){if(vars.dragging){isolateHandle(helper);}}
               );
@@ -5046,7 +5051,7 @@ PearsonGL.External.rootJS = (function() {
           let j;
 
           // If the vertex is on the perimeter, the near lengths must both be 0.
-          if (hxs.p_erimeter.numericValue === 1) {
+          if (hlps.p_erimeter.numericValue === 1) {
             vars.a = 0;
             vars.b = Math.round(Math.pow(10,prec)*t_M2)/Math.pow(10,prec);
             vars.c = 0;
@@ -5062,12 +5067,12 @@ PearsonGL.External.rootJS = (function() {
           }
 
 
-          let mTan = ((hxs.m_tangent.numericValue === 1)?true:false);
-          let nTan = ((hxs.n_tangent.numericValue === 1)?true:false);
+          let mTan = ((hlps.m_tangent.numericValue === 1)?true:false);
+          let nTan = ((hlps.n_tangent.numericValue === 1)?true:false);
 
           let inv = (t_M1*t_M2 < 0 || t_N1*t_N2 < 0);
 
-          let product = Math.abs(Math.round((hxs.D_E.numericValue*hxs.D_E.numericValue-hxs.R_C.numericValue*hxs.R_C.numericValue)*Math.pow(10,prec)));
+          let product = Math.abs(Math.round((hlps.D_E.numericValue*hlps.D_E.numericValue-hlps.R_C.numericValue*hlps.R_C.numericValue)*Math.pow(10,prec)));
           let tangent = true;
           let baseP; // Integer representation of rounded values
           let baseQ;
@@ -5264,32 +5269,32 @@ PearsonGL.External.rootJS = (function() {
         setTimeout(function(){
           activateHandles();
 
-          vars.t_M1 = hxs.t_M1.numericValue;
-          vars.a = hxs.t_M1.numericValue;
-          vars.t_M2 = hxs.t_M2.numericValue;
-          vars.b = hxs.t_M2.numericValue;
-          vars.t_N1 = hxs.t_N1.numericValue;
-          vars.c = hxs.t_N1.numericValue;
-          vars.t_N2 = hxs.t_N2.numericValue;
-          vars.d = hxs.t_N2.numericValue;
+          vars.t_M1 = hlps.t_M1.numericValue;
+          vars.a = hlps.t_M1.numericValue;
+          vars.t_M2 = hlps.t_M2.numericValue;
+          vars.b = hlps.t_M2.numericValue;
+          vars.t_N1 = hlps.t_N1.numericValue;
+          vars.c = hlps.t_N1.numericValue;
+          vars.t_N2 = hlps.t_N2.numericValue;
+          vars.d = hlps.t_N2.numericValue;
 
           recalculateLabels('V');
 
-          hxs.t_M1.observe('numericValue.readValue',function(p){vars.t_M1 = hxs.t_M1[p];});
-          hxs.t_M2.observe('numericValue.readValue',function(p){vars.t_M2 = hxs.t_M2[p];});
-          hxs.t_N1.observe('numericValue.readValue',function(p){vars.t_N1 = hxs.t_N1[p];});
-          hxs.t_N2.observe('numericValue.readValue',function(p){vars.t_N2 = hxs.t_N2[p];});
+          hlps.t_M1.observe('numericValue.readValue',function(p){vars.t_M1 = hlps.t_M1[p];});
+          hlps.t_M2.observe('numericValue.readValue',function(p){vars.t_M2 = hlps.t_M2[p];});
+          hlps.t_N1.observe('numericValue.readValue',function(p){vars.t_N1 = hlps.t_N1[p];});
+          hlps.t_N2.observe('numericValue.readValue',function(p){vars.t_N2 = hlps.t_N2[p];});
 
-          hxs.x_0.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('C');},0);});
-          hxs.y_0.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('C');},0);});
-          hxs.x_1.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('V');},0);});
-          hxs.y_1.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('V');},0);});
-          hxs.m_tangent.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('M');},0);});
-          hxs.x_2.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('M');},0);});
-          hxs.y_2.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('M');},0);});
-          hxs.n_tangent.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('N');},0);});
-          hxs.x_3.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('N');},0);});
-          hxs.y_3.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('N');},0);});
+          hlps.x_0.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('C');},0);});
+          hlps.y_0.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('C');},0);});
+          hlps.x_1.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('V');},0);});
+          hlps.y_1.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('V');},0);});
+          hlps.m_tangent.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('M');},0);});
+          hlps.x_2.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('M');},0);});
+          hlps.y_2.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('M');},0);});
+          hlps.n_tangent.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('N');},0);});
+          hlps.x_3.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('N');},0);});
+          hlps.y_3.observe('numericValue.updateLabels',function(){setTimeout(function(){recalculateLabels('N');},0);});
         },cs.delay.LOAD);
        }
      };
@@ -5304,13 +5309,13 @@ PearsonGL.External.rootJS = (function() {
        | stuff
        * ←—————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let vars = vs[o.uniqueId];
         vars.helperExpressions = {};
-        let hxs = vars.helperExpressions;
+        let hlps = vars.helperExpressions;
         let cons = cs.A0597503;
 
-        Object.assign(hxs,{
+        Object.assign(hlps,{
           x_1:o.desmos.HelperExpression({latex:'x_1'}),
           y_1:o.desmos.HelperExpression({latex:'y_1'}),
           x_2:o.desmos.HelperExpression({latex:'x_2'}),
@@ -5329,8 +5334,8 @@ PearsonGL.External.rootJS = (function() {
 
           // Stop listening for interaction
           vars.handled = true;
-          Object.keys(hxs).forEach(function(helper) {
-            if (helper.length === 3) {hxs[helper].unobserve('numericValue.interact');}
+          Object.keys(hlps).forEach(function(helper) {
+            if (helper.length === 3) {hlps[helper].unobserve('numericValue.interact');}
           });
 
           // Hide the handle, and start changing 'b' if the handle is being dragged
@@ -5348,9 +5353,9 @@ PearsonGL.External.rootJS = (function() {
          }
 
         function updateLabels() {
-          let a = hxs.a.numericValue;
-          let b = hxs.c.numericValue;
-          let c = hxs.l.numericValue;
+          let a = hlps.a.numericValue;
+          let b = hlps.c.numericValue;
+          let c = hlps.l.numericValue;
 
           if(Math.abs(a+b-c)<Math.pow(10,-cs.precision.FLOAT_PRECISION)) {
             o.desmos.setExpressions([
@@ -5362,57 +5367,57 @@ PearsonGL.External.rootJS = (function() {
          }
 
         function checkHandle() {
-          let b = hxs.b.numericValue;
-          vars.x_3 = hs.number(hxs.x_1.numericValue*(1-b)+hxs.x_2.numericValue*b);
-          vars.y_3 = hs.number(hxs.y_1.numericValue*(1-b)+hxs.y_2.numericValue*b);
+          let b = hlps.b.numericValue;
+          vars.x_3 = hs.number(hlps.x_1.numericValue*(1-b)+hlps.x_2.numericValue*b);
+          vars.y_3 = hs.number(hlps.y_1.numericValue*(1-b)+hlps.y_2.numericValue*b);
 
-          if((Math.abs(hxs.x_3.numericValue-vars.x_3)<Math.pow(10,-cs.precision.FLOAT_PRECISION)) &&
-             (Math.abs(hxs.y_3.numericValue-vars.y_3)<Math.pow(10,-cs.precision.FLOAT_PRECISION))) {
+          if((Math.abs(hlps.x_3.numericValue-vars.x_3)<Math.pow(10,-cs.precision.FLOAT_PRECISION)) &&
+             (Math.abs(hlps.y_3.numericValue-vars.y_3)<Math.pow(10,-cs.precision.FLOAT_PRECISION))) {
             o.desmos.setExpressions([
               {id:'H',hidden:false,showLabel:true},
               {id:'B',hidden:true,showLabel:false}
              ]);
 
-            hxs.x_3.unobserve('numericValue.checkHandle');
-            hxs.y_3.unobserve('numericValue.checkHandle');
+            hlps.x_3.unobserve('numericValue.checkHandle');
+            hlps.y_3.unobserve('numericValue.checkHandle');
           } else {adjustHandle();}
          }
 
         function checkB() {
-          let b = hxs.b.numericValue;
-          let x_1 = hxs.x_1.numericValue;
-          let y_1 = hxs.y_1.numericValue;
-          let x_2 = hxs.x_2.numericValue;
-          let y_2 = hxs.y_2.numericValue;
+          let b = hlps.b.numericValue;
+          let x_1 = hlps.x_1.numericValue;
+          let y_1 = hlps.y_1.numericValue;
+          let x_2 = hlps.x_2.numericValue;
+          let y_2 = hlps.y_2.numericValue;
           let bShouldB = Math.max(0,Math.min(1,
-                          ((x_2-x_1)*(hxs.x_3.numericValue-x_1)+
-                           (y_2-y_1)*(hxs.y_3.numericValue-y_1))/
+                          ((x_2-x_1)*(hlps.x_3.numericValue-x_1)+
+                           (y_2-y_1)*(hlps.y_3.numericValue-y_1))/
                           ((x_2-x_1)*(x_2-x_1)+(y_2-y_1)*(y_2-y_1))
                          ));
           if(Math.abs(bShouldB-b)<Math.pow(10,-cs.precision.FLOAT_PRECISION)) {
-            hxs.b.unobserve('numericValue.checkB');
-            hxs.x_3.unobserve('numericValue.checkB');
-            hxs.y_3.unobserve('numericValue.checkB');
+            hlps.b.unobserve('numericValue.checkB');
+            hlps.x_3.unobserve('numericValue.checkB');
+            hlps.y_3.unobserve('numericValue.checkB');
 
             o.desmos.setExpression({id:'b',latex:('b='+hs.number(b))});
 
             // correct the handles
-            hxs.x_3.observe('numericValue.checkHandle',checkHandle);
-            hxs.y_3.observe('numericValue.checkHandle',checkHandle);
+            hlps.x_3.observe('numericValue.checkHandle',checkHandle);
+            hlps.y_3.observe('numericValue.checkHandle',checkHandle);
             checkHandle();
           } else {o.log('b = '+b+' should be '+bShouldB);}
          }
 
         function dontOverlap() {
-          let dx = hxs.x_2.numericValue-hxs.x_1.numericValue;
-          let dy = hxs.y_2.numericValue-hxs.y_1.numericValue;
+          let dx = hlps.x_2.numericValue-hlps.x_1.numericValue;
+          let dy = hlps.y_2.numericValue-hlps.y_1.numericValue;
           let d = Math.sqrt(dx*dx+dy*dy);
-          if(hxs.b.numericValue*d<hxs.t.numericValue) {
+          if(hlps.b.numericValue*d<hlps.t.numericValue) {
             o.desmos.setExpression({id:'A',dragMode:Desmos.DragModes.NONE});
             o.desmos.setExpression({id:'B',dragMode:Desmos.DragModes.AUTO});
           } else {
             o.desmos.setExpression({id:'A',dragMode:Desmos.DragModes.AUTO});
-            if((1-hxs.b.numericValue)*d<hxs.t.numericValue) {
+            if((1-hlps.b.numericValue)*d<hlps.t.numericValue) {
               o.desmos.setExpression({id:'C',dragMode:Desmos.DragModes.NONE});
             } else {
               o.desmos.setExpression({id:'C',dragMode:Desmos.DragModes.AUTO});
@@ -5433,8 +5438,8 @@ PearsonGL.External.rootJS = (function() {
           document.removeEventListener('mousedown',click);
           document.removeEventListener('touchstart',click);
 
-          Object.keys(hxs).forEach(function(helper) {
-            if (helper.length === 3) {hxs[helper].observe('numericValue.interact',function(){interact(helper);});}
+          Object.keys(hlps).forEach(function(helper) {
+            if (helper.length === 3) {hlps[helper].observe('numericValue.interact',function(){interact(helper);});}
           });
 
           document.addEventListener('mouseup',unclick);
@@ -5450,15 +5455,15 @@ PearsonGL.External.rootJS = (function() {
           if (vars.dragging === 'H') {
             // Make sure b is up-to-date before moving the handle
             o.desmos.setExpression({id:'H',hidden:true,color:cons.HANDLE_COLOR});
-            hxs.b.observe('numericValue.checkB',checkB);
-            hxs.x_3.observe('numericValue.checkB',checkB);
-            hxs.y_3.observe('numericValue.checkB',checkB);
+            hlps.b.observe('numericValue.checkB',checkB);
+            hlps.x_3.observe('numericValue.checkB',checkB);
+            hlps.y_3.observe('numericValue.checkB',checkB);
             checkB();
             delete vars.dragging;
           } else {
             // Just correct the handle
-            hxs.x_3.observe('numericValue.checkHandle',checkHandle);
-            hxs.y_3.observe('numericValue.checkHandle',checkHandle);
+            hlps.x_3.observe('numericValue.checkHandle',checkHandle);
+            hlps.y_3.observe('numericValue.checkHandle',checkHandle);
             checkHandle();
           }
 
@@ -5466,13 +5471,13 @@ PearsonGL.External.rootJS = (function() {
           document.addEventListener('touchstart',click);
          }
 
-        hxs.a.observe('numericValue.lengths',updateLabels);
-        hxs.c.observe('numericValue.lengths',updateLabels);
-        hxs.l.observe('numericValue.lengths',updateLabels);
-        hxs.b.observe('numericValue.lengths',updateLabels);
-        hxs.l.observe('numericValue.overlap',dontOverlap);
-        hxs.b.observe('numericValue.overlap',dontOverlap);
-        hxs.t.observe('numericValue.overlap',dontOverlap);
+        hlps.a.observe('numericValue.lengths',updateLabels);
+        hlps.c.observe('numericValue.lengths',updateLabels);
+        hlps.l.observe('numericValue.lengths',updateLabels);
+        hlps.b.observe('numericValue.lengths',updateLabels);
+        hlps.l.observe('numericValue.overlap',dontOverlap);
+        hlps.b.observe('numericValue.overlap',dontOverlap);
+        hlps.t.observe('numericValue.overlap',dontOverlap);
 
         document.addEventListener('mousedown',click);
         document.addEventListener('touchstart',click);
@@ -5498,7 +5503,7 @@ PearsonGL.External.rootJS = (function() {
        | stuff
        * ←—————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let cons = cs.A0597506;
         vs[o.uniqueId] = {
           correcting: false,
@@ -5527,23 +5532,23 @@ PearsonGL.External.rootJS = (function() {
           tick:o.desmos.HelperExpression({latex:'t_{ick}'}),
           R:o.desmos.HelperExpression({latex:'R'})
         };
-        let hxs = vars.helperExpressions;
+        let hlps = vars.helperExpressions;
 
-        Object.keys(hxs).forEach(function(helper) {
+        Object.keys(hlps).forEach(function(helper) {
           if (helper.match(/[xy]/)!==null) {
-            hxs[helper].observe('numericValue.init',function(){
-              vars[helper]=hxs[helper].numericValue;
-              hxs[helper].unobserve('numericValue.init');
+            hlps[helper].observe('numericValue.init',function(){
+              vars[helper]=hlps[helper].numericValue;
+              hlps[helper].unobserve('numericValue.init');
             });
             vars[helper] = helper.numericValue;
-            if (vars[helper]!==undefined) {hxs[helper].unobserve('numericValue.init');}
+            if (vars[helper]!==undefined) {hlps[helper].unobserve('numericValue.init');}
           }
         });
 
         o.desmos.observe('graphpaperBounds',resizeGraph);
         function resizeGraph() {
           let R = Math.min(o.desmos.graphpaperBounds.mathCoordinates.height,o.desmos.graphpaperBounds.mathCoordinates.width)/3;
-          if (Math.abs(Math.log2(R)-Math.log2(hxs.R.numericValue))<cs.ts.ZOOM) {return;}
+          if (Math.abs(Math.log2(R)-Math.log2(hlps.R.numericValue))<cs.ts.ZOOM) {return;}
           vars.handled = true;
           o.desmos.setExpressions([
             {id:'handleA',hidden:true,color:cons.HANDLE_COLOR},
@@ -5552,9 +5557,9 @@ PearsonGL.External.rootJS = (function() {
             {id:'R',latex:'R='+hs.number(R)}
             ]);
           setTimeout(function(){
-            Object.keys(hxs).forEach(function(helper) {
+            Object.keys(hlps).forEach(function(helper) {
               if(helper.match(/[xy]/)!==null) {
-                vars[helper]=hxs[helper].numericValue;
+                vars[helper]=hlps[helper].numericValue;
               }
             });
             adjustHandles();
@@ -5568,8 +5573,8 @@ PearsonGL.External.rootJS = (function() {
           vars.handled = true;
           vars.draggingPoint = which[2];
 
-          Object.keys(hxs).forEach(function(helper) {
-            if (helper.match(/[uv]/)!==null) {hxs[helper].unobserve('numericValue.interact');}
+          Object.keys(hlps).forEach(function(helper) {
+            if (helper.match(/[uv]/)!==null) {hlps[helper].unobserve('numericValue.interact');}
           });
 
           switch (which[2]) {
@@ -5577,82 +5582,82 @@ PearsonGL.External.rootJS = (function() {
               o.desmos.setExpressions([
                 {id:'angleABD',latex:'m_{ABD}=\\min\\left(180-m_{DBC},\\operatorname{round}\\left(\\theta_{LVL}\\left(A,B,D\\right)\\right)\\right)'},
                 {id:'angleABC',latex:'m_{ABC}=m_{ABD}+m_{DBC}'},
-                {id:'angleDBC',latex:'m_{DBC}='+hs.number(hxs.m_DBC.numericValue)},
+                {id:'angleDBC',latex:'m_{DBC}='+hs.number(hlps.m_DBC.numericValue)},
                 {id:'handleA',color:cons.HIDDEN_COLOR}
               ]);
               vars.constraints = [
-                hs.lineTwoPoints({x:hxs.x_3.numericValue,y:hxs.y_3.numericValue},{x:0,y:0}),
-                hs.lineTwoPoints({x:hxs.x_4.numericValue,y:hxs.y_4.numericValue},{x:0,y:0})
+                hs.lineTwoPoints({x:hlps.x_3.numericValue,y:hlps.y_3.numericValue},{x:0,y:0}),
+                hs.lineTwoPoints({x:hlps.x_4.numericValue,y:hlps.y_4.numericValue},{x:0,y:0})
                 ];
               break;
             case '3':
               o.desmos.setExpressions([
                 {id:'angleDBC',latex:'m_{DBC}=\\min\\left(180-m_{ABD},\\operatorname{round}\\left(\\theta_{LVL}\\left(C,B,D\\right)\\right)\\right)'},
                 {id:'angleABC',latex:'m_{ABC}=m_{ABD}+m_{DBC}'},
-                {id:'angleABD',latex:'m_{ABD}='+hs.number(hxs.m_ABD.numericValue)},
+                {id:'angleABD',latex:'m_{ABD}='+hs.number(hlps.m_ABD.numericValue)},
                 {id:'handleC',color:cons.HIDDEN_COLOR}
               ]);
               vars.constraints = [
-                hs.lineTwoPoints({x:0,y:0},{x:hxs.x_1.numericValue,y:hxs.y_1.numericValue}),
-                hs.lineTwoPoints({x:0,y:0},{x:hxs.x_4.numericValue,y:hxs.y_4.numericValue})
+                hs.lineTwoPoints({x:0,y:0},{x:hlps.x_1.numericValue,y:hlps.y_1.numericValue}),
+                hs.lineTwoPoints({x:0,y:0},{x:hlps.x_4.numericValue,y:hlps.y_4.numericValue})
                 ];
               break;
             case '4':
               o.desmos.setExpressions([
                 {id:'angleABD',latex:'m_{ABD}=\\operatorname{round}\\left(\\theta_{LVL}\\left(A,B,D\\right)\\right)'},
                 {id:'angleDBC',latex:'m_{DBC}=m_{ABC}-m_{ABD}'},
-                {id:'angleABC',latex:'m_{ABC}='+hs.number(hxs.m_ABC.numericValue)},
+                {id:'angleABC',latex:'m_{ABC}='+hs.number(hlps.m_ABC.numericValue)},
                 {id:'handleD',color:cons.HIDDEN_COLOR}
               ]);
               vars.constraints = [
-                hs.lineTwoPoints({x:0,y:0},{x:hxs.x_1.numericValue,y:hxs.y_1.numericValue}),
-                hs.lineTwoPoints({x:hxs.x_3.numericValue,y:hxs.y_3.numericValue},{x:0,y:0})
+                hs.lineTwoPoints({x:0,y:0},{x:hlps.x_1.numericValue,y:hlps.y_1.numericValue}),
+                hs.lineTwoPoints({x:hlps.x_3.numericValue,y:hlps.y_3.numericValue},{x:0,y:0})
                 ];
               break;
           }
-          hxs['u_'+which[2]].observe('numericValue.correction',correctIt);
-          hxs['v_'+which[2]].observe('numericValue.correction',correctIt);
+          hlps['u_'+which[2]].observe('numericValue.correction',correctIt);
+          hlps['v_'+which[2]].observe('numericValue.correction',correctIt);
          }
 
         function correctIt() {
           let x = 'x_'+vars.draggingPoint;
           let y = 'y_'+vars.draggingPoint;
           let handle = {
-            x:hxs['u_'+vars.draggingPoint].numericValue,
-            y:hxs['v_'+vars.draggingPoint].numericValue
+            x:hlps['u_'+vars.draggingPoint].numericValue,
+            y:hlps['v_'+vars.draggingPoint].numericValue
           };
 
           let corrected = hs.polygonConstrain(handle,vars.constraints);
           let d = Math.sqrt(Math.pow(corrected.x,2)+Math.pow(corrected.y,2));
 
           // Stick to the nearest edge if the handle is too close to the vertex
-          if (d < hxs.tick.numericValue) {
+          if (d < hlps.tick.numericValue) {
             vars.correcting = true;
             let stick;
             switch (vars.draggingPoint) {
               case '1':
-                if (hxs.m_ABC.numericValue>=179) {stick = 3;}
+                if (hlps.m_ABC.numericValue>=179) {stick = 3;}
                 else {stick = 4;}
                 break;
               case '3':
-                if (hxs.m_ABC.numericValue>=179) {stick = 3;}
+                if (hlps.m_ABC.numericValue>=179) {stick = 3;}
                 else {stick = 4;}
-                if (hxs.m_ABC.numericValue>=179) {stick = 1;}
+                if (hlps.m_ABC.numericValue>=179) {stick = 1;}
                 else {stick = 4;}
                 break;
               case '4':
-                if (hxs.m_ABC.numericValue>=179) {stick = 3;}
+                if (hlps.m_ABC.numericValue>=179) {stick = 3;}
                 else {stick = 4;}
-                if (hxs.m_ABC.numericValue>=179) {stick = 1;}
+                if (hlps.m_ABC.numericValue>=179) {stick = 1;}
                 else {stick = 4;}
-                if (hxs.m_ABD.numericValue>hxs.m_DBC.numericValue) {stick = 3;}
+                if (hlps.m_ABD.numericValue>hlps.m_DBC.numericValue) {stick = 3;}
                 else {stick = 1;}
                 break;
             }
 
             corrected = {
-              x:hxs['x_'+stick].numericValue,
-              y:hxs['y_'+stick].numericValue
+              x:hlps['x_'+stick].numericValue,
+              y:hlps['y_'+stick].numericValue
             };
             
             o.desmos.setExpressions([
@@ -5662,8 +5667,8 @@ PearsonGL.External.rootJS = (function() {
           // If no correction necessary, revert to desmos for performance
           } else if (corrected === handle) {
             corrected = {
-              x:hxs[x].numericValue,
-              y:hxs[y].numericValue
+              x:hlps[x].numericValue,
+              y:hlps[y].numericValue
             };
             if (vars.correcting) {
               vars.correcting = false;
@@ -5672,19 +5677,19 @@ PearsonGL.External.rootJS = (function() {
                 {id:y,latex:cons.latex[y]}
                 ]);
               corrected = {
-                x:hs.number(hxs.R.numericValue*corrected.x/d),
-                y:hs.number(hxs.R.numericValue*corrected.y/d)
+                x:hs.number(hlps.R.numericValue*corrected.x/d),
+                y:hs.number(hlps.R.numericValue*corrected.y/d)
               };
             } else {corrected = {
-              x:hxs[x].numericValue,
-              y:hxs[y].numericValue
+              x:hlps[x].numericValue,
+              y:hlps[y].numericValue
             };}
           // Stick to the nearest leg
           } else {
             vars.correcting = true;
             corrected = {
-              x:hs.number(hxs.R.numericValue*corrected.x/d),
-              y:hs.number(hxs.R.numericValue*corrected.y/d)
+              x:hs.number(hlps.R.numericValue*corrected.x/d),
+              y:hs.number(hlps.R.numericValue*corrected.y/d)
             };
             o.desmos.setExpressions([
               {id:x,latex:(x+'='+corrected.x)},
@@ -5725,8 +5730,8 @@ PearsonGL.External.rootJS = (function() {
           document.addEventListener('mouseup',unclick);
           document.addEventListener('touchend',unclick);
 
-          Object.keys(hxs).forEach(function(helper) {
-            if (helper.match(/[uv]/)!==null) {hxs[helper].observe('numericValue.interact',function(){interact(helper);});}
+          Object.keys(hlps).forEach(function(helper) {
+            if (helper.match(/[uv]/)!==null) {hlps[helper].observe('numericValue.interact',function(){interact(helper);});}
           });
          }
 
@@ -5741,13 +5746,13 @@ PearsonGL.External.rootJS = (function() {
 
           let exprs = [];
 
-          Object.keys(hxs).forEach(function(helper) {
+          Object.keys(hlps).forEach(function(helper) {
             if (helper.match(/[uv]/)!==null) {
-              hxs[helper].unobserve('numericValue.interact');
-              hxs[helper].unobserve('numericValue.correction');
+              hlps[helper].unobserve('numericValue.interact');
+              hlps[helper].unobserve('numericValue.correction');
             } else if (helper.match(/[xy]/)!==null) {
               exprs.push({id:helper,latex:cons.latex[helper]});
-              if (helper[2] !== vars.draggingPoint) {vars[helper] = hxs[helper].numericValue;}
+              if (helper[2] !== vars.draggingPoint) {vars[helper] = hlps[helper].numericValue;}
             }
           });
 
@@ -5760,9 +5765,9 @@ PearsonGL.External.rootJS = (function() {
           adjustHandles();
 
           exprs.push(
-            {id:'angleABD',latex:'m_{ABD}='+hxs.m_ABD.numericValue},
-            {id:'angleDBC',latex:'m_{DBC}='+hxs.m_DBC.numericValue},
-            {id:'angleABC',latex:'m_{ABC}='+hxs.m_ABC.numericValue}
+            {id:'angleABD',latex:'m_{ABD}='+hlps.m_ABD.numericValue},
+            {id:'angleDBC',latex:'m_{DBC}='+hlps.m_DBC.numericValue},
+            {id:'angleABC',latex:'m_{ABC}='+hlps.m_ABC.numericValue}
             );
           o.desmos.setExpressions(exprs);
 
@@ -5774,20 +5779,20 @@ PearsonGL.External.rootJS = (function() {
        }//
      };
 
-    /* ←— A0597768 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0597768 FUNCTIONS (transpiled) ——————————————————————————————————————————————→ */
      fs.A0597768 = {
       /* ←— init ———————————————————————————————————————————————→ *\
        | stuff
        * ←—————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         vs[o.uniqueId] = {draggingPoint:null,dragging:false};
         let vars = vs[o.uniqueId];
         vars.helperExpressions = {};
-        let hxs = vars.helperExpressions;
+        let hlps = vars.helperExpressions;
         vars.belayUntil = Date.now()+cs.delay.LOAD;
 
-        Object.assign(hxs,{
+        Object.assign(hlps,{
           x_0:o.desmos.HelperExpression({latex:'x_0'}),
           y_0:o.desmos.HelperExpression({latex:'y_0'}),
           x_1:o.desmos.HelperExpression({latex:'x_1'}),
@@ -5809,9 +5814,9 @@ PearsonGL.External.rootJS = (function() {
 
         function isolateHandle(which) {
           // o.log('Isolating Handles');
-          Object.keys(hxs).forEach(function(helper) {
-            hxs[helper].unobserve('numericValue.dragging');
-            hxs[helper].unobserve('numericValue.checkReplace');
+          Object.keys(hlps).forEach(function(helper) {
+            hlps[helper].unobserve('numericValue.dragging');
+            hlps[helper].unobserve('numericValue.checkReplace');
           });
 
           document.addEventListener('mouseup',unclick);
@@ -5860,12 +5865,12 @@ PearsonGL.External.rootJS = (function() {
           let i;
 
           let vals = {
-            x_1: hxs.x_1.numericValue,
-            y_1: hxs.y_1.numericValue,
-            x_2: hxs.x_2.numericValue,
-            y_2: hxs.y_2.numericValue,
-            x_3: hxs.x_3.numericValue,
-            y_3: hxs.y_3.numericValue
+            x_1: hlps.x_1.numericValue,
+            y_1: hlps.y_1.numericValue,
+            x_2: hlps.x_2.numericValue,
+            y_2: hlps.y_2.numericValue,
+            x_3: hlps.x_3.numericValue,
+            y_3: hlps.y_3.numericValue
           };
 
           let exprs = [
@@ -5878,14 +5883,14 @@ PearsonGL.External.rootJS = (function() {
           ];
 
           function checkReplace(n) {
-            // o.log('u_'+n+' = '+hxs['u_'+n].numericValue);
-            // o.log('x_'+n+' = '+hxs['x_'+n].numericValue);
-            // o.log('v_'+n+' = '+hxs['v_'+n].numericValue);
-            // o.log('y_'+n+' = '+hxs['y_'+n].numericValue);
-            if((Math.abs(hxs['u_'+n].numericValue-vals['x_'+n])<cs.precision.FLOAT_PRECISION) &&
-               (Math.abs(hxs['v_'+n].numericValue-vals['y_'+n])<cs.precision.FLOAT_PRECISION)) {
-              hxs['u_'+n].unobserve('numericValue.checkReplace');
-              hxs['v_'+n].unobserve('numericValue.checkReplace');
+            // o.log('u_'+n+' = '+hlps['u_'+n].numericValue);
+            // o.log('x_'+n+' = '+hlps['x_'+n].numericValue);
+            // o.log('v_'+n+' = '+hlps['v_'+n].numericValue);
+            // o.log('y_'+n+' = '+hlps['y_'+n].numericValue);
+            if((Math.abs(hlps['u_'+n].numericValue-vals['x_'+n])<cs.precision.FLOAT_PRECISION) &&
+               (Math.abs(hlps['v_'+n].numericValue-vals['y_'+n])<cs.precision.FLOAT_PRECISION)) {
+              hlps['u_'+n].unobserve('numericValue.checkReplace');
+              hlps['v_'+n].unobserve('numericValue.checkReplace');
               switch(n) {
                 case 1:
                   o.desmos.setExpression({id:'vertexHandle',hidden:false});
@@ -5897,32 +5902,32 @@ PearsonGL.External.rootJS = (function() {
                   o.desmos.setExpression({id:'handleN',hidden:false});
                   break;
               }
-              hxs['u_'+n].observe('numericValue.dragging',function(){if(vars.dragging){isolateHandle('u_'+n);}});
-              hxs['v_'+n].observe('numericValue.dragging',function(){if(vars.dragging){isolateHandle('v_'+n);}});
+              hlps['u_'+n].observe('numericValue.dragging',function(){if(vars.dragging){isolateHandle('u_'+n);}});
+              hlps['v_'+n].observe('numericValue.dragging',function(){if(vars.dragging){isolateHandle('v_'+n);}});
             }
           }
 
           exprs.push({id:'center',hidden:false});
-          hxs.x_0.observe('numericValue.dragging',function(){if(vars.dragging){isolateHandle('x_0');}});
-          hxs.y_0.observe('numericValue.dragging',function(){if(vars.dragging){isolateHandle('y_0');}});
-          hxs.R_C.observe('numericValue.dragging',function(){if(vars.dragging){isolateHandle('x_0');}});
+          hlps.x_0.observe('numericValue.dragging',function(){if(vars.dragging){isolateHandle('x_0');}});
+          hlps.y_0.observe('numericValue.dragging',function(){if(vars.dragging){isolateHandle('y_0');}});
+          hlps.R_C.observe('numericValue.dragging',function(){if(vars.dragging){isolateHandle('x_0');}});
 
           for (i = 1; i <= 3; i+=1) {
-            hxs['u_'+i].observe('numericValue.checkReplace',function(k){return function(){checkReplace(k);};}(i));
-            hxs['v_'+i].observe('numericValue.checkReplace',function(k){return function(){checkReplace(k);};}(i));
+            hlps['u_'+i].observe('numericValue.checkReplace',function(k){return function(){checkReplace(k);};}(i));
+            hlps['v_'+i].observe('numericValue.checkReplace',function(k){return function(){checkReplace(k);};}(i));
             checkReplace(i);
           }
 
           // o.log('Replacing handles; setting expressions:',exprs);
 
-          if ((!(Number.isNaN(hxs.x_0.numericValue))) &&
-              (!(Number.isNaN(hxs.y_0.numericValue))) &&
-              (!(Number.isNaN(hxs.x_1.numericValue))) &&
-              (!(Number.isNaN(hxs.y_1.numericValue))) &&
-              (!(Number.isNaN(hxs.x_2.numericValue))) &&
-              (!(Number.isNaN(hxs.y_2.numericValue))) &&
-              (!(Number.isNaN(hxs.x_3.numericValue))) &&
-              (!(Number.isNaN(hxs.y_3.numericValue)))
+          if ((!(Number.isNaN(hlps.x_0.numericValue))) &&
+              (!(Number.isNaN(hlps.y_0.numericValue))) &&
+              (!(Number.isNaN(hlps.x_1.numericValue))) &&
+              (!(Number.isNaN(hlps.y_1.numericValue))) &&
+              (!(Number.isNaN(hlps.x_2.numericValue))) &&
+              (!(Number.isNaN(hlps.y_2.numericValue))) &&
+              (!(Number.isNaN(hlps.x_3.numericValue))) &&
+              (!(Number.isNaN(hlps.y_3.numericValue)))
               ) {o.desmos.setExpressions(exprs);}
         }
 
@@ -5954,12 +5959,12 @@ PearsonGL.External.rootJS = (function() {
         document.addEventListener('touchstart',click);
 
         setTimeout(function(){
-          hxs.x_0.observe('numericValue.dragging',function(){if(vars.dragging){isolateHandle('x_0');}});
-          hxs.y_0.observe('numericValue.dragging',function(){if(vars.dragging){isolateHandle('y_0');}});
-          hxs.R_C.observe('numericValue.dragging',function(){if(vars.dragging){isolateHandle('x_0');}});
+          hlps.x_0.observe('numericValue.dragging',function(){if(vars.dragging){isolateHandle('x_0');}});
+          hlps.y_0.observe('numericValue.dragging',function(){if(vars.dragging){isolateHandle('y_0');}});
+          hlps.R_C.observe('numericValue.dragging',function(){if(vars.dragging){isolateHandle('x_0');}});
           for (i = 1; i <= 3; i+=1) {
-            hxs['u_'+i].observe('numericValue.dragging',function(){if(vars.dragging){isolateHandle('u_'+i);}});
-            hxs['v_'+i].observe('numericValue.dragging',function(){if(vars.dragging){isolateHandle('v_'+i);}});
+            hlps['u_'+i].observe('numericValue.dragging',function(){if(vars.dragging){isolateHandle('u_'+i);}});
+            hlps['v_'+i].observe('numericValue.dragging',function(){if(vars.dragging){isolateHandle('v_'+i);}});
           }
         },cs.delay.LOAD);
        }
@@ -5975,7 +5980,7 @@ PearsonGL.External.rootJS = (function() {
        | Preps the watcher
        * ←—————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         o.desmos.observe('graphpaperBounds',function(){
           let cons = cs.A0597789;
           let units = o.desmos.graphpaperBounds.mathCoordinates;
@@ -5991,14 +5996,14 @@ PearsonGL.External.rootJS = (function() {
        | Updates the volume of the cone
        * ←—————————————————————————————————————————————————————————————————→ */
        volumeCone: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         o.desmos.setExpression({id:'volumeCone',label:'Volume of cone: '+o.value});
        },
       /* ←— volumeStack ——————————————————————————————————————————————————————→ *\
        | Updates the volume of the stack
        * ←—————————————————————————————————————————————————————————————————→ */
        volumeStack: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         o.desmos.setExpression({id:'volumeStack',label:'Total volume of stack: '+o.value});
        }
      };
@@ -6012,7 +6017,7 @@ PearsonGL.External.rootJS = (function() {
        | Preps the watcher
        * ←—————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let cons = cs.A0596370;
         vs[o.uniqueId] = {lastStep:1};
        },
@@ -6023,7 +6028,7 @@ PearsonGL.External.rootJS = (function() {
        | animation toggle with a max of -1 (hopefully you don't have a Step -1)
        * ←—————————————————————————————————————————————————————————————————→ */
        resetAnimation: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let cons = cs.A0596370;
         o.desmos.setExpression({
           id:'animationSlider',
@@ -6035,7 +6040,7 @@ PearsonGL.External.rootJS = (function() {
        | Switches to the next step.
        * ←—————————————————————————————————————————————————————————————————→ */
        changeStep: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let cons = cs.A0596370;
         let lastStep = vs[o.uniqueId].lastStep;
         vs[o.uniqueId].lastStep = o.value;
@@ -6150,7 +6155,7 @@ PearsonGL.External.rootJS = (function() {
        | Preps the watcher
        * ←—————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let cons = cs.A0596373;
         vs[o.uniqueId] = {lastStep:1};
        },
@@ -6161,7 +6166,7 @@ PearsonGL.External.rootJS = (function() {
        | animation toggle with a max of -1 (hopefully you don't have a Step -1)
        * ←—————————————————————————————————————————————————————————————————→ */
        resetAnimation: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let cons = cs.A0596373;
         o.desmos.setExpression({
           id:'animationSlider',
@@ -6173,7 +6178,7 @@ PearsonGL.External.rootJS = (function() {
        | Switches to the next step.
        * ←—————————————————————————————————————————————————————————————————→ */
        changeStep: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let cons = cs.A0596373;
         let lastStep = vs[o.uniqueId].lastStep;
         vs[o.uniqueId].lastStep = o.value;
@@ -6291,10 +6296,10 @@ PearsonGL.External.rootJS = (function() {
        | Preps the watchers
        * ←—————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         vs[o.uniqueId] = {
           lastPointCount:0/*,
-          hxs:{
+          hlps:{
             x_c:o.desmos.HelperExpression({latex:'\\operatorname{mean}\\left(x_1,u_1,x_2,u_2,x_3,u_3,x_4,u_4\\right)'}),
             y_c:o.desmos.HelperExpression({latex:'\\operatorname{mean}\\left(y_1,v_1,y_2,v_2,y_3,v_3,y_4,v_4\\right)'})
           }*/
@@ -6305,7 +6310,7 @@ PearsonGL.External.rootJS = (function() {
        | positive for SOLID, otherwise, DASHED
        * ←—————————————————————————————————————————————————————————————————→ */
        changeLineType: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         o.desmos.setExpression({
           id:o.id,
           style:((o.value>0)?cs.enum.lineType.SOLID:cs.enum.lineType.DASHED)
@@ -6315,11 +6320,11 @@ PearsonGL.External.rootJS = (function() {
        | Switches to the next step.
        * ←—————————————————————————————————————————————————————————————————→ */
        regionsAddRemove: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let cons = cs.A0599213;
         let vars = vs[o.uniqueId];
-        //let x_c = vars.hxs.x_c.numericValue;
-        //let y_c = vars.hxs.y_c.numericValue;
+        //let x_c = vars.hlps.x_c.numericValue;
+        //let y_c = vars.hlps.y_c.numericValue;
         let exprs = [];
 
         let i;
@@ -6356,10 +6361,10 @@ PearsonGL.External.rootJS = (function() {
        | Preps the watchers
        * ←—————————————————————————————————————————————————————————————————→ */
        init: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         vs[o.uniqueId] = {
           lastPointCount:0/*,
-          hxs:{
+          hlps:{
             x_c:o.desmos.HelperExpression({latex:'\\operatorname{mean}\\left(x_1,u_1,x_2,u_2,x_3,u_3,x_4,u_4\\right)'}),
             y_c:o.desmos.HelperExpression({latex:'\\operatorname{mean}\\left(y_1,v_1,y_2,v_2,y_3,v_3,y_4,v_4\\right)'})
           }*/
@@ -6370,7 +6375,7 @@ PearsonGL.External.rootJS = (function() {
        | positive for SOLID, otherwise, DASHED
        * ←—————————————————————————————————————————————————————————————————→ */
        changeLineType: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         o.desmos.setExpression({
           id:o.id,
           style:((o.value>0)?cs.enum.lineType.SOLID:cs.enum.lineType.DASHED)
@@ -6380,11 +6385,11 @@ PearsonGL.External.rootJS = (function() {
        | Switches to the next step.
        * ←—————————————————————————————————————————————————————————————————→ */
        regionsAddRemove: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         let cons = cs.A0598832;
         let vars = vs[o.uniqueId];
-        //let x_c = vars.hxs.x_c.numericValue;
-        //let y_c = vars.hxs.y_c.numericValue;
+        //let x_c = vars.hlps.x_c.numericValue;
+        //let y_c = vars.hlps.y_c.numericValue;
         let exprs = [];
 
         let i;
@@ -6995,21 +7000,21 @@ PearsonGL.External.rootJS = (function() {
           var mostMajorIntervals = 29;
 
         return function(){
-          let o = hs.parseOptions.apply(this,arguments);
+          let o = hs.parseArgs(arguments);
           let vars = vs[o.uniqueId];
-          let hxs = vars.helpers = {
+          let hlps = vars.helpers = {
             W:o.desmos.HelperExpression({latex:'W'}),
             p:o.desmos.HelperExpression({latex:'p'}),
             scalex:o.desmos.HelperExpression({latex:'t_{ickx}'})
           };
 
-          hxs.W.observe('numericValue',updateIntervals);
-          hxs.scalex.observe('numericValue',updateIntervals);
-          hxs.p.observe('numericValue',updateBar);
+          hlps.W.observe('numericValue',updateIntervals);
+          hlps.scalex.observe('numericValue',updateIntervals);
+          hlps.p.observe('numericValue',updateBar);
 
           function updateBar() {
-            let p = hxs.p.numericValue;
-            let W = hxs.W.numericValue;
+            let p = hlps.p.numericValue;
+            let W = hlps.W.numericValue;
 
             o.desmos.setExpressions([
               {
@@ -7024,10 +7029,10 @@ PearsonGL.External.rootJS = (function() {
           }
 
           function updateIntervals() {
-            let W = hxs.W.numericValue;
+            let W = hlps.W.numericValue;
             if(W <= 0) return;
-            let p = hxs.p.numericValue;
-            let tick = hxs.scalex.numericValue;
+            let p = hlps.p.numericValue;
+            let tick = hlps.scalex.numericValue;
             let spacing = 2*tick/3;
             let width = 100;
             let maxMinorIntervals = Math.max(2,Math.floor(width/spacing));
@@ -7177,11 +7182,11 @@ PearsonGL.External.rootJS = (function() {
        | (Initialization option; starts the whole graph)
        * ←—————————————————————————————————————————————————————————————————→ */
        circleConstrain: function(){
-        let o = hs.parseOptions.apply(this,arguments);
+        let o = hs.parseArgs(arguments);
         vs[o.uniqueId] = (vs[o.uniqueId] || {});
         let vars = vs[o.uniqueId];
         vars.helperExpressions = {};
-        let hxs = vars.helperExpressions;
+        let hlps = vars.helperExpressions;
         vars.belayUntil = Date.now()+cs.delay.LOAD;
 
         o.desmos.setExpressions([
@@ -7198,7 +7203,7 @@ PearsonGL.External.rootJS = (function() {
           {id:'y_adjusted',latex:'y_{adjusted}=y_1'}
         ]);
 
-        Object.assign(hxs,{
+        Object.assign(hlps,{
           x_0:o.desmos.HelperExpression({latex:'x_0'}),
           y_0:o.desmos.HelperExpression({latex:'y_0'}),
           r_0:o.desmos.HelperExpression({latex:'r_0'}),
@@ -7209,8 +7214,8 @@ PearsonGL.External.rootJS = (function() {
         function clearPlaceholder() {
           vars.belayUntil = Date.now() + cs.delay.SET_EXPRESSION;
           let corrected = hs.circleConstrain(
-            {x:hxs.x_1.numericValue,y:hxs.y_1.numericValue},
-            {x:hxs.x_0.numericValue,y:hxs.y_0.numericValue,r:hxs.r_0.numericValue},
+            {x:hlps.x_1.numericValue,y:hlps.y_1.numericValue},
+            {x:hlps.x_0.numericValue,y:hlps.y_0.numericValue,r:hlps.r_0.numericValue},
             cs.enum.EXTERIOR
           );
           o.desmos.setExpressions([
@@ -7238,16 +7243,16 @@ PearsonGL.External.rootJS = (function() {
         function correctIt(coord) {
           if(coord === 'x_1' || coord === 'y_1') {
             if (vars.belayUntil > Date.now()) {return;}
-            if (Math.pow(hxs.x_1.numericValue-hxs.x_0.numericValue,2)+Math.pow(hxs.y_1.numericValue-hxs.y_0.numericValue,2) <= Math.pow(hxs.r_0.numericValue,2)) {
+            if (Math.pow(hlps.x_1.numericValue-hlps.x_0.numericValue,2)+Math.pow(hlps.y_1.numericValue-hlps.y_0.numericValue,2) <= Math.pow(hlps.r_0.numericValue,2)) {
               if (!(vars.placeholder)) {setPlaceholder();}
             } else {
               if (vars.placeholder) {clearPlaceholder();}
             }
           } else {
-            let point = {x:hxs.x_1.numericValue,y:hxs.y_1.numericValue}
+            let point = {x:hlps.x_1.numericValue,y:hlps.y_1.numericValue}
             let corrected = hs.circleConstrain(
               point,
-              {x:hxs.x_0.numericValue,y:hxs.y_0.numericValue,r:hxs.r_0.numericValue},
+              {x:hlps.x_0.numericValue,y:hlps.y_0.numericValue,r:hlps.r_0.numericValue},
               cs.enum.EXTERIOR
             );
             if (point !== corrected) {setPlaceholder();}
@@ -7261,11 +7266,11 @@ PearsonGL.External.rootJS = (function() {
 
         setTimeout(function(){
           clearPlaceholder();
-          hxs.x_0.observe('numericValue',function(){correctIt('x_0');});
-          hxs.y_0.observe('numericValue',function(){correctIt('y_0');});
-          hxs.x_1.observe('numericValue',function(){correctIt('x_1');});
-          hxs.y_1.observe('numericValue',function(){correctIt('y_1');});
-          hxs.r_0.observe('numericValue',function(){correctIt('r_0');});
+          hlps.x_0.observe('numericValue',function(){correctIt('x_0');});
+          hlps.y_0.observe('numericValue',function(){correctIt('y_0');});
+          hlps.x_1.observe('numericValue',function(){correctIt('x_1');});
+          hlps.y_1.observe('numericValue',function(){correctIt('y_1');});
+          hlps.r_0.observe('numericValue',function(){correctIt('r_0');});
         },cs.delay.LOAD);
        }
      };
