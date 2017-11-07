@@ -317,6 +317,28 @@ PearsonGL.External.masterJS = (function() {
 
 //   ts.A0597207_updateTriangle = (val, name, desmos)=>PearsonGL.External.rootJS.A0597207_updateTriangle((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':log}:val);
 
+//  DEPRECATED
+  var deprecated = [
+    'A0596342_init',
+    'A0596342_2_init',
+    'A0596370_resetAnimation',
+    'A0596373_init',
+    'A0596373_resetAnimation',
+    'A0596539_updateLabels',
+    'A0596584_init',
+    'A0596986_updateLabels',
+    'A0597534_updateLabels',
+    'A0597544_updateLabels',
+    'A0597546_updateLabels',
+    'A0597544_init',
+    'A0597546_init',
+    'A0597598_A_labelAngle'
+  ];
+
+  deprecated.forEach(function(funcName){ts[funcName] = function(){};});
+
+//  END DEPRECATED
+
   exports.gcf = function(arr) {
     var arr = arr.value;
     var i, y,
