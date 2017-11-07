@@ -335,7 +335,9 @@ PearsonGL.External.masterJS = (function() {
     'A0597598_A_labelAngle'
   ];
 
-  deprecated.forEach(function(funcName){ts[funcName] = function(){};});
+  deprecated.forEach(function(funcName){ts[funcName] = function(){
+    console.log(funcName+' has been deprecated; see tracker for updated info');
+  };});
 
 //  END DEPRECATED
 
