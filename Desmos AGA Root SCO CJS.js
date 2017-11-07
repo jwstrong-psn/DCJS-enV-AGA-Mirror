@@ -855,9 +855,8 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
-    /* ←— A0598801 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0598801 FUNCTIONS (transpiled) ——————————————————————————————————————————————→ */
      fs.A0598801 = {
-      
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
        | updates the labels of the function g(x) = |x - h|  with the value of "h"
        |
@@ -874,7 +873,7 @@ PearsonGL.External.rootJS = (function() {
         }      
      };
 
-    /* ←— A0598803 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0598803 FUNCTIONS (transpiled) ——————————————————————————————————————————————→ */
      fs.A0598803 = {
       
        updateAVfunction: function(){
@@ -884,7 +883,7 @@ PearsonGL.External.rootJS = (function() {
         }
      };
 
-     /* ←— A0598800 FUNCTIONS ——————————————————————————————————————————————→ */
+     /* ←— A0598800 FUNCTIONS (transpiled) ——————————————————————————————————————————————→ */
      fs.A0598800 = {
       
        updateAVfunction: function(){
@@ -1020,7 +1019,7 @@ PearsonGL.External.rootJS = (function() {
      };
 
 
-    /* ←— A0598802 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0598802 FUNCTIONS (transpiled) ——————————————————————————————————————————————→ */
      fs.A0598802 = {
       /* ←— init ————————————————————————————————————————————————————————————→ *\
        | Initializes the variables
@@ -1888,7 +1887,7 @@ PearsonGL.External.rootJS = (function() {
         }
      };
 
-    /* ←— A0598945 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0598945 FUNCTIONS (transpiled) ——————————————————————————————————————————————→ */
      fs.A0598945 = {
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
        | updates the label of the function.
@@ -2062,7 +2061,7 @@ PearsonGL.External.rootJS = (function() {
      };
 
 
-    /* ←— A0598789A FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0598789A FUNCTIONS  (transpiled) ——————————————————————————————————————————————→ */
      fs.A0598789A = {
       
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
@@ -2083,7 +2082,7 @@ PearsonGL.External.rootJS = (function() {
         }
      };
 
-           /* ←— A0598789B FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0598789B FUNCTIONS (transpiled)  ——————————————————————————————————————————————→ */
      fs.A0598789B = {
       
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
@@ -2104,7 +2103,7 @@ PearsonGL.External.rootJS = (function() {
         }
      };
 
-    /* ←— A0598652 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0598652 FUNCTIONS (transpiled) ——————————————————————————————————————————————→ */
      fs.A0598652 = {
       /* ←— updateLabels ————————————————————————————————————————————————————→ *\
        | updates the distance label 
@@ -5970,7 +5969,7 @@ PearsonGL.External.rootJS = (function() {
        }
      };
 
-    /* ←— A0597789 FUNCTIONS ——————————————————————————————————————————————→ */
+    /* ←— A0597789 FUNCTIONS (transpiled) ——————————————————————————————————————————————→ */
       cs.A0597789 = {
         MARGIN: 18,
         LINE_HEIGHT: 24
