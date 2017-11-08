@@ -833,4 +833,106 @@
            }
          }());
 
-}());
+    /* ←— A0596370 FUNCTIONS ——————————————————————————————————————————————→ */
+      cs.A0596370 = {
+        ANIM_VAR_NAME:'n_{SlideToAnimate}'
+       };
+      /* ←— resetAnimation ——————————————————————————————————————————————————————→ *\
+       | Sets the animation slider to 0
+       | Call observing the Step slider
+       | Plays the animation if given a value of -1, so you can call with an
+       | animation toggle with a max of -1 (hopefully you don't have a Step -1)
+       * ←—————————————————————————————————————————————————————————————————→ */
+       fs.A0596373_resetAnimation: function(){
+        var o = hs.parseOptions.apply(this,arguments);
+        var cons = cs.A0596370;
+        o.desmos.setExpression({
+          id:'animationSlider',
+          latex:(cons.ANIM_VAR_NAME+'=0')//,
+          // sliderIsPlaying:(o.value === -1)
+        });
+       };
+
+
+    /* ←— A0596373 FUNCTIONS ——————————————————————————————————————————————→ */
+      cs.A0596373 = {
+        ANIM_VAR_NAME:'n_{SlideToAnimate}'
+       };
+      /* ←— resetAnimation ——————————————————————————————————————————————————————→ *\
+       | Sets the animation slider to 0
+       | Call observing the Step slider
+       | Plays the animation if given a value of -1, so you can call with an
+       | animation toggle with a max of -1 (hopefully you don't have a Step -1)
+       * ←—————————————————————————————————————————————————————————————————→ */
+       fs.A0596373_resetAnimation: function(){
+        var o = hs.parseOptions.apply(this,arguments);
+        var cons = cs.A0596373;
+        o.desmos.setExpression({
+          id:'animationSlider',
+          latex:(cons.ANIM_VAR_NAME+'=0')//,
+          //sliderIsPlaying:(o.value === -1)
+        });
+       };
+
+
+    /* ←— A0597616 FUNCTIONS ——————————————————————————————————————————————→ */
+     cs.A0597616 = {CM_PRECISION:1};
+     fs.A0597616 = {
+      /* ←— label —————————————————————————————————————————————————————————→ */
+       label: function(){
+        let o = hs.parseArgs(arguments);
+        /* switch (o.name) {
+          case 'm_B': */
+            let value = Math.round(o.value);
+            vs[o.uniqueId].B = value;
+            o.desmos.setExpression({id:'labelB',label:''+value+'°'});
+            if (0 < value && value < 155) {
+              o.desmos.setExpression({id:'labelX',label:''+Math.round(155-value)+'°',showLabel:true});
+              let AX = Math.round(Math.pow(10,cs.A0597616.CM_PRECISION)*3*Math.sin(Math.PI*value/180)/Math.sin(Math.PI*((155-value)/180)))/Math.pow(10,cs.A0597616.CM_PRECISION);
+              let BX = Math.round(Math.pow(10,cs.A0597616.CM_PRECISION)*3*Math.sin(Math.PI*25/180)/Math.sin(Math.PI*((155-value)/180)))/Math.pow(10,cs.A0597616.CM_PRECISION);
+              o.desmos.setExpressions([
+                {id:'labelAX',label:''+AX+' cm',showLabel:true},
+                {id:'labelBX',label:''+BX+' cm',showLabel:true}
+              ]);
+            } else {o.desmos.setExpressions([
+              {id:'labelX',showLabel:false},
+              {id:'labelAX',showLabel:false},
+              {id:'labelBX',showLabel:false}
+            ]);}
+          /*   break;
+          case 'd_{AX}':
+            let value = Math.round(o.value*Math.pow(10,cs.A0597616.CM_PRECISION))/Math.pow(10,cs.A0597616.CM_PRECISION);
+            value = Math.max(value,1/Math.pow(10,cs.A0597616.CM_PRECISION));
+            o.desmos.setExpression({id:'labelAX',label:''+value+' cm'});
+            break;
+          case 'd_{BX}':
+            let value = Math.round(o.value*Math.pow(10,cs.A0597616.CM_PRECISION))/Math.pow(10,cs.A0597616.CM_PRECISION);
+            value = Math.max(value,1/Math.pow(10,cs.A0597616.CM_PRECISION));
+            if (vs[o.uniqueId].B !== undefined && vs[o.uniqueId].B < 65) {value = Math.min(value,Math.round(Math.pow(10,cs.A0597616.CM_PRECISION)*3-1)/Math.pow(10,cs.A0597616.CM_PRECISION));}
+            o.desmos.setExpression({id:'labelBX',label:''+value+' cm'});
+            break;
+        } */
+       },
+      /* ←— label_noCorrection ————————————————————————————————————————————→ */
+       label_noCorrection: function(){
+        let o = hs.parseArgs(arguments);
+        let value = Math.round(o.value);
+        vs[o.uniqueId].B = value;
+        o.desmos.setExpression({id:'labelB',label:''+value+'°'});
+        if (0 < value && value < 155) {
+          o.desmos.setExpression({id:'labelX',label:''+Math.round(155-value)+'°',showLabel:true});
+          let AX = Math.round(Math.pow(10,cs.A0597616.CM_PRECISION)*3*Math.sin(Math.PI*o.value/180)/Math.sin(Math.PI*((155-o.value)/180)))/Math.pow(10,cs.A0597616.CM_PRECISION);
+          let BX = Math.round(Math.pow(10,cs.A0597616.CM_PRECISION)*3*Math.sin(Math.PI*25/180)/Math.sin(Math.PI*((155-o.value)/180)))/Math.pow(10,cs.A0597616.CM_PRECISION);
+          o.desmos.setExpressions([
+            {id:'labelAX',label:''+AX+' cm',showLabel:true},
+            {id:'labelBX',label:''+BX+' cm',showLabel:true}
+          ]);
+        } else {o.desmos.setExpressions([
+          {id:'labelX',showLabel:false},
+          {id:'labelAX',showLabel:false},
+          {id:'labelBX',showLabel:false}
+        ]);}
+       }
+     };
+
+   }());
