@@ -104,26 +104,16 @@ PearsonGL.External.rootJS = (function() {
           prefix = '';
         }
         var functions={};
-        var keys = Object.keys(funcStruct);
-        var l = keys.length;
-
-        var i;
-        var key;
-        var item;
-        for(i=0; i<l; i+=1) {
-          key = keys[i];
-          item = funcStruct[key];
+        Object.keys(funcStruct).forEach(function(key){
+          var item = funcStruct[key];
           if (typeof item === 'object') {
-            if (!(Object.assign(functions,flattenFuncStruct(item,prefix+key+'_')))) {
-              return false;
-            }
+            Object.assign(functions,flattenFuncStruct(item,prefix+key+'_'));
           } else if (typeof item === 'function') {
             functions[prefix+key] = item;
           } else {
             console.log(prefix+key+' is not a function or object');
-            return false;
           }
-        }
+        });
         return functions;
        },
       /* ←— parseArgs ——————————————————————————————————————————————————→ *\
