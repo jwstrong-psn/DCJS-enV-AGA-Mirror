@@ -66,10 +66,34 @@ PearsonGL.External.masterJS = (function() {
     }
   };
 
-  var vs = PearsonGL.External.rootJS.vs;
-  var hxs = PearsonGL.External.rootJS.hxs;
-  var cs = PearsonGL.External.rootJS.cs;
-  var hs = PearsonGL.External.rootJS.hs;
+  var vs;
+  vs = setInterval(function(){
+    if (typeof PearsonGL.External.rootJS.vs === 'object') {
+      clearInterval(vs);
+      vs = PearsonGL.External.rootJS.vs;
+    }
+  },10);
+  var hxs;
+  hxs = setInterval(function(){
+    if (typeof PearsonGL.External.rootJS.hxs === 'object') {
+      clearInterval(hxs);
+      hxs = PearsonGL.External.rootJS.hxs;
+    }
+  },10);
+  var cs;
+  cs = setInterval(function(){
+    if (typeof PearsonGL.External.rootJS.cs === 'object') {
+      clearInterval(cs);
+      cs = PearsonGL.External.rootJS.cs;
+    }
+  },10);
+  var hs;
+  hs = setInterval(function(){
+    if (typeof PearsonGL.External.rootJS.hs === 'object') {
+      clearInterval(hs);
+      hs = PearsonGL.External.rootJS.hs;
+    }
+  },10);
 
   /***********************************************************************************
    * EXPORTS / PUBLIC FUNCTIONS
