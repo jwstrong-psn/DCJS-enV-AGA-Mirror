@@ -1228,20 +1228,10 @@
           } else {
             func = (function() {
               if (value == '') return function() {
-                return PearsonGL.External.rootJS[funcName]({
-                  value:helper.numericValue,
-                  name:latex,
-                  desmos:window.calculator,
-                  log:console.log
-                });
+                return PearsonGL.External.rootJS[funcName](helper.numericValue,latex,window.calculator);
               };
               else return function() {
-                if (helper.numericValue == value) return PearsonGL.External.rootJS[funcName]({
-                  value:helper.numericValue,
-                  name:latex,
-                  desmos:window.calculator,
-                  log:console.log
-                });
+                if (helper.numericValue == value) return PearsonGL.External.rootJS[funcName](helper.numericValue,latex,window.calculator);
               };
             })();
           }
