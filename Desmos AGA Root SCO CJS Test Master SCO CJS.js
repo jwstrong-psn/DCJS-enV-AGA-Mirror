@@ -67,31 +67,20 @@ PearsonGL.External.masterJS = (function() {
   };
 
   var vs;
+  var hxs;
+  var cs;
+  var hs;
+  var hsAttempts = 0;
   vs = setInterval(function(){
-    if (typeof PearsonGL.External.rootJS.vs === 'object') {
+    if (PearsonGL.External.rootJS && typeof PearsonGL.External.rootJS.vs === 'object') {
       clearInterval(vs);
       vs = PearsonGL.External.rootJS.vs;
-    }
-  },10);
-  var hxs;
-  hxs = setInterval(function(){
-    if (typeof PearsonGL.External.rootJS.hxs === 'object') {
-      clearInterval(hxs);
       hxs = PearsonGL.External.rootJS.hxs;
-    }
-  },10);
-  var cs;
-  cs = setInterval(function(){
-    if (typeof PearsonGL.External.rootJS.cs === 'object') {
-      clearInterval(cs);
       cs = PearsonGL.External.rootJS.cs;
-    }
-  },10);
-  var hs;
-  hs = setInterval(function(){
-    if (typeof PearsonGL.External.rootJS.hs === 'object') {
-      clearInterval(hs);
       hs = PearsonGL.External.rootJS.hs;
+      log('rootJS catalogs updated in masterJS on '+hsAttempts+'th attempt');
+    } else {
+      hsAttempts += 1;
     }
   },10);
 
