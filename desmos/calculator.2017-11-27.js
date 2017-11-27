@@ -58,4 +58,3 @@ this},reject:function(){return this.options.backtrack_lexer?(this._backtrack=!0,
   if (moduleWasDefined) window.module = oldModule;
   if (exportsWasDefined) window.exports = oldExports;
 })();
-
