@@ -1394,6 +1394,40 @@
         // Build the frame and UI
         $frame.html('<div id="calculator" style="width:'+desWidth+'px;height:'+desHeight+'px;"></div>');
         $elt = $('#calculator');
+
+        $('#desWidth')[0].value=desWidth;
+        $('#desHeight')[0].value=desHeight;
+        $('#saveBrowserDiv').width(desWidth);
+
+        // Instantiate the calculator and set its state
+        if (type == 'graphing') {
+          window.calculator = window.Calc = Desmos.GraphingCalculator($elt[0], window.currentCalcConstructors);
+          if (calcPrevState) window.calculator.setState(calcPrevState);
+          else window.calculator.updateSettings(defaultGraphSettings);
+          if (calcDefaultState) window.calculator.setDefaultState(calcDefaultState);
+          else window.calculator.setDefaultState(window.calculator.getState());//{stripDefaults: false}));
+        } else if (type == 'geometry') {
+          window.calculator = window.Geo = Desmos.Geometry($elt[0], window.currentGeoConstructors);
+          window.calculator.setState(geoPrevState);
+          if (window.currentGeoConstructors.ruler) window.Geo.showRuler();
+          if (window.currentGeoConstructors.protractor) window.Geo.showProtractor();
+          window.calculator.setDefaultState(geoDefaultState);
+        };
+
+        // Register autosave
+        window.calculator.observeEvent('change',function(){
+          if (!autoSaveQueued) {
+            autoSaveQueued = true;
+            console.log('Queueing autosave…');
+            window.queuedSave = window.setTimeout(autoSave,window.AUTO_SAVE_INTERVAL);
+          }
+        });
+
+        if (type == 'graphing') for (helper in currentHelpers) currentHelpers[helper].enable();
+
+        toolType = type;
+        updateView();
+
         $elt.resizable({
           handles: 'e, s, se',
           grid: [5,5],
@@ -1431,39 +1465,6 @@
             autoSave();
           }
         });
-
-        $('#desWidth')[0].value=desWidth;
-        $('#desHeight')[0].value=desHeight;
-        $('#saveBrowserDiv').width(desWidth);
-
-        // Instantiate the calculator and set its state
-        if (type == 'graphing') {
-          window.calculator = window.Calc = Desmos.GraphingCalculator($elt[0], window.currentCalcConstructors);
-          if (calcPrevState) window.calculator.setState(calcPrevState);
-          else window.calculator.updateSettings(defaultGraphSettings);
-          if (calcDefaultState) window.calculator.setDefaultState(calcDefaultState);
-          else window.calculator.setDefaultState(window.calculator.getState());//{stripDefaults: false}));
-        } else if (type == 'geometry') {
-          window.calculator = window.Geo = Desmos.Geometry($elt[0], window.currentGeoConstructors);
-          window.calculator.setState(geoPrevState);
-          if (window.currentGeoConstructors.ruler) window.Geo.showRuler();
-          if (window.currentGeoConstructors.protractor) window.Geo.showProtractor();
-          window.calculator.setDefaultState(geoDefaultState);
-        };
-
-        // Register autosave
-        window.calculator.observeEvent('change',function(){
-          if (!autoSaveQueued) {
-            autoSaveQueued = true;
-            console.log('Queueing autosave…');
-            window.queuedSave = window.setTimeout(autoSave,window.AUTO_SAVE_INTERVAL);
-          }
-        });
-
-        if (type == 'graphing') for (helper in currentHelpers) currentHelpers[helper].enable();
-
-        toolType = type;
-        updateView();
 
         if (!(autoSaveQueued)) autoSave();
       }
