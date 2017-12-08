@@ -195,7 +195,6 @@
         window.calculator = null;
         if(window.Geo) {
           geoPrevState = window.Geo.getState({stripDefaults:false});
-          window.Geo.detach();
           delete window.Geo;
         }
         if(window.Calc) {
@@ -216,8 +215,8 @@
           else window.calculator.setDefaultState(window.calculator.getState({stripDefaults:false}));
         } else if (type == 'geometry') {
           window.calculator = window.Geo = Desmos.Geometry($elt[0]);
-          window.calculator.setState(geoPrevState);
-          window.calculator.setDefaultState(geoDefaultState);
+          if (geoPrevState) window.calculator.setState(geoPrevState);
+          if (geoDefaultState) window.calculator.setDefaultState(geoDefaultState);
         };
         toolType = type;
         updateView();

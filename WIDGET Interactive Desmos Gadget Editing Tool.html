@@ -1125,7 +1125,6 @@
                 geoPrevState = null;
                 desWidth = 550;
                 desHeight = 475;
-                if (window.Geo) window.Geo.detach();
                 $elt.remove();
                 delete window.Calc;
                 delete window.Geo;
@@ -1382,7 +1381,6 @@
         window.calculator = null;
         if(window.Geo) {
           geoPrevState = window.Geo.getState();//{stripDefaults: false});
-          window.Geo.detach();
           delete window.Geo;
         }
         if(window.Calc) {
@@ -1408,10 +1406,10 @@
           else window.calculator.setDefaultState(window.calculator.getState());//{stripDefaults: false}));
         } else if (type == 'geometry') {
           window.calculator = window.Geo = Desmos.Geometry($elt[0], window.currentGeoConstructors);
-          window.calculator.setState(geoPrevState);
+          if (geoPrevState) window.calculator.setState(geoPrevState);
           if (window.currentGeoConstructors.ruler) window.Geo.showRuler();
           if (window.currentGeoConstructors.protractor) window.Geo.showProtractor();
-          window.calculator.setDefaultState(geoDefaultState);
+          if (geoDefaultState) window.calculator.setDefaultState(geoDefaultState);
         };
 
         // Register autosave
