@@ -12,7 +12,7 @@
   <script src='./cloudinary/jquery.fileupload.js' type='text/javascript'></script>
   <script src='./cloudinary/jquery.cloudinary.js' type='text/javascript'></script>
   <!--script src="https://www.desmos.com/api/v0.9/geometry.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script-->
-  <script src="./desmos/geometry.2017-06-19.js"></script>
+  <script src="./desmos/geometry.2017-12-07.js"></script>
   <!--script src="https://www.desmos.com/api/v0.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script-->
   <script src="./desmos/calculator.2017-11-27.js"></script>
   <script src="./Desmos AGA Root SCO CJS.js"></script>
@@ -71,6 +71,7 @@
           <tr><td style="text-align:right">Construct Compass: </td><td style="text-align:center"><button type="button" id="constructCompass">?</button></td></tr>
           <tr><td style="text-align:right">Border: </td><td style="text-align:center"><button type="button" id="geoBorder">?</button></td></tr>
           <tr><td style="text-align:right">Labels: </td><td style="text-align:center"><button type="button" id="labels">?</button></td></tr>
+          <tr><td style="text-align:right">Sidebar: </td><td style="text-align:center"><button type="button" id="sidebar">?</button></td></tr>
           <tr><td style="text-align:right">Ruler: </td><td style="text-align:center"><button type="button" id="ruler">?</button></td></tr>
           <tr><td style="text-align:right">Protractor: </td><td style="text-align:center"><button type="button" id="protractor">?</button></td></tr>
         </table>
@@ -309,6 +310,9 @@
         });
         $("#labels").click(function(){
           window.rebuild({'labels':!(window.currentGeoConstructors['labels'])});
+        });
+        $("#sidebar").click(function(){
+          window.rebuild({'sidebar':!(window.currentGeoConstructors['sidebar'])});
         });
         $("#ruler").click(function(){
           window.currentGeoConstructors.ruler = !(window.currentGeoConstructors['ruler']);
@@ -578,6 +582,7 @@
         window.construct.compass={'construct.compass':true};
         window.border={'border':true};
         window.labels={'labels':true};
+        window.sidebar={'sidebar':true};
         window.ruler={'ruler':true};
         window.protractor={'protractor':true};
         window.calcConstructors = {
@@ -897,7 +902,7 @@
           }
         }
         window.geoConstructors = {
-          /* default: perpendicular, parallel, midpoint, compass, border, labels */
+          /* default: perpendicular, parallel, midpoint, compass, border, labels, sidebar */
           default:{
             'construct.perpendicular':true,
             'construct.parallel':true,
@@ -905,6 +910,7 @@
             'construct.compass':true,
             'border':true,
             'labels':true,
+            'sidebar':true,
             'ruler':false,
             'protractor':false
           },
@@ -916,6 +922,7 @@
             'construct.compass':false,
             'border':false,
             'labels':false,
+            'sidebar':false,
             'ruler':false,
             'protractor':false
           }
