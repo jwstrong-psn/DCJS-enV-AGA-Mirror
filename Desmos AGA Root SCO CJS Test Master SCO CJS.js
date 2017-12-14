@@ -1113,6 +1113,52 @@ PearsonGL.External.masterJS = (function() {
        }())
      };
 
+    /* ←— decemberSales68 FUNCTIONS ————————————————————————————————→ */
+     ts.decemberSales68 = {
+      /* ←— updateLabels —————————————————————————————————————————————————————————→ *\
+       | Updates labels on the number line
+       * ←—————————————————————————————————————————————————————————————————→ */
+       updateLabels: function(){
+        var o = hs.parseArgs(arguments);
+
+        var val = o.value;
+
+        o.desmos.setExpressions([
+        {
+          id:'interval1Label',
+          label:'|'+val+'| = '+val
+        },
+        {
+          id:'interval2Label',
+          label:'|−'+(-val)+'| = '+(-val)
+        },
+        {
+          id:'point1Label',
+          label:''+val
+        },
+        {
+          id:'point2Label',
+          label:'−'+(-val)
+        },
+        {
+          id:'154',
+          label:'Distance from 0 to '+val+' is '+val
+        },
+        {
+          id:'155',
+          label:'Distance from 0 to −'+(-val)+' is '+(-val)
+        },
+        {
+          id:'6',
+          color:(val >= 0 ? "#0092C8" : "#F15A22")
+        },
+        {
+          id:'7',
+          color:(val > 0 ? "#F15A22" : "#0092C8")
+        }])
+       }
+     };
+
 
   // Non-DCJS Functions
 
