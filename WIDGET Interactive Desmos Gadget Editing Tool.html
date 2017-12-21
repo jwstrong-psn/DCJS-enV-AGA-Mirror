@@ -48,7 +48,6 @@
           <tr><td style="text-align:right">Zoom Buttons: </td><td style="text-align:center"><button type="button" id="zoomButtons">?</button></td></tr>
           <tr><td style="text-align:right">Expressions Top Bar: </td><td style="text-align:center"><button type="button" id="expressionsTopbar">?</button></td></tr>
           <tr><td style="text-align:right">Points of Interest: </td><td style="text-align:center"><button type="button" id="pointsOfInterest">?</button></td></tr>
-          <tr><td style="text-align:right">Single-Variable Solutions: </td><td style="text-align:center"><button type="button" id="singleVariableSolutions">?</button></td></tr>
           <tr><td style="text-align:right">Trace: </td><td style="text-align:center"><button type="button" id="trace">?</button></td></tr>
           <tr><td style="text-align:right">Border: </td><td style="text-align:center"><button type="button" id="border">?</button></td></tr>
           <tr><td style="text-align:right">Lock Viewport: </td><td style="text-align:center"><button type="button" id="lockViewport">?</button></td></tr>
@@ -251,9 +250,6 @@
         });
         $("#pointsOfInterest").click(function(){
           window.rebuild({pointsOfInterest:!(window.currentCalcConstructors.pointsOfInterest)});
-        });
-        $("#singleVariableSolutions").click(function(){
-          window.rebuild({singleVariableSolutions:!(window.currentCalcConstructors.singleVariableSolutions)});
         });
         $("#trace").click(function(){
           window.rebuild({trace:!(window.currentCalcConstructors.trace)});
@@ -562,7 +558,6 @@
         window.zoomButtons={'zoomButtons':true};
         window.expressionsTopbar={'expressionsTopbar':true};
         window.pointsOfInterest={'pointsOfInterest':true};
-        window.singleVariableSolutions={'singleVariableSolutions':true};
         window.trace={'trace':true};
         window.border={'border':true};
         window.lockViewport={'lockViewport':true};
@@ -588,7 +583,7 @@
         window.protractor={'protractor':true};
         window.calcConstructors = {
           /*Comment indicates difference from default.*/
-          /* default: graphpaper, expressions, settingsMenu, zoomButtons, expressionsTopbar, pointsOfInterest, singleVariableSolutions, trace, border, expressionsCollapsed, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
+          /* default: graphpaper, expressions, settingsMenu, zoomButtons, expressionsTopbar, pointsOfInterest, trace, border, expressionsCollapsed, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
           default:{
             'keypad':false,
             'graphpaper':true,
@@ -597,7 +592,6 @@
             'zoomButtons':true,
             'expressionsTopbar':true,
             'pointsOfInterest':true,
-            'singleVariableSolutions':true,
             'trace':true,
             'border':true,
             'lockViewport':false,
@@ -621,7 +615,6 @@
             'zoomButtons':false, /**/
             'expressionsTopbar':false, /**/
             'pointsOfInterest':false, /**/
-            'singleVariableSolutions':false, /**/
             'trace':false, /**/
             'border':false, /**/
             'lockViewport':false,
@@ -646,7 +639,6 @@
             'zoomButtons':true,
             'expressionsTopbar':true,
             'pointsOfInterest':false, /**/
-            'singleVariableSolutions':false, /**/
             'trace':false, /**/
             'border':true,
             'lockViewport':false,
@@ -661,7 +653,7 @@
             'degreeMode':true,
             'colors':agaColors
           },
-          /* noTopbar: graphpaper, expressions, settingsMenu, zoomButtons, pointsOfInterest, singleVariableSolutions, trace, border, expressionsCollapsed, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
+          /* noTopbar: graphpaper, expressions, settingsMenu, zoomButtons, pointsOfInterest, trace, border, expressionsCollapsed, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
           noTopbar:{
             'keypad':false,
             'graphpaper':true,
@@ -670,7 +662,6 @@
             'zoomButtons':true,
             'expressionsTopbar':false, /**/
             'pointsOfInterest':true,
-            'singleVariableSolutions':true,
             'trace':true,
             'border':true,
             'lockViewport':false,
@@ -694,7 +685,6 @@
             'zoomButtons':false, /**/
             'expressionsTopbar':false, /**/
             'pointsOfInterest':false, /**/
-            'singleVariableSolutions':false, /**/
             'trace':false, /**/
             'border':true,
             'lockViewport':true, /**/
@@ -718,7 +708,6 @@
             'zoomButtons':true,
             'expressionsTopbar':true,
             'pointsOfInterest':false, /**/
-            'singleVariableSolutions':false, /**/
             'trace':false, /**/
             'border':true,
             'lockViewport':false,
@@ -742,7 +731,6 @@
             'zoomButtons':false, /**/
             'expressionsTopbar':true,
             'pointsOfInterest':false, /**/
-            'singleVariableSolutions':false, /**/
             'trace':false, /**/
             'border':true,
             'lockViewport':true, /**/
@@ -766,7 +754,6 @@
             'zoomButtons':true,
             'expressionsTopbar':true,
             'pointsOfInterest':false, /**/
-            'singleVariableSolutions':false, /**/
             'trace':false, /**/
             'border':true,
             'lockViewport':false,
@@ -790,7 +777,6 @@
             'zoomButtons':false, /**/
             'expressionsTopbar':true,
             'pointsOfInterest':false, /**/
-            'singleVariableSolutions':false, /**/
             'trace':false, /**/
             'border':true,
             'lockViewport':true, /**/
@@ -814,7 +800,6 @@
             'zoomButtons':true,
             'expressionsTopbar':false, /**/
             'pointsOfInterest':false, /**/
-            'singleVariableSolutions':false, /**/
             'trace':false, /**/
             'border':true,
             'lockViewport':false,
@@ -838,7 +823,6 @@
             'zoomButtons':false, /**/
             'expressionsTopbar':false, /**/
             'pointsOfInterest':false, /**/
-            'singleVariableSolutions':false, /**/
             'trace':false, /**/
             'border':true,
             'lockViewport':true, /**/
@@ -853,7 +837,7 @@
             'degreeMode':true,
             'colors':agaColors
           },
-          /* graphOnly: graphpaper, settingsMenu, zoomButtons, pointsOfInterest, singleVariableSolutions, trace, border, qwertyKeyboard, degreeMode */
+          /* graphOnly: graphpaper, settingsMenu, zoomButtons, pointsOfInterest, trace, border, qwertyKeyboard, degreeMode */
           graphOnly:{
             'keypad':false,
             'graphpaper':true,
@@ -862,7 +846,6 @@
             'zoomButtons':true,
             'expressionsTopbar':false, /**/
             'pointsOfInterest':true,
-            'singleVariableSolutions':true,
             'trace':true,
             'border':true,
             'lockViewport':false,
@@ -877,7 +860,7 @@
             'degreeMode':true,
             'colors':agaColors
           },
-          /* noGraph: expressions, expressionsTopbar, singleVariableSolutions, border, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
+          /* noGraph: expressions, expressionsTopbar, border, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
           noGraph:{
             'keypad':false,
             'graphpaper':false, /**/
@@ -886,7 +869,6 @@
             'zoomButtons':false, /**/
             'expressionsTopbar':true,
             'pointsOfInterest':false, /**/
-            'singleVariableSolutions':true,
             'trace':false, /**/
             'border':true,
             'lockViewport':false,

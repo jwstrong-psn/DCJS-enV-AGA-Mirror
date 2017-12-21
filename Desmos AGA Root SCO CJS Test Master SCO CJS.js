@@ -45,7 +45,7 @@ PearsonGL.External.masterJS = (function() {
     var functions={};
     Object.keys(funcStruct).forEach(function(key) {
       if (typeof funcStruct[key] === 'object') {
-        if (!(Object.assign(functions,flattenFuncStruct(funcStruct[key],prefix+key+'_')))) {
+        if (!(hs.mergeObjects(functions,flattenFuncStruct(funcStruct[key],prefix+key+'_')))) {
           return false;
         }
       } else if (typeof funcStruct[key] === 'function') {
@@ -69,7 +69,28 @@ PearsonGL.External.masterJS = (function() {
   var vs;
   var hxs;
   var cs;
-  var hs;
+  var hs = {
+    /* ←— mergeObjects —————————————————————————————————————————————————→ *\
+     | replaces Object.assign in case of *shudder* IE
+     * ←————————————————————————————————————————————————————————————————→ */
+     mergeObjects:function() {
+        if (typeof Object.assign === "function") {
+          return Object.assign.apply(Object,arguments);
+        }
+
+        var obj = arguments[0];
+
+        [].forEach.call(arguments, function(arg,i) {
+          if(i > 0) {
+            Object.keys(arg).forEach(function(key) {
+              obj[key] = arg[key];
+            });
+          }
+        });
+
+        return obj;
+     }
+   };
   var hsAttempts = 0;
   vs = setInterval(function(){
     if (PearsonGL.External.rootJS && typeof PearsonGL.External.rootJS.vs === 'object') {
@@ -265,7 +286,7 @@ PearsonGL.External.masterJS = (function() {
             //  Composites is an object so as to allow indexing by number,
             //  and is not an array, because length would be misleading
             var composites = {};
-            Object.assign(composites,{
+            hs.mergeObjects(composites,{
               toArray: function() {
                 var compositeList = [];
                 Object.keys(composites).forEach(function(key) {
@@ -938,7 +959,7 @@ PearsonGL.External.masterJS = (function() {
         return function(){
           var obj = hs.parseArgs(arguments);
           var hlps = hxs[obj.uniqueId];
-          Object.assign(hlps,{
+          hs.mergeObjects(hlps,{
             W:hlps.maker({latex:'W'}),
             p:hlps.maker({latex:'p'}),
             scalex:hlps.maker({latex:'t_{ickx}'})
@@ -1195,7 +1216,7 @@ PearsonGL.External.masterJS = (function() {
       return new PearsonGL.Parameters.Parameter(x,"single","string");
      };
   
-  Object.assign(exports,flattenFuncStruct(ts));
+  hs.mergeObjects(exports,flattenFuncStruct(ts));
 
   return exports;
 }());

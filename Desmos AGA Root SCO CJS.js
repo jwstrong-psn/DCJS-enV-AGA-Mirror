@@ -49,7 +49,7 @@ PearsonGL.External.rootJS = (function() {
         ZOOM:0.3, // For reporting coarse changes in the zoom level
         BUFFER_BUFFER:0.01
        },
-      enum:{
+      keyword:{
         LINEAR_SLOPE_INTERCEPT_FORM:'LMB',
         LINEAR_POINT_SLOPE_FORM:'LMP',
         LINEAR_TWO_POINTS:'LPP',
@@ -87,6 +87,26 @@ PearsonGL.External.rootJS = (function() {
   /* ←—PRIVATE HELPER FUNCTIONS————————————————————————————————————————————→ *\
        | Subroutines; access with hs.functionName(args)
        * ←—————————————————————————————————————————————————————————————————→ */
+      /* ←— mergeObjects —————————————————————————————————————————————————→ *\
+       | replaces Object.assign in case of *shudder* IE
+       * ←————————————————————————————————————————————————————————————————→ */
+       var mergeObjects = function() {
+          if (typeof Object.assign === "function") {
+            return Object.assign.apply(Object,arguments);
+          }
+
+          var obj = arguments[0];
+
+          [].forEach.call(arguments, function(arg,i) {
+            if(i > 0) {
+              Object.keys(arg).forEach(function(key) {
+                obj[key] = arg[key];
+              });
+            }
+          });
+
+          return obj;
+       };
     var hs;
     hs = {
       /* ←— flattenFuncStruct —————————————————————————————————————————————→ *\
@@ -107,7 +127,7 @@ PearsonGL.External.rootJS = (function() {
         Object.keys(funcStruct).forEach(function(key){
           var item = funcStruct[key];
           if (typeof item === 'object') {
-            Object.assign(functions,flattenFuncStruct(item,prefix+key+'_'));
+            mergeObjects(functions,flattenFuncStruct(item,prefix+key+'_'));
           } else if (typeof item === 'function') {
             functions[prefix+key] = item;
           } else {
@@ -141,7 +161,7 @@ PearsonGL.External.rootJS = (function() {
         };
 
         if(typeof arg === 'object') {
-          Object.assign(options,arg);
+          mergeObjects(options,arg);
         }
 
         if (options.desmos === undefined) {
@@ -334,7 +354,7 @@ PearsonGL.External.rootJS = (function() {
       /* ←— circleConstrain —————————————————————————————————————————————→ *\
        | Constrain a point to the a circle.
        |
-       | Point {x,y}, circle {x,y,r}, and side cs.enum.INTERIOR, EXTERIOR, or PERIMETER.
+       | Point {x,y}, circle {x,y,r}, and side cs.keyword.INTERIOR, EXTERIOR, or PERIMETER.
        |
        | Point returned will be the closest point inside, outside, or on the circle.
        |
@@ -346,7 +366,7 @@ PearsonGL.External.rootJS = (function() {
        circleConstrain: function(point, circle, side, buffer) {
 
         if(side === undefined) {
-          side = cs.enum.PERIMETER;
+          side = cs.keyword.PERIMETER;
         }
         if(buffer === undefined) {
           buffer = cs.distance.CONSTRAIN_BUFFER;
@@ -356,7 +376,7 @@ PearsonGL.External.rootJS = (function() {
         var scaleBack;
 
         switch (side) {
-          case cs.enum.PERIMETER:
+          case cs.keyword.PERIMETER:
             if (
               (buffer > 0) &&
               (Math.pow(circle.r-buffer,2) < dSquared &&
@@ -366,13 +386,13 @@ PearsonGL.External.rootJS = (function() {
             }
             scaleBack = circle.r;
             break;
-          case cs.enum.INTERIOR:
+          case cs.keyword.INTERIOR:
             if (dSquared < Math.pow(circle.r-buffer,2)) {
               return point;
             }
             scaleBack = circle.r-buffer*Math.pow(2,cs.ts.BUFFER_BUFFER);
             break;
-          case cs.enum.EXTERIOR:
+          case cs.keyword.EXTERIOR:
             if (dSquared > Math.pow(circle.r+buffer,2)) {
               return point;
             }
@@ -419,7 +439,7 @@ PearsonGL.External.rootJS = (function() {
           var func = function(x){
             return alphabet[x];
           };
-          Object.assign(func,alphabet);
+          mergeObjects(func,alphabet);
           return func;
         }()),
       /* ←— number to letter (uppercase) —————————————————————————————————→ *\
@@ -430,7 +450,7 @@ PearsonGL.External.rootJS = (function() {
           var func = function(x){
             return alphabet[x];
           };
-          Object.assign(func,alphabet);
+          mergeObjects(func,alphabet);
           return func;
         }()),
       /* ←— subscript ————————————————————————————————————————————————————→ *\
@@ -504,7 +524,7 @@ PearsonGL.External.rootJS = (function() {
         var o = hs.parseArgs(arguments);
 
         if (o.log) {
-          o.log('observeZoom activated with '+JSON.stringify(Object.assign({},o,{'desmos':'l'})));
+          o.log('observeZoom activated with '+JSON.stringify(mergeObjects({},o,{'desmos':'l'})));
         }
 
         var v = vs[o.uniqueId];
@@ -745,7 +765,7 @@ PearsonGL.External.rootJS = (function() {
           prec = cs.precision.DEGREES;
         }
         var o = hs.parseArgs([(options || {})]);
-        var ps = Object.assign({refreshAll:false,exterior:false},params);
+        var ps = mergeObjects({refreshAll:false,exterior:false},params);
         var v = o.name[o.name.length-1];
         var vars = vs[o.uniqueId];
         var p = vars[vars.polygonName+'_angles'];
@@ -770,7 +790,7 @@ PearsonGL.External.rootJS = (function() {
             if (measure(name) === undefined || Number.isNaN(measure(name))) {
               o.log('Angles of '+vars.polygonName+' not all defined. Delaying full refresh by '+cs.delay.SET_EXPRESSION+'ms');
               setTimeout(function(){
-                fs.shared.label.labelPolyAngles(o,Object.assign({},ps,{refreshAll:true}),prec);
+                fs.shared.label.labelPolyAngles(o,mergeObjects({},ps,{refreshAll:true}),prec);
               },cs.delay.LOAD);
               return;
             }
@@ -807,7 +827,7 @@ PearsonGL.External.rootJS = (function() {
             apparentSum += rounded;
           });
 
-          o.log('Measured angles:',Object.assign({},p));
+          o.log('Measured angles:',mergeObjects({},p));
 
           // Points with the largest error introduce the least error when rounded oppositely
           // So, re-round points with the largest error to get the sum you want (but each one only once)
@@ -832,7 +852,7 @@ PearsonGL.External.rootJS = (function() {
             });
           }
 
-          o.log('Corrected angles:',Object.assign({},p));
+          o.log('Corrected angles:',mergeObjects({},p));
 
           return;
          }
@@ -853,7 +873,7 @@ PearsonGL.External.rootJS = (function() {
         
         if (Number.isNaN(prevVal) || Number.isNaN(nextVal) || Number.isNaN(val)) {
           o.log('Angles of vertices '+prev+', '+v+', and '+next+' not all defined. Refreshing polygon '+vars.polygonName+' in '+cs.delay.SET_EXPRESSION+'ms');
-          setTimeout(function(){fs.shared.label.labelPolyAngles(o,Object.assign({},ps,{refreshAll:true}),prec);},cs.delay.SET_EXPRESSION*300);
+          setTimeout(function(){fs.shared.label.labelPolyAngles(o,mergeObjects({},ps,{refreshAll:true}),prec);},cs.delay.SET_EXPRESSION*300);
           return;
         }
 
@@ -1057,7 +1077,7 @@ PearsonGL.External.rootJS = (function() {
 
           if(o.value === 5) {
             exprs.push(
-              {id:'circumCircle',color:'#F15A22',style:cs.enum.lineType.SOLID,latex:
+              {id:'circumCircle',color:'#F15A22',style:cs.keyword.lineType.SOLID,latex:
               'P\\left(R,\\operatorname{sign}\\left(y_C-U_y\\right)\\arccos\\left(\\frac{x_C-U_x}{R}\\right)+2\\pi tn_{animate},U_x,U_y\\right)'},
               {id:'traceRadius',latex:
               'P\\left(tR,\\operatorname{sign}\\left(y_C-U_y\\right)\\arccos\\left(\\frac{x_C-U_x}{R}\\right)+2\\pi n_{animate},U_x,U_y\\right)'}
@@ -1065,11 +1085,11 @@ PearsonGL.External.rootJS = (function() {
           } else {
             exprs.push({id:'traceRadius',latex:'1'});
             if(lt2) {
-              exprs.push({id:'circumCircle',color:'#000000',style:cs.enum.lineType.DASHED,latex:'\\left(x-U_x\\right)^2+\\left(y-U_y\\right)^2=R^2'});
+              exprs.push({id:'circumCircle',color:'#000000',style:cs.keyword.lineType.DASHED,latex:'\\left(x-U_x\\right)^2+\\left(y-U_y\\right)^2=R^2'});
             } else if(lt4) {
               exprs.push({id:'circumCircle',latex:'1'});
             } else if(!lt5) {
-              exprs.push({id:'circumCircle',color:'#F15A22',style:cs.enum.lineType.SOLID,latex:'\\left(x-U_x\\right)^2+\\left(y-U_y\\right)^2=R^2'});
+              exprs.push({id:'circumCircle',color:'#F15A22',style:cs.keyword.lineType.SOLID,latex:'\\left(x-U_x\\right)^2+\\left(y-U_y\\right)^2=R^2'});
             }
           }
 
@@ -1107,13 +1127,13 @@ PearsonGL.External.rootJS = (function() {
           // incircle
           if (o.value === 1) {
             exprs.push(
-              {id:'inCircle',color:'#000000',style:cs.enum.lineType.DASHED,latex:
+              {id:'inCircle',color:'#000000',style:cs.keyword.lineType.DASHED,latex:
                 '\\operatorname{distance}\\left(\\left(x,y\\right),U\\right)=R'
               }
             );
           } else if (o.value === 6) {
             exprs.push(
-              {id:'inCircle',color:'#F15A22',style:cs.enum.lineType.SOLID,latex:
+              {id:'inCircle',color:'#F15A22',style:cs.keyword.lineType.SOLID,latex:
                 'P\\left(R,\\arccos\\left(\\theta_{xabc}\\left[3\\right]\\right)\\operatorname{sign}\\left(\\theta_{yabc}\\left[3\\right]\\right)+I_{nv}\\frac{\\pi}{2}+2\\pi tn_{animation},U_x,U_y\\right)'
               }
             );
@@ -1123,7 +1143,7 @@ PearsonGL.External.rootJS = (function() {
           if (o.value === 1) {exprs.push(
             {id:'pointTangents',color:'#000000',hidden:false,latex:
               'P\\left(I_{nv}R,\\theta_{abc}+\\arccos 0,U_x,U_y\\right)'
-            },{id:'radii',style:cs.enum.lineType.SOLID,latex:
+            },{id:'radii',style:cs.keyword.lineType.SOLID,latex:
               'P\\left(I_{nv}Rt,\\theta_{abc}+\\arccos 0,U_x,U_y\\right)'
             },{id:'rightAngleSides',latex:
               '\\left(\\left\\{R>2t_{ick}\\right\\}U_x-I_{nv}\\left(R-tt_{ick}\\right)\\theta_{yabc}+t_{ick}\\theta_{xabc},U_y+I_{nv}\\left(R-tt_{ick}\\right)\\theta_{xabc}+t_{ick}\\theta_{yabc}\\right)'
@@ -1140,12 +1160,12 @@ PearsonGL.External.rootJS = (function() {
             if (o.value === 6) {exprs.push(
               {id:'pointTangents',color:'#F15A22',hidden:false,latex:
                 'P\\left(I_{nv}R,\\theta_{abc}\\left[3\\right]+\\arccos 0,U_x,U_y\\right)'
-              },{id:'radii',style:cs.enum.lineType.DASHED,latex:
+              },{id:'radii',style:cs.keyword.lineType.DASHED,latex:
                 'P\\left(I_{nv}Rt,\\theta_{abc}\\left[3\\right]+\\arccos 0,U_x,U_y\\right)'
               });
             } else {exprs.push(
               {id:'pointTangents',hidden:true},
-              {id:'radii',style:cs.enum.lineType.DASHED,latex:
+              {id:'radii',style:cs.keyword.lineType.DASHED,latex:
                 'P\\left(I_{nv}\\left(\\left(1-n_{animation}\\right)\\left(R-\\frac{14}{9}t_{ick}\\right)t+R\\left(1-t\\right)\\right),\\theta_{abc}\\left[3\\right]+\\arccos 0,U_x,U_y\\right)'
               });
             }
@@ -1997,7 +2017,7 @@ PearsonGL.External.rootJS = (function() {
           var hlps = hxs[o.uniqueId];
           var cons = cs.A0597503;
 
-          Object.assign(hlps,{
+          mergeObjects(hlps,{
             x_1:hlps.maker({latex:'x_1'}),
             y_1:hlps.maker({latex:'y_1'}),
             x_2:hlps.maker({latex:'x_2'}),
@@ -2204,7 +2224,7 @@ PearsonGL.External.rootJS = (function() {
           var vars = vs[o.uniqueId];
           var hlps = hxs[o.uniqueId];
 
-          Object.assign(hlps,{
+          mergeObjects(hlps,{
             u_1:hlps.maker({latex:'u_1'}),
             v_1:hlps.maker({latex:'v_1'}),
             u_3:hlps.maker({latex:'u_3'}),
@@ -3079,13 +3099,13 @@ PearsonGL.External.rootJS = (function() {
             exprs.push({
                 id:'segment_'+hs.ALPHA[i]+'A',
                 hidden:(hlps.showDiagonals.numericValue === 0),
-                style:cs.enum.lineType.DASHED,
+                style:cs.keyword.lineType.DASHED,
                 color:cs.color.agaColors.red
             });
             exprs.push({
                 id:'segment_'+hs.ALPHA[i]+hs.ALPHA[i+1],
                 hidden:false,
-                style:cs.enum.lineType.SOLID,
+                style:cs.keyword.lineType.SOLID,
                 color:cs.color.agaColors.black
             });
           }
@@ -3094,7 +3114,7 @@ PearsonGL.External.rootJS = (function() {
           exprs.push({
             id:'segment_'+hs.ALPHA[n]+'A',
             hidden:false,
-            style:cs.enum.lineType.SOLID,
+            style:cs.keyword.lineType.SOLID,
             color:cs.color.agaColors.black
           });
 
@@ -3186,7 +3206,7 @@ PearsonGL.External.rootJS = (function() {
          init: function() {
           var o = hs.parseArgs(arguments);
           var vars = vs[o.uniqueId];
-          Object.assign(vars,{lastDragged:0,placeholder:0});
+          mergeObjects(vars,{lastDragged:0,placeholder:0});
           var hlps = hxs[o.uniqueId];
           if(hlps.n === undefined) {
             hlps.n = hlps.maker({latex:'n'});
@@ -3264,7 +3284,7 @@ PearsonGL.External.rootJS = (function() {
            for(i=1;i<=cons.MAX_VERTICES;i+=1) {
             // Set up polygon angle values for the polygon terminating in this vertex
             if (i > 3) {
-              newPoly = Object.assign({},vars[vars.polygonName+'_angles']);
+              newPoly = mergeObjects({},vars[vars.polygonName+'_angles']);
               newPoly[hs.ALPHA[i]]=0;
               vars.polygonName+=hs.ALPHA[i];
               vars[vars.polygonName+'_angles'] = newPoly;
@@ -3563,7 +3583,7 @@ PearsonGL.External.rootJS = (function() {
             vars['P_'+hs.ALPHA[j]] = 180*Math.acos((asquared+bsquared-csquared)/(2*Math.sqrt(asquared*bsquared)))/Math.PI;
           });
 
-          fs.shared.label.labelPolyAngles(Object.assign({},o,{name:'m_'+hs.ALPHA[i],value:vars['P_'+hs.ALPHA[i]]}),{},cons.ANGLE_PRECISION);
+          fs.shared.label.labelPolyAngles(mergeObjects({},o,{name:'m_'+hs.ALPHA[i],value:vars['P_'+hs.ALPHA[i]]}),{},cons.ANGLE_PRECISION);
 
           var expr = '';
           var j;
@@ -3778,7 +3798,7 @@ PearsonGL.External.rootJS = (function() {
          init: function() {
           var o = hs.parseArgs(arguments);
           var vars = vs[o.uniqueId];
-          Object.assign(vars,{lastDragged:0,placeholder:0});
+          mergeObjects(vars,{lastDragged:0,placeholder:0});
           var hlps = hxs[o.uniqueId];
           if (hlps.n === undefined) {
             hlps.n = hlps.maker({latex:'n'});
@@ -3853,7 +3873,7 @@ PearsonGL.External.rootJS = (function() {
            for(i=1;i<=cons.MAX_VERTICES;i+=1) {
             // Set up polygon angle values for the polygon terminating in this vertex
             if (i > 3) {
-              newPoly = Object.assign({},vars[vars.polygonName+'_angles']);
+              newPoly = mergeObjects({},vars[vars.polygonName+'_angles']);
               newPoly[hs.ALPHA[i]]=0;
               vars.polygonName+=hs.ALPHA[i];
               vars[vars.polygonName+'_angles'] = newPoly;
@@ -4186,7 +4206,7 @@ PearsonGL.External.rootJS = (function() {
             vars['P_'+hs.ALPHA[j]] = 180*Math.acos((asquared+bsquared-csquared)/(2*Math.sqrt(asquared*bsquared)))/Math.PI;
           });
 
-          fs.shared.label.labelPolyAngles(Object.assign({},o,{name:'m_'+hs.ALPHA[i],value:vars['P_'+hs.ALPHA[i]]}),{exterior:true},cons.ANGLE_PRECISION);
+          fs.shared.label.labelPolyAngles(mergeObjects({},o,{name:'m_'+hs.ALPHA[i],value:vars['P_'+hs.ALPHA[i]]}),{exterior:true},cons.ANGLE_PRECISION);
 
           var expr = '';
           for (j = 1;j <= n;j+=1) {expr+=((Math.round(180*Math.pow(10,cons.ANGLE_PRECISION)-vars[vars.polygonName+'_angles'][hs.ALPHA[j]])/Math.pow(10,cons.ANGLE_PRECISION))+'+');}
@@ -4377,7 +4397,7 @@ PearsonGL.External.rootJS = (function() {
          init: function(){
           var o = hs.parseArgs(arguments);
           var vars = vs[o.uniqueId];
-          Object.assign(vars,{
+          mergeObjects(vars,{
             x_1:8,
             y_1:4,
             x_2:-2,
@@ -4548,7 +4568,7 @@ PearsonGL.External.rootJS = (function() {
           var hlps = hxs[o.uniqueId];
           vars.belayUntil = Date.now()+cs.delay.LOAD;
 
-          Object.assign(hlps,{
+          mergeObjects(hlps,{
             x_0:hlps.maker({latex:'x_0'}),
             y_0:hlps.maker({latex:'y_0'}),
             x_1:hlps.maker({latex:'x_1'}),
@@ -4760,11 +4780,11 @@ PearsonGL.External.rootJS = (function() {
          init: function(){
           var o = hs.parseArgs(arguments);
           var vars = vs[o.uniqueId];
-          Object.assign(vars,{draggingPoint:null,dragging:false});
+          mergeObjects(vars,{draggingPoint:null,dragging:false});
           var hlps = hxs[o.uniqueId];
           vars.belayUntil = Date.now()+cs.delay.LOAD;
 
-          Object.assign(hlps,{
+          mergeObjects(hlps,{
             u_0:hlps.maker({latex:'u_0'}),
             v_0:hlps.maker({latex:'v_0'}),
             u_1:hlps.maker({latex:'u_1'}),
@@ -4973,14 +4993,14 @@ PearsonGL.External.rootJS = (function() {
               case 'center':
                 corrected = hs.circleConstrain(
                   {x:hlps.u_0.numericValue,y:hlps.v_0.numericValue},
-                  vars.constrainingCircle,cs.enum.INTERIOR
+                  vars.constrainingCircle,cs.keyword.INTERIOR
                 );
                 exprs.push({id:'center',color:cs.A0597772.CENTER_COLOR});
                 break;
               case 'intersection':
                 corrected = hs.circleConstrain(
                   {x:hlps.u_1.numericValue,y:hlps.v_1.numericValue},
-                  vars.constrainingCircle,cs.enum.INTERIOR
+                  vars.constrainingCircle,cs.keyword.INTERIOR
                 );
                 exprs.push({id:'intersection',color:cs.A0597772.INTERSECTION_COLOR});
                 break;
@@ -5044,7 +5064,7 @@ PearsonGL.External.rootJS = (function() {
                 if (vars.dragging === true) {setPlaceholder(draggingPoint);}
                 else {
                   point = {x:hlps.u_0.numericValue,y:hlps.v_0.numericValue};
-                  corrected = hs.circleConstrain(point,vars.constrainingCircle,cs.enum.INTERIOR);
+                  corrected = hs.circleConstrain(point,vars.constrainingCircle,cs.keyword.INTERIOR);
                   if (corrected !== point) {
                     o.desmos.setExpressions([
                       {id:'u_0',latex:'u_0='+corrected.x},
@@ -5063,7 +5083,7 @@ PearsonGL.External.rootJS = (function() {
                 if (vars.dragging === true) {setPlaceholder(draggingPoint);}
                 else {
                   point = {x:hlps.u_1.numericValue,y:hlps.v_1.numericValue};
-                  corrected = hs.circleConstrain(point,vars.constrainingCircle,cs.enum.INTERIOR);
+                  corrected = hs.circleConstrain(point,vars.constrainingCircle,cs.keyword.INTERIOR);
                   if (corrected !== point) {
                     o.desmos.setExpressions([
                       {id:'u_1',latex:'u_1='+corrected.x},
@@ -5136,12 +5156,12 @@ PearsonGL.External.rootJS = (function() {
          init: function(){
           var o = hs.parseArgs(arguments);
           var vars = vs[o.uniqueId];
-          Object.assign(vars,{draggingPoint:null,dragging:false});
+          mergeObjects(vars,{draggingPoint:null,dragging:false});
           var hlps = hxs[o.uniqueId];
           var cons = cs.A0597773;
           vars.belayUntil = Date.now()+cs.delay.LOAD;
 
-          Object.assign(hlps,{
+          mergeObjects(hlps,{
             x_C:hlps.maker({latex:'x_C'}),
             y_C:hlps.maker({latex:'y_C'}),
             x_V:hlps.maker({latex:'x_V'}),
@@ -5371,12 +5391,12 @@ PearsonGL.External.rootJS = (function() {
          init: function(){
           var o = hs.parseArgs(arguments);
           var vars = vs[o.uniqueId];
-          Object.assign(vars,{draggingPoint:null,dragging:false});
+          mergeObjects(vars,{draggingPoint:null,dragging:false});
           var hlps = hxs[o.uniqueId];
           var cons = cs.A0597777;
           vars.belayUntil = Date.now()+cs.delay.LOAD;
 
-          Object.assign(hlps,{
+          mergeObjects(hlps,{
             x_0:hlps.maker({latex:'x_0'}),
             y_0:hlps.maker({latex:'y_0'}),
             x_1:hlps.maker({latex:'x_1'}),
@@ -6056,7 +6076,7 @@ PearsonGL.External.rootJS = (function() {
           var o = hs.parseArgs(arguments);
           o.desmos.setExpression({
             id:o.id,
-            style:((o.value>0)?cs.enum.lineType.SOLID:cs.enum.lineType.DASHED)
+            style:((o.value>0)?cs.keyword.lineType.SOLID:cs.keyword.lineType.DASHED)
           });
          },
         /* ←— changeStep ——————————————————————————————————————————————————————→ *\
@@ -6166,7 +6186,7 @@ PearsonGL.External.rootJS = (function() {
           var o = hs.parseArgs(arguments);
           o.desmos.setExpression({
             id:o.id,
-            style:((o.value>0)?cs.enum.lineType.SOLID:cs.enum.lineType.DASHED)
+            style:((o.value>0)?cs.keyword.lineType.SOLID:cs.keyword.lineType.DASHED)
           });
          },
         /* ←— changeStep ——————————————————————————————————————————————————————→ *\
@@ -6204,7 +6224,7 @@ PearsonGL.External.rootJS = (function() {
   exports.hxs = hxs;
   exports.cs = cs;
   exports.hs = hs;
-  Object.assign(exports,hs.flattenFuncStruct(fs));
+  mergeObjects(exports,hs.flattenFuncStruct(fs));
 
   return exports;
  }());
