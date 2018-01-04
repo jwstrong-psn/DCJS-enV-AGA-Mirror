@@ -676,13 +676,13 @@ PearsonGL.External.rootJS = (function() {
        |   !REQUIRES options.value be the angle's value, in Radians.
        * ←———————————————————————————————————————————————————————————————————→ */
        labelTriAngles: function(options,pointNames,prec) {
-        if(pointNames === undefined) {
+        if(typeof pointNames === "string") {
           pointNames = {A:'A',B:'B',C:'C'};
         }
-        if(prec === undefined) {
+        if(typeof prec !== "number") {
           prec = cs.precision.DEGREES;
         }
-        var o = hs.parseArgs([(options || {})]);
+        var o = hs.parseArgs(arguments); // hs.parseArgs.apply(this,[(options || {})]);
         var A = pointNames.A;
         var B = pointNames.B;
         var C = pointNames.C;
@@ -1297,13 +1297,13 @@ PearsonGL.External.rootJS = (function() {
          |   !REQUIRES options.value be the angle's value, in Radians.
          * ←———————————————————————————————————————————————————————————————————→ */
          labelTriAngles: function(options,pointNames,prec) {
-          if(pointNames === undefined) {
+          if(typeof pointNames === "string") {
             pointNames = {A:'A',B:'B',C:'C'};
           }
-          if(prec === undefined) {
+          if(typeof prec !== "number") {
             prec = cs.precision.DEGREES;
           }
-          var o = hs.parseArgs.apply(this,[(options || {})]);
+          var o = hs.parseArgs(arguments); // hs.parseArgs.apply(this,[(options || {})]);
           var A = pointNames.A;
           var B = pointNames.B;
           var C = pointNames.C;
