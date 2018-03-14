@@ -20,6 +20,11 @@ PearsonGL.External.rootJS = (function() {
 
   "use strict";
 
+  var debugLog = function(){};
+  if(window.debugLog) {
+    debugLog = window.debugLog;
+  }
+
   /* ←—PRIVATE VARIABLES———————————————————————————————————————————————————→ *\
        | Variable cache; access with vs[uniqueId].myVariable
        * ←—————————————————————————————————————————————————————————————————→ */
@@ -131,7 +136,7 @@ PearsonGL.External.rootJS = (function() {
           } else if (typeof item === 'function') {
             functions[prefix+key] = item;
           } else {
-            console.log(prefix+key+' is not a function or object');
+            debugLog(prefix+key+' is not a function or object');
           }
         });
         return functions;
@@ -157,7 +162,7 @@ PearsonGL.External.rootJS = (function() {
           'name': name,
           'id': name,
           'desmos': desmos,
-          'log':console.log // change to function(){} for production
+          'log':debugLog
         };
 
         if(typeof arg === 'object') {
@@ -403,7 +408,7 @@ PearsonGL.External.rootJS = (function() {
         }
 
         if (scaleBack < 0) {
-          console.log('Negative circle constraint '+scaleBack);
+          debugLog('Negative circle constraint '+scaleBack);
           return null;
         }
 

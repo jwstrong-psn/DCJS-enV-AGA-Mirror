@@ -20,8 +20,12 @@ PearsonGL.External.masterJS = (function() {
 
   "use strict";
   /******* DEBUG: SET EMPTY FUNCTION TO DISABLE CONSOLE MESSAGES ********/
-  var log = console.log;
-  
+
+  var debugLog = function(){};
+  if(window.debugLog) {
+    debugLog = window.debugLog;
+  }
+
   /***********************************************************************************
    * PRIVATE VARIABLES / FUNCTIONS
    **********************************************************************************/
@@ -51,7 +55,7 @@ PearsonGL.External.masterJS = (function() {
       } else if (typeof funcStruct[key] === 'function') {
         functions[prefix+key] = funcStruct[key];
       } else {
-        log(prefix+key+' is not a function or object');
+        debugLog(prefix+key+' is not a function or object');
         return false;
       }
     });
@@ -98,7 +102,7 @@ PearsonGL.External.masterJS = (function() {
       hxs = PearsonGL.External.rootJS.hxs;
       cs = PearsonGL.External.rootJS.cs;
       hs = PearsonGL.External.rootJS.hs;
-      log('rootJS catalogs updated in masterJS on '+hsAttempts+'th attempt');
+      debugLog('rootJS catalogs updated in masterJS on '+hsAttempts+'th attempt');
     } else {
       hsAttempts += 1;
     }
@@ -130,9 +134,9 @@ PearsonGL.External.masterJS = (function() {
   **********************************************************************************/
 
   exports.reflectParabola = function(val, name, desmos) {
-    console.log('redirecting from Master to Root SCO for testing');
-    return PearsonGL.External.rootJS.reflectParabola((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':log}:val);
-    //console.log(name + " was updated to " + val);
+    debugLog('redirecting from Master to Root SCO for testing');
+    return PearsonGL.External.rootJS.reflectParabola((desmos!==undefined)?{'value':val,'name':name,'desmos':desmos,'log':debugLog}:val);
+    //debugLog(name + " was updated to " + val);
     //desmos.setExpression({id: 'reflected', latex: 'y=-a(x-' + val + ')^2-k', color: '#00AA00'});
   };
 
@@ -159,7 +163,7 @@ PearsonGL.External.masterJS = (function() {
     ];
 
     deprecated.forEach(function(funcName){ts[funcName] = function(){
-      console.log(funcName+' has been deprecated; see tracker for updated info');
+      debugLog(funcName+' has been deprecated; see tracker for updated info');
     };});
 
    //  END DEPRECATED
@@ -277,7 +281,7 @@ PearsonGL.External.masterJS = (function() {
        * ←—————————————————————————————————————————————————————————————————→ */
        init: (function(){
         // Helper Functions
-          var o = {log:console.log}; //function(){}}; // change log to console.log to debug
+          var o = {log:debugLog}; //function(){}}; // change log to console.log to debug
 
           // Methods: next(), last(), all(), reset(start)
           var PrimeGenerator = (function() {
@@ -999,7 +1003,7 @@ PearsonGL.External.masterJS = (function() {
               id:'pSlider',
               sliderBounds:{min:0,max:W}//,step:1} // apparently the step breaks everything
             };
-            console.log('pSlider:',pSlider);
+            debugLog('pSlider:',pSlider);
             obj.desmos.setExpressions([
               {
                 id:'majorIntervalsW',
