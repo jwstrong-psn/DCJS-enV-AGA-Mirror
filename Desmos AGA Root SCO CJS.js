@@ -20,9 +20,10 @@ PearsonGL.External.rootJS = (function() {
 
   "use strict";
 
-  var debugLog = function(){};
-  if(window.debugLog) {
-    debugLog = window.debugLog;
+  var debugLog = function(){
+    if(window.debugLog) {
+      window.debugLog.apply(null,arguments);
+    }
   }
 
   /* ←—PRIVATE VARIABLES———————————————————————————————————————————————————→ *\
