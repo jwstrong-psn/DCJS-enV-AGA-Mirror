@@ -194,11 +194,11 @@
 
         window.calculator = null;
         if(window.Geo) {
-          geoPrevState = window.Geo.getState({stripDefaults:false});
+          geoPrevState = window.Geo.getState({stripDefaults:true});
           delete window.Geo;
         }
         if(window.Calc) {
-          calcPrevState = window.Calc.getState({stripDefaults:false});
+          calcPrevState = window.Calc.getState({stripDefaults:true});
           delete window.Calc;
         }
         if($elt) $elt.remove();
@@ -212,7 +212,7 @@
           window.calculator = window.Calc = Desmos.GraphingCalculator($elt[0],{administerSecretFolders:true,colors:window.colors});
           if (calcPrevState) window.calculator.setState(calcPrevState);
           if (calcDefaultState) window.calculator.setDefaultState(calcDefaultState);
-          else window.calculator.setDefaultState(window.calculator.getState({stripDefaults:false}));
+          else window.calculator.setDefaultState(window.calculator.getState({stripDefaults:true}));
         } else if (type == 'geometry') {
           window.calculator = window.Geo = Desmos.Geometry($elt[0]);
           if (geoPrevState) window.calculator.setState(geoPrevState);
@@ -298,7 +298,7 @@
         window.calculator.setState(state, options);
       };
       window.copyState = function() {
-        var currState = window.calculator.getState({stripDefaults:false});
+        var currState = window.calculator.getState({stripDefaults:true});
         try {copy(JSON.stringify(currState));} catch(e) {};
         return currState;
       };

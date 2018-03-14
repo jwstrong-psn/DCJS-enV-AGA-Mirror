@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <title>WIDGET Interactive Desmos Gadget Editing Tool</title>
+  <title>AGA WIDGET</title>
   <link href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css" rel="stylesheet" type="text/css" />
   <script src="https://code.jquery.com/jquery-3.1.0.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -11,9 +11,9 @@
   <script src='./cloudinary/jquery.iframe-transport.js' type='text/javascript'></script>
   <script src='./cloudinary/jquery.fileupload.js' type='text/javascript'></script>
   <script src='./cloudinary/jquery.cloudinary.js' type='text/javascript'></script>
-  <!--script src="https://www.desmos.com/api/v0.9/geometry.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script-->
+  <!--script src="https://www.desmos.com/api/v1.0/geometry.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script-->
   <script src="./desmos/geometry.2017-12-18.js"></script>
-  <!--script src="https://www.desmos.com/api/v0.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script-->
+  <!--script src="https://www.desmos.com/api/v1.0/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script-->
   <script src="./desmos/calculator.2017-12-18.js"></script>
   <script src="./Desmos AGA Root SCO CJS.js"></script>
   <script src="./Desmos AGA Root SCO CJS Test Master SCO CJS.js"></script>
@@ -31,7 +31,6 @@
   </style>
 </head>
 <body>
-  <p>NOTE: Geometry tool has been updated. For old Geometry tool, use <a href="http://htmlpreview.github.io/?https://github.com/jwstrong-psn/DCJS-enV-AGA-Mirror/blob/master/WIDGET%20Interactive%20Desmos%20Gadget%20Editing%20Tool%20Lite.html">WIDGET Lite</a></p>
   <table>
     <tr>
       <td colspan="2" style="vertical-align:top;">
@@ -65,15 +64,22 @@
         </div>
         <div id="geoConstructorButtons">
         <table>
+          <tr><td style="text-align:right">Construct Angle: </td><td style="text-align:center"><button type="button" id="constructAngle">?</button></td></tr>
           <tr><td style="text-align:right">Construct Perpendicular Line: </td><td style="text-align:center"><button type="button" id="constructPerpendicular">?</button></td></tr>
           <tr><td style="text-align:right">Construct Parallel Line: </td><td style="text-align:center"><button type="button" id="constructParallel">?</button></td></tr>
           <tr><td style="text-align:right">Construct Midpoint: </td><td style="text-align:center"><button type="button" id="constructMidpoint">?</button></td></tr>
           <tr><td style="text-align:right">Construct Compass: </td><td style="text-align:center"><button type="button" id="constructCompass">?</button></td></tr>
           <tr><td style="text-align:right">Border: </td><td style="text-align:center"><button type="button" id="geoBorder">?</button></td></tr>
-          <tr><td style="text-align:right">Selection: </td><td style="text-align:center"><button type="button" id="selection">?</button></td></tr>
+          <tr><td style="text-align:right">Header Bar: </td><td style="text-align:center"><button type="button" id="headerbar">?</button></td></tr>
+          <tr><td style="text-align:right">Settings Menu: </td><td style="text-align:center"><button type="button" id="geoSettings">?</button></td></tr>
+          <tr><td style="text-align:right">Undo/Redo Icons: </td><td style="text-align:center"><button type="button" id="geoUndo">?</button></td></tr>
           <tr><td style="text-align:right">Sidebar: </td><td style="text-align:center"><button type="button" id="sidebar">?</button></td></tr>
+          <tr><td style="text-align:right">Autosize: </td><td style="text-align:center"><button type="button" id="geoAutosize">?</button></td></tr>
+          <tr><td style="text-align:right">Selection: </td><td style="text-align:center"><button type="button" id="selection">?</button></td></tr>
           <tr><td style="text-align:right">Ruler: </td><td style="text-align:center"><button type="button" id="ruler">?</button></td></tr>
           <tr><td style="text-align:right">Protractor: </td><td style="text-align:center"><button type="button" id="protractor">?</button></td></tr>
+          <tr><td colspan="2">EXPERIMENTAL:</td></tr>
+          <tr><td style="text-align:right">Custom Tools: </td><td style="text-align:center"><button type="button" id="customtools">?</button></td></tr>
         </table>
         </div>
         <div id="commonConstructorButtons" style="text-align:right">
@@ -131,6 +137,27 @@
         </div>
       </td>
     </tr>
+    <tr style="border:1px solid;">
+      <td colspan="3">
+        <div id="sliders">
+          <table>
+          <thead>
+            <tr><th>Slider ID</th><th>Variable Name</th><th>Function Name</th><th>Value</th></tr>
+          </thead>
+          <tbody id="sliderList">
+            <tr id="newSlider">
+              <td><input type="text" class="sliderId" placeholder="Id…"></td>
+              <td><input type="text" class="sliderVar" placeholder="Variable…"></td>
+              <td><input type="text" class="sliderFunc" placeholder="Function…"></td>
+              <td><input type="text" class="sliderVal" placeholder="Value…"></td>
+              <td><button type="button" class="addSlider">Add</button></td>
+              <td><button type="button" class="deleteSlider">Clear</button></td>
+            </tr>
+          </tbody>
+          </table>
+        </div>
+      </td>
+    </tr>
     <tr>
       <td colspan="3">
         <div id="helperExpressions" style="min-height:150px;">
@@ -183,7 +210,136 @@
 
       // idea from https://github.com/cloudinary/cloudinary_js/issues/78
 
+
+      // uploadImage(data, cb, done_function):
+      //
+      // cb will be called when the image is uploaded (usually updateStorage)
+      //
+      // done_function is a function to execute when all images
+      // are uploaded.
+      var uploadImage = (function() {
+        var imageQueue = [];
+        var done_functions = [];
+        var processing = false;
+
+        function next() {
+          processing = true;
+          var image = imageQueue.pop();
+          console.log("Saving image; "+(imageQueue.length)+" remain.");
+
+          if(typeof image.cb !== "function") {
+            if(imageQueue.length > 0) setTimeout(next,0);
+            throw new Error("Upload Error: "+image.data+" cannot be uploaded, because "+image.cb+" is not a function.");
+          } else {
+            cloudinaryUpload.one('fileuploaddone',function(e,data){
+              var func;
+              if(typeof image.cb === "function") image.cb(e,data);
+              if(imageQueue.length > 0) {
+                // console.log("Image saved. Next…");
+                next();
+              } else {
+                console.log("Done saving images.")
+                processing = false;
+                while(done_functions.length > 0) {
+                  func = done_functions.pop();
+                  if(typeof func === "function") {
+                    console.log("Executing done function:",func);
+                    func();
+                  } else throw new Error("Upload Error: "+func+" is not a function.");
+                }
+              }
+            });
+
+            cloudinaryUpload.fileupload('option','formData').file = image.data;
+            cloudinaryUpload.fileupload('add', { files: [ image.data ] });
+          }
+        }
+
+        return function(data,cb,done_function) {
+          if(typeof data === "string") {
+            if(typeof cb !== "function") {
+              throw new Error("Upload Error: "+data+" cannot be uploaded, because "+cb+" is not a function.");
+            } else {
+              // Add the image to the queue
+              imageQueue.unshift({data:data,cb:cb});
+
+              if(processing === false) {
+                processing = true;
+                setTimeout(next,0);
+              }
+            }
+          }
+          // Add the done-function, but
+          // Don't do the same done_function multiple times
+          var alreadyDoing = false;
+          if(typeof done_function === "function") {
+            done_functions.forEach(function(e){if(e === done_function) alreadyDoing = true;});
+            if(alreadyDoing === false) {
+              if(processing === true) {
+                done_functions.unshift(done_function);
+              } else {
+                done_function();
+              }
+            }
+          } else if(done_function !== undefined) {
+            throw new Error("Upload Error: "+done_function+" is not a function.");
+          }
+        }
+      }());
+
       // END CLOUDINARY INTEGRATION STUFF
+
+      function shortenImageData(data){
+        if(data.length > 80) {
+          data = data.slice(0,50)+'...'+data.slice(-27);
+        }
+        return data;
+      }
+
+      // Taken from stackoverflow.com/questions/6150289/
+      function toDataURL(url, callback) {
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function() {
+          var reader = new FileReader();
+          reader.onloadend = function() {
+            callback(reader.result);
+          }
+          reader.readAsDataURL(xhr.response);
+        };
+        xhr.open('GET', url);
+        xhr.responseType = 'blob';
+        xhr.send();
+      }
+
+      // Run a function (cb) on all image data for a package of images
+      // When done, execute a function
+      window.getImageData = function(images, cb, done) {
+        var queue = {};
+
+        Object.keys(images).forEach(function(key){
+          var image = images[key];
+          if(image.data === undefined) {
+            if(image.url !== undefined) {
+              queue[key] = {
+                image:image,
+                cb:(function(key,image){return function(image_data){
+                  cb(image_data,image);
+                  delete queue[key];
+                  if(Object.keys(queue).length === 0 && typeof done === "function") done();
+                };}(key,image))
+              };
+            } else {
+              console.log("Cannot get image data for image without URL:",image);
+            }
+          } else {
+            cb(image.data,image);
+          }
+        });
+
+        Object.keys(queue).forEach(function(key){
+          toDataURL(queue[key].image.url.replace("upload/t_FPO","upload"),queue[key].cb);
+        });
+      }
 
 
       var onbuttoncolor = "green";
@@ -197,6 +353,7 @@
       var previewWidth = 100;
       var $checkWarnGui = $('<div style="width:'+previewWidth+'px;"><p id="checkWarn"></p><button type="button" id="checkConfirm"></button><br><button type="button" id="checkCancel"></button></div>');
       var domIdIndex = 0;
+      var newSlider;
       var newHelper;
 
       $("#help").hide();
@@ -290,6 +447,9 @@
         $("#degreeMode").click(function(){
           window.rebuild({degreeMode:!(window.currentCalcConstructors.degreeMode)});
         });
+        $("#constructAngle").click(function(){
+          window.rebuild({'construct.angle':!(window.currentGeoConstructors['construct.angle'])});
+        });
         $("#constructPerpendicular").click(function(){
           window.rebuild({'construct.perpendicular':!(window.currentGeoConstructors['construct.perpendicular'])});
         });
@@ -305,11 +465,23 @@
         $("#geoBorder").click(function(){
           window.rebuild({'border':!(window.currentGeoConstructors['border'])});
         });
-        $("#selection").click(function(){
-          window.rebuild({'selection':!(window.currentGeoConstructors['selection'])});
+        $("#headerbar").click(function(){
+          window.rebuild({'headerbar':!(window.currentGeoConstructors['headerbar'])});
+        });
+        $("#geoSettings").click(function(){
+          window.rebuild({'settingsmenu':!(window.currentGeoConstructors['settingsmenu'])});
+        });
+        $("#geoUndo").click(function(){
+          window.rebuild({'undoredo':!(window.currentGeoConstructors['undoredo'])});
         });
         $("#sidebar").click(function(){
           window.rebuild({'sidebar':!(window.currentGeoConstructors['sidebar'])});
+        });
+        $("#geoAutosize").click(function(){
+          window.rebuild({'autosize':!(window.currentGeoConstructors['autosize'])});
+        });
+        $("#selection").click(function(){
+          window.rebuild({'selection':!(window.currentGeoConstructors['selection'])});
         });
         $("#ruler").click(function(){
           window.currentGeoConstructors.ruler = !(window.currentGeoConstructors['ruler']);
@@ -327,6 +499,9 @@
           updateView();
           autoSave();
         });
+        $("#customtools").click(function(){
+          window.rebuild({'customtools':!(window.currentGeoConstructors['customtools'])});
+        });
         $("#defaultConstructors").click(function(){
           window.reset();
         });
@@ -335,18 +510,42 @@
         });
       }
       $("#copyState").click(function(){
-        var currState = window.copyState();
-        var field = $('#stateInput')[0];
-        field.value = JSON.stringify(currState);
-        field.focus()
-        field.setSelectionRange(0,field.value.length);
-        var succeed;
-        try {
-          succeed = document.execCommand('copy');
-          alert('Calculator state copied to clipboard.');
-        } catch(e) {
-          succeed = false;
-          alert('Failed to copy to clipboard. Select and copy manually from text field above \'Copy Current State\' button.');
+        var currState;
+        if(toolType === 'graphing') {
+          workingState.saveCurrent();
+          uploadImage(undefined,undefined,printState);
+        } else {
+          currState = window.copyState();
+          printState();
+        }
+
+        function updateImage(image_data,image) {
+          image.data = image_data;
+        }
+
+        function printState() {
+          var images;
+          if(toolType === 'graphing') {
+            images = workingState.getImages();
+            currState = window.calculator.getState();
+            currState.expressions.list.forEach(function(expr){
+              if(expr.type === "image") {
+                expr.image_url = images[expr.id].url.replace(/(?<=upload\/)(.*\/)*(?=[^\/]*\.[a-zA-Z]+$)/,"t_FPO/");
+              }
+            });
+          }
+          var field = $('#stateInput')[0];
+          field.value = JSON.stringify(currState);
+          field.focus()
+          field.setSelectionRange(0,field.value.length);
+          var succeed;
+          try {
+            succeed = document.execCommand('copy');
+            alert('Calculator state copied to clipboard.');
+          } catch(e) {
+            succeed = false;
+            alert('Failed to copy to clipboard. Select and copy manually from text field above \'Copy Current State\' button.');
+          }
         }
       });
 
@@ -357,6 +556,124 @@
       $("#download").click(function(){
         window.download(window.calculator.getState());//{stripDefaults: false}));
       });
+
+      function clickSlider(event){
+        // return; // TODO STUB WHATEVER
+        // <button> → <td> → <tr id="sliderId">
+        var sliderId = event.target.parentNode.parentNode.id;
+        var sliderRow = $('#'+sliderId);
+        var id;
+        var name;
+        var func;
+        var value = sliderRow.find('.sliderVal')[0].value;
+        var helper;
+        var success = false;
+        var slider = null;
+
+        if (sliderId == 'newSlider') {
+          id = sliderRow.find('.sliderId')[0].value;
+          name = sliderRow.find('.sliderVar')[0].value;
+          func = sliderRow.find('.sliderFunc')[0].value;
+          sliderRow = newSlider.clone(true,true).appendTo($('#sliderList'));
+          sliderRow.prop("id","slider_no"+(domIdIndex++));
+          if(id !== '') sliderRow.find('.sliderId')[0].innerHTML = (id);
+          if(name !== '') sliderRow.find('.sliderVar')[0].innerHTML = (name);
+          if(func !== '') sliderRow.find('.sliderFunc')[0].innerHTML = (func);
+          if(value !== '') sliderRow.find('.sliderVal')[0].value = +value;
+          else if(value === '') {
+            sliderRow.find('.sliderVal')[0].value = '';
+            if (name !== '') {
+              helper = calculator.HelperExpression({latex:name});
+              helper.observe('numericValue.slider',(function(sliderRow){
+                return function(t,h){
+                  if(sliderRow) sliderRow.find('.sliderVal')[0].value = h[t];
+                  else h.unobserveAll();
+                };
+              })(sliderRow));
+            }
+          }
+          sliderRow.find('.addSlider').click(clickSlider);
+          sliderRow.find('.deleteSlider').click(deleteSlider);
+          console.log('Slider created:');
+
+          // Only need to create the slider once. No replacing w/o deleting.
+          // try {
+          //   slider = new DCATslider({
+          //     id:id,
+          //     latex:name,
+          //     funcName:func,
+          //     value:value
+          //   }, sliderId);
+          // } catch (e) {
+          //   alert(e.message);
+          // }
+          // if (slider === null) return;
+          // currentSliders[slider.id] = slider;
+        } // else currentSliders[sliderId].enforce(value);
+        else {
+          id = sliderRow.find('.sliderId')[0].innerText;
+          name = sliderRow.find('.sliderVar')[0].innerText;
+          func = sliderRow.find('.sliderFunc')[0].innerText;
+          console.log('Slider activated:');
+          if(func !== 'N/A') {
+            if(PearsonGL.External.rootJS[func] !== undefined) {
+              PearsonGL.External.rootJS[func]({desmos:calculator,id:id,name:name,value:value});
+            } else {
+              console.log('No such function: '+func);
+            }
+          } else if(id !== 'N/A' && name !== 'N/A' && value !== '') {
+            calculator.setExpression({id:id,latex:name+'='+value});
+          }
+        }
+        console.log(
+          'id: '+(id === '' ? 'N/A' : id)+
+          '; name: '+(name === '' ? 'N/A' : name)+
+          '; func: '+(func === '' ? 'N/A' : func)+
+          '; value: '+(value === '' ? 'N/A' : value)
+        );
+      }
+      // TODO STUB WHATEVER //
+      $(".addSlider").click(clickSlider);
+
+      function deleteSlider(event){
+        // return; // TODO STUB WHATEVER
+        // <button> → <td> → <tr id="sliderId">
+        var sliderId = event.target.parentNode.parentNode.id;
+        var sliderRow = $('#'+sliderId);
+        if (sliderId == 'newSlider') {
+          // only clear fields when deleting the "new slider" row
+          sliderRow.find('.sliderId')[0].value = '';
+          sliderRow.find('.sliderVar')[0].value = '';
+          sliderRow.find('.sliderFunc')[0].value = '';
+          sliderRow.find('.sliderVal')[0].value = '';
+          sliderRow.find('.addSlider').prop("disabled",true);
+        } // else currentSliders[sliderId].destroy();
+        else {
+          sliderRow.remove();
+        }
+      }
+
+      $(".deleteSlider").click(deleteSlider);
+
+      $('.sliderId').change(function(event){
+        $('#'+event.target.parentNode.parentNode.id).find('.addSlider').prop("disabled",false);
+      });
+
+      $('.sliderVar').change(function(event){
+        $('#'+event.target.parentNode.parentNode.id).find('.addSlider').prop("disabled",false);
+      });
+
+      $('.sliderFunc').change(function(event){
+        $('#'+event.target.parentNode.parentNode.id).find('.addSlider').prop("disabled",false);
+      });
+
+      $('.sliderVal').change(function(event){
+        $('#'+event.target.parentNode.parentNode.id).find('.addSlider').prop("disabled",false);
+      });
+
+      // Back up slider expression rows
+      newSlider = $('<tr id="newSlider"><td style="text-align:center;"><span class="sliderId">N/A</span></td><td style="text-align:center;"><span class="sliderVar">N/A</span></td><td style="text-align:center;"><span class="sliderFunc">N/A</span></td><td><input type="text" class="sliderVal" placeholder="Value…"></td><td><button type="button" class="addSlider">Update</button></td><td><button type="button" class="deleteSlider">Delete</button></td></tr>');
+      // END TODO STUB WHATEVER //
 
       $(".addHelper").click(function(event){
         // <button> → <td> → <tr id="helperId">
@@ -536,12 +853,41 @@
         blue: '#0092C8',
         red: '#F15A22',
         green: '#0AB14B',
-        teal: '#36C1CD',
-        orange: '#EFA038',
-        lime: '#95CA59',
         purple: '#812990',
         black: '#000000',
-        grey: '#58595B'
+        // grey: '#58595B',
+        // teal: '#36C1CD',
+        orange: '#EFA038'//,
+        // lime: '#95CA59'
+      };
+      window.mgmColors = {
+        blue: '#0092C8',
+        red: '#F15A22',
+        green: '#0DB14B',
+        purple: '#812990',
+        black: '#000000',
+        //purpleFill: '#941B81',
+        //blueFill: '#229FEE',
+        orangeFill: '#F68B1F'//,
+        //greenFill: '#62BA46',
+        //grey: '#58595B'
+      };
+      window.colors = window.agaColors;
+      window.geoColors = {
+        colors: [
+          '#0092C8', // blue
+          '#F15A22', // red
+          '#0AB14B', // green
+          '#812990', // purple
+          '#EFA038', // orange
+          '#000000', // black
+          '#58595B' // grey
+        ],
+        defaults: {
+          point: window.geoColors.blue,
+          line: window.geoColors.blue,
+          circle: window.geoColors.blue
+        }
       };
       var defaultGraphSettings = {
         degreeMode:true,
@@ -571,16 +917,23 @@
         window.pasteTableData={'pasteTableData':true};
         window.degreeMode={'degreeMode':true};
         window.colors={'colors':agaColors};
-        window.construct={};
-        window.construct.perpendicular={'construct.perpendicular':true};
-        window.construct.parallel={'construct.parallel':true};
-        window.construct.midpoint={'construct.midpoint':true};
-        window.construct.compass={'construct.compass':true};
+        window.construct={
+          angle:{'construct.angle':true},
+          perpendicular:{'construct.perpendicular':true},
+          parallel:{'construct.parallel':true},
+          midpoint:{'construct.midpoint':true},
+          compass:{'construct.compass':true}
+        };
         window.border={'border':true};
-        window.selection={'selection':true};
+        window.headerbar={'headerbar':true};
+        window.settingsmenu={'settingsmenu':true};
+        window.undoredo={'undoredo':true};
         window.sidebar={'sidebar':true};
+        window.autosize={'autosize':true};
+        window.selection={'selection':true};
         window.ruler={'ruler':true};
         window.protractor={'protractor':true};
+        window.customtools={'customtools':true};
         window.calcConstructors = {
           /*Comment indicates difference from default.*/
           /* default: graphpaper, expressions, settingsMenu, zoomButtons, expressionsTopbar, pointsOfInterest, trace, border, expressionsCollapsed, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
@@ -628,286 +981,46 @@
             'pasteTableData':false, /**/
             'degreeMode':false, /**/
             'colors':agaColors
-          },
-          /**/
-          /* tryIt: graphpaper, expressions, settingsMenu, zoomButtons, expressionsTopbar, border, qwertyKeyboard, degreeMode */
-          tryIt:{
-            'keypad':false,
-            'graphpaper':true,
-            'expressions':true,
-            'settingsMenu':true,
-            'zoomButtons':true,
-            'expressionsTopbar':true,
-            'pointsOfInterest':false, /**/
-            'trace':false, /**/
-            'border':true,
-            'lockViewport':false,
-            'expressionsCollapsed':false, /**/
-            'images':false,
-            'folders':false, /**/
-            'notes':false, /**/
-            'qwertyKeyboard':true,
-            'restrictedFunctions':false,
-            'pasteGraphLink':false,
-            'pasteTableData':false, /**/
-            'degreeMode':true,
-            'colors':agaColors
-          },
-          /* noTopbar: graphpaper, expressions, settingsMenu, zoomButtons, pointsOfInterest, trace, border, expressionsCollapsed, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
-          noTopbar:{
-            'keypad':false,
-            'graphpaper':true,
-            'expressions':true,
-            'settingsMenu':true,
-            'zoomButtons':true,
-            'expressionsTopbar':false, /**/
-            'pointsOfInterest':true,
-            'trace':true,
-            'border':true,
-            'lockViewport':false,
-            'expressionsCollapsed':true,
-            'images':false,
-            'folders':true,
-            'notes':true,
-            'qwertyKeyboard':true,
-            'restrictedFunctions':false,
-            'pasteGraphLink':false,
-            'pasteTableData':true,
-            'degreeMode':true,
-            'colors':agaColors
-          },
-          /* locked: graphpaper, border, lockViewport, expressionsCollapsed, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
-          locked:{
-            'keypad':false,
-            'graphpaper':true,
-            'expressions':false, /**/
-            'settingsMenu':false, /**/
-            'zoomButtons':false, /**/
-            'expressionsTopbar':false, /**/
-            'pointsOfInterest':false, /**/
-            'trace':false, /**/
-            'border':true,
-            'lockViewport':true, /**/
-            'expressionsCollapsed':true,
-            'images':false,
-            'folders':true,
-            'notes':true,
-            'qwertyKeyboard':true,
-            'restrictedFunctions':false,
-            'pasteGraphLink':false,
-            'pasteTableData':true,
-            'degreeMode':true,
-            'colors':agaColors
-          },
-          /* geometry: graphpaper, expressions, zoomButtons, expressionsTopbar, border, expressionsCollapsed, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
-          geometry:{
-            'keypad':false,
-            'graphpaper':true,
-            'expressions':true,
-            'settingsMenu':false, /**/
-            'zoomButtons':true,
-            'expressionsTopbar':true,
-            'pointsOfInterest':false, /**/
-            'trace':false, /**/
-            'border':true,
-            'lockViewport':false,
-            'expressionsCollapsed':true,
-            'images':false,
-            'folders':true,
-            'notes':true,
-            'qwertyKeyboard':true,
-            'restrictedFunctions':false,
-            'pasteGraphLink':false,
-            'pasteTableData':true,
-            'degreeMode':true,
-            'colors':agaColors
-          },
-          /* geometryNoZoom: graphpaper, expressions, expressionsTopbar, border, lockViewport, expressionsCollapsed, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
-          geometryNoZoom:{
-            'keypad':false,
-            'graphpaper':true,
-            'expressions':true,
-            'settingsMenu':false, /**/
-            'zoomButtons':false, /**/
-            'expressionsTopbar':true,
-            'pointsOfInterest':false, /**/
-            'trace':false, /**/
-            'border':true,
-            'lockViewport':true, /**/
-            'expressionsCollapsed':true,
-            'images':false,
-            'folders':true,
-            'notes':true,
-            'qwertyKeyboard':true,
-            'restrictedFunctions':false,
-            'pasteGraphLink':false,
-            'pasteTableData':true,
-            'degreeMode':true,
-            'colors':agaColors
-          },
-          /* geometrySlidersOnly: graphpaper, expressions, zoomButtons, expressionsTopbar, border, expressionsCollapsed, degreeMode */
-          geometrySlidersOnly:{
-            'keypad':false,
-            'graphpaper':true,
-            'expressions':true,
-            'settingsMenu':false, /**/
-            'zoomButtons':true,
-            'expressionsTopbar':true,
-            'pointsOfInterest':false, /**/
-            'trace':false, /**/
-            'border':true,
-            'lockViewport':false,
-            'expressionsCollapsed':true,
-            'images':false,
-            'folders':false, /**/
-            'notes':false, /**/
-            'qwertyKeyboard':false, /**/
-            'restrictedFunctions':false,
-            'pasteGraphLink':false,
-            'pasteTableData':false, /**/
-            'degreeMode':true,
-            'colors':agaColors
-          },
-          /* geometrySlidersOnlyNoZoom: graphpaper, expressions, expressionsTopbar, border, lockViewport, expressionsCollapsed, degreeMode */
-          geometrySlidersOnlyNoZoom:{
-            'keypad':false,
-            'graphpaper':true,
-            'expressions':true,
-            'settingsMenu':false, /**/
-            'zoomButtons':false, /**/
-            'expressionsTopbar':true,
-            'pointsOfInterest':false, /**/
-            'trace':false, /**/
-            'border':true,
-            'lockViewport':true, /**/
-            'expressionsCollapsed':true,
-            'images':false,
-            'folders':false, /**/
-            'notes':false, /**/
-            'qwertyKeyboard':false, /**/
-            'restrictedFunctions':false,
-            'pasteGraphLink':false,
-            'pasteTableData':false, /**/
-            'degreeMode':true,
-            'colors':agaColors
-          },
-          /* geometryGraphOnly: graphpaper, zoomButtons, border, degreeMode */
-          geometryGraphOnly:{
-            'keypad':false,
-            'graphpaper':true,
-            'expressions':false, /**/
-            'settingsMenu':false, /**/
-            'zoomButtons':true,
-            'expressionsTopbar':false, /**/
-            'pointsOfInterest':false, /**/
-            'trace':false, /**/
-            'border':true,
-            'lockViewport':false,
-            'expressionsCollapsed':false, /**/
-            'images':false,
-            'folders':false, /**/
-            'notes':false, /**/
-            'qwertyKeyboard':false, /**/
-            'restrictedFunctions':false,
-            'pasteGraphLink':false,
-            'pasteTableData':false, /**/
-            'degreeMode':true,
-            'colors':agaColors
-          },
-          /* geometryGraphOnlyNoZoom: graphpaper, lockViewport, border, degreeMode */
-          geometryGraphOnlyNoZoom:{
-            'keypad':false,
-            'graphpaper':true,
-            'expressions':false, /**/
-            'settingsMenu':false, /**/
-            'zoomButtons':false, /**/
-            'expressionsTopbar':false, /**/
-            'pointsOfInterest':false, /**/
-            'trace':false, /**/
-            'border':true,
-            'lockViewport':true, /**/
-            'expressionsCollapsed':false, /**/
-            'images':false,
-            'folders':false, /**/
-            'notes':false, /**/
-            'qwertyKeyboard':false, /**/
-            'restrictedFunctions':false,
-            'pasteGraphLink':false,
-            'pasteTableData':false, /**/
-            'degreeMode':true,
-            'colors':agaColors
-          },
-          /* graphOnly: graphpaper, settingsMenu, zoomButtons, pointsOfInterest, trace, border, qwertyKeyboard, degreeMode */
-          graphOnly:{
-            'keypad':false,
-            'graphpaper':true,
-            'expressions':false, /**/
-            'settingsMenu':true,
-            'zoomButtons':true,
-            'expressionsTopbar':false, /**/
-            'pointsOfInterest':true,
-            'trace':true,
-            'border':true,
-            'lockViewport':false,
-            'expressionsCollapsed':false, /**/
-            'images':false,
-            'folders':false, /**/
-            'notes':false, /**/
-            'qwertyKeyboard':true,
-            'restrictedFunctions':false,
-            'pasteGraphLink':false,
-            'pasteTableData':false, /**/
-            'degreeMode':true,
-            'colors':agaColors
-          },
-          /* noGraph: expressions, expressionsTopbar, border, folders, notes, qwertyKeyboard, pasteTableData, degreeMode */
-          noGraph:{
-            'keypad':false,
-            'graphpaper':false, /**/
-            'expressions':true,
-            'settingsMenu':false, /**/
-            'zoomButtons':false, /**/
-            'expressionsTopbar':true,
-            'pointsOfInterest':false, /**/
-            'trace':false, /**/
-            'border':true,
-            'lockViewport':false,
-            'expressionsCollapsed':false, /**/
-            'images':false,
-            'folders':true,
-            'notes':true,
-            'qwertyKeyboard':true,
-            'restrictedFunctions':false,
-            'pasteGraphLink':false,
-            'pasteTableData':true,
-            'degreeMode':true,
-            'colors':agaColors
           }
         }
         window.geoConstructors = {
           /* default: perpendicular, parallel, midpoint, compass, border, selection, sidebar */
           default:{
+            'construct.angle':true,
             'construct.perpendicular':true,
             'construct.parallel':true,
             'construct.midpoint':true,
             'construct.compass':true,
             'border':true,
-            'selection':true,
+            'headerbar':true,
+            'settingsmenu':true,
+            'undoredo':true,
             'sidebar':true,
+            'autosize':true,
+            'selection':true,
             'ruler':false,
-            'protractor':false
+            'protractor':false,
+            'colorMap':geoColors,
+            'customtools':false
           },
           /* allOff */
           allOff:{
+            'construct.angle':true,
             'construct.perpendicular':false,
             'construct.parallel':false,
             'construct.midpoint':false,
             'construct.compass':false,
             'border':false,
-            'selection':false,
+            'headerbar':false,
+            'settingsmenu':false,
+            'undoredo':false,
             'sidebar':false,
+            'autosize':false,
+            'selection':false,
             'ruler':false,
-            'protractor':false
+            'protractor':false,
+            'colorMap':geoColors,
+            'customtools':false
           }
         }
       }
@@ -918,6 +1031,7 @@
       var toolType = 'graphing';
       var calcDefaultState = null;
       var geoDefaultState = null;
+      var geoConstructorsSansTools = null;
       var calcPrevState = null;
       var geoPrevState = null;
       var desWidth = 550;
@@ -925,6 +1039,50 @@
       var workingState = null;
       var autoSaveQueued = false;
       window.queuedSave = null;
+
+      var buttonMap = {
+        graphing: {
+          'keypad':'keypad',
+          'graphpaper':'graphpaper',
+          'expressions':'expressions',
+          'settingsMenu':'settingsMenu',
+          'zoomButtons':'zoomButtons',
+          'expressionsTopbar':'expressionsTopbar',
+          'pointsOfInterest':'pointsOfInterest',
+          'trace':'trace',
+          'border':'border',
+          'lockViewport':'lockViewport',
+          'expressionsCollapsed':'expressionsCollapsed',
+          'administerSecretFolders':'administerSecretFolders',
+          'images':'images',
+          'folders':'folders',
+          'notes':'notes',
+          'qwertyKeyboard':'qwertyKeyboard',
+          'restrictedFunctions':'restrictedFunctions',
+          'pasteGraphLink':'pasteGraphLink',
+          'pasteTableData':'pasteTableData',
+          'degreeMode':'degreeMode',
+          'colors':agaColors
+        },
+        geometry: {
+          'construct.angle':'constructAngle',
+          'construct.perpendicular':'constructPerpendicular',
+          'construct.parallel':'constructParallel',
+          'construct.midpoint':'constructMidpoint',
+          'construct.compass':'constructCompass',
+          'border':'geoBorder',
+          'headerbar':'headerbar',
+          'settingsmenu':'geoSettings',
+          'undoredo':'geoUndo',
+          'sidebar':'sidebar',
+          'autosize':'geoAutosize',
+          'selection':'selection',
+          'ruler':'ruler',
+          'protractor':'protractor',
+          'colorMap':geoColors,
+          'customtools':'customtools'
+        }
+      };
 
       var savedGraphs = [];
       var currentHelpers = {};
@@ -942,6 +1100,9 @@
         var height;
         var $gui;
         var thumbnail;
+        var images = {};
+
+        this.getImages = function() {return images;};
 
         this.saveCurrent = function(updateLibrary=true) {
           type = toolType;
@@ -949,8 +1110,84 @@
           width = desWidth;
           height = desHeight;
           helpers = [];
+          var newImages = {};
 
-          if (toolType == 'graphing') for (helper in currentHelpers) helpers.push(currentHelpers[helper].package());
+          if (toolType == 'graphing') {
+            // SAVE DCAT HELPERS
+            Object.keys(currentHelpers).forEach(function(helper) {
+              helpers.push(currentHelpers[helper].package());
+            });
+
+            // FPO TODO TK ETC SAVE DCAT SLIDERS
+
+            // SAVE IMAGE DATA
+            if(cloudinaryUpload) state.expressions.list.forEach(function(expr,index){
+              var img_data;
+              var image;
+              var update = false;
+              if(expr.type === "image") {
+                newImages[expr.id] = true;
+                img_data = expr.image_url;
+                image = images[expr.id];
+
+                // Image needs to be updated if:
+                //  * It is not stored yet
+                //  * It does not have a cloud backup
+                //  * Its backup is out of date
+                if(image === undefined) {
+                  image = {id:expr.id};
+                  update = true;
+                } else if(image.url === undefined) {
+                  console.log("Image with id:\""+expr.id+"\" was missing cloud backup. Updating now.");
+                  delete image.data;
+                  update = true;
+                } else if (image.url !== img_data) {
+                  console.log("Image with id:\""+expr.id+"\" changed URL from \""+shortenImageData(image.url)+"\" to \""+shortenImageData(img_data)+"");
+                  delete image.url;
+                  delete image.data;
+                  update = true;
+                }
+
+                if(update === true) {
+                  if(img_data.startsWith("http")) {
+                    image.url = img_data;
+                  } else if(img_data.startsWith("data:image")) {
+                    console.log("Uploading "+expr.name+" to cloudinary…");
+                    image.data = img_data;
+                    uploadImage(img_data,function(e,data){
+                      var expr = state.expressions.list[index];
+                      var new_url = data.result.secure_url;
+                      if(expr.image_url === img_data) {
+                        console.log("Updating state "+id+" with cloud backup for image id \""+image.id+"\" at "+new_url);
+                        image.url = new_url;
+                        expr.image_url = new_url;
+                        console.log(state);
+                      } else {
+                        throw new Error("Uploaded image with id \""+image.id+"\" no longer matches graph state. Aborting update of image at "+image.url);
+                      }
+                    },((name === "AutoSaved") ? load : updateStorage));
+                  } else throw new Error("Expression \""+expr.id+"\" is image of unknown type. Aborting save.");
+                  images[expr.id] = image;
+                }
+              }
+            });
+
+            // Make sure any old images are still represented. If not, delete their data.
+            Object.keys(images).forEach(function(id){
+              if(newImages[id] !== true) {
+                console.log("Deleting image with id:\""+id+"\".");
+                delete images[id];
+              }
+            });
+
+            if(Object.keys(images).length > 0) {
+              getImageData(images,function(data,image){
+                image.data = data;
+              },function(){
+                console.log("Current state has the following images:",images);
+              });
+            }
+          }
 
           if (toolType == 'graphing') {
             constructors = Object.assign({},window.currentCalcConstructors);
@@ -970,8 +1207,8 @@
             $gui.css("background","silver");
 
             cloudinaryUpload.one('fileuploaddone',function(e,data){
-              $('#'+id+'_img').attr("src",data.result.secure_url);
               thumbnail = data.result.secure_url;
+              $('#'+id+'_img').attr("src",data.result.secure_url);
               $gui.css("background","white");
               if (updateLibrary) updateStorage();
             });
@@ -1040,7 +1277,12 @@
         }
 
         function download() {
-          var file = {name:name,type:type,state:state,helpers:helpers};
+          var file = {
+            name:name,
+            type:type,
+            state:state,
+            helpers:helpers
+          };
           window.download(file,name);
         }
 
@@ -1141,9 +1383,9 @@
           desWidth = width;
           desHeight = height;
           if (type == 'graphing') {
-            window.currentCalcConstructors = Object.assign({},constructors);
+            window.currentCalcConstructors = Object.assign({},constructors,{colors:window.agaColors});
           } else if (type == 'geometry') {
-            window.currentGeoConstructors = Object.assign({},constructors);
+            window.currentGeoConstructors = Object.assign({},constructors,{colorMap:window.geoColors});
           };
           window.load(state,{allowUndo:false,remapColors:false});
           for (helper in helpers) {
@@ -1153,7 +1395,16 @@
         }
 
         this.package = function() {
-          return {
+          var imageURLs = [];
+          // console.log("Packing state with the following images:",images);
+          Object.keys(images).forEach(function(e){
+            // console.log("Image "+e+":",images[e]);
+            if(typeof images[e].url === "string" && images[e].url.startsWith("http")) {
+              imageURLs.push({id:images[e].id,url:images[e].url});
+            }
+          });
+
+          var pack = {
             name:name,
             type:type,
             constructors:constructors,
@@ -1162,8 +1413,11 @@
             width:width,
             height:height,
             preview:thumbnail,
-            previewCloud:(($('#'+id+'_img').attr("src")===thumbnail)?undefined:$('#'+id+'_img').attr("src"))
+            previewCloud:(($('#'+id+'_img').attr("src")===thumbnail)?undefined:$('#'+id+'_img').attr("src")),
+            images:imageURLs
           };
+
+          return pack;
         }
 
         function unpack(pack) {
@@ -1175,6 +1429,10 @@
           height = pack.height;
           helpers = Object.assign([],pack.helpers);
           thumbnail = pack.previewCloud ? pack.previewCloud : pack.preview;
+          images = {};
+          if(Array.isArray(pack.images)) pack.images.forEach(function(e){
+            images[e.id] = {id:e.id,url:e.url};
+          });
           buildGui();
 
           $('#'+id+'_img').attr("src",thumbnail);
@@ -1202,7 +1460,7 @@
         this.id = (((id == 'newHelper')||(id === null)) ? (DOM_ID_PREFIX+(domIdIndex++)) : id);
         var latex;
         var value;
-        var funcName = funcName;
+        var funcName;
         var helper = null;
         var func;
         var $row;
@@ -1217,27 +1475,34 @@
           } else {
             func = (function() {
               if (value == '') return function() {
-                return PearsonGL.External.rootJS[funcName](helper.numericValue,latex,window.calculator);
+                return PearsonGL.External.rootJS[funcName]({
+                  value:helper.numericValue,
+                  uniqueId:window.calculator.guid,
+                  name:latex,
+                  desmos:window.calculator,
+                  log:console.log
+                });
               };
               else return function() {
-                if (helper.numericValue == value) return PearsonGL.External.rootJS[funcName](helper.numericValue,latex,window.calculator);
+                if (helper.numericValue == value) return PearsonGL.External.rootJS[funcName]({
+                  value:helper.numericValue,
+                  uniqueId:window.calculator.guid,
+                  name:latex,
+                  desmos:window.calculator,
+                  log:console.log
+                });
               };
             })();
           }
         } else {
           func = (function() {
-            if (/^[0-9]*$/.test(value)) {
-              return function() {
-                return PearsonGL.External.masterJS[funcName](helper.numericValue,latex,window.calculator);
-              };
-            } else {
-              return function() {
-                if (helper.numericValue == value) {
-                  return PearsonGL.External.masterJS[funcName](helper.numericValue,latex,window.calculator);
-                }
-              };
-            }
-          }());
+            if (value == '') return function() {
+              return PearsonGL.External.masterJS[funcName](helper.numericValue,latex,window.calculator);
+            };
+            else return function() {
+              if (helper.numericValue == value) return PearsonGL.External.masterJS[funcName](helper.numericValue,latex,window.calculator);
+            };
+          })();
         }
 
         this.enable = function() {
@@ -1381,6 +1646,8 @@
 
         // Build the frame and UI
         $frame.html('<div id="calculator" style="width:'+desWidth+'px;height:'+desHeight+'px;"></div>');
+        $frame.width(desWidth);
+        $frame.height(desHeight);
         $elt = $('#calculator');
 
         $('#desWidth')[0].value=desWidth;
@@ -1395,7 +1662,10 @@
           if (calcDefaultState) window.calculator.setDefaultState(calcDefaultState);
           else window.calculator.setDefaultState(window.calculator.getState());//{stripDefaults: false}));
         } else if (type == 'geometry') {
-          window.calculator = window.Geo = Desmos.Geometry($elt[0], window.currentGeoConstructors);
+          geoConstructorsSansTools = Object.assign({},currentGeoConstructors);
+          delete geoConstructorsSansTools.protractor;
+          delete geoConstructorsSansTools.ruler;
+          window.calculator = window.Geo = Desmos.Geometry($elt[0], geoConstructorsSansTools);
           if (geoPrevState) window.calculator.setState(geoPrevState);
           if (window.currentGeoConstructors.ruler) window.Geo.showRuler();
           if (window.currentGeoConstructors.protractor) window.Geo.showProtractor();
@@ -1477,11 +1747,9 @@
         if ((type == 'geometry') && (currentConstructors.ruler === undefined)) currentConstructors.ruler = false;
         if ((type == 'geometry') && (currentConstructors.protractor === undefined)) currentConstructors.protractor = false;
         for (option in currentConstructors) {
-          if (typeof(currentConstructors[option]) != 'boolean');
+          if (typeof(currentConstructors[option]) !== 'boolean');
           else {
-            var $option;
-            if (option == 'border' && type == 'geometry') $option = $('#geoBorder');
-            else $option = $("#"+option.replace(/\.[a-z]/g,function(match){return match[1].toUpperCase();}));
+            var $option= $("#"+buttonMap[type][option]);
             if (currentConstructors[option]) {
               $option.html("ON");
               $option.css("background",onbuttoncolor);
@@ -1559,7 +1827,12 @@
         window.calculator.setState(state, options);
         autoSave();
         var screen = window.calculator.screenshot({width:previewWidth,height:previewHeight});
-        window.setTimeout(function(){if(screen != window.calculator.screenshot({width:previewWidth,height:previewHeight})) autoSave();},LOADING_TIME_ALLOTMENT);
+        var shotAsync = window.setInterval(function(){
+          if(screen != window.calculator.screenshot({width:previewWidth,height:previewHeight})) {
+            clearInterval(shotAsync);
+            autoSave();
+          }
+        },LOADING_TIME_ALLOTMENT);
       };
       window.copyState = function() {
         var currState = window.calculator.getState();//{stripDefaults: false});
