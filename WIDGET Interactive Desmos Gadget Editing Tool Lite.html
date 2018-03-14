@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
-  <title>WIDGET Interactive Desmos Gadget Editing Tool</title>
+  <title>AGA Lite WIDGET</title>
   <link href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css" rel="stylesheet" type="text/css" />
   <script src="https://code.jquery.com/jquery-3.1.0.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -170,14 +170,46 @@
 
       var $frame = $('#frame');
       var $elt = $('#calculator');
-      window.colors = {
+      window.agaColors = {
         blue: '#0092C8',
         red: '#F15A22',
         green: '#0AB14B',
         purple: '#812990',
         black: '#000000',
-        orange: '#EFA038'
-      }
+        // grey: '#58595B',
+        // teal: '#36C1CD',
+        orange: '#EFA038'//,
+        // lime: '#95CA59'
+      };
+      window.mgmColors = {
+        blue: '#0092C8',
+        red: '#F15A22',
+        green: '#0DB14B',
+        purple: '#812990',
+        black: '#000000',
+        //purpleFill: '#941B81',
+        //blueFill: '#229FEE',
+        orangeFill: '#F68B1F'//,
+        //greenFill: '#62BA46',
+        //grey: '#58595B'
+      };
+      window.colors = window.mgmColors;
+      window.geoColors = {
+        colors: [
+          '#0092C8', // blue
+          '#F15A22', // red
+          '#0AB14B', // green
+          '#812990', // purple
+          '#EFA038', // orange
+          '#000000', // black
+          '#58595B' // grey
+        ],
+        defaults: {
+          point: window.agaColors.blue,
+          line: window.agaColors.blue,
+          circle: window.agaColors.blue
+        }
+      };
       window.calculator = window.Calc = window.Geo = null;
 
       var toolType = 'graphing';
@@ -214,7 +246,7 @@
           if (calcDefaultState) window.calculator.setDefaultState(calcDefaultState);
           else window.calculator.setDefaultState(window.calculator.getState({stripDefaults:true}));
         } else if (type == 'geometry') {
-          window.calculator = window.Geo = Desmos.Geometry($elt[0]);
+          window.calculator = window.Geo = Desmos.Geometry($elt[0],{colorMap:window.geoColors});
           if (geoPrevState) window.calculator.setState(geoPrevState);
           if (geoDefaultState) window.calculator.setDefaultState(geoDefaultState);
         };
