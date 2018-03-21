@@ -36,7 +36,7 @@
       <td colspan="2" style="vertical-align:top;">
         <div id="frame"><div id="calculator"></div></div>
       </td>
-      <td rowspan="3" style="vertical-align:top;text-align:center">
+      <td rowspan="4" style="vertical-align:top;text-align:center">
         <button type="button" id="graphing" style="background:green;color:white;">Calculator</button>&nbsp;<button type="button" id="geometry" style="background:red;color:white;">Geometry</button><br>
         <div id="calcConstructorButtons">
         <table>
@@ -90,6 +90,11 @@
           <button type="button" id="onlyConstructors">Enable Entered &amp;<br>Disable Others</button>
           <button type="button" id="changeConstructors">Make Entered<br>Changes Only</button>
         </div>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2" align="right">
+        <div id="warning"></div>
       </td>
     </tr>
     <tr height="100%">
@@ -803,10 +808,30 @@
          $('#desWidth')[0].value = desWidth;
          alert('Please enter a positive integer value for Width.');
         }
-        desWidth = $('#desWidth')[0].value;
-        $elt.width(desWidth);
-        $frame.width(desWidth);
-        $('#saveBrowserDiv').width(desWidth);
+        desWidth = +$('#desWidth')[0].value;
+        var wAdj = desWidth;
+        var hAdj = +$('#desHeight')[0].value;
+
+        if(toolType === 'geometry' && currentGeoConstructors && !currentGeoConstructors.sidebar) {
+          if(wAdj > 550 - 280) {
+            wAdj += 280;
+          } else {
+            hAdj += 58;
+          }
+        }
+
+        console.log('Changing width:',JSON.stringify({
+          desWidth:desWidth,
+          desHeight:desHeight,
+          wAdj:wAdj,
+          hAdj:hAdj
+        },' ',2));
+
+        $elt.width(wAdj);
+        $frame.width(wAdj);
+        $elt.height(hAdj);
+        $frame.height(hAdj);
+        $('#saveBrowserDiv').width(wAdj);
         window.calculator.resize();
         autoSave();
       });
@@ -815,9 +840,30 @@
          $('#desHeight')[0].value = desHeight;
          alert('Please enter a positive integer value for Height.');
         }
-        desHeight = $('#desHeight')[0].value;
-        $elt.height(desHeight);
-        $frame.height(desHeight);
+        desHeight = +$('#desHeight')[0].value;
+        var hAdj = desHeight;
+        var wAdj = +$('#desWidth')[0].value;
+
+        if(toolType === 'geometry' && currentGeoConstructors && !currentGeoConstructors.sidebar) {
+          if(wAdj > 550 - 280) {
+            wAdj += 280;
+          } else {
+            hAdj += 58;
+          }
+        }
+
+        console.log('Changing height:',JSON.stringify({
+          desWidth:desWidth,
+          desHeight:desHeight,
+          wAdj:wAdj,
+          hAdj:hAdj
+        },' ',2));
+
+        $elt.width(wAdj);
+        $frame.width(wAdj);
+        $elt.height(hAdj);
+        $frame.height(hAdj);
+        $('#saveBrowserDiv').width(wAdj);
         window.calculator.resize();
         autoSave();
       });
@@ -1519,7 +1565,9 @@
             $row.remove();
             throw new Error('Helper function \"'+latex+'\": \"'+funcName+'\" not supported by current tool type: '+window.tooltype);
             return false;
-          } else helper = window.calculator.HelperExpression({latex:latex});
+          } else {
+            helper = window.calculator.HelperExpression({latex:latex});
+          }
 
           helper.observe('numericValue', func);
 
@@ -1649,14 +1697,28 @@
         if($elt) $elt.remove();
 
         // Build the frame and UI
-        $frame.html('<div id="calculator" style="width:'+desWidth+'px;height:'+desHeight+'px;"></div>');
-        $frame.width(desWidth);
-        $frame.height(desHeight);
+        var wAdj = desWidth;
+        var hAdj = desHeight;
+
+        if(type === 'geometry' && currentGeoConstructors && !currentGeoConstructors.sidebar) {
+          $('#warning').html('<div id="warning"><span style="">sidebar not included in dimensions. (sidebar off)</span></div>');
+          if(wAdj > 550 - 280) {
+            wAdj += 280;
+          } else {
+            hAdj += 58;
+          }
+        } else {
+          $('#warning').html('<div id="warning"></div>');
+        }
+
+        $frame.html('<div id="calculator" style="width:'+wAdj+'px;height:'+hAdj+'px;"></div>');
+        $frame.width(wAdj);
+        $frame.height(hAdj);
         $elt = $('#calculator');
 
         $('#desWidth')[0].value=desWidth;
         $('#desHeight')[0].value=desHeight;
-        $('#saveBrowserDiv').width(desWidth);
+        $('#saveBrowserDiv').width(wAdj);
 
         // Instantiate the calculator and set its state
         if (type == 'graphing') {
@@ -1666,7 +1728,10 @@
           if (calcDefaultState) window.calculator.setDefaultState(calcDefaultState);
           else window.calculator.setDefaultState(window.calculator.getState());//{stripDefaults: false}));
         } else if (type == 'geometry') {
-          geoConstructorsSansTools = Object.assign({},currentGeoConstructors);
+          if(!currentGeoConstructors.sidebar) {
+            $('#warning').html('<div id="warning"><span style=""> sidebar not included in dimensions. (sidebar off)</span></div>');
+          }
+          geoConstructorsSansTools = Object.assign({},currentGeoConstructors,{sidebar:true});
           delete geoConstructorsSansTools.protractor;
           delete geoConstructorsSansTools.ruler;
           window.calculator = window.Geo = Desmos.Geometry($elt[0], geoConstructorsSansTools);
@@ -1697,32 +1762,44 @@
             var tail='';
             var h=ui.size.height;
             var w=ui.size.width;
-            if (Math.abs(280-w)<15) {ui.size.width=w=280; tail+=' (1/3 Column)';}
-            else if (Math.abs(415-w)<15) {ui.size.width=w=415; tail+=' (50% Column)';}
-            else if (Math.abs(550-w)<15) {ui.size.width=w=550; tail+=' (2/3 Column)';}
-            else if (Math.abs(860-w)<15) {ui.size.width=w=860; tail+=' (Full Column)';}
-            if (Math.abs(475-h)<15) {ui.size.height=h=475; tail+=' (Height 1)';}
-            else if (Math.abs(400-h)<15) {ui.size.height=h=400; tail+=' (Height 2)';}
-            else if (Math.abs(350-h)<15) {ui.size.height=h=350; tail+=' (Height 3)';}
-            console.log('' + w + ' × ' + h + tail);
-            var margin = 0;
-            if (w>desWidth || desWidth>window.innerWidth-2*($elt.offset().left)-20) {
-              desWidth=w;
-              $frame.width(w);
-            };
-            if (h>desHeight) {
-              desHeight=h;
-              $frame.height(h);
-            };
-            $('#desWidth')[0].value=w;
-            $('#desHeight')[0].value=h;
+            var wAdj = w;
+            var hAdj = h;
+            if(toolType === 'geometry' && currentGeoConstructors && !currentGeoConstructors.sidebar) {
+              if(w > 550) {
+                wAdj = w - 280;
+              } else {
+                hAdj = h - 58;
+              }
+            }
+            if (Math.abs(280-wAdj)<15) {wAdj=280; tail+=' (1/3 Column)';}
+            else if (Math.abs(415-wAdj)<15) {wAdj=415; tail+=' (50% Column)';}
+            else if (Math.abs(550-wAdj)<15) {wAdj=550; tail+=' (2/3 Column)';}
+            else if (Math.abs(860-wAdj)<15) {wAdj=860; tail+=' (Full Column)';}
+            if (Math.abs(475-hAdj)<15) {hAdj=475; tail+=' (Height 1)';}
+            else if (Math.abs(400-hAdj)<15) {hAdj=400; tail+=' (Height 2)';}
+            else if (Math.abs(350-hAdj)<15) {hAdj=350; tail+=' (Height 3)';}
+            if(toolType === 'geometry' && currentGeoConstructors && !currentGeoConstructors.sidebar) {
+              if(w > 550) {
+                w = wAdj + 280;
+                h = hAdj;
+              } else {
+                w = wAdj;
+                h = hAdj + 58;
+              }
+            } else {
+              w = wAdj;
+              h = hAdj;
+            }
+            console.log('' + wAdj + ' × ' + hAdj + tail);
+            $frame.width(w);
+            $frame.height(h);
+            ui.size.width = w;
+            ui.size.height = h;
+            $('#saveBrowserDiv').width(w);
+            $('#desWidth')[0].value=wAdj;
+            $('#desHeight')[0].value=hAdj;
           },
-          stop: function(evt, ui) { 
-            desWidth=ui.size.width;
-            desHeight=ui.size.height;
-            $frame.width(desWidth);
-            $frame.height(desHeight);
-            $('#saveBrowserDiv').width(desWidth);
+          stop: function(evt, ui) {
             window.calculator.resize();
             autoSave();
           }
