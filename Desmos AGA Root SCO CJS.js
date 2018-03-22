@@ -682,7 +682,7 @@ PearsonGL.External.rootJS = (function() {
        |   !REQUIRES options.value be the angle's value, in Radians.
        * ←———————————————————————————————————————————————————————————————————→ */
        labelTriAngles: function(options,pointNames,prec) {
-        if(typeof pointNames === "string") {
+        if(!pointNames || !pointNames.A || !pointNames.B || !pointNames.C) {
           pointNames = {A:'A',B:'B',C:'C'};
         }
         if(typeof prec !== "number") {
@@ -1303,7 +1303,7 @@ PearsonGL.External.rootJS = (function() {
          |   !REQUIRES options.value be the angle's value, in Radians.
          * ←———————————————————————————————————————————————————————————————————→ */
          labelTriAngles: function(options,pointNames,prec) {
-          if(typeof pointNames === "string") {
+          if(!pointNames || !pointNames.A || !pointNames.B || !pointNames.C) {
             pointNames = {A:'A',B:'B',C:'C'};
           }
           if(typeof prec !== "number") {
