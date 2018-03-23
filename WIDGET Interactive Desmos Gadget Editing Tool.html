@@ -1430,8 +1430,8 @@
         }
 
         function load() {
-          desWidth = width;
-          desHeight = height;
+          desWidth = +width;
+          desHeight = +height;
           if (type == 'graphing') {
             window.currentCalcConstructors = Object.assign({},constructors,{colors:window.agaColors});
           } else if (type == 'geometry') {
