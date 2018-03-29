@@ -201,6 +201,8 @@
           }
         });
         cloudinaryUpload = $.cloudinary.unsigned_upload_tag('eyycjxcx');
+      } else {
+        console.log("No cloudinary image upload available.");
       }
 
 
@@ -228,6 +230,16 @@
         var imageQueue = [];
         var done_functions = [];
         var processing = false;
+
+        if(!cloudinaryUpload) {
+          return (function(msg){
+            return function() {
+              throw new Error(msg);
+            };
+          })("Cannot upload image—no target database, or database inaccessible."+
+             ((window.location.href.startsWith("file")) ? "You may need to enable CORS for your browser. In Chrome, add \"--allow-file-access-from-files\" to the command line to enable." : "")
+          );
+        }
 
         function next() {
           processing = true;
@@ -1185,7 +1197,11 @@
                 //  * It does not have a cloud backup
                 //  * Its backup is out of date
                 if(image === undefined) {
-                  image = {id:expr.id};
+                  image = {
+                    id:expr.id,
+                    name:expr.name,
+                    originalFilename:expr.originalFilename
+                  };
                   update = true;
                 } else if(image.url === undefined) {
                   console.log("Image with id:\""+expr.id+"\" was missing cloud backup. Updating now.");
@@ -1204,18 +1220,23 @@
                   } else if(img_data.startsWith("data:image")) {
                     console.log("Uploading "+expr.name+" to cloudinary…");
                     image.data = img_data;
-                    uploadImage(img_data,function(e,data){
-                      var expr = state.expressions.list[index];
-                      var new_url = data.result.secure_url;
-                      if(expr.image_url === img_data) {
-                        console.log("Updating state "+id+" with cloud backup for image id \""+image.id+"\" at "+new_url);
-                        image.url = new_url;
-                        expr.image_url = new_url;
-                        console.log(state);
-                      } else {
-                        throw new Error("Uploaded image with id \""+image.id+"\" no longer matches graph state. Aborting update of image at "+image.url);
-                      }
-                    },((name === "AutoSaved") ? load : updateStorage));
+                    try {
+                      uploadImage(img_data,function(e,data){
+                        var expr = state.expressions.list[index];
+                        var new_url = data.result.secure_url;
+                        if(expr.image_url === img_data) {
+                          console.log("Updating state "+id+" with cloud backup for image id \""+image.id+"\" ("+image.name+") at "+new_url);
+                          image.url = new_url;
+                          expr.image_url = new_url;
+                          console.log(state);
+                        } else {
+                          throw new Error("Uploaded image with id \""+image.id+"\" ("+image.name+") no longer matches graph state. Aborting update of image at "+image.url);
+                        }
+                      },((name === "AutoSaved") ? load : updateStorage));
+                    } catch (e) {
+                      console.log("Attempt to upload image with id \""+image.id+"\" ("+image.name+") failed with the following message:")
+                      console.log(e.message);
+                    }
                   } else throw new Error("Expression \""+expr.id+"\" is image of unknown type. Aborting save.");
                   images[expr.id] = image;
                 }
