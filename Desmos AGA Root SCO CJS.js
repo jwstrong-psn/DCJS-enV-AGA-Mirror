@@ -580,6 +580,53 @@ PearsonGL.External.rootJS = (function() {
           o.desmos.setExpression({id:'y_pxScale',latex:'y_{pxScale}='+1/newScale.y});
 
         });
+       },
+      /* ←— observeBounds ———————————————————————————————————————————————————→ *\
+       | Keeps track of the edges of the Desmos Gadget, in the following vars
+       |
+       | EXPRESSIONS MUST BE MANUALLY AUTHORED USING API:
+       |  o.desmos.setExpressions([
+       |    {id:'leftBound',   latex:'x_{leftBound}'   },
+       |    {id:'rightBound',  latex:'x_{rightBound}'  },
+       |    {id:'topBound',    latex:'y_{topBound}'    },
+       |    {id:'bottomBound', latex:'y_{bottomBound}' }
+       |  ]);
+       * ←———————————————————————————————————————————————————————————————————→ */
+       observeBounds: function(){
+        var o = hs.parseArgs(arguments);
+        var vars = vs[o.uniqueId];
+
+        o.log('observeBounds activated on '+o.uniqueId);
+
+        function updateBounds(t,h) {
+          vars.mathBounds = h[t].mathCoordinates;
+          vars.pixelFrame = h[t].pixelCoordinates;
+
+          var bounds = vars.mathBounds;
+
+          o.desmos.setExpressions([
+            {
+              id:'leftBound',
+              latex:'x_{leftBound}='+bounds.left
+            },
+            {
+              id:'rightBound',
+              latex:'x_{rightBound}='+bounds.right
+            },
+            {
+              id:'topBound',
+              latex:'y_{topBound}='+bounds.top
+            },
+            {
+              id:'bottomBound',
+              latex:'y_{bottomBound}='+bounds.bottom
+            }
+          ]);
+        }
+
+        o.desmos.observe('graphpaperBounds.observeBounds', updateBounds);
+
+        updateBounds('graphpaperBounds',o.desmos);
        }
      };
     /* ←— SHARED LABEL FUNCTIONS ——————————————————————————————————————————→ */
