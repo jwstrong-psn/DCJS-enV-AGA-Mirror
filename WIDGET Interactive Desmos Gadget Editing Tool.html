@@ -1459,9 +1459,19 @@
             window.currentGeoConstructors = Object.assign({},constructors,{colorMap:window.geoColors});
           };
           window.load(state,{allowUndo:false,remapColors:false});
+          var newHelper;
           for (helper in helpers) {
-            var newHelper = new DCAThelper(helpers[helper]);
-            currentHelpers[newHelper.id] = newHelper;
+            newHelper = null;
+            try {
+              newHelper = new DCAThelper(helpers[helper]);
+            } catch (e) {
+              alert(e.message);
+            }
+            if(newHelper !== null) {
+              currentHelpers[newHelper.id] = newHelper;
+            } else {
+              delete helpers[helper];
+            }
           }
         }
 
