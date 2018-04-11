@@ -24,7 +24,7 @@ PearsonGL.External.rootJS = (function() {
     if(window.debugLog) {
       window.debugLog.apply(null,arguments);
     }
-  }
+  };
 
   /* ←—PRIVATE VARIABLES———————————————————————————————————————————————————→ *\
        | Variable cache; access with vs[uniqueId].myVariable
@@ -211,6 +211,89 @@ PearsonGL.External.rootJS = (function() {
         }
         return options;
        },
+      /* ←— compareJSON ——————————————————————————————————————————————————→ *\
+       ↑ Traverses a pair of JSON objects, matching keys & values           ↑
+       |                                                                    |
+       | @input: two strings representing JSON objects                      |
+       |  Note: inputs should be stringified to ensure they only contain    |
+       |        valid JSON data types                                       |
+       |                                                                    |
+       | @Returns: true if objects' contents are identical                  |
+       ↓ @Returns: false if objects' contents are not identical             ↓
+       * ←————————————————————————————————————————————————————————————————→ */
+       compareJSON: function compareJSON(stringified1,stringified2) {
+
+        if (typeof stringified1 !== "string" || typeof stringified2 !== "string") {
+          throw new Error("compareJSON requires string input");
+        }
+
+        var obj1 = JSON.parse(stringified1);
+        var obj2 = JSON.parse(stringified2);
+
+        if(obj1 === obj2) {
+          return true;
+        }
+
+        if(!(obj1 instanceof Object) || !(obj2 instanceof Object)) {
+          return false;
+        }
+
+        return compare(obj1,obj2);
+
+        function compare(x,y) {
+          var xKeys;
+          var yKeys;
+          var ret;
+          var type = typeof x;
+          if(type === "string" ||
+             type === "boolean" ||
+             type === "undefined" ||
+             type === "number" ||
+             x === "null") {
+            if (x === y) {
+              debugLog(type,x,"===",y);
+              return true;
+            } else {
+              debugLog(type,x,"!==",y);
+              return false;
+            }
+          } else if(Array.isArray(x)) {
+            debugLog("Comparing Array:",x);
+            if(Array.isArray(y) && x.length === y.length) {
+              debugLog("to Array:",y);
+              ret = x.every(function(e,i) {
+                return compare(e,y[i]);
+              });
+              debugLog(x,(ret ? "==" : "!="),y);
+              return ret;
+            } else {
+              debugLog("!==",y);
+              return false;
+            }
+          } else {
+            xKeys = Object.keys(x);
+            yKeys = Object.keys(y);
+            debugLog("Comparing Object:",x);
+            ret = (xKeys.length === yKeys.length) && xKeys.every(function(k) {
+              return (yKeys.indexOf(k) !== -1);
+            });
+            if(!ret) {
+              debugLog("Does not match Object with keys:",yKeys);
+              return false;
+            }
+            debugLog("to Object:",y);
+            ret = xKeys.every(function(k) {
+              var ret;
+              debugLog("Key \"",k,"\":");
+              ret = compare(x[k],y[k]);
+              debugLog("Key \"",k,(ret ? "\" matches." : "\" does not match."));
+              return ret;
+            });
+            debugLog(x,(ret ? "==" : "!="),y);
+            return ret;
+          }
+        }
+       },
       /* ←— latexToText ———————————————————————————————————————————————————————→ *\
        ↑ Convert a latex string to a plaintext string, e.g. for labels
        ↓
@@ -235,6 +318,33 @@ PearsonGL.External.rootJS = (function() {
         expr = expr.replace(/([^\s \u202f(\[{])\-/g,'$1 − ');
         expr = expr.replace(/\-/g,'−');
         return expr;
+       },
+      /* ←— mirrorExpressions —————————————————————————————————————————————————→ *\
+       ↑ Apply an expression list exactly to a target Desmos
+       ↓
+       * ←—————————————————————————————————————————————————————————————————————→ */
+       mirrorExpressions: function(exprs,desmos){
+        var ids = exprs.map(function(e) {
+          return e.id;
+        });
+        var list = desmos.getExpressions();
+        var rem = [];
+
+        list.forEach(function(e){
+          var i = ids.indexOf(e.id);
+          if(i === -1) {
+            rem.push(e);
+          } else {
+            // Don't overwrite expressions unnecessarily.
+            if(hs.compareJSON(JSON.stringify(e),JSON.stringify(exprs[i]))) {
+              exprs.splice(i,1);
+              ids.splice(i,1);
+            }
+          }
+        });
+
+        desmos.removeExpressions(rem);
+        desmos.setExpressions(exprs);
        },
       /* ←— Distance From Point to Line ——————————————————————————————————→ *\
        | Compute the distance from a point to a line
@@ -6273,6 +6383,79 @@ PearsonGL.External.rootJS = (function() {
           o.desmos.setExpressions(exprs);
          }
        };
+
+      /* ←— A0669772 FUNCTIONS ——————————————————————————————————————————————→ */
+       fs.A0669772 = {
+        /* ←— register ——————————————————————————————————————————————————————→ *\
+         | records a reference to the widget, and initializes it, if it is     |
+         |  not already initialized.                                           |
+         * ←—————————————————————————————————————————————————————————————————→ */
+         register: function(){
+          var o = hs.parseArgs(arguments);
+          vs.A0669772 = vs.A0669772 || {
+            doneMirroring: true,
+            doneMirroringTo: {}
+          };
+          var vars = vs.A0669772;
+
+          hxs.A0669772 = hxs.A0669772 || {
+            widgets:{}
+          };
+          var hlps = hxs.A0669772;
+
+          hlps.widgets[o.name] = o.desmos;
+
+          // Initialize
+          if(vars.exprList === undefined) {
+            vars.mirroringFrom = o.name;
+            vars.exprList = o.desmos.getExpressions();
+            vars.doneMirroringTo[o.name] = true;
+          } else {
+            vars.doneMirroringTo[o.name] = false;
+            hs.mirrorExpressions(vars.exprList,o.desmos);
+            vars.doneMirroringTo[o.name] = true;
+          }
+
+          // Register handler
+          o.desmos.observeEvent('change',(function(name,des,widgets) {
+            return function(){
+              var timer = Date.now() + 4000;
+              function mirrorTo(k) {
+                if(k !== vars.mirroringFrom) {
+                  vars.doneMirroringTo[k] = false;
+                  hs.mirrorExpressions(vars.exprList,widgets[k]);
+                  vars.doneMirroringTo[k] = true;
+                }
+              }
+              // Ignore if this widget is in the process of being overwritten
+              if(vars.doneMirroringTo[name] === false) {
+                return;
+              // If the mirroring process is in progress, queue this one up to avoid
+              //  conflict; overwrite previously queued mirror, so as to minimize the
+              //  # of mirrors in queue
+              } else if (vars.doneMirroring === false) {
+                vars.nextFrom = name;
+              } else {
+                vars.doneMirroring = false;
+                vars.nextFrom = name;
+                do {
+                  // Grab whatever was the last thing edited
+                  vars.mirroringFrom = vars.nextFrom;
+                  delete vars.nextFrom;
+                  vars.exprList = widgets[vars.mirroringFrom].getExpressions();
+                  Object.keys(widgets).forEach(mirrorTo);
+                  if(Date.now() > timer) {
+                    break;
+                  }
+                } while (vars.nextFrom !== undefined);
+              }
+              // stuff
+              vars.doneMirroring = true;
+            };
+          })(o.name,o.desmos,hlps.widgets));
+         }
+       };
+
   exports.vs = vs;
   exports.hxs = hxs;
   exports.cs = cs;
