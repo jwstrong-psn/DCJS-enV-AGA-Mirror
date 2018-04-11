@@ -191,23 +191,33 @@ PearsonGL.External.rootJS = (function() {
             return desmos.HelperExpression.apply(desmos,arguments);
           };
         }
-        if (window.widget === undefined && options.log === console.log) {
-          window.widget = desmos;
-          window.reportDesmosError = function() {
-            var element = document.createElement('a');
-            element.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify({
-                id: options.uniqueId,
-                state: desmos.getState(),
-                variables: vs[options.uniqueId],
-                // helpers: hs[options.uniqueId],
-                screenshot: desmos.screenshot()
-              },null,"\t")));
-            element.setAttribute('download', 'Widget Error Report '+((new Date()).toISOString())+'.json');
-            element.style.display = 'none';
-            document.body.appendChild(element);
-            element.click();
-            document.body.removeChild(element);
+        if (window.debugLog && (window.widgetDebug === undefined || window.widgetDebug.widgets[options.uniqueId] === undefined)) {
+          window.widgetDebug = window.widgetDebug || {
+            vs: vs,
+            hxs: hxs,
+            cs: cs,
+            widgets: {},
+            download: function() {
+              var element = document.createElement('a');
+              var obj = {};
+              Object.keys(window.widgetDebug.widgets).forEach(function(e){
+                var desmos = window.widgetDebug.widgets[e];
+                obj[e] = {
+                  state: desmos.getState(),
+                  variables: vs[e],
+                  // helpers: hxs[options.uniqueId],
+                  screenshot: desmos.screenshot()
+                }
+              });
+              element.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(obj,null,"\t")));
+              element.setAttribute('download', 'Widget Error Report '+((new Date()).toISOString())+'.json');
+              element.style.display = 'none';
+              document.body.appendChild(element);
+              element.click();
+              document.body.removeChild(element);
+            }
           };
+          window.widgetDebug.widgets[options.uniqueId] = desmos;
         }
         return options;
        },
@@ -251,45 +261,45 @@ PearsonGL.External.rootJS = (function() {
              type === "number" ||
              x === "null") {
             if (x === y) {
-              debugLog(type,x,"===",y);
+              // debugLog(type,x,"===",y);
               return true;
             } else {
-              debugLog(type,x,"!==",y);
+              // debugLog(type,x,"!==",y);
               return false;
             }
           } else if(Array.isArray(x)) {
-            debugLog("Comparing Array:",x);
+            // debugLog("Comparing Array:",x);
             if(Array.isArray(y) && x.length === y.length) {
-              debugLog("to Array:",y);
+              // debugLog("to Array:",y);
               ret = x.every(function(e,i) {
                 return compare(e,y[i]);
               });
-              debugLog(x,(ret ? "==" : "!="),y);
+              // debugLog(x,(ret ? "==" : "!="),y);
               return ret;
             } else {
-              debugLog("!==",y);
+              // debugLog("!==",y);
               return false;
             }
           } else {
             xKeys = Object.keys(x);
             yKeys = Object.keys(y);
-            debugLog("Comparing Object:",x);
+            // debugLog("Comparing Object:",x);
             ret = (xKeys.length === yKeys.length) && xKeys.every(function(k) {
               return (yKeys.indexOf(k) !== -1);
             });
             if(!ret) {
-              debugLog("Does not match Object with keys:",yKeys);
+              // debugLog("Does not match Object with keys:",yKeys);
               return false;
             }
-            debugLog("to Object:",y);
+            // debugLog("to Object:",y);
             ret = xKeys.every(function(k) {
               var ret;
-              debugLog("Key \"",k,"\":");
+              // debugLog("Key \"",k,"\":");
               ret = compare(x[k],y[k]);
-              debugLog("Key \"",k,(ret ? "\" matches." : "\" does not match."));
+              // debugLog("Key \"",k,(ret ? "\" matches." : "\" does not match."));
               return ret;
             });
-            debugLog(x,(ret ? "==" : "!="),y);
+            // debugLog(x,(ret ? "==" : "!="),y);
             return ret;
           }
         }
@@ -324,6 +334,7 @@ PearsonGL.External.rootJS = (function() {
        ↓
        * ←—————————————————————————————————————————————————————————————————————→ */
        mirrorExpressions: function(exprs,desmos){
+        exprs = Array.from(exprs);
         var ids = exprs.map(function(e) {
           return e.id;
         });
@@ -333,7 +344,7 @@ PearsonGL.External.rootJS = (function() {
         list.forEach(function(e){
           var i = ids.indexOf(e.id);
           if(i === -1) {
-            rem.push(e);
+            rem.push({id:e.id});
           } else {
             // Don't overwrite expressions unnecessarily.
             if(hs.compareJSON(JSON.stringify(e),JSON.stringify(exprs[i]))) {
@@ -343,8 +354,32 @@ PearsonGL.External.rootJS = (function() {
           }
         });
 
+        debugLog("Overwriting:",list);
+        debugLog("Removing:",rem);
+        debugLog("Adding/Updating:",exprs);
+
         desmos.removeExpressions(rem);
         desmos.setExpressions(exprs);
+       },
+      /* ←— keyedExprList ———————————————————————————————————————————————————————→ *\
+       ↑ Convert an array of Expressions to an object, with Expressions keyed by |
+       |  their respective ids                                                   |
+       ↓                                                                         |
+       * ←—————————————————————————————————————————————————————————————————————→ */
+       keyedExprList: function(exprs){
+        var keyed = {};
+        exprs.forEach(function(e){
+          // TEMP fix the stupid sliderBounds bug while it's still a problem (pre-1.1)
+          if(e.sliderBounds) {
+            e.sliderBounds.min = ""+e.sliderBounds.min;
+            e.sliderBounds.max = ""+e.sliderBounds.max;
+            e.sliderBounds.step = ""+e.sliderBounds.step;
+          }
+          if(e.latex !== "") {
+            keyed[e.id] = e;
+          }
+        });
+        return keyed;
        },
       /* ←— Distance From Point to Line ——————————————————————————————————→ *\
        | Compute the distance from a point to a line
@@ -6394,65 +6429,98 @@ PearsonGL.External.rootJS = (function() {
           var o = hs.parseArgs(arguments);
           vs.A0669772 = vs.A0669772 || {
             doneMirroring: true,
-            doneMirroringTo: {}
+            degreeMode: true
           };
           var vars = vs.A0669772;
 
           hxs.A0669772 = hxs.A0669772 || {
-            widgets:{}
+            widgets: {},
+            mirrorFrom: {},
+            mirrorTo: {}
           };
           var hlps = hxs.A0669772;
 
+          // If the Desmos Widget has already been loaded, then it is now getting
+          //  reset, and should propagate its resettingness to the other widgets
+          if(hlps.widgets[o.name]) {
+            delete vars.exprList;
+          }
+
           hlps.widgets[o.name] = o.desmos;
+
+          hlps.mirrorFrom[o.name] = function mirrorFromMe() {
+            var next;
+            // Don't interrupt another mirroring action.
+            if(vars.doneMirroring === false) {
+              o.log("\""+o.name+"\" queues up behind \""+vars.mirroringFrom+"\".")
+              vars.nextFrom = o.name;
+            } else {
+              vars.doneMirroring = false;
+              vars.mirroringFrom = o.name;
+              next = hs.keyedExprList(o.desmos.getExpressions());
+              if(vars.exprList !== undefined && hs.compareJSON(JSON.stringify(vars.exprList),JSON.stringify(next))) {
+                o.log("No updates were made to \""+o.name+"\" expressions.");
+              } else {
+                o.log("Mirroring from \""+vars.mirroringFrom+"\".",next);
+                vars.exprList = next;
+                Object.keys(hlps.widgets).forEach(function(k){
+                  if(k !== vars.mirroringFrom) {
+                    hlps.mirrorTo[k](vars.exprList);
+                  }
+                });
+              }
+              if(hlps.widgets[vars.mirroringFrom].settings.degreeMode !== vars.degreeMode) {
+                vars.degreeMode = !(vars.degreeMode);
+                Object.keys(hlps.widgets).forEach(function(k){
+                  if(k !== vars.mirroringFrom) {
+                    hlps.widgets[k].updateSettings({
+                      degreeMode: vars.degreeMode
+                    });
+                  }
+                });
+              }
+              vars.doneMirroring = true;
+
+              // In case other changes were made since we started.
+              if(hlps.nextFrom !== undefined) {
+                next = hlps.nextFrom;
+                delete hlps.nextFrom;
+                o.log("\""+next+"\" was waiting patiently while \""+vars.mirroringFrom+"\" mirrored.");
+                hlps.mirrorFrom[next]();
+              }
+            }
+          }
+
+          hlps.mirrorTo[o.name] = function mirrorToMe(exprs) {
+            o.desmos.unobserveEvent('change');
+            
+            hs.mirrorExpressions(Object.values(exprs),o.desmos);
+
+            var attempts = 1;
+
+            if(hs.compareJSON(JSON.stringify(hs.keyedExprList(o.desmos.getExpressions())),JSON.stringify(vars.exprList))) {
+              o.log("\""+o.name+"\"successfully mirrored with no updates.");
+              o.desmos.observeEvent('change',hlps.mirrorFrom[o.name]);
+            } else {
+              o.desmos.observeEvent('change',function() {
+                if(hs.compareJSON(JSON.stringify(hs.keyedExprList(o.desmos.getExpressions())),JSON.stringify(vars.exprList))) {
+                  o.desmos.unobserveEvent('change');
+                  o.log("\""+o.name+"\" successfully mirrored on update #"+attempts);
+                  o.desmos.observeEvent('change',hlps.mirrorFrom[o.name]);
+                } else {
+                  attempts += 1;
+                }
+              });
+            }
+          }
 
           // Initialize
           if(vars.exprList === undefined) {
-            vars.mirroringFrom = o.name;
-            vars.exprList = o.desmos.getExpressions();
-            vars.doneMirroringTo[o.name] = true;
+            hlps.mirrorFrom[o.name]();
+            o.desmos.observeEvent('change',hlps.mirrorFrom[o.name]);
           } else {
-            vars.doneMirroringTo[o.name] = false;
-            hs.mirrorExpressions(vars.exprList,o.desmos);
-            vars.doneMirroringTo[o.name] = true;
+            hlps.mirrorTo[o.name](vars.exprList);
           }
-
-          // Register handler
-          o.desmos.observeEvent('change',(function(name,des,widgets) {
-            return function(){
-              var timer = Date.now() + 4000;
-              function mirrorTo(k) {
-                if(k !== vars.mirroringFrom) {
-                  vars.doneMirroringTo[k] = false;
-                  hs.mirrorExpressions(vars.exprList,widgets[k]);
-                  vars.doneMirroringTo[k] = true;
-                }
-              }
-              // Ignore if this widget is in the process of being overwritten
-              if(vars.doneMirroringTo[name] === false) {
-                return;
-              // If the mirroring process is in progress, queue this one up to avoid
-              //  conflict; overwrite previously queued mirror, so as to minimize the
-              //  # of mirrors in queue
-              } else if (vars.doneMirroring === false) {
-                vars.nextFrom = name;
-              } else {
-                vars.doneMirroring = false;
-                vars.nextFrom = name;
-                do {
-                  // Grab whatever was the last thing edited
-                  vars.mirroringFrom = vars.nextFrom;
-                  delete vars.nextFrom;
-                  vars.exprList = widgets[vars.mirroringFrom].getExpressions();
-                  Object.keys(widgets).forEach(mirrorTo);
-                  if(Date.now() > timer) {
-                    break;
-                  }
-                } while (vars.nextFrom !== undefined);
-              }
-              // stuff
-              vars.doneMirroring = true;
-            };
-          })(o.name,o.desmos,hlps.widgets));
          }
        };
 
