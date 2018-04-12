@@ -1558,7 +1558,6 @@
               if (value == '') return function() {
                 return PearsonGL.External.rootJS[funcName]({
                   value:helper.numericValue,
-                  uniqueId:window.calculator.guid,
                   name:latex,
                   desmos:window.calculator,
                   log:console.log
@@ -1567,7 +1566,6 @@
               else return function() {
                 if (helper.numericValue == value) return PearsonGL.External.rootJS[funcName]({
                   value:helper.numericValue,
-                  uniqueId:window.calculator.guid,
                   name:latex,
                   desmos:window.calculator,
                   log:console.log
