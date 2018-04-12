@@ -21,6 +21,8 @@ PearsonGL.External.masterJS = (function() {
   "use strict";
   /******* DEBUG: SET EMPTY FUNCTION TO DISABLE CONSOLE MESSAGES ********/
 
+  // window.debugLog = console.log
+
   var debugLog = function(){
     if(window.debugLog) {
       window.debugLog.apply(null,arguments);

@@ -177,24 +177,35 @@ PearsonGL.External.rootJS = (function() {
 
         desmos = options.desmos;
 
-        if (options.uniqueId === undefined) {
-          options.uniqueId = cs.ENUM.indexOf(desmos);
-          if (options.uniqueId === -1) {
-            options.uniqueId = cs.ENUM.length;
-            cs.ENUM.push(desmos);
-          }
-          // options.uniqueId = desmos.guid;
+        // ENUM the widget
+        var uid = cs.ENUM.indexOf(desmos);
+        if(uid === -1) {
+          uid = cs.ENUM.length;
+          cs.ENUM.push(desmos);
         }
 
-        if(vs[options.uniqueId]===undefined) {
-          vs[options.uniqueId] = {};
+        // Identify the widget by its ENUM uid if it has no other identifier
+        if(options.uniqueId === undefined) {
+          options.uniqueId = uid;
         }
-        if(hxs[options.uniqueId]===undefined) {
-          hxs[options.uniqueId] = {};
-        }
-        if(hxs[options.uniqueId].maker===undefined) {
-          hxs[options.uniqueId].maker = function(){
-            return desmos.HelperExpression.apply(desmos,arguments);
+
+        var ouid = options.uniqueId;
+
+        // Initialize the variable & helper cache if necessary
+        vs[ouid] = vs[ouid] || {};
+        hxs[ouid] = hxs[ouid] || {};
+
+        // Link the ENUM uid to the authored Id, so the ENUM uid can always be used,
+        //  even if only the authored Id is known, using the following shortcut:
+        // uid = cs.ENUM.indexOf(cs.ENUM[options.uniqueId])
+        cs.ENUM[ouid] = cs.ENUM[uid];
+        vs[uid] = vs[ouid];
+        hxs[uid] = hxs[ouid];
+
+
+        if(hxs[uid].maker === undefined) {
+          hxs[options.uniqueId].maker = function(expr){
+            return desmos.HelperExpression.call(desmos,(typeof expr === "string" ? {latex:expr} : expr));
           };
         }
         if (window.debugLog && (window.widgetDebug === undefined || window.widgetDebug.widgets[options.uniqueId] === undefined)) {
@@ -6530,10 +6541,51 @@ PearsonGL.External.rootJS = (function() {
          }
        };
 
-  exports.vs = vs;
-  exports.hxs = hxs;
+      /* ←— A0669770 INT 11-5-2a C.Summary ———————————————————————————————→ *\
+       | copies the model onto the residual graph
+       * ←————————————————————————————————————————————————————————————————→ */
+       fs.A0669770 = {};
+      fs.A0669770.init = function() {
+        var o = hs.parseArgs(arguments);
+
+        cs.ENUM['A0669770_'+o.name] = o.desmos;
+        if(o.name === 'left') {
+          hxs.A0669770_left = hxs[o.uniqueId];
+        }
+
+        var left = cs.ENUM.A0669770_left;
+        var right = cs.ENUM.A0669770_right;
+
+        // Make sure both are initialized
+        if(!(left instanceof Desmos.GraphingCalculator && right instanceof Desmos.GraphingCalculator)) {
+          return;
+        }
+
+        var hlps = hxs.A0669770_left;
+
+        function copyValue(name) {
+          // In case one of them gets reset, we need to unlink the old instances.
+          if (hlps[name] !== undefined) {
+            hlps[name].unobserveAll();
+          }
+          hlps[name] = hlps.maker(name);
+          hlps[name].observe('numericValue.A0669770', function(t,h) {
+            right.setExpression({id:name,latex:name+'='+h[t]});
+          });
+        }
+
+        ['x_1','y_1','x_2','y_2'].forEach(copyValue);
+
+       };
+
+
   exports.cs = cs;
-  exports.hs = hs;
+
+  if(window.debugLog) {
+    exports.vs = vs;
+    exports.hxs = hxs;
+    exports.hs = hs;
+  }
   mergeObjects(exports,hs.flattenFuncStruct(fs));
 
   return exports;
