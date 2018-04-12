@@ -88,7 +88,8 @@ PearsonGL.External.rootJS = (function() {
        },
       debug:{ // various constants for debug logging
         COORDINATE_DECIMALS:2
-       }
+       },
+      ENUM:[]
      };
   /* ←—PRIVATE HELPER FUNCTIONS————————————————————————————————————————————→ *\
        | Subroutines; access with hs.functionName(args)
@@ -177,7 +178,12 @@ PearsonGL.External.rootJS = (function() {
         desmos = options.desmos;
 
         if (options.uniqueId === undefined) {
-          options.uniqueId = desmos.guid;
+          options.uniqueId = cs.ENUM.indexOf(desmos);
+          if (options.uniqueId === -1) {
+            options.uniqueId = cs.ENUM.length;
+            cs.ENUM.push(desmos);
+          }
+          // options.uniqueId = desmos.guid;
         }
 
         if(vs[options.uniqueId]===undefined) {
