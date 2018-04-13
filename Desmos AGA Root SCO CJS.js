@@ -224,7 +224,7 @@ PearsonGL.External.rootJS = (function() {
                   variables: vs[e],
                   // helpers: hxs[options.uniqueId],
                   screenshot: desmos.screenshot()
-                }
+                };
               });
               element.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(obj,null,"\t")));
               element.setAttribute('download', 'Widget Error Report '+((new Date()).toISOString())+'.json');
@@ -6444,99 +6444,71 @@ PearsonGL.External.rootJS = (function() {
          * ←—————————————————————————————————————————————————————————————————→ */
          register: function(){
           var o = hs.parseArgs(arguments);
-          vs.A0669772 = vs.A0669772 || {
-            doneMirroring: true,
-            degreeMode: true
-          };
+          vs.A0669772 = vs.A0669772 || {};
           var vars = vs.A0669772;
 
           hxs.A0669772 = hxs.A0669772 || {
-            widgets: {},
-            mirrorFrom: {},
-            mirrorTo: {}
+            widgets: []
           };
-          var hlps = hxs.A0669772;
 
-          // If the Desmos Widget has already been loaded, then it is now getting
-          //  reset, and should propagate its resettingness to the other widgets
-          if(hlps.widgets[o.name]) {
-            delete vars.exprList;
-          }
+          hxs.A0669772.widgets.push(o.uniqueId);
 
-          hlps.widgets[o.name] = o.desmos;
+          o.desmos.observeEvent('change',mirror(o.uniqueId));
 
-          hlps.mirrorFrom[o.name] = function mirrorFromMe() {
-            var next;
-            // Don't interrupt another mirroring action.
-            if(vars.doneMirroring === false) {
-              o.log("\""+o.name+"\" queues up behind \""+vars.mirroringFrom+"\".")
-              vars.nextFrom = o.name;
-            } else {
-              vars.doneMirroring = false;
-              vars.mirroringFrom = o.name;
-              next = hs.keyedExprList(o.desmos.getExpressions());
-              if(vars.exprList !== undefined && hs.compareJSON(JSON.stringify(vars.exprList),JSON.stringify(next))) {
-                o.log("No updates were made to \""+o.name+"\" expressions.");
-              } else {
-                o.log("Mirroring from \""+vars.mirroringFrom+"\".",next);
-                vars.exprList = next;
-                Object.keys(hlps.widgets).forEach(function(k){
-                  if(k !== vars.mirroringFrom) {
-                    hlps.mirrorTo[k](vars.exprList);
-                  }
-                });
-              }
-              if(hlps.widgets[vars.mirroringFrom].settings.degreeMode !== vars.degreeMode) {
-                vars.degreeMode = !(vars.degreeMode);
-                Object.keys(hlps.widgets).forEach(function(k){
-                  if(k !== vars.mirroringFrom) {
-                    hlps.widgets[k].updateSettings({
-                      degreeMode: vars.degreeMode
-                    });
-                  }
-                });
-              }
-              vars.doneMirroring = true;
-
-              // In case other changes were made since we started.
-              if(hlps.nextFrom !== undefined) {
-                next = hlps.nextFrom;
-                delete hlps.nextFrom;
-                o.log("\""+next+"\" was waiting patiently while \""+vars.mirroringFrom+"\" mirrored.");
-                hlps.mirrorFrom[next]();
-              }
-            }
-          }
-
-          hlps.mirrorTo[o.name] = function mirrorToMe(exprs) {
-            o.desmos.unobserveEvent('change');
-            
-            hs.mirrorExpressions(Object.values(exprs),o.desmos);
-
-            var attempts = 1;
-
-            if(hs.compareJSON(JSON.stringify(hs.keyedExprList(o.desmos.getExpressions())),JSON.stringify(vars.exprList))) {
-              o.log("\""+o.name+"\"successfully mirrored with no updates.");
-              o.desmos.observeEvent('change',hlps.mirrorFrom[o.name]);
-            } else {
-              o.desmos.observeEvent('change',function() {
-                if(hs.compareJSON(JSON.stringify(hs.keyedExprList(o.desmos.getExpressions())),JSON.stringify(vars.exprList))) {
-                  o.desmos.unobserveEvent('change');
-                  o.log("\""+o.name+"\" successfully mirrored on update #"+attempts);
-                  o.desmos.observeEvent('change',hlps.mirrorFrom[o.name]);
-                } else {
-                  attempts += 1;
-                }
-              });
-            }
-          }
-
-          // Initialize
-          if(vars.exprList === undefined) {
-            hlps.mirrorFrom[o.name]();
-            o.desmos.observeEvent('change',hlps.mirrorFrom[o.name]);
+          if(vars.lastExprList === undefined) {
+            vars.lastExprList = JSON.stringify(o.desmos.getExpressions());
+            vars.lastState = o.desmos.getState();
           } else {
-            hlps.mirrorTo[o.name](vars.exprList);
+            (update())(o.uniqueId);
+          }
+
+          function mirror(source) {
+            return function() {
+              var exprs = JSON.stringify(cs.ENUM[source].getExpressions());
+              var state = cs.ENUM[source].getState();
+              o.log('Sensing update from widget [',source,'].');
+              if(hs.compareJSON(vars.lastExprList,exprs) &&
+                // Don't skip if degree mode is changed.
+                (vars.lastState.graph.degreeMode == state.degreeMode)) {
+                o.log('No change in Expression List in widget [',source,'].');
+              } else {
+                o.log('Updating other widgets.');
+                vars.lastExprList = exprs;
+                vars.lastState = state;
+                hxs.A0669772.widgets.forEach(update(source));
+              }
+            };
+          }
+
+          // Only update if the expressions (or degree mode) are different; do not update graph settings
+          function update(source) {
+            return function(target) {
+              var desmos = cs.ENUM[target];
+              if(target === source) {
+                o.log('Ignoring update from identical source widget [',source,'] => [',target,'].');
+              } else if(hs.compareJSON(vars.lastExprList,JSON.stringify(desmos.getExpressions())) && (vars.lastState.graph.degreeMode == (desmos.getSettings ? desmos.getSettings() : desmos.settings.degreeMode))) {
+                o.log('No change in Expression List in widget [',target,'].');
+                return;
+              } else {
+                o.log('Updating widget [',target,'].');
+                desmos.unobserveAll();
+                var newObserver = mirror(target);
+                // Rather, remember old graph settings and replace them, since updating
+                //  expressions only is otherwise hard.
+                var settings = mergeObjects({},
+                  // Preserve most settings of the target
+                  (desmos.getSettings ? desmos.getSettings() : desmos.settings),
+                  // But carry degree mode from the source
+                  {degreeMode:!(!(vars.lastState.graph.degreeMode))});
+                var mathBounds = desmos.graphpaperBounds.mathCoordinates;
+
+                desmos.setState(vars.lastState);
+                desmos.updateSettings(settings);
+                desmos.setMathBounds(mathBounds);
+
+                desmos.observeEvent('change',newObserver);
+              }
+            };
           }
          }
        };
