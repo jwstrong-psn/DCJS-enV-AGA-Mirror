@@ -265,9 +265,7 @@ PearsonGL.External.rootJS = (function() {
           return false;
         }
 
-        return compare(obj1,obj2);
-
-        function compare(x,y) {
+        var compare = function compare(x,y) {
           var xKeys;
           var yKeys;
           var ret;
@@ -319,14 +317,17 @@ PearsonGL.External.rootJS = (function() {
             // debugLog(x,(ret ? "==" : "!="),y);
             return ret;
           }
-        }
+        };
+
+        return compare(obj1,obj2);
+
        },
       /* ←— latexToText ———————————————————————————————————————————————————————→ *\
        ↑ Convert a latex string to a plaintext string, e.g. for labels
        ↓
        * ←—————————————————————————————————————————————————————————————————————→ */
        latexToText: function(expr){
-        expr = ''+expr;
+        expr = String(expr);
         expr = expr.replace(/\\cdot\s?/g,'\u22c5');
         expr = expr.replace(/._\{([a-zA-Z])Var\}/g,'$1');
         expr = expr.replace(/([+=÷×\u22c5])/g,' $1 ');
@@ -388,9 +389,9 @@ PearsonGL.External.rootJS = (function() {
         exprs.forEach(function(e){
           // TEMP fix the stupid sliderBounds bug while it's still a problem (pre-1.1)
           if(e.sliderBounds) {
-            e.sliderBounds.min = ""+e.sliderBounds.min;
-            e.sliderBounds.max = ""+e.sliderBounds.max;
-            e.sliderBounds.step = ""+e.sliderBounds.step;
+            e.sliderBounds.min = String(e.sliderBounds.min);
+            e.sliderBounds.max = String(e.sliderBounds.max);
+            e.sliderBounds.step = String(e.sliderBounds.step);
           }
           if(e.latex !== "") {
             keyed[e.id] = e;
@@ -1701,7 +1702,7 @@ PearsonGL.External.rootJS = (function() {
           } else if (c > 0) {
             label += c;
           } else if (a === 0 && b === 0) {
-            label += 0;
+            label += '0';
           }
 
           o.desmos.setExpression({id:390,label:label});
@@ -6451,32 +6452,81 @@ PearsonGL.External.rootJS = (function() {
             widgets: []
           };
 
-          hxs.A0669772.widgets.push(o.uniqueId);
+          // First initialization: register widget & either:
+          //  record initial state (if no other widgets have been initialized)
+          //  update initial state to match already-initialized widgets
+          if(hxs.A0669772.widgets.indexOf(o.uniqueId) === -1) {
+            o.log('Initializing...');
+            o.desmos.removeExpression({id:'initial_state'});
 
-          o.desmos.observeEvent('change',mirror(o.uniqueId));
+            hxs.A0669772.widgets.push(o.uniqueId);
 
-          if(vars.lastExprList === undefined) {
+            if(vars.lastExprList === undefined) {
+              vars.lastExprList = JSON.stringify(o.desmos.getExpressions());
+              vars.lastState = o.desmos.getState();
+              vars.lastDegreeMode = Boolean((o.desmos.getSettings ? o.desmos.getSettings() : o.desmos.settings).degreeMode);
+            } else {
+              (update())(o.uniqueId);
+            }
+          } else {
+            // If this widget has already been initialized, that means it's being
+            //  reset, which means all the other widgets should be reset too.
+            o.log('Reinitializing...');
+            o.desmos.unobserveAll();
+            o.desmos.setExpression({id:'reset_state'});
             vars.lastExprList = JSON.stringify(o.desmos.getExpressions());
             vars.lastState = o.desmos.getState();
-          } else {
-            (update())(o.uniqueId);
+            vars.lastDegreeMode = Boolean((o.desmos.getSettings ? o.desmos.getSettings() : o.desmos.settings).degreeMode);
           }
+
+          // After initialization stuff, get ready to share changes
+          o.desmos.observeEvent('change',mirror(o.uniqueId));
+
+          // For handling Expressions Topbar Reset Button
+          o.desmos.observeEvent('graphReset',function(){
+            o.log('Resetting...');
+            o.desmos.unobserveAll();
+            o.desmos.observeEvent('change',function(){
+              o.log('Re-registering after reset...');
+              o.desmos.unobserveAll();
+              fs.A0669772.register(o);
+            });
+            // Should immediately trigger the above re-registratioin
+            o.desmos.setExpression({id:'reset_state'});
+          });
+
+          o.log('Triggering initialization update.');
+          o.desmos.removeExpressions([{id:'initial_state'},{id:'reset_state'}]);
 
           function mirror(source) {
             return function() {
-              var exprs = JSON.stringify(cs.ENUM[source].getExpressions());
-              var state = cs.ENUM[source].getState();
+              var desmos = cs.ENUM[source];
+              var exprs = JSON.stringify(desmos.getExpressions());
+              var state = desmos.getState();
+              var degreeMode = Boolean((o.desmos.getSettings ? o.desmos.getSettings() : o.desmos.settings).degreeMode);
               o.log('Sensing update from widget [',source,'].');
-              if(hs.compareJSON(vars.lastExprList,exprs) &&
-                // Don't skip if degree mode is changed.
-                (vars.lastState.graph.degreeMode == state.degreeMode)) {
-                o.log('No change in Expression List in widget [',source,'].');
-              } else {
-                o.log('Updating other widgets.');
-                vars.lastExprList = exprs;
-                vars.lastState = state;
-                hxs.A0669772.widgets.forEach(update(source));
+
+              // Gadget Reset button will trigger 'change' before it re-initializes
+              //  So we should skip the update so as not to accidentally un-reset
+              if(exprs.indexOf('"id":"initial_state"') !== -1) {
+                o.log('Widget [',source,'] has been reset.');
+                return;
               }
+
+              if(hs.compareJSON(vars.lastExprList,exprs)) {
+                o.log('No change in Expression List.');
+                if (vars.lastDegreeMode === degreeMode) {
+                  o.log('No change in Degree Mode either.');
+                  return;
+                } else {
+                  o.log('But Degree Mode has changed.');
+                }
+              }
+
+              o.log('Updating other widgets...');
+              vars.lastExprList = exprs;
+              vars.lastState = state;
+              hxs.A0669772.widgets.forEach(update(source));
             };
           }
 
@@ -6484,30 +6534,37 @@ PearsonGL.External.rootJS = (function() {
           function update(source) {
             return function(target) {
               var desmos = cs.ENUM[target];
+              var degreeMode = Boolean((o.desmos.getSettings ? o.desmos.getSettings() : o.desmos.settings).degreeMode);
               if(target === source) {
-                o.log('Ignoring update from identical source widget [',source,'] => [',target,'].');
-              } else if(hs.compareJSON(vars.lastExprList,JSON.stringify(desmos.getExpressions())) && (vars.lastState.graph.degreeMode == (desmos.getSettings ? desmos.getSettings() : desmos.settings.degreeMode))) {
-                o.log('No change in Expression List in widget [',target,'].');
+                o.log('Ignoring [',source,'] => [',target,'].');
                 return;
-              } else {
-                o.log('Updating widget [',target,'].');
-                desmos.unobserveAll();
-                var newObserver = mirror(target);
-                // Rather, remember old graph settings and replace them, since updating
-                //  expressions only is otherwise hard.
-                var settings = mergeObjects({},
-                  // Preserve most settings of the target
-                  (desmos.getSettings ? desmos.getSettings() : desmos.settings),
-                  // But carry degree mode from the source
-                  {degreeMode:!(!(vars.lastState.graph.degreeMode))});
-                var mathBounds = desmos.graphpaperBounds.mathCoordinates;
-
-                desmos.setState(vars.lastState);
-                desmos.updateSettings(settings);
-                desmos.setMathBounds(mathBounds);
-
-                desmos.observeEvent('change',newObserver);
+              } else if(hs.compareJSON(vars.lastExprList,JSON.stringify(desmos.getExpressions()))) {
+                o.log('No change to Expression List in target widget [',target,'].');
+                if(vars.lastDegreeMode === Boolean(degreeMode)) {
+                  o.log('No change in Degree Mode either.');
+                  return;
+                } else {
+                  o.log('But Degree Mode has changed.');
+                }
               }
+
+              o.log('Updating widget [',target,'].');
+              desmos.unobserveEvent('change');
+              var newObserver = mirror(target);
+              // Rather, remember old graph settings and replace them, since updating
+              //  expressions only is otherwise hard.
+              var settings = mergeObjects({},
+                // Preserve most settings of the target
+                (desmos.getSettings ? desmos.getSettings() : desmos.settings),
+                // But carry degree mode from the source
+                {degreeMode: vars.lastDegreeMode});
+              var mathBounds = desmos.graphpaperBounds.mathCoordinates;
+
+              desmos.setState(vars.lastState);
+              desmos.updateSettings(settings);
+              desmos.setMathBounds(mathBounds);
+
+              desmos.observeEvent('change',newObserver);
             };
           }
          }
