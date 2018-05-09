@@ -1277,7 +1277,7 @@ PearsonGL.External.masterJS = (function() {
     exports.numberWithCommas = function(x) {
       x = x.toString();
       x = String(x);
-      var pattern = /(-?\d+)(\d{3})/;
+      var pattern = new RegExp('(-?\\d+)(\\d{3})');
       while (pattern.test(x)) {
         x = String(x).replace(pattern, "$1,$2");
       }
