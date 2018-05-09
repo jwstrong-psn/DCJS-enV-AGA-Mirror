@@ -629,7 +629,7 @@
             images = workingState.getImages();
             currState = window.calculator.getState();
             currState.expressions.list.forEach(function(expr){
-              var pattern = new RegExp("(?<=upload\/)(.*\/)*(?=[^\/]*\.[a-zA-Z]+$)");
+              var pattern = new RegExp("(?<=upload/)(.*/)*(?=[^/]*\\.[a-zA-Z]+$)");
               if(expr.type === "image") {
                 expr.image_url = images[expr.id].url.replace(pattern,"t_FPO/");
               }
