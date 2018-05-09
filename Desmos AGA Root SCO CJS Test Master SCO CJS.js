@@ -23,16 +23,89 @@ PearsonGL.External.masterJS = (function() {
 
   // window.debugLog = console.log
 
-  var debugLog = function(){
+  var debugLog = (function(){
     if(window.debugLog) {
-      window.debugLog.apply(null,arguments);
+      return window.debugLog;
+    } else {
+      return function(){};
     }
-  }
+  })();
 
   /***********************************************************************************
    * PRIVATE VARIABLES / FUNCTIONS
    **********************************************************************************/
   var exports = {};  // This object is used to export public functions/variables
+
+  /* ←— objKeys —————————————————————————————————————————————————→ *\
+   | replaces Object.keys in case of *shudder* IE
+   * ←————————————————————————————————————————————————————————————————→ */
+   var objKeys = (function(){
+    if(typeof Object.keys === "function"){
+      return Object.keys;
+    } else {
+      // From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
+      return (function () {
+        var hasOwnProperty = Object.prototype.hasOwnProperty,
+        hasDontEnumBug = !({toString: null}).propertyIsEnumerable('toString'),
+        dontEnums = [
+          'toString',
+          'toLocaleString',
+          'valueOf',
+          'hasOwnProperty',
+          'isPrototypeOf',
+          'propertyIsEnumerable',
+          'constructor'
+        ],
+        dontEnumsLength = dontEnums.length;
+
+        return function (obj) {
+          if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
+            throw new TypeError('Object.keys called on non-object');
+          }
+
+          var result = [], prop, i;
+
+          for (prop in obj) {
+            if (hasOwnProperty.call(obj, prop)) {
+              result.push(prop);
+            }
+          }
+
+          if (hasDontEnumBug) {
+            for (i = 0; i < dontEnumsLength; i++) {
+              if (hasOwnProperty.call(obj, dontEnums[i])) {
+                result.push(dontEnums[i]);
+              }
+            }
+          }
+          return result;
+        };
+      }());
+    }
+   })();
+
+  /* ←— mergeObjects —————————————————————————————————————————————————→ *\
+   | replaces Object.assign in case of *shudder* IE
+   * ←————————————————————————————————————————————————————————————————→ */
+   var mergeObjects = (function() {
+    if (typeof Object.assign === "function") {
+      return Object.assign;
+    } else {
+      return function(){
+        var obj = arguments[0];
+
+        [].forEach.call(arguments, function(arg,i) {
+          if(i > 0) {
+            objKeys(arg).forEach(function(key) {
+              obj[key] = arg[key];
+            });
+          }
+        });
+
+        return obj;
+      };
+    }
+   })();
 
   /********************************************************************************
    * flattenFuncStruct: Turn a nested function structure into a single layer, with
@@ -50,7 +123,7 @@ PearsonGL.External.masterJS = (function() {
       prefix = '';
     }
     var functions={};
-    Object.keys(funcStruct).forEach(function(key) {
+    objKeys(funcStruct).forEach(function(key) {
       if (typeof funcStruct[key] === 'object') {
         if (!(mergeObjects(functions,flattenFuncStruct(funcStruct[key],prefix+key+'_')))) {
           return false;
@@ -64,26 +137,6 @@ PearsonGL.External.masterJS = (function() {
     });
     return functions;
   }
-  /* ←— mergeObjects —————————————————————————————————————————————————→ *\
-   | replaces Object.assign in case of *shudder* IE
-   * ←————————————————————————————————————————————————————————————————→ */
-   function mergeObjects() {
-      if (typeof Object.assign === "function") {
-        return Object.assign.apply(Object,arguments);
-      }
-
-      var obj = arguments[0];
-
-      [].forEach.call(arguments, function(arg,i) {
-        if(i > 0) {
-          Object.keys(arg).forEach(function(key) {
-            obj[key] = arg[key];
-          });
-        }
-      });
-
-      return obj;
-   }
 
   var ts = { // test functions only
     shared:{ // Shared Helpers have functions that can be called by any Widget.
@@ -295,7 +348,7 @@ PearsonGL.External.masterJS = (function() {
             mergeObjects(composites,{
               toArray: function() {
                 var compositeList = [];
-                Object.keys(composites).forEach(function(key) {
+                objKeys(composites).forEach(function(key) {
                   if (composites[key] === true) {
                     compositeList.push(key);
                   }
@@ -306,7 +359,7 @@ PearsonGL.External.masterJS = (function() {
                 return composites.toArray().toString();
               },
               length: function() {
-                return Object.keys(composites).length-3;
+                return objKeys(composites).length-3;
               }
             });
             var primes = [2];

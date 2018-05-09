@@ -20,11 +20,85 @@ PearsonGL.External.rootJS = (function() {
 
   "use strict";
 
-  var debugLog = function(){
+  var debugLog = (function(){
     if(window.debugLog) {
-      window.debugLog.apply(null,arguments);
+      return window.debugLog;
+    } else {
+      return function(){};
     }
-  };
+  })();
+
+  /* ←— objKeys —————————————————————————————————————————————————→ *\
+   | replaces Object.keys in case of *shudder* IE
+   * ←————————————————————————————————————————————————————————————————→ */
+   var objKeys = (function(){
+    if(typeof Object.keys === "function"){
+      return Object.keys;
+    } else {
+      // From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
+      return (function () {
+        var hasOwnProperty = Object.prototype.hasOwnProperty,
+        hasDontEnumBug = !({toString: null}).propertyIsEnumerable('toString'),
+        dontEnums = [
+          'toString',
+          'toLocaleString',
+          'valueOf',
+          'hasOwnProperty',
+          'isPrototypeOf',
+          'propertyIsEnumerable',
+          'constructor'
+        ],
+        dontEnumsLength = dontEnums.length;
+
+        return function (obj) {
+          if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
+            throw new TypeError('Object.keys called on non-object');
+          }
+
+          var result = [], prop, i;
+
+          for (prop in obj) {
+            if (hasOwnProperty.call(obj, prop)) {
+              result.push(prop);
+            }
+          }
+
+          if (hasDontEnumBug) {
+            for (i = 0; i < dontEnumsLength; i++) {
+              if (hasOwnProperty.call(obj, dontEnums[i])) {
+                result.push(dontEnums[i]);
+              }
+            }
+          }
+          return result;
+        };
+      }());
+    }
+   })();
+
+  /* ←— mergeObjects —————————————————————————————————————————————————→ *\
+   | replaces Object.assign in case of *shudder* IE
+   * ←————————————————————————————————————————————————————————————————→ */
+   var mergeObjects = (function() {
+    if (typeof Object.assign === "function") {
+      return Object.assign;
+    } else {
+      return function(){
+        var obj = arguments[0];
+
+        [].forEach.call(arguments, function(arg,i) {
+          if(i > 0) {
+            objKeys(arg).forEach(function(key) {
+              obj[key] = arg[key];
+            });
+          }
+        });
+
+        return obj;
+      };
+    }
+   })();
+
 
   /* ←—PRIVATE VARIABLES———————————————————————————————————————————————————→ *\
        | Variable cache; access with vs[uniqueId].myVariable
@@ -94,26 +168,6 @@ PearsonGL.External.rootJS = (function() {
   /* ←—PRIVATE HELPER FUNCTIONS————————————————————————————————————————————→ *\
        | Subroutines; access with hs.functionName(args)
        * ←—————————————————————————————————————————————————————————————————→ */
-      /* ←— mergeObjects —————————————————————————————————————————————————→ *\
-       | replaces Object.assign in case of *shudder* IE
-       * ←————————————————————————————————————————————————————————————————→ */
-       var mergeObjects = function() {
-          if (typeof Object.assign === "function") {
-            return Object.assign.apply(Object,arguments);
-          }
-
-          var obj = arguments[0];
-
-          [].forEach.call(arguments, function(arg,i) {
-            if(i > 0) {
-              Object.keys(arg).forEach(function(key) {
-                obj[key] = arg[key];
-              });
-            }
-          });
-
-          return obj;
-       };
     var hs;
     hs = {
       /* ←— flattenFuncStruct —————————————————————————————————————————————→ *\
@@ -131,7 +185,7 @@ PearsonGL.External.rootJS = (function() {
           prefix = '';
         }
         var functions={};
-        Object.keys(funcStruct).forEach(function(key){
+        objKeys(funcStruct).forEach(function(key){
           var item = funcStruct[key];
           if (typeof item === 'object') {
             mergeObjects(functions,flattenFuncStruct(item,prefix+key+'_'));
@@ -217,7 +271,7 @@ PearsonGL.External.rootJS = (function() {
             download: function() {
               var element = document.createElement('a');
               var obj = {};
-              Object.keys(window.widgetDebug.widgets).forEach(function(e){
+              objKeys(window.widgetDebug.widgets).forEach(function(e){
                 var desmos = window.widgetDebug.widgets[e];
                 obj[e] = {
                   state: desmos.getState(),
@@ -296,8 +350,8 @@ PearsonGL.External.rootJS = (function() {
               return false;
             }
           } else {
-            xKeys = Object.keys(x);
-            yKeys = Object.keys(y);
+            xKeys = objKeys(x);
+            yKeys = objKeys(y);
             // debugLog("Comparing Object:",x);
             ret = (xKeys.length === yKeys.length) && xKeys.every(function(k) {
               return (yKeys.indexOf(k) !== -1);
@@ -1696,8 +1750,8 @@ PearsonGL.External.rootJS = (function() {
             }
           }
 
-          histMin = Math.min.apply(null,Object.keys(histBarID));
-          histMax = Math.max.apply(null,Object.keys(histBarID));
+          histMin = Math.min.apply(null,objKeys(histBarID));
+          histMax = Math.max.apply(null,objKeys(histBarID));
 
           for(bar = histMin; bar <= histMax; bar+=1) {
 
@@ -4034,7 +4088,7 @@ PearsonGL.External.rootJS = (function() {
 
           function isolateHandle(which) {
             // o.log('Isolating Handles');
-            Object.keys(hlps).forEach(function(helper) {
+            objKeys(hlps).forEach(function(helper) {
               if(helper !== 'maker') {
                 hlps[helper].unobserve('numericValue.dragging');
                 hlps[helper].unobserve('numericValue.checkReplace');
@@ -4257,7 +4311,7 @@ PearsonGL.External.rootJS = (function() {
 
           function isolateHandle(which) {
             // o.log('Isolating Handles');
-            Object.keys(hlps).forEach(function(helper) {
+            objKeys(hlps).forEach(function(helper) {
               if(helper !== 'maker') {
                 hlps[helper].unobserve('numericValue.dragging');
               }
@@ -4393,7 +4447,7 @@ PearsonGL.External.rootJS = (function() {
               {id:'handleN2',hidden:(Math.pow(hlps.n2_x.numericValue-hlps.u_1.numericValue,2)+Math.pow(hlps.n2_y.numericValue-hlps.v_1.numericValue,2)<Math.pow(hlps.t_ick.numericValue,2))}
             ]);
 
-            Object.keys(hlps).forEach(function(helper) {
+            objKeys(hlps).forEach(function(helper) {
               if (/[uvwz]_/.test(helper)) {
                 hlps[helper].observe(
                   'numericValue.dragging',
@@ -4641,7 +4695,7 @@ PearsonGL.External.rootJS = (function() {
 
           function isolateHandle(which) {
             // o.log('Isolating Handles');
-            Object.keys(hlps).forEach(function(helper) {
+            objKeys(hlps).forEach(function(helper) {
               if(helper !== 'maker') {
                 hlps[helper].unobserve('numericValue.dragging');
               }
@@ -4759,7 +4813,7 @@ PearsonGL.External.rootJS = (function() {
 
             o.desmos.setExpressions(exprs);
 
-            Object.keys(hlps).forEach(function(helper) {
+            objKeys(hlps).forEach(function(helper) {
               if (/(?:[uv]_|_C)/.test(helper)) {
                 // o.log('Observing '+helper);
                 hlps[helper].observe(
