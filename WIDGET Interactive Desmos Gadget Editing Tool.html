@@ -187,12 +187,93 @@
   </table>
   <script>
     $(function() {
+
+      /* ←— objKeys —————————————————————————————————————————————————→ *\
+       | replaces Object.keys in case of *shudder* IE
+       * ←————————————————————————————————————————————————————————————————→ */
+       var objKeys = (function(){
+        if(typeof Object.keys === "function"){
+          return Object.keys;
+        } else {
+          // From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
+          return (function () {
+            var hasOwnProperty = Object.prototype.hasOwnProperty,
+            hasDontEnumBug = !({toString: null}).propertyIsEnumerable('toString'),
+            dontEnums = [
+              'toString',
+              'toLocaleString',
+              'valueOf',
+              'hasOwnProperty',
+              'isPrototypeOf',
+              'propertyIsEnumerable',
+              'constructor'
+            ],
+            dontEnumsLength = dontEnums.length;
+
+            return function (obj) {
+              if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
+                throw new TypeError('Object.keys called on non-object');
+              }
+
+              var result = [], prop, i;
+
+              for (prop in obj) {
+                if (hasOwnProperty.call(obj, prop)) {
+                  result.push(prop);
+                }
+              }
+
+              if (hasDontEnumBug) {
+                for (i = 0; i < dontEnumsLength; i++) {
+                  if (hasOwnProperty.call(obj, dontEnums[i])) {
+                    result.push(dontEnums[i]);
+                  }
+                }
+              }
+              return result;
+            };
+          }());
+        }
+       })();
+
+      /* ←— mergeObjects —————————————————————————————————————————————————→ *\
+       | replaces Object.assign in case of *shudder* IE
+       * ←————————————————————————————————————————————————————————————————→ */
+       var mergeObjects = (function() {
+        if (typeof Object.assign === "function") {
+          return Object.assign;
+        } else {
+          return function(){
+            var obj = arguments[0];
+
+            [].forEach.call(arguments, function(arg,i) {
+              var keys = [];
+              if(typeof arg === "string") {
+                while(keys.length < arg.length) {
+                  keys.push(keys.length);
+                }
+              } else {
+                keys = objKeys(arg);
+              }
+
+              if(i > 0) {
+                keys.forEach(function(key) {
+                  obj[key] = arg[key];
+                });
+              }
+            });
+
+            return obj;
+          };
+        }
+       })();
+
       window.debugLog = console.log;
 
       // CLOUDINARY INTEGRATION STUFF
       var cloudinaryUpload = false;
 
-      if($.cloudinary) {
+      if($.cloudinary && Object.keys) {
         $.cloudinary.config({ cloud_name: 'jwstrong-psn', api_key: '323322785131496'});
 
         $(function() {
@@ -335,7 +416,7 @@
       window.getImageData = function(images, cb, done) {
         var queue = {};
 
-        Object.keys(images).forEach(function(key){
+        objKeys(images).forEach(function(key){
           var image = images[key];
           if(image.data === undefined) {
             if(image.url !== undefined) {
@@ -344,7 +425,7 @@
                 cb:(function(key,image){return function(image_data){
                   cb(image_data,image);
                   delete queue[key];
-                  if(Object.keys(queue).length === 0 && typeof done === "function") done();
+                  if(objKeys(queue).length === 0 && typeof done === "function") done();
                 };}(key,image))
               };
             } else {
@@ -355,7 +436,7 @@
           }
         });
 
-        Object.keys(queue).forEach(function(key){
+        objKeys(queue).forEach(function(key){
           toDataURL(queue[key].image.url.replace("upload/t_FPO","upload"),queue[key].cb);
         });
       }
@@ -544,12 +625,13 @@
 
         function printState() {
           var images;
-          if(toolType === 'graphing') {
+          if(toolType === 'graphing' && cloudinaryUpload) {
             images = workingState.getImages();
             currState = window.calculator.getState();
             currState.expressions.list.forEach(function(expr){
+              var pattern = new RegExp("(?<=upload\/)(.*\/)*(?=[^\/]*\.[a-zA-Z]+$)");
               if(expr.type === "image") {
-                expr.image_url = images[expr.id].url.replace(/(?<=upload\/)(.*\/)*(?=[^\/]*\.[a-zA-Z]+$)/,"t_FPO/");
+                expr.image_url = images[expr.id].url.replace(pattern,"t_FPO/");
               }
             });
           }
@@ -1086,8 +1168,8 @@
           }
         }
       }
-      window.currentCalcConstructors = Object.assign({},window.calcConstructors.default,{administerSecretFolders:true});
-      window.currentGeoConstructors = Object.assign({},window.geoConstructors.default);
+      window.currentCalcConstructors = mergeObjects({},window.calcConstructors.default,{administerSecretFolders:true});
+      window.currentGeoConstructors = mergeObjects({},window.geoConstructors.default);
       window.calculator = window.Calc = window.Geo = null;
 
       var toolType = 'graphing';
@@ -1149,7 +1231,9 @@
       var savedGraphs = [];
       var currentHelpers = {};
 
-      function savedGraph(pack=null,ID=null) {
+      function savedGraph(pack,ID) {
+        if(pack === undefined) pack = null;
+        if(ID === undefined) ID = null;
         var self = this;
         var id = DOM_ID_PREFIX+(ID?ID:(domIdIndex++));
         var position = ((ID == 'workingState')?-1:savedGraphs.length);
@@ -1166,7 +1250,8 @@
 
         this.getImages = function() {return images;};
 
-        this.saveCurrent = function(updateLibrary=true) {
+        this.saveCurrent = function(updateLibrary) {
+          if(updateLibrary === undefined) updateLibrary = true;
           type = toolType;
           state = window.calculator.getState();//{stripDefaults: false});
           width = desWidth;
@@ -1176,7 +1261,7 @@
 
           if (toolType == 'graphing') {
             // SAVE DCAT HELPERS
-            Object.keys(currentHelpers).forEach(function(helper) {
+            objKeys(currentHelpers).forEach(function(helper) {
               helpers.push(currentHelpers[helper].package());
             });
 
@@ -1244,14 +1329,14 @@
             });
 
             // Make sure any old images are still represented. If not, delete their data.
-            Object.keys(images).forEach(function(id){
+            objKeys(images).forEach(function(id){
               if(newImages[id] !== true) {
                 console.log("Deleting image with id:\""+id+"\".");
                 delete images[id];
               }
             });
 
-            if(Object.keys(images).length > 0) {
+            if(objKeys(images).length > 0) {
               getImageData(images,function(data,image){
                 image.data = data;
               },function(){
@@ -1261,9 +1346,9 @@
           }
 
           if (toolType == 'graphing') {
-            constructors = Object.assign({},window.currentCalcConstructors);
+            constructors = mergeObjects({},window.currentCalcConstructors);
           } else if (toolType == 'geometry') {
-            constructors = Object.assign({},window.currentGeoConstructors);
+            constructors = mergeObjects({},window.currentGeoConstructors);
           };
 
           if ($gui === undefined) buildGui();
@@ -1454,9 +1539,9 @@
           desWidth = +width;
           desHeight = +height;
           if (type == 'graphing') {
-            window.currentCalcConstructors = Object.assign({},constructors,{colors:window.agaColors});
+            window.currentCalcConstructors = mergeObjects({},constructors,{colors:window.agaColors});
           } else if (type == 'geometry') {
-            window.currentGeoConstructors = Object.assign({},constructors,{colorMap:window.geoColors});
+            window.currentGeoConstructors = mergeObjects({},constructors,{colorMap:window.geoColors});
           };
           window.load(state,{allowUndo:false,remapColors:false});
           var newHelper;
@@ -1478,7 +1563,7 @@
         this.package = function() {
           var imageURLs = [];
           // console.log("Packing state with the following images:",images);
-          Object.keys(images).forEach(function(e){
+          objKeys(images).forEach(function(e){
             // console.log("Image "+e+":",images[e]);
             if(typeof images[e].url === "string" && images[e].url.startsWith("http")) {
               imageURLs.push({id:images[e].id,url:images[e].url});
@@ -1504,11 +1589,11 @@
         function unpack(pack) {
           name = pack.name;
           type = pack.type;
-          constructors = Object.assign({},pack.constructors);
+          constructors = mergeObjects({},pack.constructors);
           state = pack.state;
           width = pack.width;
           height = pack.height;
-          helpers = Object.assign([],pack.helpers);
+          helpers = mergeObjects([],pack.helpers);
           thumbnail = pack.previewCloud ? pack.previewCloud : pack.preview;
           images = {};
           if(Array.isArray(pack.images)) pack.images.forEach(function(e){
@@ -1536,7 +1621,8 @@
         }
       }
 
-      function DCAThelper(pack,id=null) {
+      function DCAThelper(pack,id) {
+        if(id === undefined) id = null;
         var self = this;
         this.id = (((id == 'newHelper')||(id === null)) ? (DOM_ID_PREFIX+(domIdIndex++)) : id);
         var latex;
@@ -1704,7 +1790,8 @@
 
       // Note: never set toolType before refreshing the calculator;
       //       toolType should always match current toolType.
-      function refreshCalculator(type = toolType) {
+      function refreshCalculator(type){
+        if(type === undefined) type = toolType;
         if (window.queuedSave) {
           window.clearTimeout(window.queuedSave);
           delete window.queuedSave;
@@ -1760,7 +1847,7 @@
           if(!currentGeoConstructors.sidebar) {
             $('#warning').html('<div id="warning"><span style=""> sidebar not included in dimensions. (sidebar off)</span></div>');
           }
-          geoConstructorsSansTools = Object.assign({},currentGeoConstructors,{sidebar:true});
+          geoConstructorsSansTools = mergeObjects({},currentGeoConstructors,{sidebar:true});
           delete geoConstructorsSansTools.protractor;
           delete geoConstructorsSansTools.ruler;
           window.calculator = window.Geo = Desmos.Geometry($elt[0], geoConstructorsSansTools);
@@ -1837,7 +1924,8 @@
         if (!(autoSaveQueued)) autoSave();
       }
 
-      function updateView(type = toolType) {
+      function updateView(type){
+        if(type === undefined) type = toolType;
         if ((type == "geometry") && (!($("#geoConstructorButtons").is(":visible")))) {
           $("#calcConstructorButtons").hide();
           $("#geoConstructorButtons").show();
@@ -1877,45 +1965,51 @@
         };
       }
 
-      window.rebuild = function(options={}) {
+      window.rebuild = function(options) {
+        if(options === undefined) options = {};
         // Update the constructors
         var currentConstructors = ((toolType == "graphing")?currentCalcConstructors:currentGeoConstructors);
-        for (arg in arguments) Object.assign(currentConstructors,arguments[arg]);
+        for (arg in arguments) mergeObjects(currentConstructors,arguments[arg]);
         refreshCalculator();
       };
-      window.reset = function(options={}) {
+      window.reset = function(options) {
+        if(options === undefined) options = {};
         if (toolType == 'graphing') {
           delete window.currentCalcConstructors;
-          window.currentCalcConstructors = Object.assign({},window.calcConstructors.default,{'administerSecretFolders':true});
+          window.currentCalcConstructors = mergeObjects({},window.calcConstructors.default,{'administerSecretFolders':true});
         } else if (toolType == 'geometry') {
           delete window.currentGeoConstructors;
-          window.currentGeoConstructors = Object.assign({},window.geoConstructors.default);
+          window.currentGeoConstructors = mergeObjects({},window.geoConstructors.default);
         }
         window.rebuild.apply(this,arguments);
       };
-      window.only = function(options={}) {
+      window.only = function(options) {
+        if(options === undefined) options = {};
         if (toolType == 'graphing') {
           delete window.currentCalcConstructors;
-          window.currentCalcConstructors = Object.assign({},window.calcConstructors.allOff,{'administerSecretFolders':true});
+          window.currentCalcConstructors = mergeObjects({},window.calcConstructors.allOff,{'administerSecretFolders':true});
         } else if (toolType == 'geometry') {
           delete window.currentGeoConstructors;
-          window.currentGeoConstructors = Object.assign({},window.geoConstructors.allOff);
+          window.currentGeoConstructors = mergeObjects({},window.geoConstructors.allOff);
         }
         window.rebuild.apply(this,arguments);
       };
-      window.show = function(options={}) {
+      window.show = function(options) {
+        if(options === undefined) options = {};
         if (toolType == 'graphing') {
-          Object.assign(window.currentCalcConstructors,{'administerSecretFolders':true});
+          mergeObjects(window.currentCalcConstructors,{'administerSecretFolders':true});
         };
         window.rebuild.apply(this,options);
       };
-      window.hide = function(options={}) {
+      window.hide = function(options) {
+        if(options === undefined) options = {};
         if (toolType == 'graphing') {
-          Object.assign(window.currentCalcConstructors,{'administerSecretFolders':false});
+          mergeObjects(window.currentCalcConstructors,{'administerSecretFolders':false});
         };
         window.rebuild.apply(this,options);
       };
-      window.load = function(state, options={remapColors:true,allowUndo:true}) {
+      window.load = function(state,options){
+        if(options === undefined) options={remapColors:true,allowUndo:true};
         if (window.queuedSave) {
           window.clearTimeout(window.queuedSave);
           delete window.queuedSave;
@@ -1949,7 +2043,8 @@
         try {copy(JSON.stringify(currState));} catch(e) {};
         return currState;
       };
-      window.download = function(state, filename="unnamed_widget") {
+      window.download = function(state, filename){
+        if(filename === undefined) filename ="unnamed_widget";
         var element = document.createElement('a');
         element.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(state,null,"\t")));
         element.setAttribute('download', ((filename == '')?"unnamed_widget":filename)+'.json');
@@ -1966,7 +2061,7 @@
 
       var latestVersion = Date.now();
 
-      if (typeof(Storage) !== undefined) {
+      if (typeof(Storage) !== "undefined" && typeof localStorage !== "undefined") {
         // Transfer old storage to namespaced storage
         if (localStorage.getItem("savedGraphs")) {
           let currentVersion = localStorage.getItem("currentVersion"),

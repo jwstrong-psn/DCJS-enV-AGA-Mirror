@@ -252,13 +252,15 @@ window.xs = { // Commonly useful Desmos expressions (in LaTeX string form)
    | #EXAMPLE: 
    * ←—————————————————————————————————————————————————————————————————→ */
    reflectPL:[{"id":"reflectPL","latex":"P_{reflPL}\\left(x,y\\right)=I_{ll}\\left(U_{perp}\\left(y,x\\right),y+\\left[0,0,D_{pl}\\left(x,y\\right)\\right]\\right)","hidden":"true"}]
- }
+ };
 
-window.addHelper = function(name,desmos=(window["calculator"] || window["Calc"])) {
+window.addHelper = function(name,desmos) {
+  desmos = (desmos || window["calculator"] || window["Calc"]);
   desmos.setExpressions(window.xs[name]);
-}
+};
 
-function drawTriangle(desmos=(window["calculator"] || window["Calc"])) {
+function drawTriangle(desmos) {
+  desmos = (desmos || window["calculator"] || window["Calc"]);
   desmos.setExpressions([
     {id:"vertexA",latex:"\\left(x_1,y_1\\right)"},
     {id:"vertexB",latex:"\\left(x_2,y_2\\right)"},
@@ -273,4 +275,4 @@ function drawTriangle(desmos=(window["calculator"] || window["Calc"])) {
     {id:"x3",latex:"x_3=2"},
     {id:"y3",latex:"y_3=1"}
   ]);
-}
+};

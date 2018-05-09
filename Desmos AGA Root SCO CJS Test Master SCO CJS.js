@@ -95,8 +95,17 @@ PearsonGL.External.masterJS = (function() {
         var obj = arguments[0];
 
         [].forEach.call(arguments, function(arg,i) {
+          var keys = [];
+          if(typeof arg === "string") {
+            while(keys.length < arg.length) {
+              keys.push(keys.length);
+            }
+          } else {
+            keys = objKeys(arg);
+          }
+
           if(i > 0) {
-            objKeys(arg).forEach(function(key) {
+            keys.forEach(function(key) {
               obj[key] = arg[key];
             });
           }
