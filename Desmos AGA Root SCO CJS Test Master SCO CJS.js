@@ -36,6 +36,19 @@ PearsonGL.External.masterJS = (function() {
    **********************************************************************************/
   var exports = {};  // This object is used to export public functions/variables
 
+  /* ←— myIsNaN —————————————————————————————————————————————————→ *\
+   | replaces Number.isNaN in case of *shudder* IE
+   * ←————————————————————————————————————————————————————————————————→ */
+   var myIsNaN = (function(){
+    if(typeof Number.isNaN !== "function") {
+      return function(obj) {
+        return (typeof obj === "number" && obj !== obj);
+      };
+    } else {
+      return Number.isNaN;
+    }
+   })();
+
   /* ←— objKeys —————————————————————————————————————————————————→ *\
    | replaces Object.keys in case of *shudder* IE
    * ←————————————————————————————————————————————————————————————————→ */
@@ -815,8 +828,8 @@ PearsonGL.External.masterJS = (function() {
                 p = list1[a[1]];
                 q = list1[b[1]];
 
-                if(typeof p === "number" && !(Number.isNaN(p)) &&
-                  typeof q === "number" && !(Number.isNaN(q))) {
+                if(typeof p === "number" && !(myIsNaN(p)) &&
+                  typeof q === "number" && !(myIsNaN(q))) {
                   return (p - q);
                 }
               }
