@@ -28,6 +28,19 @@ PearsonGL.External.rootJS = (function() {
     }
   })();
 
+  /* ←— myIsNaN —————————————————————————————————————————————————→ *\
+   | replaces Number.isNaN in case of *shudder* IE
+   * ←————————————————————————————————————————————————————————————————→ */
+   var myIsNaN = (function(){
+    if(typeof Number.isNaN !== "function") {
+      return function(obj) {
+        return (typeof obj === "number" && obj !== obj);
+      };
+    } else {
+      return Number.isNaN;
+    }
+   })();
+
   /* ←— objKeys —————————————————————————————————————————————————→ *\
    | replaces Object.keys in case of *shudder* IE
    * ←————————————————————————————————————————————————————————————————→ */
@@ -1066,7 +1079,7 @@ PearsonGL.External.rootJS = (function() {
           // Sort the points by the error they produce (larger error closer to ends).
           vertices.forEach(function(name) {
             // Delay if the value hasn't been reported yet.
-            if (measure(name) === undefined || Number.isNaN(measure(name))) {
+            if (measure(name) === undefined || myIsNaN(measure(name))) {
               o.log('Angles of '+vars.polygonName+' not all defined. Delaying full refresh by '+cs.delay.SET_EXPRESSION+'ms');
               setTimeout(function(){
                 fs.shared.label.labelPolyAngles(o,mergeObjects({},ps,{refreshAll:true}),prec);
@@ -1150,7 +1163,7 @@ PearsonGL.External.rootJS = (function() {
         var val = Math.round(measure(v));
         var nextVal = Math.round(measure(next));
         
-        if (Number.isNaN(prevVal) || Number.isNaN(nextVal) || Number.isNaN(val)) {
+        if (myIsNaN(prevVal) || myIsNaN(nextVal) || myIsNaN(val)) {
           o.log('Angles of vertices '+prev+', '+v+', and '+next+' not all defined. Refreshing polygon '+vars.polygonName+' in '+cs.delay.SET_EXPRESSION+'ms');
           setTimeout(function(){fs.shared.label.labelPolyAngles(o,mergeObjects({},ps,{refreshAll:true}),prec);},cs.delay.SET_EXPRESSION*300);
           return;
@@ -4210,14 +4223,14 @@ PearsonGL.External.rootJS = (function() {
 
             // o.log('Replacing handles; setting expressions:',exprs);
 
-            if ((!(Number.isNaN(hlps.x_0.numericValue))) &&
-                (!(Number.isNaN(hlps.y_0.numericValue))) &&
-                (!(Number.isNaN(hlps.x_1.numericValue))) &&
-                (!(Number.isNaN(hlps.y_1.numericValue))) &&
-                (!(Number.isNaN(hlps.x_2.numericValue))) &&
-                (!(Number.isNaN(hlps.y_2.numericValue))) &&
-                (!(Number.isNaN(hlps.x_3.numericValue))) &&
-                (!(Number.isNaN(hlps.y_3.numericValue)))
+            if ((!(myIsNaN(hlps.x_0.numericValue))) &&
+                (!(myIsNaN(hlps.y_0.numericValue))) &&
+                (!(myIsNaN(hlps.x_1.numericValue))) &&
+                (!(myIsNaN(hlps.y_1.numericValue))) &&
+                (!(myIsNaN(hlps.x_2.numericValue))) &&
+                (!(myIsNaN(hlps.y_2.numericValue))) &&
+                (!(myIsNaN(hlps.x_3.numericValue))) &&
+                (!(myIsNaN(hlps.y_3.numericValue)))
                 ) {o.desmos.setExpressions(exprs);}
           }
 
@@ -4860,7 +4873,7 @@ PearsonGL.External.rootJS = (function() {
           }
 
           function debug() {
-            hlps.theta_1.observe('numericValue',function(){if (Number.isNaN(hlps.theta_1.numericValue)) {
+            hlps.theta_1.observe('numericValue',function(){if (myIsNaN(hlps.theta_1.numericValue)) {
               escape();
               return;//*/
             }});
