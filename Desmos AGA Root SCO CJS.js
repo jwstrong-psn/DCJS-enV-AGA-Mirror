@@ -403,7 +403,7 @@ PearsonGL.External.rootJS = (function() {
        ↓
        * ←—————————————————————————————————————————————————————————————————————→ */
        latexToText: function(expr){
-        expr = (''+expr).
+        expr = expr.
           replace(new RegExp('\\\\cdot\\s?','g'),'\u22c5').
           replace(new RegExp('._\\{([a-zA-Z])Var\\}','g'),'$1').
           replace(new RegExp('([+=÷×\\u22c5])','g'),' $1 ').
