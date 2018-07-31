@@ -403,7 +403,7 @@ PearsonGL.External.rootJS = (function() {
        ↓
        * ←—————————————————————————————————————————————————————————————————————→ */
        latexToText: function(expr){
-        expr = expr.
+        expr = (''+expr).
           replace(new RegExp('\\\\cdot\\s?','g'),'\u22c5').
           replace(new RegExp('._\\{([a-zA-Z])Var\\}','g'),'$1').
           replace(new RegExp('([+=÷×\\u22c5])','g'),' $1 ').
@@ -4896,7 +4896,8 @@ PearsonGL.External.rootJS = (function() {
       /* ←— A0597789 FUNCTIONS ——————————————————————————————————————————————→ */
         cs.A0597789 = {
           MARGIN: 18,
-          LINE_HEIGHT: 24
+          LINE_HEIGHT: 24,
+          EX: 8
          };
        fs.A0597789 = {
         /* ←— init ——————————————————————————————————————————————————————→ *\
@@ -4911,8 +4912,8 @@ PearsonGL.External.rootJS = (function() {
             var left = units.left+cons.MARGIN*units.width/pixels.width;
             var top = units.top-cons.MARGIN*units.height/pixels.height;
             var second = top-cons.LINE_HEIGHT*units.height/pixels.height;
-            o.desmos.setExpression({id:'volumeCone',latex:'\\left('+left+','+top+'\\right)'});
-            o.desmos.setExpression({id:'volumeStack',latex:'\\left('+left+','+second+'\\right)'});
+            o.desmos.setExpression({id:'volumeCone',latex:'\\left('+(left+10.5*cons.EX*units.width/pixels.width)+','+top+'\\right)'});
+            o.desmos.setExpression({id:'volumeStack',latex:'\\left('+(left+13*cons.EX*units.width/pixels.width)+','+second+'\\right)'});
           });
          },
         /* ←— volumeCone ——————————————————————————————————————————————————————→ *\
