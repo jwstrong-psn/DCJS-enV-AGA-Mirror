@@ -81,6 +81,7 @@
       var countdown = window.setInterval(function(){
         if(localStorage.getItem("AGAredirect") === "true") {
           redirectButton.innerHTML = "Redirecting in "+tMinus+"… click to cancel";
+          redirectButton.onclick = quitRedirect;
           if(window.tMinus === 0) {
             window.location.replace("https://jwstrong-psn.github.io/DCJS-enV-AGA-Mirror/");
           }
