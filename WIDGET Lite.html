@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>AGA Lite WIDGET</title>
+  <link href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css" rel="stylesheet" type="text/css" />
+  <script src="https://code.jquery.com/jquery-3.1.0.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <!--script src="https://www.desmos.com/api/v0.9/geometry.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script-->
+  <script src="./desmos/geometry.2018-05-29.js"></script>
+  <!--script src="https://www.desmos.com/api/v0.9/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script-->
+  <script src="./desmos/calculator.2019-01-18.js"></script>
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+    }
+    #calculator {
+      width: 550px;
+      height: 450px;
+    });
+  </style>
+</head>
+<body>
+  <table>
+    <tr>
+      <td style="vertical-align:top;">
+        <div id="frame"><div id="calculator"></div></div>
+      </td>
+      <td rowspan="2" style="vertical-align:top;text-align:center">
+        <button type="button" id="graphing" style="background:green;color:white;">Calculator</button>&nbsp;<button type="button" id="geometry" style="background:red;color:white;">Geometry</button>
+      </td>
+    </tr>
+    <tr height="100%">
+      <td style="vertical-align:top">
+        <table style="float:right">
+          <tr>
+            <td>
+              <input type="text" id="desWidth" placeholder="w" style="width:3em;text-align:center">px
+            </td>
+            <td rowspan="2" style="vertical-align:top">×</td>
+            <td style="vertical-align:top;">
+              <input type="text" id="desHeight" placeholder="h" style="width:3em;text-align:center">px
+            </td>
+          </tr>
+          <tr>
+            <td style="vertical-align:top">
+              <button type="button" id="w280" style="width:3em;">1/3</button><br>
+              <button type="button" id="w415" style="width:3em;">50%</button><br>
+              <button type="button" id="w550" style="width:3em;">2/3</button><br>
+              <button type="button" id="w860" style="width:3em;">Full</button>
+            </td>
+            <td style="vertical-align:top">
+              <button type="button" id="h350" style="width:3em;">350</button><br>
+              <button type="button" id="h400" style="width:3em;">400</button><br>
+              <button type="button" id="h475" style="width:3em;">475</button><br>
+            </td>
+          </tr>
+        </table>
+        <button type="button" id="copyState">Copy Current State</button><br>
+        <input type="text" id="stateInput" placeholder="Paste state here…">
+        <button type="button" id="load">Load State</button>
+      </td>
+    </tr>
+  </table>
+  <script>
+    $(function() {
+      var onbuttoncolor = "green";
+      var ontextcolor = "white";
+      var offbuttoncolor = "red";
+      var offtextcolor = "white";
+
+      $("#graphing").click(function(){
+        toolType = "graphing";
+        window.rebuild();
+      });
+      $("#geometry").click(function(){
+        toolType = "geometry";
+        window.rebuild();
+      });
+      
+      $("#copyState").click(function(){
+        var currState = window.copyState();
+        var field = $('#stateInput')[0];
+        field.value = JSON.stringify(currState);
+        field.focus()
+        field.setSelectionRange(0,field.value.length);
+        var succeed;
+        try {
+          succeed = document.execCommand('copy');
+          alert('Calculator state copied to clipboard.');
+        } catch(e) {
+          succeed = false;
+          alert('Failed to copy to clipboard. Select and copy manually from text field above \'Copy Current State\' button.');
+        }
+      });
+      $("#desWidth").change(function(){
+        if (!(typeof eval($('#desWidth')[0].value) === "number") || eval($('#desWidth')[0].value) <= 0) {
+         $('#desWidth')[0].value = desWidth;
+         alert('Please enter a positive integer value for Width.');
+        }
+        desWidth = $('#desWidth')[0].value;
+        $elt.width(desWidth);
+        $frame.width(desWidth);
+        $('#saveBrowserDiv').width(desWidth);
+        window.calculator.resize();
+      });
+      $("#desHeight").change(function(){
+        if (!(typeof eval($('#desHeight')[0].value) === "number") || eval($('#desHeight')[0].value) <= 0) {
+         $('#desHeight')[0].value = desHeight;
+         alert('Please enter a positive integer value for Height.');
+        }
+        desHeight = $('#desHeight')[0].value;
+        $elt.height(desHeight);
+        $frame.height(desHeight);
+        window.calculator.resize();
+      });
+      $("#w280").click(function(){
+        $('#desWidth')[0].value=280;
+        $('#desWidth').trigger('change');
+      });
+      $("#w415").click(function(){
+        $('#desWidth')[0].value=415;
+        $('#desWidth').trigger('change');
+      });
+      $("#w550").click(function(){
+        $('#desWidth')[0].value=550;
+        $('#desWidth').trigger('change');
+      });
+      $("#w860").click(function(){
+        $('#desWidth')[0].value=860;
+        $('#desWidth').trigger('change');
+      });
+      $("#h350").click(function(){
+        $('#desHeight')[0].value=350;
+        $('#desHeight').trigger('change');
+      });
+      $("#h400").click(function(){
+        $('#desHeight')[0].value=400;
+        $('#desHeight').trigger('change');
+      });
+      $("#h475").click(function(){
+        $('#desHeight')[0].value=475;
+        $('#desHeight').trigger('change');
+      });
+
+      function loadFromInput(){
+        var state;
+        try {
+          state = $.parseJSON($("#stateInput")[0].value);
+        } catch (e) {
+          alert('Failed to load state. Please input a valid Calculator or Geometry Tool state as output by the tool\'s \'getState()\' command.\n\nHint: A Calculator state will contain \"expressions\" and a Geometry Tool state will contain \"objects\".');
+          return;
+        }
+        try {
+          window.load(state);
+        } catch (e) {
+          alert('Failed to load state. Please input a valid Calculator or Geometry Tool state as output by the tool\'s \'getState()\' command.\n\nHint: A Calculator state will contain \"expressions\" and a Geometry Tool state will contain \"objects\".');
+          return;
+        }
+      };
+
+      $("#load").click(loadFromInput);
+
+      $("#stateInput").keyup(function(e){
+        if (e.keyCode == 13) loadFromInput();
+      });
+
+      var $frame = $('#frame');
+      var $elt = $('#calculator');
+      window.agaColors = {
+        blue: '#0092C8',
+        red: '#F15A22',
+        green: '#0AB14B',
+        purple: '#812990',
+        black: '#000000',
+        // grey: '#58595B',
+        // teal: '#36C1CD',
+        orange: '#EFA038'//,
+        // lime: '#95CA59'
+      };
+      window.mgmColors = {
+        blue: '#0092C8',
+        red: '#F15A22',
+        green: '#0DB14B',
+        purple: '#812990',
+        black: '#000000',
+        //purpleFill: '#941B81',
+        //blueFill: '#229FEE',
+        orangeFill: '#F68B1F'//,
+        //greenFill: '#62BA46',
+        //grey: '#58595B'
+      };
+      window.colors = window.mgmColors;
+      window.geoColors = {
+        colors: [
+          '#0092C8', // blue
+          '#F15A22', // red
+          '#0AB14B', // green
+          '#812990', // purple
+          '#EFA038', // orange
+          '#000000', // black
+          '#58595B' // grey
+        ],
+        defaults: {
+          point: window.agaColors.black,
+          line: window.agaColors.black,
+          circle: window.agaColors.black,
+          angle: window.agaColors.red,
+          polygon: window.agaColors.blue
+        }
+      };
+      window.calculator = window.Calc = window.Geo = null;
+
+      var toolType = 'graphing';
+      var calcDefaultState = null;
+      var geoDefaultState = null;
+      var calcPrevState = null;
+      var geoPrevState = null;
+      var desWidth = 550;
+      var desHeight = 475;
+
+      // Note: never set toolType before refreshing the calculator;
+      //       toolType should always match current toolType.
+      function refreshCalculator(type = toolType) {
+
+        window.calculator = null;
+        if(window.Geo) {
+          geoPrevState = window.Geo.getState({stripDefaults:true});
+          delete window.Geo;
+        }
+        if(window.Calc) {
+          calcPrevState = window.Calc.getState({stripDefaults:true});
+          delete window.Calc;
+        }
+        if($elt) $elt.remove();
+
+        // Build the frame and UI
+        $frame.html('<div id="calculator" style="width:'+desWidth+'px;height:'+desHeight+'px;"></div>');
+        $elt = $('#calculator');
+
+        // Instantiate the calculator and set its state
+        if (type == 'graphing') {
+          window.calculator = window.Calc = Desmos.GraphingCalculator($elt[0],{administerSecretFolders:true,colors:window.colors});
+          if (calcPrevState) window.calculator.setState(calcPrevState);
+          if (calcDefaultState) window.calculator.setDefaultState(calcDefaultState);
+          else window.calculator.setDefaultState(window.calculator.getState({stripDefaults:true}));
+        } else if (type == 'geometry') {
+          window.calculator = window.Geo = Desmos.Geometry($elt[0],{colorMap:window.geoColors});
+          if (geoPrevState) window.calculator.setState(geoPrevState);
+          if (geoDefaultState) window.calculator.setDefaultState(geoDefaultState);
+        };
+        toolType = type;
+        updateView();
+
+        $elt.resizable({
+          handles: 'e, s, se',
+          grid: [5,5],
+          resize: function(evt, ui) {
+            var tail='';
+            var h=ui.size.height;
+            var w=ui.size.width;
+            if (Math.abs(280-w)<15) {ui.size.width=w=280; tail+=' (1/3 Column)';}
+            else if (Math.abs(415-w)<15) {ui.size.width=w=415; tail+=' (50% Column)';}
+            else if (Math.abs(550-w)<15) {ui.size.width=w=550; tail+=' (2/3 Column)';}
+            else if (Math.abs(860-w)<15) {ui.size.width=w=860; tail+=' (Full Column)';}
+            if (Math.abs(475-h)<15) {ui.size.height=h=475; tail+=' (Height 1)';}
+            else if (Math.abs(400-h)<15) {ui.size.height=h=400; tail+=' (Height 2)';}
+            else if (Math.abs(350-h)<15) {ui.size.height=h=350; tail+=' (Height 3)';}
+            console.log('' + w + ' × ' + h + tail);
+            var margin = 0;
+            if (w>desWidth || desWidth>window.innerWidth-2*($elt.offset().left)-20) {
+              desWidth=w;
+              $frame.width(w);
+            };
+            if (h>desHeight) {
+              desHeight=h;
+              $frame.height(h);
+            };
+            $('#desWidth')[0].value=w;
+            $('#desHeight')[0].value=h;
+          },
+          stop: function(evt, ui) { 
+            desWidth=ui.size.width;
+            desHeight=ui.size.height;
+            $frame.width(desWidth);
+            $frame.height(desHeight);
+            $('#saveBrowserDiv').width(desWidth);
+            window.calculator.resize();
+          }
+        });
+      }
+
+      function updateView(type = toolType) {
+        if (type == "geometry") {
+          $("#graphing").css("background",offbuttoncolor);
+          $("#graphing").css("color",offtextcolor);
+          $("#geometry").css("background",onbuttoncolor);
+          $("#geometry").css("color",ontextcolor);
+        } else if (type == "graphing") {
+          $("#graphing").css("background",onbuttoncolor);
+          $("#graphing").css("color",ontextcolor);
+          $("#geometry").css("background",offbuttoncolor);
+          $("#geometry").css("color",offtextcolor);
+        }
+
+        if(toolType != type) {
+          refreshCalculator(type);
+        };
+      }
+
+      window.rebuild = function(options={}) {
+        refreshCalculator();
+      };
+      window.show = function(options={}) {
+        window.rebuild.apply(this,options);
+      };
+      window.load = function(state, options={remapColors:true,allowUndo:true}) {
+        var type;
+        if (state.expressions != undefined) {
+          calcDefaultState = state;
+          type = 'graphing';
+        }
+        if (state.objects != undefined) {
+          geoDefaultState = state;
+          type = 'geometry';
+        }
+
+        refreshCalculator(type);
+        window.calculator.setState(state, options);
+      };
+      window.copyState = function() {
+        var currState = window.calculator.getState({stripDefaults:true});
+        try {copy(JSON.stringify(currState));} catch(e) {};
+        return currState;
+      };
+
+      window.show();
+    });
+  </script>
+</body>
+</html>
