@@ -91,7 +91,7 @@
       if(saves !== "null") {
         field.value = saves;
         JSON.parse(saves).forEach(function(save){
-          var node = document.createItem("img");
+          var node = document.createElement("img");
           node.setAttribute("src",save.preview);
           graphs.appendChild(node);
         });
