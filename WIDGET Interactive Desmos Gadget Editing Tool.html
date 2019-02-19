@@ -76,6 +76,7 @@
         redirectButton.innerHTML = "set automatic redirect";
         redirectButton.onclick = setRedirect;
       }
+      redirectButton.onclick = setRedirect;
       var tMinus = 10;
       var countdown = window.setInterval(function(){
         if(localStorage.getItem("AGAredirect") === "true") {
