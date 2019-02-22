@@ -34,7 +34,13 @@
   </head>
   <body>
     <p>
+      <b>The testbed has moved.</b>
+    </p>
+    <p>
       If you are accessing this site from htmlpreview (look in the URL) and you have not yet done so, you will need to copy your old saved states manually from this page to the new one.
+    </p>
+    <p>
+      If you do not wish to copy your saved states, <button id="quickjump">click here</button> to be redirected to the <a href="https://jwstrong-psn.github.io/DCJS-enV-AGA-Mirror">new site</a>.
     </p>
     <p>
       Saved Graphs:
@@ -65,6 +71,10 @@
       <button id="redirect">set automatic redirect</button>
     </p>
     <script>
+      var quickJump = document.querySelector('#quickjump');
+      quickJump.onclick = function(){
+        window.location.replace("https://jwstrong-psn.github.io/DCJS-enV-AGA-Mirror");
+      };
       var redirectButton = document.querySelector('#redirect');
       function setRedirect() {
         localStorage.setItem("AGAredirect","true");
