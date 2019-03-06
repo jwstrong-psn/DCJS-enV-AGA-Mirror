@@ -2015,6 +2015,8 @@
           window.clearTimeout(window.queuedSave);
           delete window.queuedSave;
         }
+        // Update images
+        state = JSON.parse(JSON.stringify(state).replace(/upload\/t_FPO/g,"upload"));
         autoSaveQueued = true;
         var type;
         if (state.expressions != undefined) {
