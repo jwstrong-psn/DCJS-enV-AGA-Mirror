@@ -1515,6 +1515,7 @@
                 desWidth = 550;
                 desHeight = 475;
                 $elt.remove();
+                window.calculator.destroy();
                 delete window.Calc;
                 delete window.Geo;
                 $gui.appendTo($('#'+id+'_cell'));
