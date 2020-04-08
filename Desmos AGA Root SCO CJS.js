@@ -714,6 +714,59 @@ PearsonGL.External.rootJS = (function() {
           precision = cs.precision.FLOAT_PRECISION;
         }
         return Math.round(Math.pow(10,precision)*val)/Math.pow(10,precision);
+       },
+      /* ←— roundSum ————————————-————————————————————————————————————————→ *\
+       | Rounds values in an array so their integer sum is exact
+       |    vals is an array of values
+       |    target is the target sum; must be an integer
+       |    values will first be rounded to 1 decimal place
+       * ←————————————————————————————————————————————————————————————————→ */
+       roundSum:function(vals,target) {
+        var newVals = Array.from(vals);
+
+        function addRound(acc,e){
+          return Math.round(acc) + Math.round(e);
+        }
+
+        function roundLowestDown(arr) {
+          arr = Array.from(arr);
+          var idx = arr.reduce(function(acc,e,i,a){
+            if ((e + 0.5) % 1 < (a[acc] + 0.5) % 1) {
+              return i;
+            } else {
+              return acc;
+            }
+          },0);
+          if (arr[idx] % 1 >= 0.5) {
+            arr[idx] = Math.floor(arr[idx]);
+          } else {
+            arr[idx] = Math.floor(arr[idx] - 1);
+          }
+          return arr;
+        }
+
+        var newSum = newVals.reduce(addRound);
+
+        while (newSum !== target) {
+          // debugLog("Sum "+newSum+" does not match target "+target);
+          if (newSum < target) {
+            newVals = newVals.map(function(e){
+              return -e;
+            });
+          }
+          newVals = roundLowestDown(newVals);
+          if (newSum < target) {
+            newVals = newVals.map(function(e){
+              return -e;
+            });
+          }
+          // debugLog("New array: "+newVals);
+          newSum = newVals.reduce(addRound);
+        }
+
+        return newVals.map(function(e){
+          return Math.round(e);
+        });
        }
      };
 
