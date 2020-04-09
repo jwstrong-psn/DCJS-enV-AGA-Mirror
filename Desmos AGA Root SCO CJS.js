@@ -2804,9 +2804,13 @@ PearsonGL.External.rootJS = (function() {
           function drag(t,h){
             // Record the latest dragged vertex and that it is being dragged
 
+            if (vars[h[t].length] === undefined) {
+              return; // wait until the mode is initialized
+            }
+
             function findDiff(arr1, arr2){
               function diffReduce(acc,e,i){
-                if (e !== arr2[i]) {
+                if (Math.abs(e - arr2[i]) > cons.EPSILON) {
                   return i;
                 } else {
                   return acc;
@@ -2818,6 +2822,7 @@ PearsonGL.External.rootJS = (function() {
             var diff = findDiff(h[t], vars[h[t].length][h.latex]);
 
             if (diff === -1) {
+              o.log("No difference.");
               return;
             }
 
@@ -2842,13 +2847,15 @@ PearsonGL.External.rootJS = (function() {
           function updateRecord(){
             if (vars.dragging === false) {
               // Do not update the record if the user hasn't been dragging
+              o.log("Not dragging; skipping update.");
               return;
             } else {
+              o.log("Updating record.");
               vars.dragging = false;
               delete vars.constrained;
             }
-            vars[hlps.n.numericValue].x_h = hlps.x_h.listValue;
-            vars[hlps.n.numericValue].y_h = hlps.y_h.listValue;
+            vars[hlps.n.numericValue].x_h = hlps.x_V.listValue;
+            vars[hlps.n.numericValue].y_h = hlps.y_V.listValue;
             vars[hlps.n.numericValue].x_V = hlps.x_V.listValue;
             vars[hlps.n.numericValue].y_V = hlps.y_V.listValue;
 
