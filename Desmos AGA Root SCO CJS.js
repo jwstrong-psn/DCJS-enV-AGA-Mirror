@@ -2778,9 +2778,9 @@ PearsonGL.External.rootJS = (function() {
           var hlps = hxs[o.uniqueId];
           var cons = cs.A0597630;
 
-          vars.lastDragged = 0;
+          vars.lastDragged = -1;
           vars.dragging = false;
-          hlps.n = hlps.maker({latex:'n'});
+          hlps.n = hlps.maker('n');
 
           function initialize(t,h){
             var n = hlps.n.numericValue || cons.DEFAULT_VERTEX_COUNT;
@@ -2792,8 +2792,11 @@ PearsonGL.External.rootJS = (function() {
             h.unobserve(t + '.init');
            }
 
-          hlps.x_h = hlps.maker({latex:'x_h'});
-          hlps.y_h = hlps.maker({latex:'y_h'});
+          hlps.x_h = hlps.maker('x_h');
+          hlps.y_h = hlps.maker('y_h');
+
+          initialize('listValue',hlps.x_h);
+          initialize('listValue',hlps.y_h);
 
           hlps.x_h.observe('listValue.init',initialize);
           hlps.y_h.observe('listValue.init',initialize);
@@ -2818,19 +2821,21 @@ PearsonGL.External.rootJS = (function() {
               return;
             }
 
-            vars.lastDragged = diff;
             vars.dragging = true;
-            o.desmos.setExpression({
-              id:'drag_index',
-              latex:'d='+(diff+1)
-            });
+            if (diff !== vars.lastDragged) {
+              vars.lastDragged = diff;
+              o.desmos.setExpression({
+                id:'drag_index',
+                latex:'d='+(diff+1)
+              });
+            }
            }
 
           hlps.x_h.observe('listValue.drag',drag);
           hlps.y_h.observe('listValue.drag',drag);
 
-          hlps.x_V = hlps.maker({latex:'x_V'});
-          hlps.y_V = hlps.maker({latex:'y_V'});
+          hlps.x_V = hlps.maker('x_V');
+          hlps.y_V = hlps.maker('y_V');
           hlps.x_V.observe('listValue.init',initialize);
           hlps.y_V.observe('listValue.init',initialize);
 
@@ -2840,9 +2845,6 @@ PearsonGL.External.rootJS = (function() {
               return;
             } else {
               vars.dragging = false;
-              hlps.x_h.unobserve('listValue.drag');
-              hlps.y_h.unobserve('listValue.drag');
-              hlps.dragged_point.unobserve('listValue.drag');
               delete vars.constrained;
             }
             vars[hlps.n.numericValue].x_h = hlps.x_h.listValue;
@@ -2876,21 +2878,6 @@ PearsonGL.External.rootJS = (function() {
               latex: 'y_d=y_h\\left[d\\right]'
             }
             ]);
-
-            hlps.x_h.observe('listValue.dragStart',function(t,h){
-              h.unobserve(t+'.dragStart');
-              h.observe('listValue.drag',drag);
-            });
-
-            hlps.y_h.observe('listValue.dragStart',function(t,h){
-              h.unobserve(t+'.dragStart');
-              h.observe('listValue.drag',drag);
-            });
-
-            hlps.dragged_point.observe('listValue.dragStart',function(t,h){
-              h.unobserve(t+'.dragStart');
-              h.observe('listValue.drag',dragConstrain);
-            });
            }
 
           // Save automatically every time the user clicks, if they were dragging
@@ -2898,21 +2885,21 @@ PearsonGL.External.rootJS = (function() {
           document.addEventListener('touchend',updateRecord);
 
           // Points and boundaries for polygon constraint
-          hlps.dragged_point = o.desmos.HelperExpression({latex:'P_d'});
-          hlps.projections = [
-            o.desmos.HelperExpression({latex:'P_0'}),
-            o.desmos.HelperExpression({latex:'P_1'}),
-            o.desmos.HelperExpression({latex:'P_{n1}'}),
-            o.desmos.HelperExpression({latex:'P_{L0}'}),
-            o.desmos.HelperExpression({latex:'P_{L1}'}),
-            o.desmos.HelperExpression({latex:'P_{Ln1}'})
-          ];
+           hlps.dragged_point = hlps.maker('P_d');
+           hlps.projections = [
+            hlps.maker('P_0'),
+            hlps.maker('V_1'),
+            hlps.maker('V_{n1}'),
+            hlps.maker('P_{L0}'),
+            hlps.maker('P_{L1}'),
+            hlps.maker('P_{Ln1}')
+           ];
 
-          hlps.boundaries = [
-            o.desmos.HelperExpression({latex:'L_0'}),
-            o.desmos.HelperExpression({latex:'L_1'}),
-            o.desmos.HelperExpression({latex:'L_{n1}'})
-          ];
+           hlps.boundaries = [
+            hlps.maker('L_0'),
+            hlps.maker('L_1'),
+            hlps.maker('L_{n1}')
+           ];
 
           function isFeasible(point) {
             point = {
@@ -2929,7 +2916,7 @@ PearsonGL.External.rootJS = (function() {
               var distance = hs.distancePointLine(point, line);
               return (acc && (distance >= -cons.EPSILON));
             },true);
-          }
+           }
 
           function findClosestFeasible() {
             if(isFeasible(hlps.dragged_point)) {
@@ -2961,15 +2948,15 @@ PearsonGL.External.rootJS = (function() {
               if(isFeasible(e)) {
                 closest = e;
               } else {
-                console.log(e.latex + ' infeasible');
+                o.log(e.latex + ' infeasible');
               }
             });
             return closest;
-          }
+           }
 
           function dragConstrain() {
             var constrained = findClosestFeasible();
-            console.log(constrained.latex);
+            o.log(constrained.latex);
             if (constrained !== vars.constrained) {
               o.desmos.setExpressions([
               {
@@ -2983,7 +2970,9 @@ PearsonGL.External.rootJS = (function() {
               ]);
               vars.constrained = constrained;
             }
-          }
+           }
+
+          hlps.dragged_point.observe('listValue.drag',dragConstrain);
          }
        };
 
