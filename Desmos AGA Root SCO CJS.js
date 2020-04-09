@@ -2757,11 +2757,12 @@ PearsonGL.External.rootJS = (function() {
        };
 
       /* ←— A0597630 FUNCTIONS ——————————————————————————————————————————————→ */
-        cs.A0697630 = {
+        cs.A0597630 = {
           ANGLE_PRECISION: 2,
           HIDDEN_COLOR: '#000000',
           VERTEX_COLOR: '#000000',
-          DEFAULT_VERTEX_COUNT: 5
+          DEFAULT_VERTEX_COUNT: 5,
+          EPSILON: 0.0001
          };
         fs.A0597630 = {
         /* ←— init ————————————————————————————————————————————————————————————→ *\
@@ -2789,7 +2790,7 @@ PearsonGL.External.rootJS = (function() {
             vars[n] = vars[n] || {};
             vars[n][h.latex] = h[t];
             h.unobserve(t + '.init');
-          }
+           }
 
           hlps.x_h = hlps.maker({latex:'x_h'});
           hlps.y_h = hlps.maker({latex:'y_h'});
@@ -2823,7 +2824,7 @@ PearsonGL.External.rootJS = (function() {
               id:'drag_index',
               latex:'d='+(diff+1)
             });
-          }
+           }
 
           hlps.x_h.observe('listValue.drag',drag);
           hlps.y_h.observe('listValue.drag',drag);
@@ -2841,16 +2842,8 @@ PearsonGL.External.rootJS = (function() {
               vars.dragging = false;
               hlps.x_h.unobserve('listValue.drag');
               hlps.y_h.unobserve('listValue.drag');
-
-              hlps.x_h.observe('listValue.dragStart',function(t,h){
-                h.unobserve(t+'.dragStart');
-                h.observe('listValue.drag',drag);
-              });
-
-              hlps.y_h.observe('listValue.dragStart',function(t,h){
-                h.unobserve(t+'.dragStart');
-                h.observe('listValue.drag',drag);
-              });
+              hlps.dragged_point.unobserve('listValue.drag');
+              delete vars.constrained;
             }
             vars[hlps.n.numericValue].x_h = hlps.x_h.listValue;
             vars[hlps.n.numericValue].y_h = hlps.y_h.listValue;
@@ -2883,16 +2876,118 @@ PearsonGL.External.rootJS = (function() {
               latex: 'y_d=y_h\\left[d\\right]'
             }
             ]);
-          }
+
+            hlps.x_h.observe('listValue.dragStart',function(t,h){
+              h.unobserve(t+'.dragStart');
+              h.observe('listValue.drag',drag);
+            });
+
+            hlps.y_h.observe('listValue.dragStart',function(t,h){
+              h.unobserve(t+'.dragStart');
+              h.observe('listValue.drag',drag);
+            });
+
+            hlps.dragged_point.observe('listValue.dragStart',function(t,h){
+              h.unobserve(t+'.dragStart');
+              h.observe('listValue.drag',dragConstrain);
+            });
+           }
 
           // Save automatically every time the user clicks, if they were dragging
           document.addEventListener('mouseup',updateRecord);
           document.addEventListener('touchend',updateRecord);
 
+          // Points and boundaries for polygon constraint
+          hlps.dragged_point = o.desmos.HelperExpression({latex:'P_d'});
+          hlps.projections = [
+            o.desmos.HelperExpression({latex:'P_0'}),
+            o.desmos.HelperExpression({latex:'P_1'}),
+            o.desmos.HelperExpression({latex:'P_{n1}'}),
+            o.desmos.HelperExpression({latex:'P_{L0}'}),
+            o.desmos.HelperExpression({latex:'P_{L1}'}),
+            o.desmos.HelperExpression({latex:'P_{Ln1}'})
+          ];
+
+          hlps.boundaries = [
+            o.desmos.HelperExpression({latex:'L_0'}),
+            o.desmos.HelperExpression({latex:'L_1'}),
+            o.desmos.HelperExpression({latex:'L_{n1}'})
+          ];
+
+          function isFeasible(point) {
+            point = {
+              x: point.listValue[0],
+              y: point.listValue[1],
+              latex: point.latex
+            };
+            return hlps.boundaries.reduce(function(acc,e){
+              var line = {
+                a: e.listValue[0],
+                b: e.listValue[1],
+                c: e.listValue[2]
+              };
+              var distance = hs.distancePointLine(point, line);
+              return (acc && (distance >= -cons.EPSILON));
+            },true);
+          }
+
+          function findClosestFeasible() {
+            if(isFeasible(hlps.dragged_point)) {
+              return hlps.dragged_point;
+            }
+
+            // Dragged point
+            var D = {
+              x: hlps.dragged_point.listValue[0],
+              y: hlps.dragged_point.listValue[1]
+            };
+
+            hlps.projections.sort(function(a,b){
+              var A = {
+                x: a.listValue[0],
+                y: a.listValue[1]
+              };
+              var B = {
+                x: b.listValue[0],
+                y: b.listValue[1]
+              };
+              var d_A = (A.x-D.x)*(A.x-D.x)+(A.y-D.y)*(A.y-D.y);
+              var d_B = (B.x-D.x)*(B.x-D.x)+(B.y-D.y)*(B.y-D.y);
+              return (d_B - d_A);
+            });
+
+            var closest = hlps.dragged_point;
+            hlps.projections.forEach(function(e){
+              if(isFeasible(e)) {
+                closest = e;
+              } else {
+                console.log(e.latex + ' infeasible');
+              }
+            });
+            return closest;
+          }
+
+          function dragConstrain() {
+            var constrained = findClosestFeasible();
+            console.log(constrained.latex);
+            if (constrained !== vars.constrained) {
+              o.desmos.setExpressions([
+              {
+                id: 'projected_x',
+                latex: 'x_d='+constrained.latex+'\\left[1\\right]'
+              },
+              {
+                id: 'projected_y',
+                latex: 'y_d='+constrained.latex+'\\left[2\\right]'
+              }
+              ]);
+              vars.constrained = constrained;
+            }
+          }
          }
        };
 
-      /* ←— A0597630 FUNCTIONS ——————————————————————————————————————————————→ */
+      /* ←— OLD A0597630 FUNCTIONS ——————————————————————————————————————————————→ */
         cs.A0597630_bak = {
           MAX_VERTICES:14,
           RADIUS:5,
