@@ -2757,7 +2757,143 @@ PearsonGL.External.rootJS = (function() {
        };
 
       /* ←— A0597630 FUNCTIONS ——————————————————————————————————————————————→ */
-        cs.A0597630 = {
+        cs.A0697630 = {
+          ANGLE_PRECISION: 2,
+          HIDDEN_COLOR: '#000000',
+          VERTEX_COLOR: '#000000',
+          DEFAULT_VERTEX_COUNT: 5
+         };
+        fs.A0597630 = {
+        /* ←— init ————————————————————————————————————————————————————————————→ *\
+         | Initializes the variables
+         * ←———————————————————————————————————————————————————————————————————→ */
+         init: function() {
+          var o = hs.parseArgs(arguments);
+          delete vs[o.uniqueId];
+          delete hxs[o.uniqueId];
+          o = hs.parseArgs(arguments);
+
+          var vars = vs[o.uniqueId];
+          var hlps = hxs[o.uniqueId];
+          var cons = cs.A0597630;
+
+          vars.lastDragged = 0;
+          vars.dragging = false;
+          hlps.n = hlps.maker({latex:'n'});
+
+          function initialize(t,h){
+            var n = hlps.n.numericValue || cons.DEFAULT_VERTEX_COUNT;
+            if(Array.isArray(h[t])) {
+              n = h[t].length;
+            }
+            vars[n] = vars[n] || {};
+            vars[n][h.latex] = h[t];
+            h.unobserve(t + '.init');
+          }
+
+          hlps.x_h = hlps.maker({latex:'x_h'});
+          hlps.y_h = hlps.maker({latex:'y_h'});
+
+          hlps.x_h.observe('listValue.init',initialize);
+          hlps.y_h.observe('listValue.init',initialize);
+
+          function drag(t,h){
+            // Record the latest dragged vertex and that it is being dragged
+
+            function findDiff(arr1, arr2){
+              function diffReduce(acc,e,i){
+                if (e !== arr2[i]) {
+                  return i;
+                } else {
+                  return acc;
+                }
+              }
+              return arr1.reduce(diffReduce,-1);
+            }
+
+            var diff = findDiff(h[t], vars[h[t].length][h.latex]);
+
+            if (diff === -1) {
+              return;
+            }
+
+            vars.lastDragged = diff;
+            vars.dragging = true;
+            o.desmos.setExpression({
+              id:'drag_index',
+              latex:'d='+(diff+1)
+            });
+          }
+
+          hlps.x_h.observe('listValue.drag',drag);
+          hlps.y_h.observe('listValue.drag',drag);
+
+          hlps.x_V = hlps.maker({latex:'x_V'});
+          hlps.y_V = hlps.maker({latex:'y_V'});
+          hlps.x_V.observe('listValue.init',initialize);
+          hlps.y_V.observe('listValue.init',initialize);
+
+          function updateRecord(){
+            if (vars.dragging === false) {
+              // Do not update the record if the user hasn't been dragging
+              return;
+            } else {
+              vars.dragging = false;
+              hlps.x_h.unobserve('listValue.drag');
+              hlps.y_h.unobserve('listValue.drag');
+
+              hlps.x_h.observe('listValue.dragStart',function(t,h){
+                h.unobserve(t+'.dragStart');
+                h.observe('listValue.drag',drag);
+              });
+
+              hlps.y_h.observe('listValue.dragStart',function(t,h){
+                h.unobserve(t+'.dragStart');
+                h.observe('listValue.drag',drag);
+              });
+            }
+            vars[hlps.n.numericValue].x_h = hlps.x_h.listValue;
+            vars[hlps.n.numericValue].y_h = hlps.y_h.listValue;
+            vars[hlps.n.numericValue].x_V = hlps.x_V.listValue;
+            vars[hlps.n.numericValue].y_V = hlps.y_V.listValue;
+
+            o.desmos.setExpressions([
+            {
+              id:'handles',
+              type:'table',
+              columns: [
+              {
+                latex:'x_h',
+                values: hlps.x_V.listValue.map(function(e){return ''+e;})
+              },
+              {
+                latex: 'y_h',
+                values: hlps.y_V.listValue.map(function(e){return ''+e;}),
+                color: '#000000',
+                dragMode: Desmos.DragModes.XY
+              }
+              ]
+            },
+            {
+              id: 'projected_x',
+              latex: 'x_d=x_h\\left[d\\right]'
+            },
+            {
+              id: 'projected_y',
+              latex: 'y_d=y_h\\left[d\\right]'
+            }
+            ]);
+          }
+
+          // Save automatically every time the user clicks, if they were dragging
+          document.addEventListener('mouseup',updateRecord);
+          document.addEventListener('touchend',updateRecord);
+
+         }
+       };
+
+      /* ←— A0597630 FUNCTIONS ——————————————————————————————————————————————→ */
+        cs.A0597630_bak = {
           MAX_VERTICES:14,
           RADIUS:5,
           INITIAL_COORDINATES_PRECISION:6,
@@ -2770,7 +2906,7 @@ PearsonGL.External.rootJS = (function() {
           HIDDEN_COLOR:'#000000', // white is close enough to hidden
           VERTEX_COLOR:'#000000'
          };
-       fs.A0597630 = {
+       fs.A0597630_bak = {
         /* ←— init ————————————————————————————————————————————————————————————→ *\
          | Initializes the variables
          * ←———————————————————————————————————————————————————————————————————→ */
