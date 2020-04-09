@@ -2888,8 +2888,14 @@ PearsonGL.External.rootJS = (function() {
            }
 
           // Save automatically every time the user clicks, if they were dragging
-          document.addEventListener('mouseup',updateRecord);
-          document.addEventListener('touchend',updateRecord);
+          document.addEventListener('mouseup',function(){
+            setTimeout(updateRecord,100);
+            setTimeout(updateRecord,1000);
+          });
+          document.addEventListener('touchend',function(){
+            setTimeout(updateRecord,100);
+            setTimeout(updateRecord,1000);
+          });
 
           // Points and boundaries for polygon constraint
            hlps.dragged_point = hlps.maker('P_d');
