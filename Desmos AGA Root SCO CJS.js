@@ -553,6 +553,7 @@ PearsonGL.External.rootJS = (function() {
         }
 
         if (viable(point)) {
+          debugLog('Point viable:',point);
           return point;
         }
 
@@ -2758,6 +2759,8 @@ PearsonGL.External.rootJS = (function() {
 
       /* ←— A0597630 FUNCTIONS ——————————————————————————————————————————————→ */
         cs.A0597630 = {
+          RADIUS: 5,
+          BUFFER: 0.25,
           ANGLE_PRECISION: 2,
           HIDDEN_COLOR: '#000000',
           VERTEX_COLOR: '#000000',
@@ -2774,221 +2777,181 @@ PearsonGL.External.rootJS = (function() {
           delete hxs[o.uniqueId];
           o = hs.parseArgs(arguments);
 
+          var hlps = hxs[o.uniqueId];
+
+          hlps.x_h = hlps.maker('x_h');
+          hlps.y_h = hlps.maker('y_h');
+          hlps.x_V = hlps.maker('x_V');
+          hlps.y_V = hlps.maker('y_V');
+
+          hlps.hash_list = hlps.maker('x_hy_h');
+          hlps.hash_list.observe('listValue.findDrag',function(t,h){
+            fs.A0597630.findDrag(h[t],o);
+          });
+
+          document.addEventListener('mouseup',function(){
+            fs.A0597630.snapBack(o);
+          });
+          document.addEventListener('touchend',function(){
+            fs.A0597630.snapBack(o);
+          });
+         },
+        /* ←— findDrag ————————————————————————————————————————————————————————→ *\
+         | Finds the point being dragged
+         * ←———————————————————————————————————————————————————————————————————→ */
+         findDrag: function(hash_list,o){
+          var vars = vs[o.uniqueId];
+
+          // Initialize
+          if (!Array.isArray(hash_list)) {
+            return;
+          }
+
+          var n = hash_list.length;
+
+          if (vars[n] === undefined) {
+            vars[n] = {};
+          }
+          if (vars[n].hash_list === undefined) {
+            vars[n].hash_list = hash_list;
+            vars.drag_index = -1;
+            return;
+          }
+
+          // If the length of the list has changed,
+          // we're switching polygons, not dragging
+          if (n !== vars.n) {
+            vars.n = n;
+            vars.drag_index = -1;
+            return;
+          }
+
+          var new_drag_index;
+          var i;
+
+          // Find point being dragged
+          for(i = 0; i < n; i += 1) {
+            if (hash_list[i] !== vars[n].hash_list[i]) {
+              new_drag_index = i;
+              break;
+            }
+          }
+          vars[n].hash_list = hash_list;
+
+          // Switch bounding polygon if necessary
+          if (new_drag_index !== vars.drag_index) {
+            o.log('Now dragging vertex '+new_drag_index);
+            o.desmos.setExpression({
+              id:'drag_index',
+              latex:'d='+(new_drag_index+1)
+            });
+            fs.A0597630.setBounds(new_drag_index,n,o);
+            vars.drag_index = new_drag_index;
+          } else {
+            o.log ('Still dragging vertex '+new_drag_index);
+          }
+
+          // constrain point to polygon
+          fs.A0597630.constrain(o);
+         },
+        /* ←— setBounds ———————————————————————————————————————————————————————→ *\
+         | Sets the bounding polygon for a given vertex.
+         * ←———————————————————————————————————————————————————————————————————→ */
+         setBounds: function(new_drag_index,n,o){
+          var vars = vs[o.uniqueId];
+          var hlps = hxs[o.uniqueId];
+
+          var id_next = (new_drag_index + 1) % n;
+          var id_next_next = (new_drag_index + 2) % n;
+          var id_prev = (new_drag_index + n - 1) % n;
+          var id_prev_prev = (new_drag_index + n - 2) % n;
+
+          var xs = hlps.x_h.listValue;
+          var ys = hlps.y_h.listValue;
+
+          var bounds = [];
+
+          var point_next = {x: xs[id_next], y: ys[id_next]};
+          var point_next_next = {x: xs[id_next_next], y: ys[id_next_next]};
+          var point_prev = {x: xs[id_prev], y: ys[id_prev]};
+          var point_prev_prev = {x: xs[id_prev_prev], y: ys[id_prev_prev]};
+
+          bounds.push(hs.lineTwoPoints(point_prev, point_next));
+          bounds.push(hs.lineTwoPoints(point_next_next, point_next));
+          bounds.push(hs.lineTwoPoints(point_prev, point_prev_prev));
+
+          vars.bounds = bounds;
+         },
+        /* ←— snapBack ————————————————————————————————————————————————————————→ *\
+         | Constrains the point being dragged to its bounding polygon constraints.
+         * ←———————————————————————————————————————————————————————————————————→ */
+         snapBack: function(o){
           var vars = vs[o.uniqueId];
           var hlps = hxs[o.uniqueId];
           var cons = cs.A0597630;
 
-          vars.lastDragged = -1;
-          vars.dragging = false;
-          hlps.n = hlps.maker('n');
+          var x_h = Array.from(hlps.x_h.listValue);
+          var y_h = Array.from(hlps.y_h.listValue);
 
-          function initialize(t,h){
-            var n = hlps.n.numericValue || cons.DEFAULT_VERTEX_COUNT;
-            if(Array.isArray(h[t])) {
-              n = h[t].length;
-            }
-            vars[n] = vars[n] || {};
-            vars[n][h.latex] = h[t];
-            h.unobserve(t + '.init');
-           }
+          var point = {
+            x: x_h[vars.drag_index],
+            y: y_h[vars.drag_index]
+          };
 
-          hlps.x_h = hlps.maker('x_h');
-          hlps.y_h = hlps.maker('y_h');
+          var newPoint = hs.polygonConstrain(point, vars.bounds, cons.BUFFER);
 
-          initialize('listValue',hlps.x_h);
-          initialize('listValue',hlps.y_h);
+          x_h[vars.drag_index] = newPoint.x;
+          y_h[vars.drag_index] = newPoint.y;
 
-          hlps.x_h.observe('listValue.init',initialize);
-          hlps.y_h.observe('listValue.init',initialize);
-
-          function drag(t,h){
-            // Record the latest dragged vertex and that it is being dragged
-
-            if (vars[h[t].length] === undefined) {
-              return; // wait until the mode is initialized
-            }
-
-            function findDiff(arr1, arr2){
-              function diffReduce(acc,e,i){
-                if (Math.abs(e - arr2[i]) > cons.EPSILON) {
-                  return i;
-                } else {
-                  return acc;
-                }
-              }
-              return arr1.reduce(diffReduce,-1);
-            }
-
-            var diff = findDiff(h[t], vars[h[t].length][h.latex]);
-
-            if (diff === -1) {
-              o.log("No difference.");
-              return;
-            }
-
-            vars.dragging = true;
-            if (diff !== vars.lastDragged) {
-              vars.lastDragged = diff;
-              o.desmos.setExpression({
-                id:'drag_index',
-                latex:'d='+(diff+1)
-              });
-            }
-           }
-
-          hlps.x_h.observe('listValue.drag',drag);
-          hlps.y_h.observe('listValue.drag',drag);
-
-          hlps.x_V = hlps.maker('x_V');
-          hlps.y_V = hlps.maker('y_V');
-          hlps.x_V.observe('listValue.init',initialize);
-          hlps.y_V.observe('listValue.init',initialize);
-
-          function updateRecord(){
-            if (vars.dragging === false) {
-              // Do not update the record if the user hasn't been dragging
-              o.log("Not dragging; skipping update.");
-              return;
-            } else {
-              o.log("Updating record.");
-              vars.dragging = false;
-              delete vars.constrained;
-            }
-            vars[hlps.n.numericValue].x_h = hlps.x_V.listValue;
-            vars[hlps.n.numericValue].y_h = hlps.y_V.listValue;
-            vars[hlps.n.numericValue].x_V = hlps.x_V.listValue;
-            vars[hlps.n.numericValue].y_V = hlps.y_V.listValue;
-
-            o.desmos.setExpressions([
-            {
-              id:'handles',
-              type:'table',
-              columns: [
+          o.desmos.setExpression({
+            id:'handles',
+            type:'table',
+            columns:[
               {
                 latex:'x_h',
-                values: hlps.x_V.listValue.map(function(e){return ''+e;})
+                values:x_h.map(function(e){return ''+e;})
               },
               {
                 latex: 'y_h',
-                values: hlps.y_V.listValue.map(function(e){return ''+e;}),
+                values: y_h.map(function(e){return ''+e;}),
                 color: '#000000',
                 dragMode: Desmos.DragModes.XY
               }
-              ]
+            ]
+          });
+         },
+        /* ←— constrain ———————————————————————————————————————————————————————→ *\
+         | Constrains the point being dragged to its bounding polygon constraints.
+         * ←———————————————————————————————————————————————————————————————————→ */
+         constrain: function(o){
+          var vars = vs[o.uniqueId];
+          var hlps = hxs[o.uniqueId];
+          var cons = cs.A0597630;
+
+          var point = {
+            x: hlps.x_h.listValue[vars.drag_index],
+            y: hlps.y_h.listValue[vars.drag_index]
+          };
+
+          var newPoint = hs.polygonConstrain(point, vars.bounds, cons.BUFFER);
+
+          if (newPoint.x === point.x && newPoint.y === point.y) {
+            newPoint.x = 'x_h\\left[d\\right]';
+            newPoint.y = 'y_h\\left[d\\right]';
+          }
+
+          o.desmos.setExpressions([
+            {
+              id:'projected_x',
+              latex:'x_d='+newPoint.x
             },
             {
-              id: 'projected_x',
-              latex: 'x_d=x_h\\left[d\\right]'
-            },
-            {
-              id: 'projected_y',
-              latex: 'y_d=y_h\\left[d\\right]'
+              id:'projected_y',
+              latex:'y_d='+newPoint.y
             }
-            ]);
-           }
-
-          // Save automatically every time the user clicks, if they were dragging
-          document.addEventListener('mouseup',function(){
-            setTimeout(updateRecord,100);
-            setTimeout(updateRecord,1000);
-          });
-          document.addEventListener('touchend',function(){
-            setTimeout(updateRecord,100);
-            setTimeout(updateRecord,1000);
-          });
-
-          // Points and boundaries for polygon constraint
-           hlps.dragged_point = hlps.maker('P_d');
-           hlps.projections = [
-            hlps.maker('P_0'),
-            hlps.maker('V_1'),
-            hlps.maker('V_{n1}'),
-            hlps.maker('P_{L0}'),
-            hlps.maker('P_{L1}'),
-            hlps.maker('P_{Ln1}')
-           ];
-
-           hlps.boundaries = [
-            hlps.maker('L_0'),
-            hlps.maker('L_1'),
-            hlps.maker('L_{n1}')
-           ];
-
-          function isFeasible(point) {
-            point = {
-              x: point.listValue[0],
-              y: point.listValue[1],
-              latex: point.latex
-            };
-            return hlps.boundaries.reduce(function(acc,e){
-              var line = {
-                a: e.listValue[0],
-                b: e.listValue[1],
-                c: e.listValue[2]
-              };
-              var distance = hs.distancePointLine(point, line);
-              return (acc && (distance >= -cons.EPSILON));
-            },true);
-           }
-
-          function findClosestFeasible() {
-            if(isFeasible(hlps.dragged_point)) {
-              return hlps.dragged_point;
-            }
-
-            // Dragged point
-            var D = {
-              x: hlps.dragged_point.listValue[0],
-              y: hlps.dragged_point.listValue[1]
-            };
-
-            hlps.projections.sort(function(a,b){
-              var A = {
-                x: a.listValue[0],
-                y: a.listValue[1]
-              };
-              var B = {
-                x: b.listValue[0],
-                y: b.listValue[1]
-              };
-              var d_A = (A.x-D.x)*(A.x-D.x)+(A.y-D.y)*(A.y-D.y);
-              var d_B = (B.x-D.x)*(B.x-D.x)+(B.y-D.y)*(B.y-D.y);
-              return (d_B - d_A);
-            });
-
-            var closest = hlps.dragged_point;
-            hlps.projections.forEach(function(e){
-              if(isFeasible(e)) {
-                closest = e;
-              } else {
-                o.log(e.latex + ' infeasible');
-              }
-            });
-            return closest;
-           }
-
-          function dragConstrain() {
-            var constrained = findClosestFeasible();
-            o.log(constrained.latex);
-            if (constrained !== vars.constrained) {
-              o.desmos.setExpressions([
-              {
-                id: 'projected_x',
-                latex: 'x_d='+constrained.latex+'\\left[1\\right]'
-              },
-              {
-                id: 'projected_y',
-                latex: 'y_d='+constrained.latex+'\\left[2\\right]'
-              }
-              ]);
-              vars.constrained = constrained;
-            }
-           }
-
-          hlps.dragged_point.observe('listValue.drag',dragConstrain);
+          ]);
          }
-       };
-
+        };
       /* ←— OLD A0597630 FUNCTIONS ——————————————————————————————————————————————→ */
         cs.A0597630_bak = {
           MAX_VERTICES:14,
