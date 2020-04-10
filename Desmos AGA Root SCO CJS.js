@@ -2789,12 +2789,12 @@ PearsonGL.External.rootJS = (function() {
             fs.A0597630.findDrag(h[t],o);
           });
 
-          document.addEventListener('mouseup',function(){
+          function dragEnd(){
             fs.A0597630.snapBack(o);
-          });
-          document.addEventListener('touchend',function(){
-            fs.A0597630.snapBack(o);
-          });
+          }
+
+          document.addEventListener('mouseup',dragEnd);
+          document.addEventListener('touchend',dragEnd);
          },
         /* ←— findDrag ————————————————————————————————————————————————————————→ *\
          | Finds the point being dragged
@@ -2812,8 +2812,8 @@ PearsonGL.External.rootJS = (function() {
           if (vars[n] === undefined) {
             vars[n] = {};
           }
-          if (vars[n].hash_list === undefined) {
-            vars[n].hash_list = hash_list;
+          if (vars.hash_list === undefined) {
+            vars.hash_list = hash_list;
             vars.drag_index = -1;
             return;
           }
@@ -2822,6 +2822,7 @@ PearsonGL.External.rootJS = (function() {
           // we're switching polygons, not dragging
           if (n !== vars.n) {
             vars.n = n;
+            vars.hash_list = hash_list;
             vars.drag_index = -1;
             return;
           }
@@ -2831,12 +2832,12 @@ PearsonGL.External.rootJS = (function() {
 
           // Find point being dragged
           for(i = 0; i < n; i += 1) {
-            if (hash_list[i] !== vars[n].hash_list[i]) {
+            if (hash_list[i] !== vars.hash_list[i]) {
               new_drag_index = i;
               break;
             }
           }
-          vars[n].hash_list = hash_list;
+          vars.hash_list = hash_list;
 
           // Switch bounding polygon if necessary
           if (new_drag_index !== vars.drag_index) {
@@ -2909,11 +2910,11 @@ PearsonGL.External.rootJS = (function() {
             columns:[
               {
                 latex:'x_h',
-                values:x_h.map(function(e){return ''+e;})
+                values:x_h.map(function(e){return e.toFixed(10);})
               },
               {
                 latex: 'y_h',
-                values: y_h.map(function(e){return ''+e;}),
+                values: y_h.map(function(e){return e.toFixed(10);}),
                 color: '#000000',
                 dragMode: Desmos.DragModes.XY
               }
@@ -2928,9 +2929,12 @@ PearsonGL.External.rootJS = (function() {
           var hlps = hxs[o.uniqueId];
           var cons = cs.A0597630;
 
+          vars[vars.n].x_V = Array.from(hlps.x_h.listValue);
+          vars[vars.n].y_V = Array.from(hlps.y_h.listValue);
+
           var point = {
-            x: hlps.x_h.listValue[vars.drag_index],
-            y: hlps.y_h.listValue[vars.drag_index]
+            x: vars[vars.n].x_V[vars.drag_index],
+            y: vars[vars.n].y_V[vars.drag_index]
           };
 
           var newPoint = hs.polygonConstrain(point, vars.bounds, cons.BUFFER);
@@ -2939,6 +2943,9 @@ PearsonGL.External.rootJS = (function() {
             newPoint.x = 'x_h\\left[d\\right]';
             newPoint.y = 'y_h\\left[d\\right]';
           }
+
+          vars[vars.n].x_V[vars.dragIndex] = newPoint.x;
+          vars[vars.n].y_V[vars.dragIndex] = newPoint.y;
 
           o.desmos.setExpressions([
             {
@@ -2950,6 +2957,57 @@ PearsonGL.External.rootJS = (function() {
               latex:'y_d='+newPoint.y
             }
           ]);
+         },
+        /* ←— changePolygon ———————————————————————————————————————————————————→ *\
+         | Changes the number of vertices.
+         * ←———————————————————————————————————————————————————————————————————→ */
+         changePolygon: function() {
+          var o = hs.parseArgs(arguments);
+          var vars = vs[o.uniqueId];
+          var cons = cs.A0597630;
+
+          var n = o.value;
+          var delta_theta = 2 * Math.PI / n;
+          var x_h;
+          var y_h;
+          var i;
+
+          if (vars[n] !== undefined) {
+            x_h = vars[n].x_V;
+            y_h = vars[n].y_V;
+          } else {
+            x_h = [];
+            y_h = [];
+
+            for (i=0; i < n; i += 1) {
+              x_h.push(cons.RADIUS * Math.sin(i * delta_theta));
+              y_h.push(cons.RADIUS * Math.cos(i * delta_theta));
+            }
+
+            vars[n] = {
+              x_V: x_h,
+              y_V: y_h
+            };
+
+            console.log('New '+n+'-gon:',vars[n]);
+          }
+
+          o.desmos.setExpression({
+            id:'handles',
+            type:'table',
+            columns:[
+              {
+                latex:'x_h',
+                values:x_h.map(function(e){return e.toFixed(10);})
+              },
+              {
+                latex: 'y_h',
+                values: y_h.map(function(e){return e.toFixed(10);}),
+                color: '#000000',
+                dragMode: Desmos.DragModes.XY
+              }
+            ]
+          });
          }
         };
       /* ←— OLD A0597630 FUNCTIONS ——————————————————————————————————————————————→ */
