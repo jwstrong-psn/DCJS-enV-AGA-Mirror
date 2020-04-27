@@ -2779,6 +2779,7 @@ PearsonGL.External.rootJS = (function() {
 
           var hlps = hxs[o.uniqueId];
           var vars = vs[o.uniqueId];
+          var funs = fs.A0597630;
 
           hlps.x_h = hlps.maker('x_h');
           hlps.y_h = hlps.maker('y_h');
@@ -2787,23 +2788,28 @@ PearsonGL.External.rootJS = (function() {
 
           hlps.hash_list = hlps.maker('x_hy_h');
           hlps.hash_list.observe('listValue.findDrag',function(t,h){
-            fs.A0597630.findDrag(h[t],o);
+            funs.findDrag(h[t],o);
           });
+          
+          // Cleanup in case of refresh
+          document.removeEventListener('mouseup',funs.dragEnd);
+          document.removeEventListener('touchend',funs.dragEnd);
 
-          function dragEnd(){
+          funs.dragEnd = function(){
             if (vars.bounds !== undefined) {
-              fs.A0597630.snapBack(o);
+              funs.snapBack(o);
             }
           }
 
-          document.addEventListener('mouseup',dragEnd);
-          document.addEventListener('touchend',dragEnd);
+          document.addEventListener('mouseup',funs.dragEnd);
+          document.addEventListener('touchend',funs.dragEnd);
          },
         /* ←— findDrag ————————————————————————————————————————————————————————→ *\
          | Finds the point being dragged
          * ←———————————————————————————————————————————————————————————————————→ */
          findDrag: function(hash_list,o){
           var vars = vs[o.uniqueId];
+          var funs = fs.A0597630;
 
           // Initialize
           if (!Array.isArray(hash_list)) {
@@ -2854,14 +2860,14 @@ PearsonGL.External.rootJS = (function() {
               id:'drag_index',
               latex:'d='+(new_drag_index+1)
             });
-            fs.A0597630.setBounds(new_drag_index,n,o);
+            funs.setBounds(new_drag_index,n,o);
             vars.drag_index = new_drag_index;
           } else {
             o.log ('Still dragging vertex '+new_drag_index);
           }
 
           // constrain point to polygon
-          fs.A0597630.constrain(o);
+          funs.constrain(o);
          },
         /* ←— setBounds ———————————————————————————————————————————————————————→ *\
          | Sets the bounding polygon for a given vertex.
@@ -2898,6 +2904,7 @@ PearsonGL.External.rootJS = (function() {
           var vars = vs[o.uniqueId];
           var hlps = hxs[o.uniqueId];
           var cons = cs.A0597630;
+          var funs = fs.A0597630;
 
           if (!Array.isArray(vars.bounds) || vars.bounds.length < 1) {
             return;
@@ -2918,9 +2925,9 @@ PearsonGL.External.rootJS = (function() {
 
           hlps.hash_list.unobserve('listValue.findDrag');
           hlps.hash_list.observe('listValue.startFind',function(t,h){
-            hlps.hash_list.unobserve('listValue.startFind');
-            hlps.hash_list.observe('listValue.findDrag',function(t,h){
-              fs.A0597630.findDrag(h[t],o);
+            h.unobserve(t+'.startFind');
+            h.observe(t+'.findDrag',function(t,h){
+              funs.findDrag(h[t],o);
             });
           });
 
@@ -2964,6 +2971,7 @@ PearsonGL.External.rootJS = (function() {
 
           if (newPoint.x === point.x && newPoint.y === point.y) {
             if (vars.valid === true) {
+              // Vertices are already following handles
               return;
             } else {
               vars.valid = true;
@@ -2993,14 +3001,25 @@ PearsonGL.External.rootJS = (function() {
           var vars = vs[o.uniqueId];
           var hlps = hxs[o.uniqueId];
           var cons = cs.A0597630;
+          var funs = fs.A0597630;
 
-          var n = o.value;
+          // First, save the locations of the current polygon's vertices.
+          var n = hlps.x_V.length;
+          if (vars[n] === undefined) {
+            vars[n] = {};
+          }
+          vars[n].x_V = Array.from(hlps.x_V.listValue);
+          vars[n].y_V = Array.from(hlps.y_V.listValue);
+
+          n = o.value;
           var delta_theta = 2 * Math.PI / n;
           var x_h;
           var y_h;
           var i;
 
-          if (vars[n] !== undefined) {
+          // Pick up saved vertices if possible
+          // otherwise generate new regular polygon.
+          if (vars[n] !== undefined && vars[n].x_V !== undefined) {
             x_h = vars[n].x_V;
             y_h = vars[n].y_V;
           } else {
@@ -3019,30 +3038,45 @@ PearsonGL.External.rootJS = (function() {
           }
 
 
+          // Coordinates will be changing from switching polygons
+          // Don't count the first change as dragging
           hlps.hash_list.unobserve('listValue.findDrag');
           hlps.hash_list.observe('listValue.startFind',function(t,h){
-            hlps.hash_list.unobserve('listValue.startFind');
-            hlps.hash_list.observe('listValue.findDrag',function(t,h){
-              fs.A0597630.findDrag(h[t],o);
+            h.unobserve(t+'.startFind');
+            funs.snapBack(o); // ensure the new coordinates work
+            h.observe(t+'.findDrag',function(t,h){
+              funs.findDrag(h[t],o);
             });
           });
 
-          o.desmos.setExpression({
-            id:'handles',
-            type:'table',
-            columns:[
-              {
-                latex:'x_h',
-                values:x_h.map(function(e){return e.toFixed(10);})
-              },
-              {
-                latex: 'y_h',
-                values: y_h.map(function(e){return e.toFixed(10);}),
-                color: '#000000',
-                dragMode: Desmos.DragModes.XY
-              }
-            ]
-          });
+          // Change handles' coordinates to match loaded/generated polygon
+          // Change "dragged" vertex to match corresponding handle
+          o.desmos.setExpressions([
+            {
+              id:'handles',
+              type:'table',
+              columns:[
+                {
+                  latex:'x_h',
+                  values:x_h.map(function(e){return e.toFixed(10);})
+                },
+                {
+                  latex: 'y_h',
+                  values: y_h.map(function(e){return e.toFixed(10);}),
+                  color: '#000000',
+                  dragMode: Desmos.DragModes.XY
+                }
+              ]
+            },
+            {
+              id:'projected_x',
+              latex:'x_d=x_h\\left[d\\right]'
+            },
+            {
+              id:'projected_y',
+              latex:'y_d=y_h\\left[d\\right]'
+            }
+          ]);
          }
         };
       /* ←— OLD A0597630 FUNCTIONS ——————————————————————————————————————————————→ */
