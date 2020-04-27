@@ -2760,7 +2760,7 @@ PearsonGL.External.rootJS = (function() {
       /* ←— A0597630 FUNCTIONS ——————————————————————————————————————————————→ */
         cs.A0597630 = {
           RADIUS: 5,
-          BUFFER: 0.25,
+          BUFFER: 0.05,
           ANGLE_PRECISION: 2,
           HIDDEN_COLOR: '#000000',
           VERTEX_COLOR: '#000000',
@@ -2778,6 +2778,7 @@ PearsonGL.External.rootJS = (function() {
           o = hs.parseArgs(arguments);
 
           var hlps = hxs[o.uniqueId];
+          var vars = vs[o.uniqueId];
 
           hlps.x_h = hlps.maker('x_h');
           hlps.y_h = hlps.maker('y_h');
@@ -2790,7 +2791,9 @@ PearsonGL.External.rootJS = (function() {
           });
 
           function dragEnd(){
-            fs.A0597630.snapBack(o);
+            if (vars.bounds !== undefined) {
+              fs.A0597630.snapBack(o);
+            }
           }
 
           document.addEventListener('mouseup',dragEnd);
@@ -2837,6 +2840,11 @@ PearsonGL.External.rootJS = (function() {
               break;
             }
           }
+
+          if(new_drag_index === undefined) {
+            return;
+          }
+
           vars.hash_list = hash_list;
 
           // Switch bounding polygon if necessary
@@ -2891,6 +2899,10 @@ PearsonGL.External.rootJS = (function() {
           var hlps = hxs[o.uniqueId];
           var cons = cs.A0597630;
 
+          if (!Array.isArray(vars.bounds) || vars.bounds.length < 1) {
+            return;
+          }
+
           var x_h = Array.from(hlps.x_h.listValue);
           var y_h = Array.from(hlps.y_h.listValue);
 
@@ -2903,6 +2915,14 @@ PearsonGL.External.rootJS = (function() {
 
           x_h[vars.drag_index] = newPoint.x;
           y_h[vars.drag_index] = newPoint.y;
+
+          hlps.hash_list.unobserve('listValue.findDrag');
+          hlps.hash_list.observe('listValue.startFind',function(t,h){
+            hlps.hash_list.unobserve('listValue.startFind');
+            hlps.hash_list.observe('listValue.findDrag',function(t,h){
+              fs.A0597630.findDrag(h[t],o);
+            });
+          });
 
           o.desmos.setExpression({
             id:'handles',
@@ -2939,13 +2959,20 @@ PearsonGL.External.rootJS = (function() {
 
           var newPoint = hs.polygonConstrain(point, vars.bounds, cons.BUFFER);
 
-          if (newPoint.x === point.x && newPoint.y === point.y) {
-            newPoint.x = 'x_h\\left[d\\right]';
-            newPoint.y = 'y_h\\left[d\\right]';
-          }
-
           vars[vars.n].x_V[vars.dragIndex] = newPoint.x;
           vars[vars.n].y_V[vars.dragIndex] = newPoint.y;
+
+          if (newPoint.x === point.x && newPoint.y === point.y) {
+            if (vars.valid === true) {
+              return;
+            } else {
+              vars.valid = true;
+            }
+            newPoint.x = 'x_h\\left[d\\right]';
+            newPoint.y = 'y_h\\left[d\\right]';
+          } else {
+            vars.valid = false;
+          }
 
           o.desmos.setExpressions([
             {
@@ -2964,6 +2991,7 @@ PearsonGL.External.rootJS = (function() {
          changePolygon: function() {
           var o = hs.parseArgs(arguments);
           var vars = vs[o.uniqueId];
+          var hlps = hxs[o.uniqueId];
           var cons = cs.A0597630;
 
           var n = o.value;
@@ -2988,9 +3016,16 @@ PearsonGL.External.rootJS = (function() {
               x_V: x_h,
               y_V: y_h
             };
-
-            console.log('New '+n+'-gon:',vars[n]);
           }
+
+
+          hlps.hash_list.unobserve('listValue.findDrag');
+          hlps.hash_list.observe('listValue.startFind',function(t,h){
+            hlps.hash_list.unobserve('listValue.startFind');
+            hlps.hash_list.observe('listValue.findDrag',function(t,h){
+              fs.A0597630.findDrag(h[t],o);
+            });
+          });
 
           o.desmos.setExpression({
             id:'handles',
