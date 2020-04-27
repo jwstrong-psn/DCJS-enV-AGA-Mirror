@@ -3072,7 +3072,8 @@ PearsonGL.External.rootJS = (function() {
             hlps.n = hlps.maker({latex:'n'});
           }
           o.log(hlps);
-          var cons = cs.A0597630;
+          var cons = cs.A0597630_bak;
+          var funs = fs.A0597630_bak;
 
           var i;
           var j;
@@ -3093,7 +3094,7 @@ PearsonGL.External.rootJS = (function() {
           // Initialize Vertices
            if (hlps.n.numericValue === undefined) {
             o.log('n not yet initialized; delaying initialization by '+cs.delay.SET_EXPRESSION+'ms');
-            setTimeout(function(){fs.A0597630.init(o);},cs.delay.SET_EXPRESSION);
+            setTimeout(function(){funs.init(o);},cs.delay.SET_EXPRESSION);
             return;
            }
 
@@ -3101,7 +3102,7 @@ PearsonGL.External.rootJS = (function() {
            n = vars.n;
            
            function loopFunc() {
-            fs.A0597630.init(o);
+            funs.init(o);
            }
 
            for(i=1;i<=cons.MAX_VERTICES;i+=1) {
@@ -3130,7 +3131,7 @@ PearsonGL.External.rootJS = (function() {
            vars.polygonABC_angles = {A:60,B:60,C:60};
            function changeFunc(varName,i){
             return function(){
-              fs.A0597630.coordinateChanged({
+              funs.coordinateChanged({
                 name:hs.sub(varName,i),
                 value:vars[varName+'_'+i].numericValue,
                 desmos:o.desmos,
@@ -3186,7 +3187,7 @@ PearsonGL.External.rootJS = (function() {
             },{id:'product',latex:'180\\left('+n+'-2\\right)'}]);
 
           hlps.n.observe('numericValue.switchingPolygon',function(){
-            fs.A0597630.switchPolygon({
+            funs.switchPolygon({
               name:'n',
               value:hlps.n.numericValue,
               desmos:o.desmos,
@@ -3196,8 +3197,8 @@ PearsonGL.External.rootJS = (function() {
           });
 
           // prepare to clear placeholders
-          document.addEventListener('mouseup',function(){fs.A0597630.clearPlaceholder(o);});
-          document.addEventListener('touchend',function(){fs.A0597630.clearPlaceholder(o);});
+          document.addEventListener('mouseup',function(){funs.clearPlaceholder(o);});
+          document.addEventListener('touchend',function(){funs.clearPlaceholder(o);});
         
           o.log("Observers initialized:",vars);
 
@@ -3230,7 +3231,7 @@ PearsonGL.External.rootJS = (function() {
           o.log('Adding placeholder '+hs.ALPHA[i]);
 
           vars.placeholder = i;
-          var cons = cs.A0597630;
+          var cons = cs.A0597630_bak;
 
           // make the placeholder visible, and the dragged vertex invisible
           o.desmos.setExpression({id:'placeholder_vertex',hidden:false,showLabel:true,label:hs.ALPHA[i],dragMode:Desmos.DragModes.NONE});
@@ -3239,15 +3240,15 @@ PearsonGL.External.rootJS = (function() {
           // Attach the angle label to the placeholder
           o.desmos.setExpression({
             id:'m_'+hs.ALPHA[i],
-            latex:cs.A0597630.LABEL_TEMPLATE.replace(new RegExp('U','g'),hs.sub('',0)).replace(new RegExp('Z','g'),hs.sub('',i%n+1)).replace(new RegExp('W','g'),'P').replace(new RegExp('Q','g'),hs.ALPHA[(i+n-2)%n+1]).replace(new RegExp('S','g'),hs.ALPHA[i%n+1]).replace(new RegExp('P_\\{label','g'),hs.ALPHA[i]+'_{label')
+            latex:cons.LABEL_TEMPLATE.replace(new RegExp('U','g'),hs.sub('',0)).replace(new RegExp('Z','g'),hs.sub('',i%n+1)).replace(new RegExp('W','g'),'P').replace(new RegExp('Q','g'),hs.ALPHA[(i+n-2)%n+1]).replace(new RegExp('S','g'),hs.ALPHA[i%n+1]).replace(new RegExp('P_\\{label','g'),hs.ALPHA[i]+'_{label')
           });
           o.desmos.setExpression({
             id:'m_'+hs.ALPHA[(i+n-2)%n+1],
-            latex:cs.A0597630.LABEL_TEMPLATE.replace(new RegExp('U','g'),hs.sub('',((i+n-2)%n+1))).replace(new RegExp('Z','g'),hs.sub('',0)).replace(new RegExp('W','g'),hs.ALPHA[(i+n-2)%n+1]).replace(new RegExp('Q','g'),'P').replace(new RegExp('S','g'),hs.ALPHA[(i+n-3)%n+1]).replace(new RegExp('P_\\{label','g'),hs.ALPHA[(i+n-2)%n+1]+'_{label')
+            latex:cons.LABEL_TEMPLATE.replace(new RegExp('U','g'),hs.sub('',((i+n-2)%n+1))).replace(new RegExp('Z','g'),hs.sub('',0)).replace(new RegExp('W','g'),hs.ALPHA[(i+n-2)%n+1]).replace(new RegExp('Q','g'),'P').replace(new RegExp('S','g'),hs.ALPHA[(i+n-3)%n+1]).replace(new RegExp('P_\\{label','g'),hs.ALPHA[(i+n-2)%n+1]+'_{label')
           });
           o.desmos.setExpression({
             id:'m_'+hs.ALPHA[i%n+1],
-            latex:cs.A0597630.LABEL_TEMPLATE.replace(new RegExp('U','g'),hs.sub('',i%n+1)).replace(new RegExp('Z','g'),hs.sub('',(i+1)%n+1)).replace(new RegExp('W','g'),hs.ALPHA[i%n+1]).replace(new RegExp('Q','g'),hs.ALPHA[(i+1)%n+1]).replace(new RegExp('S','g'),'P').replace(new RegExp('P_\\{label','g'),hs.ALPHA[i%n+1]+'_{label')
+            latex:cons.LABEL_TEMPLATE.replace(new RegExp('U','g'),hs.sub('',i%n+1)).replace(new RegExp('Z','g'),hs.sub('',(i+1)%n+1)).replace(new RegExp('W','g'),hs.ALPHA[i%n+1]).replace(new RegExp('Q','g'),hs.ALPHA[(i+1)%n+1]).replace(new RegExp('S','g'),'P').replace(new RegExp('P_\\{label','g'),hs.ALPHA[i%n+1]+'_{label')
           });
 
           // Attach the vertex to its edges and diagonals
@@ -3299,7 +3300,7 @@ PearsonGL.External.rootJS = (function() {
           var o = hs.parseArgs(arguments);
           var vars = vs[o.uniqueId];
           var hlps = hxs[o.uniqueId];
-          var cons = cs.A0597630;
+          var cons = cs.A0597630_bak;
           var i = vars.placeholder;
           var n = vars.n;
 
@@ -3320,15 +3321,15 @@ PearsonGL.External.rootJS = (function() {
           // Detach the angle label from the placeholder
           o.desmos.setExpression({
               id:'m_'+hs.ALPHA[i],
-              latex:cs.A0597630.LABEL_TEMPLATE.replace(new RegExp('U','g'),hs.sub('',i)).replace(new RegExp('Z','g'),hs.sub('',i%n+1)).replace(new RegExp('W','g'),hs.ALPHA[i]).replace(new RegExp('Q','g'),hs.ALPHA[(i+n-2)%n+1]).replace(new RegExp('S','g'),hs.ALPHA[i%n+1])
+              latex:cons.LABEL_TEMPLATE.replace(new RegExp('U','g'),hs.sub('',i)).replace(new RegExp('Z','g'),hs.sub('',i%n+1)).replace(new RegExp('W','g'),hs.ALPHA[i]).replace(new RegExp('Q','g'),hs.ALPHA[(i+n-2)%n+1]).replace(new RegExp('S','g'),hs.ALPHA[i%n+1])
           });
           o.desmos.setExpression({
             id:'m_'+hs.ALPHA[(i+n-2)%n+1],
-            latex:cs.A0597630.LABEL_TEMPLATE.replace(new RegExp('U','g'),hs.sub('',((i+n-2)%n+1))).replace(new RegExp('Z','g'),hs.sub('',i)).replace(new RegExp('W','g'),hs.ALPHA[(i+n-2)%n+1]).replace(new RegExp('Q','g'),hs.ALPHA[i]).replace(new RegExp('S','g'),hs.ALPHA[(i+n-3)%n+1]).replace(new RegExp('P_\\{label','g'),hs.ALPHA[(i+n-2)%n+1]+'_{label')
+            latex:cons.LABEL_TEMPLATE.replace(new RegExp('U','g'),hs.sub('',((i+n-2)%n+1))).replace(new RegExp('Z','g'),hs.sub('',i)).replace(new RegExp('W','g'),hs.ALPHA[(i+n-2)%n+1]).replace(new RegExp('Q','g'),hs.ALPHA[i]).replace(new RegExp('S','g'),hs.ALPHA[(i+n-3)%n+1]).replace(new RegExp('P_\\{label','g'),hs.ALPHA[(i+n-2)%n+1]+'_{label')
           });
           o.desmos.setExpression({
             id:'m_'+hs.ALPHA[i%n+1],
-            latex:cs.A0597630.LABEL_TEMPLATE.replace(new RegExp('U','g'),hs.sub('',i%n+1)).replace(new RegExp('Z','g'),hs.sub('',(i+1)%n+1)).replace(new RegExp('W','g'),hs.ALPHA[i%n+1]).replace(new RegExp('Q','g'),hs.ALPHA[(i+1)%n+1]).replace(new RegExp('S','g'),hs.ALPHA[i]).replace(new RegExp('P_\\{label','g'),hs.ALPHA[i%n+1]+'_{label')
+            latex:cons.LABEL_TEMPLATE.replace(new RegExp('U','g'),hs.sub('',i%n+1)).replace(new RegExp('Z','g'),hs.sub('',(i+1)%n+1)).replace(new RegExp('W','g'),hs.ALPHA[i%n+1]).replace(new RegExp('Q','g'),hs.ALPHA[(i+1)%n+1]).replace(new RegExp('S','g'),hs.ALPHA[i]).replace(new RegExp('P_\\{label','g'),hs.ALPHA[i%n+1]+'_{label')
           });
 
           hlps.correctionBuffer = window.setTimeout(function(){vars.belayCorrection = false;},cs.delay.SET_EXPRESSION);
@@ -3384,7 +3385,8 @@ PearsonGL.External.rootJS = (function() {
          coordinateChanged: function(){
           var o = hs.parseArgs(arguments);
           var vars = vs[o.uniqueId];
-          var cons = cs.A0597630;
+          var cons = cs.A0597630_bak;
+          var funs = fs.A0597630_bak;
           if (vars.belayCorrection === true) {
             o.log('Belaying order to correct '+o.name);
             return;
@@ -3398,7 +3400,7 @@ PearsonGL.External.rootJS = (function() {
             vars.lastDragged = i;
 
             // First, put the last dragged vertex back.
-            fs.A0597630.clearPlaceholder(o);
+            funs.clearPlaceholder(o);
 
             // Now create a list of all the new boundaries
             vars.dragBoundaries = [];
@@ -3460,9 +3462,9 @@ PearsonGL.External.rootJS = (function() {
             },{id:'product',latex:'180\\left('+n+'-2\\right)'}]);
 
           if (constrained === newPoint) {
-            fs.A0597630.clearPlaceholder(o);
+            funs.clearPlaceholder(o);
           } else {
-            fs.A0597630.setPlaceholder(o,i);
+            funs.setPlaceholder(o,i);
           }
          },
         /* ←— switchPolygon ———————————————————————————————————————————————————→ *\
@@ -3474,13 +3476,14 @@ PearsonGL.External.rootJS = (function() {
           var o = hs.parseArgs(arguments);
           var vars = vs[o.uniqueId];
           var hlps = hxs[o.uniqueId];
-          var cons = cs.A0597630;
+          var cons = cs.A0597630_bak;
+          var funs = fs.A0597630_bak;
           vars.belayCorrection = true;
 
           var i;
           var j;
 
-          fs.A0597630.clearPlaceholder(o);
+          funs.clearPlaceholder(o);
 
           var prevn = vars.n;
           var n = o.value;
@@ -3499,7 +3502,7 @@ PearsonGL.External.rootJS = (function() {
            });
            exprs.push({
             id:'m_A',
-            latex:cs.A0597630.LABEL_TEMPLATE.replace(new RegExp('U','g'),hs.sub('',1)).replace(new RegExp('Z','g'),hs.sub('',2)).replace(new RegExp('W','g'),'A').replace(new RegExp('Q','g'),hs.ALPHA[n]).replace(new RegExp('S','g'),'B')
+            latex:cons.LABEL_TEMPLATE.replace(new RegExp('U','g'),hs.sub('',1)).replace(new RegExp('Z','g'),hs.sub('',2)).replace(new RegExp('W','g'),'A').replace(new RegExp('Q','g'),hs.ALPHA[n]).replace(new RegExp('S','g'),'B')
            });
 
           // Delete extra vertices
@@ -3531,11 +3534,11 @@ PearsonGL.External.rootJS = (function() {
               id:'segment_'+hs.ALPHA[i]+hs.ALPHA[i%n+1],
               hidden:false
             });
-            o.log(cs.A0597630.LABEL_TEMPLATE.replace(new RegExp('U','g'),hs.sub('',i)).replace(new RegExp('Z','g'),hs.sub('',i%n+1)).replace(new RegExp('W','g'),hs.ALPHA[i]).replace(new RegExp('Q','g'),hs.ALPHA[(i+n-2)%n+1]).replace(new RegExp('S','g'),hs.ALPHA[i%n+1]));
+            o.log(cons.LABEL_TEMPLATE.replace(new RegExp('U','g'),hs.sub('',i)).replace(new RegExp('Z','g'),hs.sub('',i%n+1)).replace(new RegExp('W','g'),hs.ALPHA[i]).replace(new RegExp('Q','g'),hs.ALPHA[(i+n-2)%n+1]).replace(new RegExp('S','g'),hs.ALPHA[i%n+1]));
             exprs.push({
               id:'m_'+hs.ALPHA[i],
               showLabel:true,
-              latex:cs.A0597630.LABEL_TEMPLATE.replace(new RegExp('U','g'),hs.sub('',i)).replace(new RegExp('Z','g'),hs.sub('',i%n+1)).replace(new RegExp('W','g'),hs.ALPHA[i]).replace(new RegExp('Q','g'),hs.ALPHA[(i+n-2)%n+1]).replace(new RegExp('S','g'),hs.ALPHA[i%n+1])
+              latex:cons.LABEL_TEMPLATE.replace(new RegExp('U','g'),hs.sub('',i)).replace(new RegExp('Z','g'),hs.sub('',i%n+1)).replace(new RegExp('W','g'),hs.ALPHA[i]).replace(new RegExp('Q','g'),hs.ALPHA[(i+n-2)%n+1]).replace(new RegExp('S','g'),hs.ALPHA[i%n+1])
             });
            }
 
