@@ -2780,6 +2780,10 @@ PearsonGL.External.rootJS = (function() {
           var hlps = hxs[o.uniqueId];
           var vars = vs[o.uniqueId];
           var funs = fs.A0597630;
+          
+          // Cleanup in case of refresh
+          document.removeEventListener('mouseup',funs.dragEnd);
+          document.removeEventListener('touchend',funs.dragEnd);
 
           hlps.x_h = hlps.maker('x_h');
           hlps.y_h = hlps.maker('y_h');
@@ -2790,16 +2794,12 @@ PearsonGL.External.rootJS = (function() {
           hlps.hash_list.observe('listValue.findDrag',function(t,h){
             funs.findDrag(h[t],o);
           });
-          
-          // Cleanup in case of refresh
-          document.removeEventListener('mouseup',funs.dragEnd);
-          document.removeEventListener('touchend',funs.dragEnd);
 
           funs.dragEnd = function(){
             if (vars.bounds !== undefined) {
               funs.snapBack(o);
             }
-          }
+          };
 
           document.addEventListener('mouseup',funs.dragEnd);
           document.addEventListener('touchend',funs.dragEnd);
@@ -3004,7 +3004,7 @@ PearsonGL.External.rootJS = (function() {
           var funs = fs.A0597630;
 
           // First, save the locations of the current polygon's vertices.
-          var n = hlps.x_V.length;
+          var n = hlps.x_V.listValue.length;
           if (vars[n] === undefined) {
             vars[n] = {};
           }
@@ -3019,7 +3019,7 @@ PearsonGL.External.rootJS = (function() {
 
           // Pick up saved vertices if possible
           // otherwise generate new regular polygon.
-          if (vars[n] !== undefined && vars[n].x_V !== undefined) {
+          if (false && vars[n] !== undefined && vars[n].x_V !== undefined) {
             x_h = vars[n].x_V;
             y_h = vars[n].y_V;
           } else {
@@ -3043,7 +3043,7 @@ PearsonGL.External.rootJS = (function() {
           hlps.hash_list.unobserve('listValue.findDrag');
           hlps.hash_list.observe('listValue.startFind',function(t,h){
             h.unobserve(t+'.startFind');
-            funs.snapBack(o); // ensure the new coordinates work
+            // funs.snapBack(o); // ensure the new coordinates work
             h.observe(t+'.findDrag',function(t,h){
               funs.findDrag(h[t],o);
             });
