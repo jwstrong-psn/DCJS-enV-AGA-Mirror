@@ -2765,7 +2765,8 @@ PearsonGL.External.rootJS = (function() {
           HIDDEN_COLOR: '#000000',
           VERTEX_COLOR: '#000000',
           DEFAULT_VERTEX_COUNT: 5,
-          EPSILON: 0.0001
+          EPSILON: 0.0001,
+          RESET_TIMEOUT: 200
          };
         fs.A0597630 = {
         /* ←— init ————————————————————————————————————————————————————————————→ *\
@@ -2780,6 +2781,7 @@ PearsonGL.External.rootJS = (function() {
           var hlps = hxs[o.uniqueId];
           var vars = vs[o.uniqueId];
           var funs = fs.A0597630;
+          var cons = cs.A0597630;
           
           // Cleanup in case of refresh
           document.removeEventListener('mouseup',funs.dragEnd);
@@ -2794,6 +2796,14 @@ PearsonGL.External.rootJS = (function() {
           hlps.hash_list.observe('listValue.findDrag',function(t,h){
             funs.findDrag(h[t],o);
           });
+
+          // Reset bug workaround
+          funs.reset = function(){
+            o.reset = true;
+            o.value = hlps.hash_list.listValue.length;
+            funs.changePolygon(o);
+          };
+          setTimeout(funs.reset, cons.RESET_TIMEOUT);
 
           funs.dragEnd = function(){
             if (vars.bounds !== undefined) {
@@ -3019,7 +3029,7 @@ PearsonGL.External.rootJS = (function() {
 
           // Pick up saved vertices if possible
           // otherwise generate new regular polygon.
-          if (false && vars[n] !== undefined && vars[n].x_V !== undefined) {
+          if (!o.reset && vars[n] !== undefined && vars[n].x_V !== undefined) {
             x_h = vars[n].x_V;
             y_h = vars[n].y_V;
           } else {
