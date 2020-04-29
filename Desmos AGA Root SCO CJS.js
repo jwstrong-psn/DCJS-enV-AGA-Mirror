@@ -3085,8 +3085,14 @@ PearsonGL.External.rootJS = (function() {
             {
               id:'projected_y',
               latex:'y_d=y_h\\left[d\\right]'
+            },
+            {
+              id:'drag_index',
+              latex:'d=1'
             }
           ]);
+          vars.drag_index = 0;
+          funs.setBounds(0, n, o);
          }
         };
       /* ←— OLD A0597630 FUNCTIONS ——————————————————————————————————————————————→ */
