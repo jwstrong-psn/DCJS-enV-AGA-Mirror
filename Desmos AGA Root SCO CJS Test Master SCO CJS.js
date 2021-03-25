@@ -1252,11 +1252,11 @@ PearsonGL.External.masterJS = (function() {
         },
         {
           id:'6',
-          color:(val >= 0 ? "#0092C8" : "#F15A22")
+          color:(val >= 0 ? "#2D70B3" : "#C74440")
         },
         {
           id:'7',
-          color:(val > 0 ? "#F15A22" : "#0092C8")
+          color:(val > 0 ? "#C74440" : "#2D70B3")
         }])
        }
      };

@@ -11,9 +11,9 @@
     var cs = {
       color:{
         agaColors:{ // Colors for AGA
-          blue: '#0092C8',
-          red: '#F15A22',
-          green: '#0AB14B',
+          blue: '#2D70B3',
+          red: '#C74440',
+          green: '#388646',
           teal: '#36C1CD',
           orange: '#EFA038',
           lime: '#95CA59',

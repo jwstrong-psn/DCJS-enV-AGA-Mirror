@@ -134,9 +134,9 @@ PearsonGL.External.rootJS = (function() {
     var cs = {
       color:{
         agaColors:{ // Colors for AGA
-          blue: '#0092C8',
-          red: '#F15A22',
-          green: '#0AB14B',
+          blue: '#2D70B3',
+          red: '#C74440',
+          green: '#388646',
           teal: '#36C1CD',
           orange: '#EFA038',
           lime: '#95CA59',
@@ -1344,7 +1344,7 @@ PearsonGL.External.rootJS = (function() {
             {id:"tickSideBRight",hidden:lt3},
             {id:"midpointB",hidden:lt3},
             // Step 4: show circumcenter
-            {id:"pointCircumcenter",hidden:(gt1&&lt4),color:((lt5)?"#F15A22":"#000000")}
+            {id:"pointCircumcenter",hidden:(gt1&&lt4),color:((lt5)?"#C74440":"#000000")}
             // Step 5: show circumcircle
           ];
 
@@ -1354,7 +1354,7 @@ PearsonGL.External.rootJS = (function() {
             exprs.push(
               {id:'rightAngleA',latex:
                 '\\left(M_{xabc}\\left[1\\right]+n_{animate}I_{nv}\\left[1\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{yabc}\\left[1\\right]-\\left[1,t\\right]\\theta_{xabc}\\left[1\\right]\\right),M_{yabc}\\left[1\\right]-n_{animate}I_{nv}\\left[1\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{xabc}\\left[1\\right]+\\left[1,t\\right]\\theta_{yabc}\\left[1\\right]\\right)\\right)'
-              }, {id:'bisectorA',color:'#F15A22',latex:
+              }, {id:'bisectorA',color:'#C74440',latex:
                 '\\left(\\left(M_{xabc}\\left[1\\right]-t_{ick}I_{nv}\\left[1\\right]\\theta_{yabc}\\left[1\\right]\\right)\\left(1-tn_{animate}\\right)+\\left(U_x+t_{ick}I_{nv}\\left[1\\right]\\theta_{yabc}\\left[1\\right]\\right)tn_{animate},\\left(M_{yabc}\\left[1\\right]+t_{ick}I_{nv}\\left[1\\right]\\theta_{xabc}\\left[1\\right]\\right)\\left(1-tn_{animate}\\right)+\\left(U_y-t_{ick}I_{nv}\\left[1\\right]\\theta_{xabc}\\left[1\\right]\\right)tn_{animate}\\right)'
               }
             );
@@ -1377,7 +1377,7 @@ PearsonGL.External.rootJS = (function() {
               exprs.push(
                 {id:'rightAngleB',latex:
                   '\\left(M_{xabc}\\left[2\\right]+n_{animate}I_{nv}\\left[2\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{yabc}\\left[2\\right]-\\left[1,t\\right]\\theta_{xabc}\\left[2\\right]\\right),M_{yabc}\\left[2\\right]-n_{animate}I_{nv}\\left[2\\right]t_{ick}\\left(\\left[t,1\\right]\\theta_{xabc}\\left[2\\right]+\\left[1,t\\right]\\theta_{yabc}\\left[2\\right]\\right)\\right)'
-                }, {id:'bisectorB',color:'#F15A22',latex:
+                }, {id:'bisectorB',color:'#C74440',latex:
                   '\\left(\\left(M_{xabc}\\left[2\\right]-t_{ick}I_{nv}\\left[2\\right]\\theta_{yabc}\\left[2\\right]\\right)\\left(1-tn_{animate}\\right)+\\left(U_x+t_{ick}I_{nv}\\left[2\\right]\\theta_{yabc}\\left[2\\right]\\right)tn_{animate},\\left(M_{yabc}\\left[2\\right]+t_{ick}I_{nv}\\left[2\\right]\\theta_{xabc}\\left[2\\right]\\right)\\left(1-tn_{animate}\\right)+\\left(U_y-t_{ick}I_{nv}\\left[2\\right]\\theta_{xabc}\\left[2\\right]\\right)tn_{animate}\\right)'
                 }
               );
@@ -1394,7 +1394,7 @@ PearsonGL.External.rootJS = (function() {
 
           if(o.value === 5) {
             exprs.push(
-              {id:'circumCircle',color:'#F15A22',style:cs.keyword.lineType.SOLID,latex:
+              {id:'circumCircle',color:'#C74440',style:cs.keyword.lineType.SOLID,latex:
               'P\\left(R,\\operatorname{sign}\\left(y_C-U_y\\right)\\arccos\\left(\\frac{x_C-U_x}{R}\\right)+2\\pi tn_{animate},U_x,U_y\\right)'},
               {id:'traceRadius',latex:
               'P\\left(tR,\\operatorname{sign}\\left(y_C-U_y\\right)\\arccos\\left(\\frac{x_C-U_x}{R}\\right)+2\\pi n_{animate},U_x,U_y\\right)'}
@@ -1406,7 +1406,7 @@ PearsonGL.External.rootJS = (function() {
             } else if(lt4) {
               exprs.push({id:'circumCircle',latex:'1'});
             } else if(!lt5) {
-              exprs.push({id:'circumCircle',color:'#F15A22',style:cs.keyword.lineType.SOLID,latex:'\\left(x-U_x\\right)^2+\\left(y-U_y\\right)^2=R^2'});
+              exprs.push({id:'circumCircle',color:'#C74440',style:cs.keyword.lineType.SOLID,latex:'\\left(x-U_x\\right)^2+\\left(y-U_y\\right)^2=R^2'});
             }
           }
 
@@ -1438,7 +1438,7 @@ PearsonGL.External.rootJS = (function() {
 
           // incenter
           if ((o.value>4)||(o.value === 1)) {exprs.push({id:'pointIncenter',hidden:false,color:'#000000'});}
-          else if (o.value === 4) {exprs.push({id:'pointIncenter',hidden:false,color:'#F15A22'});}
+          else if (o.value === 4) {exprs.push({id:'pointIncenter',hidden:false,color:'#C74440'});}
           else {exprs.push({id:'pointIncenter',hidden:true});}
 
           // incircle
@@ -1450,7 +1450,7 @@ PearsonGL.External.rootJS = (function() {
             );
           } else if (o.value === 6) {
             exprs.push(
-              {id:'inCircle',color:'#F15A22',style:cs.keyword.lineType.SOLID,latex:
+              {id:'inCircle',color:'#C74440',style:cs.keyword.lineType.SOLID,latex:
                 'P\\left(R,\\arccos\\left(\\theta_{xabc}\\left[3\\right]\\right)\\operatorname{sign}\\left(\\theta_{yabc}\\left[3\\right]\\right)+I_{nv}\\frac{\\pi}{2}+2\\pi tn_{animation},U_x,U_y\\right)'
               }
             );
@@ -1475,7 +1475,7 @@ PearsonGL.External.rootJS = (function() {
                 '\\left(\\left\\{R>2t_{ick}\\right\\}U_x-I_{nv}\\left(R-t_{ick}\\right)\\theta_{yabc}\\left[3\\right]+tt_{ick}\\theta_{xabc}\\left[3\\right],U_y+I_{nv}\\left(R-t_{ick}\\right)\\theta_{xabc}\\left[3\\right]+tt_{ick}\\theta_{yabc}\\left[3\\right]\\right)'
               });
             if (o.value === 6) {exprs.push(
-              {id:'pointTangents',color:'#F15A22',hidden:false,latex:
+              {id:'pointTangents',color:'#C74440',hidden:false,latex:
                 'P\\left(I_{nv}R,\\theta_{abc}\\left[3\\right]+\\arccos 0,U_x,U_y\\right)'
               },{id:'radii',style:cs.keyword.lineType.DASHED,latex:
                 'P\\left(I_{nv}Rt,\\theta_{abc}\\left[3\\right]+\\arccos 0,U_x,U_y\\right)'
@@ -1499,14 +1499,14 @@ PearsonGL.External.rootJS = (function() {
             {id:'bisectorB',latex:'1'}
             );
           } else if (o.value === 2) {exprs.push(
-            {id:'bisectorA',color:'#F15A22',latex:
+            {id:'bisectorA',color:'#C74440',latex:
               '\\left(x_A+\\left(2-n_{animation}\\right)t\\frac{U_x-x_A}{r_{CAB}\\left[2\\right]}t_{ick}+tn_{animation}\\left(U_x-x_A\\right),y_A+\\left(2-n_{animation}\\right)t\\frac{U_y-y_A}{r_{CAB}\\left[2\\right]}t_{ick}+tn_{animation}\\left(U_y-y_A\\right)\\right)'
             },{id:'bisectorB',latex:'1'});
           } else if (o.value<=4) {
             exprs.push({id:'bisectorA',color:'#000000',latex:
               '\\left(x_A+t\\frac{U_x-x_A}{r_{CAB}\\left[2\\right]}\\left(t_{ick}+r_{CAB}\\left[2\\right]\\right),y_A+t\\frac{U_y-y_A}{r_{CAB}\\left[2\\right]}\\left(t_{ick}+r_{CAB}\\left[2\\right]\\right)\\right)'});
             if (o.value === 3) {exprs.push(
-              {id:'bisectorB',color:'#F15A22',latex:
+              {id:'bisectorB',color:'#C74440',latex:
                 '\\left(x_B+\\left(2-n_{animation}\\right)t\\frac{U_x-x_B}{r_{CAB}\\left[3\\right]}t_{ick}+tn_{animation}\\left(U_x-x_B\\right),y_B+\\left(2-n_{animation}\\right)t\\frac{U_y-y_B}{r_{CAB}\\left[3\\right]}t_{ick}+tn_{animation}\\left(U_y-y_B\\right)\\right)'
               });
             } else {exprs.push(
@@ -2106,7 +2106,7 @@ PearsonGL.External.rootJS = (function() {
                 meanNetPerGame.push(currentMeanNet);
               }
               //send the last point to Desmos.
-               o.desmos.setExpression({id: '600', latex: '(' + n + ', '+ meanNetPerGame[n-1] +')', color: '#0092C8', showLabel:'true', hidden:false});
+               o.desmos.setExpression({id: '600', latex: '(' + n + ', '+ meanNetPerGame[n-1] +')', color: '#2D70B3', showLabel:'true', hidden:false});
               /*————————————————————————————————————————————————-
               Generate a string for a xvalues  from 1 to n. for the
               in the table to be sent to  Desmos.- this index was the problem before!
@@ -2118,7 +2118,7 @@ PearsonGL.External.rootJS = (function() {
               o.desmos.setExpression({id: '601', type: 'table',
                 columns:[
                 {latex:'x',values: xMeanNet},
-                {latex:'y',values: meanNetPerGame,color:'#0092C8', columnMode:
+                {latex:'y',values: meanNetPerGame,color:'#2D70B3', columnMode:
                 Desmos.ColumnModes.LINES, hidden:false}
                 ]
               });
