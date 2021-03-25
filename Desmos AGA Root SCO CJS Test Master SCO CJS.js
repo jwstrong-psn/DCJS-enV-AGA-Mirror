@@ -1,11 +1,11 @@
 /******************************************************************************
 * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! NOTICE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! *
-* !!!!!!!!!! This file is managed through the DCJS/envision-aga !!!!!!!!!!!!! *
-* !!!!!!!!!!  repository on BitBucket. Changes made directly in !!!!!!!!!!!!! *
+* !!!!!!!!!! This file is managed through the envision-aga      !!!!!!!!!!!!! *
+* !!!!!!!!!!  repository on Github. Changes made directly in    !!!!!!!!!!!!! *
 * !!!!!!!!!!  DCAT will be overwritten periodically when new    !!!!!!!!!!!!! *
 * !!!!!!!!!!  versions are pushed.                              !!!!!!!!!!!!! *
-* !!!!!!!!!! If you need access to the BitBucket repository,    !!!!!!!!!!!!! *
-* !!!!!!!!!!  please contact: joseph.strong@pearson.com         !!!!!!!!!!!!! *
+* !!!!!!!!!! If you need access to the Github repository,       !!!!!!!!!!!!! *
+* !!!!!!!!!!  please contact: joseph.strong@savvas.com          !!!!!!!!!!!!! *
 * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! *
 ******************************************************************************/
 
