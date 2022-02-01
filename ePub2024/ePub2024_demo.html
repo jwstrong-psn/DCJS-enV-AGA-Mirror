@@ -58,7 +58,49 @@
     });
   </script>
   <p>This is the entirety of the HTML for the page above:</p>
-  <div id="source"><pre class="source"></pre></div>
+  <div id="source"><pre class="source">&lt;!DOCTYPE html>
+&lt;html>
+&lt;head>
+  &lt;link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+  &lt;meta charset="utf-8">
+  &lt;meta name="viewport" content="width=device-width">
+  &lt;title>Grade 6 Topic 4 Lesson 2 Example 3&lt;/title>
+  &lt;script src="./calculator.js">&lt;/script>
+  &lt;style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+    }
+  &lt;/style>
+&lt;/head>
+&lt;body>
+  &lt;div class="calculator" id="graph01">&lt;/div>
+  &lt;div class="calculator" id="graph02">&lt;/div>
+  &lt;script>
+    var filename='./G6_T4_L2_Ex3.json';
+
+    fetch(filename)
+    .then(function (response) {
+      return response.json();
+    })
+    .then(function (data) {
+      console.log(data);
+      var embeds = document.querySelectorAll(".calculator");
+      embeds.forEach(function (graph) {
+        var info = data[graph.id];
+        console.log(info);
+        Object.assign(graph.style, info.style);
+        var calculator = Desmos.GraphingCalculator(graph, info.options);
+        calculator.setState(info.state);
+      });
+    })
+    .catch(function (err) {
+      console.log('error: ' + err);
+    });
+  &lt;/script>
+&lt;/body>
+&lt;/html></pre></div>
   <div class="explanation">
     <p>This demo consists of exactly 3 files:</p>
     <ul>
