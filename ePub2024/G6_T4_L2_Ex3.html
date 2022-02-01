@@ -6,24 +6,30 @@
   <script>
     var filename='./G6_T4_L2_Ex3.json';
 
-    fetch(filename)
-    .then(function (response) {
-      return response.json();
-    })
-    .then(function (data) {
-      console.log(data);
-      var embeds = document.querySelectorAll(".calculator");
-      embeds.forEach(function (graph) {
-        var info = data[graph.id];
-        console.log(info);
-        Object.assign(graph.style, info.style);
-        var calculator = Desmos.GraphingCalculator(graph, info.options);
-        calculator.setState(info.state);
+    function loadGraphs() {
+      fetch(filename)
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (data) {
+        var embeds = document.querySelectorAll(".calculator");
+        embeds.forEach(function (graph) {
+          var info = data[graph.id];
+          Object.assign(graph.style, info.style);
+          var calculator = Desmos.GraphingCalculator(graph, info.options);
+          calculator.setState(info.state);
+        });
+      })
+      .catch(function (err) {
+        console.log('error: ' + err);
       });
-    })
-    .catch(function (err) {
-      console.log('error: ' + err);
-    });
+    }
+
+    if (window.addEventListener)
+        window.addEventListener("load", loadGraphs, false);
+    else if (window.attachEvent)
+        window.attachEvent("onload", loadGraphs);
+    else window.onload = loadGraphs;
   </script>
 </head>
 <body>
