@@ -2,7 +2,7 @@
     "graph01": {
         "style": {
             "width": "475px",
-            "height": "450px"
+            "height": "350px"
         },
         "options": {
             "keypad": false,
@@ -38,8 +38,8 @@
     },
     "graph02": {
         "style": {
-            "width": "415px",
-            "height": "450px"
+            "width": "250px",
+            "height": "250px"
         },
         "options": {
             "keypad": false,
