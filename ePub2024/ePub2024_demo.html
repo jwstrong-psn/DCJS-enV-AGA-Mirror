@@ -26,10 +26,15 @@
     .explanation {
       width: 550px;
     }
+    code {
+      background-color: lightgrey;
+      color: blue;
+    }
   </style>
 </head>
 <body>
-  <div class="calculator" id="graph01">Loading...</div>
+  <div class="calculator" id="graph01"></div>
+  <div class="calculator" id="graph02"></div>
   <script>
     var filename='./G6_T4_L2_Ex3.json';
 
@@ -57,9 +62,9 @@
   <div class="explanation">
     <p>This demo consists of exactly 3 files:</p>
     <ul>
-      <li>The calculator API (2.6 MB, <a href="./calculator.js">here</a>), which can be packaged in the ePub's root directory.</li>
-      <li>A JSON file containing the graph data (<1 KB, <a href="./G6_T4_L2_Ex3.json">here</a>), currenctly one file per graph, but with slight modifications, could include all graphs for the page, lesson, topic, or book. Could also be copied directly into the HTML of the page.</li>
-      <li>This HTML page (<1 KB, raw version without this explanation <a href="./G6_T4_L2_Ex3.html">here</a>), which could be embedded in an iFrame or be copied directly into the HTML of the page. 100% boilerplate except for the filename of the graph and the dimensions of the frame.</li>
+      <li>The Desmos API (2.6 MB, <a href="./calculator.js">here</a>), which can be packaged in the ePub's root directory.</li>
+      <li>A JSON file containing the graph data (Less than 4 KB, <a href="./G6_T4_L2_Ex3.json">here</a>), contains all graphs for the page (or lesson, topic, book, etc.). Could also be copied directly into the HTML of the page.</li>
+      <li>This HTML page (Less than 4 KB, raw version without this explanation <a href="./G6_T4_L2_Ex3.html">here</a>), which could be embedded in an iFrame or be copied directly into the HTML of the page. 100% boilerplate except for where to put each graph. The only thing you need to modify for each graph is the <code>id</code>, and where to put the <code>&lt;div></code>. All other info, including CSS for the graph, is encapsulated in the JSON file above.</li>
     </ul>
   </div>
 </body>
