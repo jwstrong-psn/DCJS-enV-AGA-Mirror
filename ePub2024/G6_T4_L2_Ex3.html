@@ -12,8 +12,8 @@
         return response.json();
       })
       .then(function (data) {
-        var embeds = document.querySelectorAll(".calculator");
-        embeds.forEach(function (graph) {
+        var graphs = document.querySelectorAll(".calculator");
+        graphs.forEach(function (graph) {
           var info = data[graph.id];
           Object.assign(graph.style, info.style);
           var calculator = Desmos.GraphingCalculator(graph, info.options);
