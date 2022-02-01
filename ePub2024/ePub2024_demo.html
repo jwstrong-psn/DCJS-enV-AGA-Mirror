@@ -17,16 +17,18 @@
       height:450px;
     }
     .source {
-      width: 500px;
+      width: 550px;
       border: 4px;
       border-style: ridge;
+      background-color: #f8f8f8;
     }
     .explanation {
       width: 550px;
     }
     code {
-      background-color: lightgrey;
-      color: blue;
+      background-color: #ffeeee;
+      color: #ee0000;
+      padding: 2px;
     }
   </style>
 </head>
@@ -36,23 +38,23 @@
     <p>The demo shown in the iframe above consists of exactly three files:</p>
     <ul>
       <li><p>
-        The Desmos API (2.6 MB, <a href="./calculator.js">here</a>), which can be packaged in the ePub's root directory.
+        The Desmos API (2.6 MB, <a href="./calculator.js">here</a>), which can be packaged in the ePub’s root directory.
       </p></li>
       <li><p>
-        The HTML for the lesson page, presented in its entirety below. The header is entirely boilerplate except for the file paths for the API and the JSON file containing the graphs. The body is whatever you want. If you want to place a Desmos graph, just add another <code>&lt;div></code> with <code>class="calculator"</code> and the name of the graph as its <code>id</code>. That's it.
-        <pre class="source" id="html">Loading...</pre>
+        The HTML for the lesson page, presented in its entirety below. The header is entirely boilerplate except for the file paths for the API and the JSON file containing the graphs. The body is whatever you want. If you want to place a Desmos graph, just add another <code>&lt;div></code> with <code>class="calculator"</code> and the name of the graph as its <code>id</code>. That’s it.
+        <pre class="source" id="html"></pre>
         You can add even more accessibility features such as alternate descriptions using <code>aria</code> attributes, just as you can with any other HTML element.
       </p></li>
       <li><p>
-        The JSON file containing the graphs, presented in its entirety below. The graph itself is contained in the <code>"state"</code> object. Any CSS you want for the graph's container (such as dimensions and border styling) can be included in the <code>"style"</code> section. The <code>"options"</code> section can be used to customize the Desmos interface using the options given in the <a href="https://www.desmos.com/api/v1.6/docs/index.html#document-calculator">Desmos API documentation</a>.
-        <pre class="source" id="json">Loading...</pre>
-        The <code>"state"</code> object may look a bit scary, but it can be trivially extracted from any Desmos graph either using <a href="https://jwstrong-psn.github.io/DCJS-enV-AGA-Mirror/WIDGET.html">my authoring tool</a>, or simply making the graph on <a href="https://www.desmos.com/calculator">desmos.com/calculator</a> and typing the following command into your browser's console: <code>copy(Calc.getState())</code>
+        The JSON file containing the graphs, presented in its entirety below. The graph itself is contained in the <code>"state"</code> object. Any CSS you want for the graph’s container (such as dimensions and border styling) can be included in the <code>"style"</code> section. The <code>"options"</code> section can be used to customize the Desmos interface using the options given in the <a href="https://www.desmos.com/api/v1.6/docs/index.html#document-calculator">Desmos API documentation</a>.
+        <pre class="source" id="json"></pre>
+        The <code>"state"</code> object may look a bit scary, but it can be trivially extracted from any Desmos graph either using <a href="https://jwstrong-psn.github.io/DCJS-enV-AGA-Mirror/WIDGET.html">my authoring tool</a>, or simply making the graph on <a href="https://www.desmos.com/calculator">desmos.com/calculator</a> and typing the following command into your browser’s console: <code>copy(Calc.getState())</code>
       </p></li>
     </ul>
-    If you're feeling particularly sadistic, you can cram everything into a single file. (<a href="./ePub2024_demo_single.html">example</a>)
+    If you’re feeling particularly sadistic, you can cram everything into a single file. (<a href="./ePub2024_demo_single.html">example</a>)
   </div>
   <script>
-    fetch('./G6_T4_L2_Ex3.html')
+    fetch("./G6_T4_L2_Ex3.html")
     .then(function (response) {
       return response.text();
     })
@@ -60,11 +62,11 @@
       document.querySelector("#html").innerText = data;
     })
     .catch(function (err) {
-      console.log('error: ' + err);
+      console.log("error: " + err);
       document.querySelector("#html").innerText = "error loading HTML";
     });
 
-    fetch('./G6_T4_L2_Ex3.json')
+    fetch("./G6_T4_L2_Ex3.json")
     .then(function (response) {
       return response.text();
     })
@@ -72,7 +74,7 @@
       document.querySelector("#json").innerText = data;
     })
     .catch(function (err) {
-      console.log('error: ' + err);
+      console.log("error: " + err);
       document.querySelector("#json").innerText = "error loading JSON";
     });
   </script>
