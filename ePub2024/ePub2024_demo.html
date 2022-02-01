@@ -12,11 +12,7 @@
       width: 100%;
       height: 100%;
     }
-    #calculator {
-      width: 550px;
-      height: 450px;
-    }
-    pre {
+    .source {
       width: 550px;
       border: 4px;
       border-style: ridge;
@@ -31,71 +27,46 @@
   </style>
 </head>
 <body>
-  <div class="calculator" id="graph01"></div>
-  <div class="calculator" id="graph02"></div>
-  <script>
-    var filename='./G6_T4_L2_Ex3.json';
-
-    fetch(filename)
-    .then(function (response) {
-      return response.json();
-    })
-    .then(function (data) {
-      console.log(data);
-      var embeds = document.querySelectorAll(".calculator");
-      embeds.forEach(function (graph) {
-        var info = data[graph.id];
-        console.log(info);
-        Object.assign(graph.style, info.style);
-        var calculator = Desmos.GraphingCalculator(graph, info.options);
-        calculator.setState(info.state);
-      });
-    })
-    .catch(function (err) {
-      console.log('error: ' + err);
-    });
-  </script>
-  <p>This is the entirety of the HTML for the page above:</p>
-  <div id="source"><pre class="source">&lt;!DOCTYPE html>
-&lt;html>
-&lt;head>
-  &lt;title>Grade 6 Topic 4 Lesson 2 Example 3&lt;/title>
-  &lt;script src="./calculator.js">&lt;/script>
-  &lt;script>
-    <code>var filename='./G6_T4_L2_Ex3.json';</code>
-
-    fetch(filename)
-    .then(function (response) {
-      return response.json();
-    })
-    .then(function (data) {
-      console.log(data);
-      var embeds = document.querySelectorAll(".calculator");
-      embeds.forEach(function (graph) {
-        var info = data[graph.id];
-        console.log(info);
-        Object.assign(graph.style, info.style);
-        var calculator = Desmos.GraphingCalculator(graph, info.options);
-        calculator.setState(info.state);
-      });
-    })
-    .catch(function (err) {
-      console.log('error: ' + err);
-    });
-  &lt;/script>
-&lt;/head>
-&lt;body>
-  <code>&lt;div class="calculator" id="graph01">&lt;/div></code>
-  <code>&lt;div class="calculator" id="graph02">&lt;/div></code>
-&lt;/body>
-&lt;/html></pre></div>
+  <iframe src="./G6_T4_L2_Ex3.html"></iframe>
   <div class="explanation">
-    <p>This demo consists of exactly 3 files:</p>
+    <p>This demo consists of exactly three files:</p>
     <ul>
       <li>The Desmos API (2.6 MB, <a href="./calculator.js">here</a>), which can be packaged in the ePub's root directory.</li>
-      <li>A JSON file containing the graph data (Less than 4 KB, <a href="./G6_T4_L2_Ex3.json">here</a>), contains all graphs for the page (or lesson, topic, book, etc.). Could also be copied directly into the HTML of the page.</li>
-      <li>This HTML page (Less than 4 KB, raw version without this explanation <a href="./G6_T4_L2_Ex3.html">here</a>), which could be embedded in an iFrame or be copied directly into the HTML of the page. 100% boilerplate except for the highlighted lines. All info about the graph, including CSS for the container, is encapsulated in the JSON file above.</li>
+      <li>The HTML for the lesson page, copied in its entirety below:
+        <br>
+        <pre class="source" id="html"></pre>
+      </li>
+      <li>The JSON file containing the graphs, copied in its entirety below:
+        <br>
+        <pre class="source" id="json"></pre>
+      </li>
     </ul>
+    If you're feeling particularly sadistic, you can cram everything into a single file. (<a href="./ePub2024_demo_single.html">example</a>)
   </div>
+  <script>
+    fetch('./G6_T4_L2_Ex3.html')
+    .then(function (response) {
+      return response.text();
+    })
+    .then(function (data) {
+      document.querySelector("#html").innerHTML = data;
+    })
+    .catch(function (err) {
+      console.log('error: ' + err);
+      document.querySelector("#html").innerHTML = "error loading HTML";
+    });
+
+    fetch('./G6_T4_L2_Ex3.json')
+    .then(function (response) {
+      return response.text();
+    })
+    .then(function (data) {
+      document.querySelector("#json").innerHTML = data;
+    })
+    .catch(function (err) {
+      console.log('error: ' + err);
+      document.querySelector("#json").innerHTML = "error loading JSON";
+    });
+  </script>
 </body>
 </html>
