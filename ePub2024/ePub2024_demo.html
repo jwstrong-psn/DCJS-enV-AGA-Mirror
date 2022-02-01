@@ -34,11 +34,11 @@
       <li>The Desmos API (2.6 MB, <a href="./calculator.js">here</a>), which can be packaged in the ePub's root directory.</li>
       <li>The HTML for the lesson page, copied in its entirety below:
         <br>
-        <pre class="source" id="html"></pre>
+        <pre class="source" id="html">Loading...</pre>
       </li>
       <li>The JSON file containing the graphs, copied in its entirety below:
         <br>
-        <pre class="source" id="json"></pre>
+        <pre class="source" id="json">Loading...</pre>
       </li>
     </ul>
     If you're feeling particularly sadistic, you can cram everything into a single file. (<a href="./ePub2024_demo_single.html">example</a>)
@@ -49,11 +49,11 @@
       return response.text();
     })
     .then(function (data) {
-      document.querySelector("#html").innerHTML = data;
+      document.querySelector("#html").innerText = data;
     })
     .catch(function (err) {
       console.log('error: ' + err);
-      document.querySelector("#html").innerHTML = "error loading HTML";
+      document.querySelector("#html").innerText = "error loading HTML";
     });
 
     fetch('./G6_T4_L2_Ex3.json')
@@ -61,11 +61,11 @@
       return response.text();
     })
     .then(function (data) {
-      document.querySelector("#json").innerHTML = data;
+      document.querySelector("#json").innerText = data;
     })
     .catch(function (err) {
       console.log('error: ' + err);
-      document.querySelector("#json").innerHTML = "error loading JSON";
+      document.querySelector("#json").innerText = "error loading JSON";
     });
   </script>
 </body>
