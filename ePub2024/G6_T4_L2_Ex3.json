@@ -1,37 +1,39 @@
 {
-    "style": {
-        "width": "475px",
-        "height": "450px"
-    },
-    "options": {
-        "keypad": false,
-        "lockViewport": true
-    },
-    "state": {
-        "version": 8,
-        "graph": {
-            "viewport": {
-                "xmin": -10,
-                "ymin": -9.63855421686747,
-                "xmax": 10,
-                "ymax": 9.63855421686747
-            },
-            "xAxisArrowMode": "BOTH",
-            "yAxisArrowMode": "BOTH",
-            "xAxisLabel": "x",
-            "yAxisLabel": "y",
-            "degreeMode": true
+    "graph01": {
+        "style": {
+            "width": "475px",
+            "height": "450px"
         },
-        "randomSeed": "a015e82f186f9ab77ab888936250a43f",
-        "expressions": {
-            "list": [
-                {
-                    "type": "expression",
-                    "id": "1",
-                    "color": "#0072bc",
-                    "latex": "y=x^{2}-3"
-                }
-            ]
+        "options": {
+            "keypad": false,
+            "lockViewport": true
+        },
+        "state": {
+            "version": 8,
+            "graph": {
+                "viewport": {
+                    "xmin": -10,
+                    "ymin": -9.63855421686747,
+                    "xmax": 10,
+                    "ymax": 9.63855421686747
+                },
+                "xAxisArrowMode": "BOTH",
+                "yAxisArrowMode": "BOTH",
+                "xAxisLabel": "x",
+                "yAxisLabel": "y",
+                "degreeMode": true
+            },
+            "randomSeed": "a015e82f186f9ab77ab888936250a43f",
+            "expressions": {
+                "list": [
+                    {
+                        "type": "expression",
+                        "id": "1",
+                        "color": "#0072bc",
+                        "latex": "y=x^{2}-3"
+                    }
+                ]
+            }
         }
     }
 }
