@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Grade 6 Topic 4 Lesson 2 Example 3</title>
+  <script src="./calculator.js"></script>
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+    }
+    #calculator {
+      width: 550px;
+      height: 450px;
+    }
+    pre {
+      width: 550px;
+      height: 450px;
+      border: 4px;
+      border-style: ridge;
+      overflow: scroll;
+    }
+    .explanation {
+      width: 550px;
+    }
+  </style>
+</head>
+<body>
+  <div id="calculator"></div>
+  <script>
+    var filename='./G6_T4_L2_Ex3.json';
+
+    fetch(filename)
+    .then(function (response) {
+      return response.json();
+    })
+    .then(function (data) {
+      var embeds = document.querySelectorAll(".calculator");
+      embeds.forEach(function (graph) {
+        var info = data[graph.id];
+        Object.assign(graph.style, info.style);
+        var calculator = Desmos.GraphingCalculator(graph, info.options);
+        calculator.setState(info.state);
+      });
+    })
+    .catch(function (err) {
+      console.log('error: ' + err);
+    });
+  </script>
+  <p>This is the entirety of the HTML for the page above:</p>
+  <div id="source"><pre class="source"></pre></div>
+  <div class="explanation">
+    <p>This demo consists of exactly 3 files:</p>
+    <ul>
+      <li>The calculator API (2.6 MB, <a href="./calculator.js">here</a>), which can be packaged in the ePub's root directory.</li>
+      <li>A JSON file containing the graph data (<1 KB, <a href="./G6_T4_L2_Ex3.json">here</a>), currenctly one file per graph, but with slight modifications, could include all graphs for the page, lesson, topic, or book. Could also be copied directly into the HTML of the page.</li>
+      <li>This HTML page (<1 KB, raw version without this explanation <a href="./G6_T4_L2_Ex3.html">here</a>), which could be embedded in an iFrame or be copied directly into the HTML of the page. 100% boilerplate except for the filename of the graph and the dimensions of the frame.</li>
+    </ul>
+  </div>
+</body>
+</html>
