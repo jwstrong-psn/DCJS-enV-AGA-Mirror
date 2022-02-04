@@ -1252,12 +1252,12 @@ PearsonGL.External.masterJS = (function() {
         },
         {
           id:'6',
-          color:(val >= 0 ? "#0072bc" : "#da2128")
+          color:(val >= 0 ? "#2D70B3" : "#C74440")
         },
         {
           id:'7',
-          color:(val > 0 ? "#da2128" : "#0072bc")
-        }])
+          color:(val > 0 ? "#C74440" : "#2D70B3")
+        }]);
        }
      };
 
@@ -1296,8 +1296,301 @@ PearsonGL.External.masterJS = (function() {
       }
       return new PearsonGL.Parameters.Parameter(x,"single","string");
      };
+
+        // reducedFractionDenoms(max_denominator, include_1, include_0);
+
+    hs = {
+      /* ←— factorize(n) (memoized) ———————————————————————————————————————→ *\
+       ↑ Converts a number into a catalog of prime factors and their          |
+       |  multiplicities.                                                     |
+       |                                                                      |
+       | @arg0: number ≥ 1                                                    |
+       |                                                                      |
+       | @Returns: catalog of the form {f1:m1,f2:m2,...}                      ↓
+       * ←—————————————————————————————————————————————————————————————————→ */
+      factorize: (function(){
+        var catalog = {};
+       return function(n) {
+        if (n < 1) {
+          throw new Error('Cannot factor numbers less than 1');
+        }
+        if (n % 1 !== 0) {
+          throw new Error('Cannot factor non-integer values');
+        }
+
+        if (catalog[n]) {
+         return mergeObjects({},catalog[n]);
+        }
+
+        var factorList = hs.getPrimes(2,n);
+        var factorization = {};
+        var k;
+        var multiplicity;
+        factorList.forEach(function(prime){
+          k = n;
+          multiplicity = 0;
+          while (k > 1 && k % prime === 0) {
+            multiplicity += 1;
+            k /= prime;
+          }
+          if(multiplicity > 0) {
+            factorization[prime] = multiplicity;
+          }
+        });
+
+        catalog[n] = factorization;
+
+        return mergeObjects({},factorization);
+        };
+       }()),
+      /* ←— divisors(n) (memoized) ————————————————————————————————————————→ *\
+       ↑ Converts a number into a catalog of prime factors and their          |
+       |  multiplicities.                                                     |
+       |                                                                      |
+       | @arg0: number n ≥ 1                                                    |
+       |                                                                      |
+       | @Returns: array of divisors, sorted from 1 to n                      ↓
+       * ←—————————————————————————————————————————————————————————————————→ */
+      divisors: (function() {
+        var catalog = {};
+
+       return function(n) {
+
+        if(!catalog[n]) {
+          catalog[n] = hs.powerSet(hs.factorize(n)).sort(function(a,b){return (a-b);});
+        }
+
+        return catalog[n].slice();
+        };
+       }()),
+      /* ←— getPrimes(min,max) (memoized) —————————————————————————————————→ *\
+       ↑ Returns a list of prime numbers between min and max, inclusive       ↑
+       |                                                                      |
+       |                                                                      |
+       | @arg0: Lower bound on prime numbers—defaults to 2                    |
+       | @arg1: Upper bound on prime numbers—defaults to the maximum found    |
+       |                                                                      |
+       |                                                                      |
+       | @Returns: array of values, in order                                  ↓
+       * ←—————————————————————————————————————————————————————————————————→ */
+      getPrimes: (function(){
+        //  Composites is an object so as to allow indexing by number,
+        //  and is not an array, because length would be misleading
+        var composites = {};
+        mergeObjects(composites,{
+          toArray: function() {
+            return objKeys(composites).filter(function(key) {
+              return composites[key] === true;
+            });
+          },
+          toString: function() {
+            return composites.toArray().toString();
+          },
+          length: function() {
+            // Subtract 3 for these 3 functions
+            return objKeys(composites).length-3;
+          }
+        });
+        var primes = [2];
+        var lastChecked = 2;
+        var lastMax = 2;
+        var hardMax = 3; // product of all known primes plus 1. Credit Euclid.
+
+        function sieve(min,max) {
+          var i;
+          var prime;
+          var composite;
+          debugLog('Sieving from '+min+' to '+max+' with primes '+primes+' over composites '+composites);
+          for(i = 0; i < primes.length; i += 1) {
+
+            prime = primes[i];
+            
+            for(composite = (1+Math.floor(min/prime))*prime; composite <= max; composite += prime) {
+              composites[composite] = true;
+            }
+          }
+        }
+
+        function advance() {
+          var j;
+          var max;
+          while (lastChecked <= hardMax) {
+            // keep checking the sieve until you find one
+            while(lastChecked < lastMax) {
+              lastChecked += 1;
+              if (!(composites[lastChecked])) {
+                
+                primes.push(lastChecked);
+
+                hardMax = (hardMax - 1) * lastChecked + 1;
+
+                // Add this new prime to the sieve.
+                for (j = lastChecked*2; j <= lastMax; j += lastChecked) {
+                  composites[j] = true;
+                }
+
+                return(lastChecked);
+              }
+            }
+            // increase max by another reasonable interval, e.g. the largest known prime
+            max = lastMax + primes[primes.length-1];
+            sieve(lastMax,max);
+            lastMax = max;
+          }
+
+          throw new Error("For some reason can't find the next prime number after "+primes[primes.length-1]+", despite looking all the way up to "+max+" = 2×3×5×…×"+primes[primes.length-1]);
+        }
+
+        return function(min,max) {
+          min = min || 2;
+          max = max || lastChecked;
+          while(lastChecked < max) {
+            advance();
+          }
+          return primes.filter(function(p){return (p <= max && p >= min);});
+        };
+       }()),
+      /* ←— powerSet ——————————————————————————————————————————————————————→ *\
+       ↑ Returns a list of all products, given a catalog of factors and       ↑
+       |  multiplicities.                                                     |
+       |                                                                      |
+       | @arg0: catalog of the form {f1:m1,f2:m2,...}                         |
+       |                                                                      |
+       | @Returns: array of products, in no particular order                  ↓
+       * ←—————————————————————————————————————————————————————————————————→ */
+      powerSet: function powerSet(factorization) {
+        factorization = mergeObjects({},factorization);
+        var factorList = objKeys(factorization);
+
+        var factor;
+        var mult; //-iplicity
+
+        // Clear factors with multiplicity 0
+        while (!mult) {
+          // If there are no remaining factors, then 1 is the loneliest
+          if(factorList.length === 0) {
+            debugLog('No more factors');
+            return [1];
+          }
+          factor = Number(factorList.shift());
+          mult = factorization[factor];
+          delete factorization[factor];
+          debugLog('Choosing factor '+factor+':'+mult);
+        }
+
+        // Start with the products of everything else
+        var products = powerSet(factorization);
+
+        // Multiply this factor by each product
+        products.forEach(function(product){
+          var multiplier = factor;
+          var i;
+          for(i = 1; i <= mult; i += 1) {
+            products.push(product*multiplier);
+            multiplier *= factor;
+          }
+        });
+        debugLog(products);
+        return products;
+       },
+
+      /* ←— gcf ———————————————————————————————————————————————————————————→ *\
+       ↑ Finds the greatest common factor of two numbers                      |
+       |                                                                      |
+       | @arg0 {number}                                                       |
+       | @arg1 {number}                                                       |
+       | @Returns: greatest common factor of the two inputs (1 if rel.prime)  ↓
+       * ←—————————————————————————————————————————————————————————————————→ */
+       gcf: function(a,b){
+        if(a === b || a === 1) {
+          return a;
+        } else if (b === 1) {
+          return b;
+        }
+        var divisors_a = hs.divisors(a);
+        var divisors_b = hs.divisors(b);
+        var gcf = 1;
+
+        var i = 0;
+        var j = 0;
+
+        while(i < divisors_a.length) {
+          while(j < divisors_b.length && divisors_b[j] < divisors_a[i]) {
+            j += 1;
+          }
+
+          if(j < divisors_b.length && divisors_b[j] === divisors_a[i]) {
+            gcf = divisors_b[j];
+          }
+
+          i += 1;
+        }
+
+        return gcf;
+       }
+     };
+    // Gets a list of denominators for reduced fractions.
+    // Optionaly includes 1 (as 1/1) and/or 0 (as 0/1).
+    exports.reducedFractionDenominators = function(max_denom, include_1, include_0) {
+      max_denom = max_denom.value;
+      include_1 = include_1.value;
+      include_0 = include_0.value;
+
+      var denoms = [];
+
+      if (include_1) {
+        denoms.push(1);
+      }
+
+      if (include_0) {
+        denoms.push(1);
+      }
+
+      var denom;
+      var num;
+      for (denom = 2; denom <= max_denom; denom +=1) {
+        for (num = 1; num < denom; num += 1) {
+        if (hs.gcf(num, denom) === 1) {
+            denoms.push(denom);
+          }
+        }
+      }
+      return new PearsonGL.Parameters.Parameter(denoms, "ordered", "integer");
+     };
+
+    // reducedFractionNums(max_denominator, include_1, include_0);
+    // Gets a list of denominators for reduced fractions.
+    // Optionaly includes 1 (as 1/1) and/or 0 (as 0/1).
+    exports.reducedFractionNumerators = function(max_denom, include_1, include_0) {
+      max_denom = max_denom.value;
+      include_1 = include_1.value;
+      include_0 = include_0.value;
+
+      var nums = [];
+
+      if (include_0) {
+        nums.push(0);
+      }
+
+      if (include_1) {
+        nums.push(1);
+      }
+
+      var denom;
+      var num;
+      for (denom = 2; denom <= max_denom; denom +=1) {
+        for (num = 1; num < denom; num += 1) {
+        if (hs.gcf(num, denom) === 1) {
+            nums.push(num);
+          }
+        }
+      }
+      
+      return new PearsonGL.Parameters.Parameter(nums, "ordered", "integer");
+     };
   
   mergeObjects(exports,flattenFuncStruct(ts));
 
+  console.log("Master CJS loaded");
   return exports;
 }());
