@@ -847,7 +847,7 @@
           alert('Failed to load state. Please input a valid Calculator or Geometry Tool state as output by the tool\'s \'getState()\' command.\n\nHint: A Calculator state will contain \"expressions\" and a Geometry Tool state will contain \"objects\".');
           return;
         }
-      };
+      }
       $("#load").click(loadFromInput);
 
       $("#stateInput").keyup(function(e){
@@ -855,14 +855,17 @@
       });
 
       $("#saveConstructors").click(function(){
-        var currentConstructors = ((toolType == 'geometry') ? currentGeoConstructors : currentCalcConstructors);
-        var conString = '';
-        for (option in currentConstructors) {
-          if (currentConstructors[option] === true && option != "administerSecretFolders") {
-            if (conString.length > 0) conString += ', ';
-            conString += option;
-          }
-        }
+        var currentConstructors = Object.assign({},
+          ((toolType == 'geometry') ? currentGeoConstructors : currentCalcConstructors));
+        delete currentConstructors.administerSecretFolders;
+        var conString = JSON.stringify(currentConstructors);
+        // var conString = '';
+        // for (option in currentConstructors) {
+        //   if (currentConstructors[option] === true && option != "administerSecretFolders") {
+        //     if (conString.length > 0) conString += ', ';
+        //     conString += option;
+        //   }
+        // }
         var field = $('#constructorInput')[0];
         field.value = conString;
         field.focus()
@@ -877,8 +880,12 @@
         }
       });
       $("#onlyConstructors").click(function(){
-        var input = $("#constructorInput")[0].value;
-        var expr = 'only('+input+')';
+        var input = JSON.parse($("#constructorInput")[0].value);
+        Object.keys(input).forEach(function(key){
+          if(input[key] === false) delete input[key];
+          if(input[key] === "colors") delete input[key];
+        });
+        var expr = 'only('+JSON.stringify(Object.keys(input)).replaceAll('[','').replaceAll(']','').replaceAll('"','').replaceAll(',',', ')+')';
         try {
           eval(expr);
           $("#constructorInput")[0].value = '';
@@ -888,8 +895,12 @@
         }
       });
       $("#changeConstructors").click(function(){
-        var input = $("#constructorInput")[0].value;
-        var expr = 'rebuild('+input+')';
+        var input = JSON.parse($("#constructorInput")[0].value);
+        Object.keys(input).forEach(function(key){
+          if(input[key] === false) delete input[key];
+          if(input[key] === "colors") delete input[key];
+        });
+        var expr = 'rebuild('+JSON.stringify(Object.keys(input)).replaceAll('[','').replaceAll(']','').replaceAll('"','').replaceAll(',',', ')+')';
         try {
           eval(expr);
           $("#constructorInput")[0].value = '';
