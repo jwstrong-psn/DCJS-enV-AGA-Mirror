@@ -26,9 +26,9 @@
       height: 100%;
     }
     #calculator {
-      width: 550px;
-      height: 450px;
-    });
+      width: 752px;
+      height: 650px;
+    }
   </style>
 </head>
 <body>
@@ -119,12 +119,14 @@
           </tr>
           <tr>
             <td style="vertical-align:top">
+              <button type="button" id="w752" style="width:3em;">IRE</button><br>
               <button type="button" id="w280" style="width:3em;">1/3</button><br>
               <button type="button" id="w415" style="width:3em;">50%</button><br>
               <button type="button" id="w550" style="width:3em;">2/3</button><br>
               <button type="button" id="w860" style="width:3em;">Full</button>
             </td>
             <td style="vertical-align:top">
+              <button type="button" id="h650" style="width:3em;">IRE</button><br>
               <button type="button" id="h350" style="width:3em;">350</button><br>
               <button type="button" id="h400" style="width:3em;">400</button><br>
               <button type="button" id="h475" style="width:3em;">475</button><br>
@@ -987,6 +989,10 @@
         $('#desWidth')[0].value=550;
         $('#desWidth').trigger('change');
       });
+      $("#w752").click(function(){
+        $('#desWidth')[0].value=752;
+        $('#desWidth').trigger('change');
+      });
       $("#w860").click(function(){
         $('#desWidth')[0].value=860;
         $('#desWidth').trigger('change');
@@ -1001,6 +1007,10 @@
       });
       $("#h475").click(function(){
         $('#desHeight')[0].value=475;
+        $('#desHeight').trigger('change');
+      });
+      $("#h650").click(function(){
+        $('#desHeight')[0].value=650;
         $('#desHeight').trigger('change');
       });
       var $frame = $('#frame');
@@ -1192,8 +1202,8 @@
       var geoConstructorsSansTools = null;
       var calcPrevState = null;
       var geoPrevState = null;
-      var desWidth = 550;
-      var desHeight = 475;
+      var desWidth = 752;
+      var desHeight = 650;
       var workingState = null;
       var autoSaveQueued = false;
       window.queuedSave = null;
@@ -1525,8 +1535,8 @@
                 geoDefaultState = null;
                 calcPrevState = null;
                 geoPrevState = null;
-                desWidth = 550;
-                desHeight = 475;
+                desWidth = 752;
+                desHeight = 650;
                 $elt.remove();
                 window.calculator.destroy();
                 delete window.Calc;
@@ -1909,10 +1919,12 @@
             if (Math.abs(280-wAdj)<15) {wAdj=280; tail+=' (1/3 Column)';}
             else if (Math.abs(415-wAdj)<15) {wAdj=415; tail+=' (50% Column)';}
             else if (Math.abs(550-wAdj)<15) {wAdj=550; tail+=' (2/3 Column)';}
+            else if (Math.abs(752-wAdj)<15) {wAdj=752; tail+=' (IRE Default)';}
             else if (Math.abs(860-wAdj)<15) {wAdj=860; tail+=' (Full Column)';}
             if (Math.abs(475-hAdj)<15) {hAdj=475; tail+=' (Height 1)';}
             else if (Math.abs(400-hAdj)<15) {hAdj=400; tail+=' (Height 2)';}
             else if (Math.abs(350-hAdj)<15) {hAdj=350; tail+=' (Height 3)';}
+            else if (Math.abs(650-hAdj)<15) {hAdj=650; tail+=' (IRE Default)';}
             if(toolType === 'geometry' && currentGeoConstructors && !currentGeoConstructors.sidebar) {
               if(w > 550) {
                 w = wAdj + 300;
