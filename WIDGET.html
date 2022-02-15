@@ -919,10 +919,11 @@
         var hAdj = +$('#desHeight')[0].value;
 
         if(toolType === 'geometry' && currentGeoConstructors && !currentGeoConstructors.sidebar) {
-          if(wAdj > 550 - 280) {
-            wAdj += 280;
+          if(wAdj > 550 - 300) {
+            wAdj += 300;
           } else {
-            hAdj += 58;
+            if(hAdj > 315) hAdj /= 0.6;
+            else hAdj += 210;
           }
         }
 
@@ -951,10 +952,11 @@
         var wAdj = +$('#desWidth')[0].value;
 
         if(toolType === 'geometry' && currentGeoConstructors && !currentGeoConstructors.sidebar) {
-          if(wAdj > 550 - 280) {
-            wAdj += 280;
+          if(wAdj > 550 - 300) {
+            wAdj += 300;
           } else {
-            hAdj += 58;
+            if(hAdj > 315) hAdj /= 0.6;
+            else hAdj += 210;
           }
         }
 
@@ -1833,10 +1835,11 @@
 
         if(type === 'geometry' && currentGeoConstructors && !currentGeoConstructors.sidebar) {
           $('#warning').html('<div id="warning"><span style="">sidebar not included in dimensions. (sidebar off)</span></div>');
-          if(wAdj > 550 - 280) {
-            wAdj += 280;
+          if(wAdj > 550 - 300) {
+            wAdj += 300;
           } else {
-            hAdj += 58;
+            if(hAdj > 315) hAdj /= 0.6;
+            else hAdj += 210;
           }
         } else {
           $('#warning').html('<div id="warning"></div>');
@@ -1897,9 +1900,10 @@
             var hAdj = h;
             if(toolType === 'geometry' && currentGeoConstructors && !currentGeoConstructors.sidebar) {
               if(w > 550) {
-                wAdj = w - 280;
+                wAdj = w - 300;
               } else {
-                hAdj = h - 58;
+                if(hAdj > 315) hAdj = h * 0.6;
+                else hAdj = h - 210;
               }
             }
             if (Math.abs(280-wAdj)<15) {wAdj=280; tail+=' (1/3 Column)';}
@@ -1911,11 +1915,12 @@
             else if (Math.abs(350-hAdj)<15) {hAdj=350; tail+=' (Height 3)';}
             if(toolType === 'geometry' && currentGeoConstructors && !currentGeoConstructors.sidebar) {
               if(w > 550) {
-                w = wAdj + 280;
+                w = wAdj + 300;
                 h = hAdj;
               } else {
                 w = wAdj;
-                h = hAdj + 58;
+                if(hAdj > 315) h = hAdj / 0.6;
+                else h = hAdj + 210;
               }
             } else {
               w = wAdj;
